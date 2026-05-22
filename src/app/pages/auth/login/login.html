@@ -1,0 +1,52 @@
+<div class="container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Welcome back!</mat-card-title>
+      <mat-card-subtitle>Sign in to your account</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        @let formControl = form.controls;
+
+        <mat-form-field appearance="outline">
+          <mat-label>Email</mat-label>
+          <input matInput type="email" maxlength="100" formControlName="email" placeholder="you@example.com" />
+
+          @if (formControl.email.hasError('email')) {
+            <mat-error>Please enter a valid email address</mat-error>
+          }
+
+          @if (formControl.email.hasError('required')) {
+            <mat-error>Email is required</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Password</mat-label>
+          <input matInput maxlength="40" [type]="hidePassword() ? 'password' : 'text'" formControlName="password" />
+
+          <button class="eye-btn" mat-icon-button matSuffix type="button" (click)="hidePassword.set(!hidePassword())">
+            <mat-icon>{{ hidePassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+
+          @if (form.controls.password.hasError('required')) {
+            <mat-error>Password is required</mat-error>
+          }
+        </mat-form-field>
+
+        <div class="forgot-wrapper">
+          <a routerLink="/forgot-password" class="forgot-link">Forgot password?</a>
+        </div>
+
+        <button mat-flat-button type="submit" [disabled]="isLoading() || form.invalid">
+          @if (isLoading()) {
+            Signing in...
+          } @else {
+            Sign in
+          }
+        </button>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

@@ -1,0 +1,77 @@
+import { Component, inject, signal } from '@angular/core';
+import { MatButton, MatIconButton } from '@angular/material/button';
+import {
+  MatCard,
+  MatCardContent,
+  MatCardHeader,
+  MatCardSubtitle,
+  MatCardTitle,
+} from '@angular/material/card';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInput } from '@angular/material/input';
+import { SnackBarService } from '../../../core/services/snack-bar.service';
+import { MatIcon } from '@angular/material/icon';
+import { PasswordValidators } from '../../../shared/validators/password.validators';
+import { PasswordRules } from '../../../shared/components/password-rules/password-rules';
+import { toSignal } from '@angular/core/rxjs-interop';
+
+@Component({
+  selector: 'app-reset-password',
+  templateUrl: './reset-password.html',
+  styleUrls: ['./reset-password.scss'],
+  imports: [
+    MatButton,
+    MatCard,
+    MatCardContent,
+    MatCardHeader,
+    MatCardSubtitle,
+    MatCardTitle,
+    MatFormFieldModule,
+    ReactiveFormsModule,
+    MatInput,
+    MatIcon,
+    MatIconButton,
+    PasswordRules,
+  ],
+})
+export class ResetPasswordComponent {
+  // private readonly store = inject(Store);
+  private readonly snackBar = inject(SnackBarService);
+  // reset-password.ts
+
+  hidePassword = signal(true);
+  hideConfirmPassword = signal(true);
+
+  readonly form = new FormGroup(
+    {
+      password: new FormControl<string>('', {
+        nonNullable: true,
+        validators: [
+          Validators.required,
+          Validators.minLength(10),
+          Validators.maxLength(40),
+          PasswordValidators.strongPassword(),
+        ],
+      }),
+      confirmPassword: new FormControl<string>('', {
+        nonNullable: true,
+        validators: [Validators.required],
+      }),
+    },
+    {
+      validators: [PasswordValidators.passwordsMatch('password', 'confirmPassword')],
+    },
+  );
+  passwordValue = toSignal(this.form.controls.password.valueChanges, { initialValue: '' });
+  confirmValue = toSignal(this.form.controls.confirmPassword.valueChanges, { initialValue: '' });
+
+  onSubmit(): void {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
+    this.snackBar.success('Password successfully updated.');
+    //   this.store.dispatch(AuthActions.login({ credentials: this.form.getRawValue() }));
+  }
+}

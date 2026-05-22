@@ -1,0 +1,8 @@
+.token-block {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  word-break: break-all;
+  white-space: wrap;
+  text-overflow: ellipsis;
+}

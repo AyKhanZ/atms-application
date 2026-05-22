@@ -1,1 +1,513 @@
+// Include theming for Angular Material with `mat.theme()`.
+// This Sass mixin will define CSS variables that are used for styling Angular Material
+// components according to the Material 3 design spec.
+// Learn more about theming and how to use it for your application's
+// custom components at https://material.angular.dev/guide/theming
+@use '@angular/material' as mat;
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;800&display=swap');
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+
+  width: 100%;
+  height: 100%;
+
+  overflow: hidden;
+  @include mat.theme(
+    (
+      color: (
+        primary: mat.$azure-palette,
+        tertiary: mat.$orange-palette,
+      ),
+      typography: Montserrat,
+      density: 0,
+    )
+  );
+}
+
+* {
+  box-sizing: border-box;
+}
+
+app-root {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  // Default the application to a light color theme. This can be changed to
+  // `dark` to enable the dark color theme, or to `light dark` to defer to the
+  // user's system settings.
+
+  // Set a default background, font and text colors for the application using
+  // Angular Material's system-level CSS variables. Learn more about these
+  // variables at https://material.angular.dev/guide/system-variables
+  //color: var(--gray-text-color);
+  background-color: var(--gray-color);
+  font-family: 'Montserrat', sans-serif;
+
+  margin: 0;
+  min-height: 100vh;
+}
+
 /* You can add global styles to this file, and also import other style files */
+
+:root {
+  --orange: #ff7a00;
+  --orange-light-hover: #fff1e5;
+  --border: #ececec;
+
+  --muted: #777;
+  --text: #222;
+  --primary-color: #FE9413;
+  --primary-light-color: #fbb655;
+  --white-color: #FFFFFF;
+  --gray-color: #F6F7F9;
+
+  --black-color-text: #222222;
+  --orange-color-text: #FE9312;
+
+  --orange-light: #fff1e1;
+  --gray-text-color: #666666;
+  --radius-btn: 50px;
+  --radius-card: 12px;
+}
+
+/*#region mat-snack-bar*/
+mat-snack-bar-container.success .mdc-snackbar__surface {
+  background: #D1E7DD;
+  color: #0A3622;
+}
+
+mat-snack-bar-container.error .mdc-snackbar__surface {
+  background: #F8D7DA;
+  color: #58151C;
+}
+
+mat-snack-bar-container.warn .mdc-snackbar__surface {
+  background: #FFF3CD;
+  color: #664D03;
+}
+
+mat-snack-bar-container.info .mdc-snackbar__surface {
+  background: #CFE2FF;
+  color: #052C65;
+}
+/*#endregion */
+
+mat-form-field {
+  mat-error {
+    font-size: 0.8rem;
+  }
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px #fff4e8 inset !important;
+  -webkit-text-fill-color: #222 !important;
+}
+
+
+button[mat-flat-button] {
+  font-size: 1.2rem;
+  font-weight: bold;
+  width: 100%;
+  margin-top: 2rem;
+  height: 50px;
+  background: linear-gradient(
+    135deg,
+    var(--primary-color),
+    var(--primary-light-color)
+  );
+
+  color: white;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+  &:hover:not(:disabled) {
+    box-shadow: 0 4px 12px rgba(254, 148, 19, 0.4);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+
+  &:disabled {
+    background: #ffd8a8;
+    color: white;
+    opacity: 1;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+}
+
+.user-menu {
+  background: white !important;
+  color: var(--muted);
+}
+
+.user-menu__help, .user-menu__settings {
+  &:hover {
+    color: var(--orange) !important;
+    background: #ffece0 !important;
+    .mat-icon{
+      color: var(--orange) !important;
+    }
+  }
+}
+
+.user-menu__logout {
+  color: #e53935 !important;
+
+  .mat-icon {
+    color: #e53935 !important;
+  }
+
+  &:hover {
+    background: rgba(229, 57, 53, 0.08) !important;
+  }
+}
+
+
+
+/*#region Sort menu*/
+// ── Sort menu global ──────────────────────────────────────────────────────────
+.sort-menu {
+  .mat-mdc-menu-panel {
+    background: #fff !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 14px !important;
+    overflow: hidden !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.09) !important;
+    min-width: 160px !important;
+  }
+
+  .mat-mdc-menu-content {
+    padding: 4px 0 !important;
+    background: #fff !important;
+  }
+
+  .mat-mdc-menu-item {
+    color: #616161 !important;
+    transition: background 0.15s ease, color 0.15s ease !important;
+    border-radius: 0 !important;
+
+    .mat-icon {
+      color: #616161 !important;
+      transition: color 0.15s ease !important;
+    }
+
+    .mat-ripple-element,
+    .mat-mdc-menu-ripple,
+    .mdc-list-item__ripple {
+      opacity: 0 !important;
+      background: transparent !important;
+    }
+
+    &::before,
+    &::after {
+      background: transparent !important;
+      opacity: 0 !important;
+    }
+  }
+
+  .mat-mdc-menu-item:hover:not([disabled]) {
+    background: var(--orange-light) !important;
+    color: var(--orange) !important;
+
+    .mat-icon {
+      color: var(--orange) !important;
+    }
+  }
+
+  .mat-mdc-menu-item:focus:not([disabled]),
+  .mat-mdc-menu-item.cdk-focused:not([disabled]),
+  .mat-mdc-menu-item.cdk-keyboard-focused:not([disabled]) {
+    background: var(--orange-light) !important;
+    color: var(--orange) !important;
+    outline: none !important;
+
+    .mat-icon {
+      color: var(--orange) !important;
+    }
+  }
+
+  .mat-mdc-menu-item.sort-active {
+    background: var(--orange-light) !important;
+    color: var(--orange) !important;
+    font-weight: 600 !important;
+
+    .mat-icon {
+      color: var(--orange) !important;
+    }
+  }
+
+  .mat-mdc-menu-item.sort-active:hover {
+    background: var(--orange-hover) !important;
+  }
+
+  .mat-mdc-menu-item.cdk-focused:not(.sort-active),
+  .mat-mdc-menu-item.cdk-program-focused:not(.sort-active) {
+    background: transparent !important;
+    color: #616161 !important;
+
+    .mat-icon {
+      color: #616161 !important;
+    }
+  }
+}
+
+// ── Material accent override ──────────────────────────────────────────────────
+.mat-mdc-progress-bar .mdc-linear-progress__bar-inner {
+  border-color: var(--orange) !important;
+}
+
+.mat-mdc-progress-bar .mdc-linear-progress__buffer-bar {
+  background: var(--orange-light) !important;
+}
+
+/*#endregion*/
+
+
+/*#region SELECT*/
+div.mat-mdc-select-panel {
+  background: #fff !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 14px !important;
+  overflow: hidden !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.09) !important;
+}
+
+.mat-mdc-option {
+  color: #616161 !important;
+  transition: 0.2s;
+}
+
+.mat-mdc-option:hover:not(.mdc-list-item--disabled) {
+  background: var(--orange-light) !important;
+  color: var(--orange) !important;
+}
+
+.mat-mdc-option:focus.mdc-list-item,
+.mat-mdc-option.mat-mdc-option-active.mdc-list-item {
+  background: var(--orange-light) !important;
+  color: var(--orange) !important;
+}
+
+.mat-mdc-option.mdc-list-item--selected {
+  background: var(--orange-light) !important;
+  color: var(--orange) !important;
+}
+
+.mat-mdc-option:focus,
+.mat-mdc-option.mdc-list-item--selected:focus {
+  background: var(--orange-light) !important;
+}
+
+.mat-mdc-option .mdc-list-item__start,
+.mat-mdc-option .mat-pseudo-checkbox {
+  display: none !important;
+  width: 0 !important;
+}
+
+.mat-mdc-option .mdc-list-item__ripple,
+.mat-mdc-option .mat-ripple-element,
+.mat-mdc-option .mat-mdc-option-ripple,
+.mat-mdc-option .mdc-list-item__ripple::before,
+.mat-mdc-option .mdc-list-item__ripple::after,
+.mat-mdc-option::before,
+.mat-mdc-option::after {
+  opacity: 0 !important;
+  background: transparent !important;
+}
+
+.mat-mdc-option.mdc-list-item--selected .mdc-list-item__ripple,
+.mat-mdc-option.mdc-list-item--selected::before,
+.mat-mdc-option.mdc-list-item--selected::after {
+  background: transparent !important;
+  opacity: 0 !important;
+}
+
+.mdc-line-ripple,
+.mdc-line-ripple::before,
+.mdc-line-ripple::after {
+  display: none !important;
+  opacity: 0 !important;
+}
+/*#endregion*/
+
+
+/*#region DATEPICKER*/
+.mat-datepicker-content,
+.mat-mdc-datepicker-content,
+.mat-datepicker-content-container,
+.cdk-overlay-pane .mat-datepicker-content {
+  background: #fff !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 16px !important;
+  overflow: hidden !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.09) !important;
+  transition: none !important;
+}
+
+.mat-calendar {
+  background: #fff !important;
+  color: #616161 !important;
+}
+
+.mat-calendar-header {
+  background: #fff !important;
+}
+
+.mat-calendar-period-button {
+  color: var(--orange) !important;
+}
+
+.mat-calendar-arrow {
+  fill: var(--orange) !important;
+}
+
+.mat-calendar-previous-button,
+.mat-calendar-next-button {
+  color: var(--orange) !important;
+  border-radius: 50% !important;
+  transition: 0.2s;
+}
+
+.mat-calendar-previous-button:hover,
+.mat-calendar-next-button:hover {
+  background: var(--orange-light) !important;
+}
+
+.mat-calendar-previous-button:focus,
+.mat-calendar-next-button:focus,
+.mat-calendar-previous-button:active,
+.mat-calendar-next-button:active {
+  background: var(--orange-light) !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.mat-calendar-previous-button .mat-mdc-button-persistent-ripple,
+.mat-calendar-next-button .mat-mdc-button-persistent-ripple,
+.mat-calendar-previous-button .mat-mdc-button-persistent-ripple::before,
+.mat-calendar-next-button .mat-mdc-button-persistent-ripple::before,
+.mat-calendar-previous-button .mat-ripple-element,
+.mat-calendar-next-button .mat-ripple-element,
+.mat-calendar-previous-button::before,
+.mat-calendar-next-button::before,
+.mat-calendar-previous-button::after,
+.mat-calendar-next-button::after {
+  opacity: 0 !important;
+  background: transparent !important;
+}
+
+.mat-calendar-table-header th {
+  color: #757575 !important;
+  font-weight: 600;
+}
+
+.mat-calendar-body-label {
+  visibility: hidden !important;
+}
+
+.mat-calendar-body-cell:not(.mat-calendar-body-disabled):hover {
+  background: transparent !important;
+}
+
+.mat-calendar-body-cell:not(.mat-calendar-body-disabled):hover .mat-calendar-body-cell-content {
+  background: var(--orange-light) !important;
+  color: var(--orange) !important;
+}
+
+.mat-calendar-body-cell::before,
+.mat-calendar-body-cell::after,
+.mat-calendar-body-cell-preview {
+  background: transparent !important;
+  opacity: 0 !important;
+}
+
+.mat-calendar-body-cell-content {
+  color: #616161 !important;
+  transition: background 0.15s ease, color 0.15s ease !important;
+}
+
+.mat-calendar-body-cell-content::before,
+.mat-calendar-body-cell-content::after {
+  display: none !important;
+}
+
+.mat-calendar-body-today:not(.mat-calendar-body-selected) {
+  border-color: var(--orange) !important;
+  color: var(--orange) !important;
+  background: transparent !important;
+}
+
+.mat-calendar-body-cell-content.mat-calendar-body-selected,
+.mat-calendar-body-active .mat-calendar-body-cell-content.mat-calendar-body-selected,
+.mat-calendar-body-cell:focus .mat-calendar-body-cell-content.mat-calendar-body-selected,
+.mat-calendar-body-cell:hover .mat-calendar-body-cell-content.mat-calendar-body-selected,
+.mat-calendar-body-cell.cdk-program-focused .mat-calendar-body-cell-content.mat-calendar-body-selected,
+.mat-calendar-body-cell.cdk-keyboard-focused .mat-calendar-body-cell-content.mat-calendar-body-selected {
+  background: var(--orange) !important;
+  color: #fff !important;
+}
+
+.mat-calendar-body-active .mat-calendar-body-cell-content:not(.mat-calendar-body-selected),
+.mat-calendar-body-cell:focus .mat-calendar-body-cell-content:not(.mat-calendar-body-selected),
+.mat-calendar-body-cell.cdk-program-focused .mat-calendar-body-cell-content:not(.mat-calendar-body-selected),
+.mat-calendar-body-cell.cdk-keyboard-focused .mat-calendar-body-cell-content:not(.mat-calendar-body-selected) {
+  background: var(--orange-light) !important;
+  color: var(--orange) !important;
+}
+
+.mat-calendar-body-disabled .mat-calendar-body-cell-content {
+  background: transparent !important;
+  color: #ccc !important;
+}
+
+.mat-calendar-body-disabled:hover .mat-calendar-body-cell-content {
+  background: transparent !important;
+  color: #ccc !important;
+}
+
+.mat-mdc-form-field.mat-focused .mdc-notched-outline__leading,
+.mat-mdc-form-field.mat-focused .mdc-notched-outline__notch,
+.mat-mdc-form-field.mat-focused .mdc-notched-outline__trailing {
+  border-color: var(--orange) !important;
+}
+
+.mat-mdc-form-field.mat-focused .mat-mdc-floating-label {
+  color: var(--orange) !important;
+}
+
+.mat-datepicker-toggle button,
+.mat-datepicker-toggle .mat-icon {
+  color: var(--orange) !important;
+}
+
+.mat-datepicker-toggle button {
+  border-radius: 50% !important;
+}
+
+.mat-datepicker-toggle button:hover {
+  background: var(--orange-light) !important;
+}
+
+.mat-datepicker-toggle button:focus,
+.mat-datepicker-toggle button:active {
+  background: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.mat-datepicker-toggle .mat-mdc-icon-button-persistent-ripple,
+.mat-datepicker-toggle .mdc-icon-button__ripple,
+.mat-datepicker-toggle .mat-ripple-element {
+  opacity: 0 !important;
+  display: none !important;
+}
+/*#endregion*/

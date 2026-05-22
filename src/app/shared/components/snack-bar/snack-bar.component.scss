@@ -1,0 +1,11 @@
+span {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1rem;
+  font-weight: 500;
+
+  mat-icon {
+    flex-shrink: 0;
+  }
+}

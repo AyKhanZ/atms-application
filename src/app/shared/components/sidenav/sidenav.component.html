@@ -1,0 +1,50 @@
+<aside
+  class="sidebar"
+  [class.collapsed]="layout.collapsed()">
+
+  <div class="logo">
+    <a routerLink="/dashboard" routerLinkActive="active">
+      @if (!layout.collapsed()) {
+        <img src="https://baim.az/wp-content/uploads/2025/05/cropped-cropped-group-26.png" alt="logo" width="120px" />
+      } @else {
+        <img
+          src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAcCAMAAABF0y+mAAAAV1BMVEVHcEz////////////////////////////////////////////97uD81LP817j+9Or4u4L++fT4wY74r2f8z6j6yp74tXT84sz83cL////////////2p1P+17GoAAAAHHRSTlMAMIPA7f/GVG0c4Un/////////////////oQnEVsqBiwAAARtJREFUeAF90wd2wyAQAFHZ0bhSF7Hgcv9zJsI8xX1e11ejDUur9c8I42a9Gp7bjiyxe6D9gYfGu6ePPHb/8NbYJTfnWXRFiL4Xxdg0pQwcG45xYkkJgBRgtjUNi/NSUW8NEBU4/SE3TMX6RK6lACYBnIdjQ6/G54K6QIqgcvvjU0ONPkRnCc4gQWh4GQ4NTRUgRFuSFowG5gYaFlcrMZCAKQTkHnMmz9cy2eF5wP5/tlStVfUeEaBcJSgJCT4seAACvSjZo/FKxxNgTUcxAvOjfShHAKWnUbU4g/RlAyiu4yQFSf6G53nigal2NeXqoeGpLRmAE5Y69sWeiyLV+J4ROPZtwi3jbM/B7vsG+741l3afN/XdcbjcHYdf0UIZC1JIuwoAAAAASUVORK5CYII="
+          alt="logo" width="28" style="object-fit: cover; object-position: left;" />
+      }
+    </a>
+  </div>
+
+  <nav class="menu">
+    <a
+      routerLink="/dashboard"
+      routerLinkActive="active">
+
+      <mat-icon>dashboard</mat-icon>
+
+      @if (!layout.collapsed()) {
+        <span>Dashboard</span>
+      }
+    </a>
+
+    <a
+      routerLink="/users"
+      routerLinkActive="active">
+
+      <mat-icon>group</mat-icon>
+
+      @if (!layout.collapsed()) {
+        <span>Users</span>
+      }
+    </a>
+  </nav>
+
+  <button
+    mat-icon-button
+    class="collapse-btn"
+    (click)="layout.toggleSidebar()">
+
+    <mat-icon>
+      {{ layout.collapsed() ? 'chevron_right' : 'chevron_left' }}
+    </mat-icon>
+  </button>
+</aside>

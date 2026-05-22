@@ -1,0 +1,23 @@
+<div class="breadcrumbs">
+  @for (crumb of breadcrumbs(); track crumb.path; let first = $first; let last = $last) {
+    <div class="crumb">
+      <a
+        [routerLink]="crumb.path"
+        class="crumb__link"
+        [class.crumb__link--first]="first"
+        [class.crumb__link--last]="last"
+        [matTooltip]="crumb.title"
+        [matTooltipDisabled]="crumb.title.length < 20"
+      >
+        @if (crumb.icon) {
+          <mat-icon class="crumb__icon">{{ crumb.icon }}</mat-icon>
+        }
+        <span class="crumb__title">{{ crumb.title }}</span>
+      </a>
+
+      @if (!last) {
+        <mat-icon class="crumb__separator">chevron_right</mat-icon>
+      }
+    </div>
+  }
+</div>
