@@ -1,5 +1,4 @@
 import { Component, computed, input } from '@angular/core';
-import { MatIcon } from '@angular/material/icon';
 import { NgClass } from '@angular/common';
 
 interface PasswordRule {
@@ -9,7 +8,7 @@ interface PasswordRule {
 
 @Component({
   selector: 'app-password-rules',
-  imports: [MatIcon, NgClass],
+  imports: [NgClass],
   templateUrl: './password-rules.html',
   styleUrl: './password-rules.scss',
 })

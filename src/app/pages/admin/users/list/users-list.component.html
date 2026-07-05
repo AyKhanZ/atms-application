@@ -8,40 +8,28 @@
 
       <!-- Filter toggle -->
       <button
-        mat-stroked-button
+        pButton
+        type="button"
+        outlined
+        icon="pi pi-filter"
         class="toolbar-btn"
         [class.toolbar-btn--active]="isFilterOpen()"
         (click)="toggleFilter()"
       >
-        <mat-icon>tune</mat-icon>
-        Filters
+        <span>Filters</span>
         @if (activeFilterCount() > 0) {
           <span class="filter-badge">{{ activeFilterCount() }}</span>
         }
       </button>
 
       <!-- Sort menu -->
-      <button mat-stroked-button class="toolbar-btn" [matMenuTriggerFor]="sortMenu">
-        <mat-icon>{{ sortDirectionIcon() }}</mat-icon>
-        {{ currentSortLabel() }}
-        <mat-icon class="icon-trail">expand_more</mat-icon>
+      <button pButton type="button" outlined class="toolbar-btn" (click)="sortMenu.toggle($event)">
+        <i [class]="sortDirectionIcon()"></i>
+        <span>{{ currentSortLabel() }}</span>
+        <i class="icon-trail pi pi-chevron-down"></i>
       </button>
 
-      <mat-menu #sortMenu="matMenu" class="sort-menu">
-        @for (opt of sortOptions; track opt.value) {
-          <button
-            mat-menu-item
-            [class.sort-active]="filter().sortBy && filter().sortBy === opt.value"
-            (click)="setSort(opt.value)"
-            [tabIndex]="0"
-          >
-            @if (filter().sortBy === opt.value) {
-              <mat-icon>{{ sortDirectionIcon() }}</mat-icon>
-            }
-            {{ opt.label }}
-          </button>
-        }
-      </mat-menu>
+      <p-menu #sortMenu [model]="sortMenuItems()" [popup]="true" appendTo="body" styleClass="sort-menu" />
 
     </div>
   </div>
@@ -53,15 +41,23 @@
   <div class="table-card">
 
     @if (isLoading()) {
-      <mat-progress-bar mode="indeterminate" color="accent" class="table-loader" />
+      <p-progressbar mode="indeterminate" class="table-loader" />
     }
 
-    <table mat-table [dataSource]="users()" class="users-table">
+    <p-table [value]="users()" styleClass="users-table" [tableStyle]="{ 'min-width': '760px' }">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Full Name</th>
+          <th>Email</th>
+          <th>Position</th>
+          <th>Status</th>
+          <th>Created At</th>
+        </tr>
+      </ng-template>
 
-      <!-- Full Name -->
-      <ng-container matColumnDef="fullName">
-        <th mat-header-cell *matHeaderCellDef>Full Name</th>
-        <td mat-cell *matCellDef="let row">
+      <ng-template pTemplate="body" let-row>
+        <tr class="table-row">
+          <td>
           <div class="user-cell">
             <div class="user-avatar">
               @if (row.avatarPath) {
@@ -76,59 +72,34 @@
               <span class="user-meta__name">{{ row.name }} {{ row.surname }}</span>
             </div>
           </div>
-        </td>
-      </ng-container>
-
-      <!-- Email -->
-      <ng-container matColumnDef="email">
-        <th mat-header-cell *matHeaderCellDef>Email</th>
-        <td mat-cell *matCellDef="let row">
+          </td>
+          <td>
           <a class="email-link" [href]="'mailto:' + row.email">{{ row.email }}</a>
-        </td>
-      </ng-container>
-
-      <!-- Position -->
-      <ng-container matColumnDef="position">
-        <th mat-header-cell *matHeaderCellDef>Position</th>
-        <td mat-cell *matCellDef="let row">
+          </td>
+          <td>
           <span class="position-text">{{ row.position ?? '—' }}</span>
-        </td>
-      </ng-container>
-
-      <!-- Status -->
-      <ng-container matColumnDef="userStatus">
-        <th mat-header-cell *matHeaderCellDef>Status</th>
-        <td mat-cell *matCellDef="let row">
+          </td>
+          <td>
           <span class="status-badge" [ngClass]="getStatusClass(row.userStatus.id)">
             {{ row.userStatus.name }}
           </span>
-        </td>
-      </ng-container>
-
-      <!-- Created At -->
-      <ng-container matColumnDef="createdAt">
-        <th mat-header-cell *matHeaderCellDef>Created At</th>
-        <td mat-cell *matCellDef="let row">
+          </td>
+          <td>
           {{ row.createdAt | date: 'dd.MM.yyyy HH:mm' }}
-        </td>
-      </ng-container>
+          </td>
+        </tr>
+      </ng-template>
 
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr
-        mat-row
-        *matRowDef="let row; columns: displayedColumns"
-        class="table-row"
-      ></tr>
-
-      <!-- Empty state -->
-      <tr class="mat-row" *matNoDataRow>
-        <td class="empty-state" [attr.colspan]="displayedColumns.length">
-          <mat-icon>search_off</mat-icon>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+        <td class="empty-state" colspan="5">
+          <i class="pi pi-search"></i>
           <p>No users found</p>
         </td>
       </tr>
+      </ng-template>
 
-    </table>
+    </p-table>
 
     <app-pagination
       [page]="filter().page"

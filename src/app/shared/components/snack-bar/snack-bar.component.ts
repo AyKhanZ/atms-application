@@ -1,6 +1,4 @@
-import { Component, inject } from '@angular/core';
-import { MAT_SNACK_BAR_DATA } from '@angular/material/snack-bar';
-import { MatIconModule } from '@angular/material/icon';
+import { Component, input } from '@angular/core';
 
 export interface SnackBarData {
   message: string;
@@ -17,11 +15,13 @@ const CONFIG = {
 @Component({
   selector: 'app-snack-bar',
   standalone: true,
-  imports: [MatIconModule],
   templateUrl: './snack-bar.component.html',
   styleUrl: './snack-bar.component.scss',
 })
 export class SnackBarComponent {
-  data: SnackBarData = inject(MAT_SNACK_BAR_DATA);
-  config = CONFIG[this.data.type];
+  data = input.required<SnackBarData>();
+
+  get config() {
+    return CONFIG[this.data().type];
+  }
 }

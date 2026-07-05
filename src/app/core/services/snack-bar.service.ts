@@ -1,11 +1,9 @@
 import { inject, Injectable } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import {
-  SnackBarComponent,
-  SnackBarData,
-} from '../../shared/components/snack-bar/snack-bar.component';
+import { MessageService } from 'primeng/api';
 
-const PANEL_COLORS: Record<SnackBarData['type'], string> = {
+type SnackBarType = 'success' | 'error' | 'warn' | 'info';
+
+const SEVERITIES: Record<SnackBarType, 'success' | 'error' | 'warn' | 'info'> = {
   success: 'success',
   error: 'error',
   warn: 'warn',
@@ -14,15 +12,14 @@ const PANEL_COLORS: Record<SnackBarData['type'], string> = {
 
 @Injectable({ providedIn: 'root' })
 export class SnackBarService {
-  private snackBar = inject(MatSnackBar);
+  private readonly messageService = inject(MessageService);
 
-  show(message: string, type: SnackBarData['type'] = 'info', duration = 4000) {
-    this.snackBar.openFromComponent(SnackBarComponent, {
-      data: { message, type } satisfies SnackBarData,
-      panelClass: [PANEL_COLORS[type]],
-      duration,
-      horizontalPosition: 'right',
-      verticalPosition: 'bottom',
+  show(message: string, type: SnackBarType = 'info', duration = 4000): void {
+    this.messageService.add({
+      severity: SEVERITIES[type],
+      summary: this.getSummary(type),
+      detail: message,
+      life: duration,
     });
   }
 
@@ -40,5 +37,18 @@ export class SnackBarService {
 
   info(message: string) {
     this.show(message, 'info');
+  }
+
+  private getSummary(type: SnackBarType): string {
+    switch (type) {
+      case 'success':
+        return 'Success';
+      case 'error':
+        return 'Error';
+      case 'warn':
+        return 'Warning';
+      default:
+        return 'Info';
+    }
   }
 }

@@ -19,7 +19,7 @@
       routerLink="/dashboard"
       routerLinkActive="active">
 
-      <mat-icon>dashboard</mat-icon>
+      <i class="pi pi-th-large"></i>
 
       @if (!layout.collapsed()) {
         <span>Dashboard</span>
@@ -30,7 +30,7 @@
       routerLink="/users"
       routerLinkActive="active">
 
-      <mat-icon>group</mat-icon>
+      <i class="pi pi-users"></i>
 
       @if (!layout.collapsed()) {
         <span>Users</span>
@@ -39,12 +39,10 @@
   </nav>
 
   <button
-    mat-icon-button
+    type="button"
     class="collapse-btn"
     (click)="layout.toggleSidebar()">
 
-    <mat-icon>
-      {{ layout.collapsed() ? 'chevron_right' : 'chevron_left' }}
-    </mat-icon>
+    <i class="pi" [class.pi-chevron-right]="layout.collapsed()" [class.pi-chevron-left]="!layout.collapsed()"></i>
   </button>
 </aside>

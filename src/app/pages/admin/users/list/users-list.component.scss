@@ -34,32 +34,25 @@ $border: #eeeeee;
 }
 
 .toolbar-btn {
-  border-color: $border !important;
-  color: #616161 !important;
-  border-radius: 8px !important;
-  font-size: 13px !important;
-  height: 38px !important;
+  border-color: $border;
+  color: #616161;
+  border-radius: 8px;
+  font-size: 13px;
+  height: 38px;
   gap: 4px;
   display: flex;
   align-items: center;
 
-  mat-icon {
-    font-size: 18px;
-    width: 18px;
-    height: 18px;
-    line-height: 18px;
-  }
-
   &:hover {
-    background: $orange-light !important;
-    border-color: $orange !important;
-    color: $orange-dark !important;
+    background: $orange-light;
+    border-color: $orange;
+    color: $orange-dark;
   }
 
   &--active {
-    background: $orange-light !important;
-    border-color: $orange !important;
-    color: $orange-dark !important;
+    background: $orange-light;
+    border-color: $orange;
+    color: $orange-dark;
   }
 }
 
@@ -96,7 +89,7 @@ $border: #eeeeee;
   left: 0;
   right: 0;
   z-index: 10;
-  height: 3px !important;
+  height: 3px;
 }
 
 // ── Table ────────────────────────────────────────────────────────────────────
@@ -104,7 +97,7 @@ $border: #eeeeee;
   background: $white;
   width: 100%;
 
-  .mat-mdc-header-cell {
+  th {
     font-size: 12px;
     font-weight: 700;
     text-transform: uppercase;
@@ -113,8 +106,7 @@ $border: #eeeeee;
     padding: 0 16px;
   }
 
-  // Data rows
-  .mat-mdc-cell {
+  td {
     padding: 0 16px;
     font-size: 14px;
     color: #424242;
@@ -223,13 +215,11 @@ $border: #eeeeee;
 // ── Empty state ───────────────────────────────────────────────────────────────
 .empty-state {
   text-align: center;
-  padding: 48px 0 !important;
+  padding: 48px 0;
   color: #bdbdbd;
 
-  mat-icon {
+  .pi {
     font-size: 48px;
-    width: 48px;
-    height: 48px;
     margin-bottom: 8px;
     color: $border;
   }

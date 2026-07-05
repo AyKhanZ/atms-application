@@ -1,17 +1,8 @@
 import { Component, inject, signal } from '@angular/core';
-import { MatButton, MatIconButton } from '@angular/material/button';
-import {
-  MatCard,
-  MatCardContent,
-  MatCardHeader,
-  MatCardSubtitle,
-  MatCardTitle,
-} from '@angular/material/card';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInput } from '@angular/material/input';
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
 import { SnackBarService } from '../../../core/services/snack-bar.service';
-import { MatIcon } from '@angular/material/icon';
 import { PasswordValidators } from '../../../shared/validators/password.validators';
 import { PasswordRules } from '../../../shared/components/password-rules/password-rules';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -21,17 +12,9 @@ import { toSignal } from '@angular/core/rxjs-interop';
   templateUrl: './reset-password.html',
   styleUrls: ['./reset-password.scss'],
   imports: [
-    MatButton,
-    MatCard,
-    MatCardContent,
-    MatCardHeader,
-    MatCardSubtitle,
-    MatCardTitle,
-    MatFormFieldModule,
+    ButtonModule,
+    InputTextModule,
     ReactiveFormsModule,
-    MatInput,
-    MatIcon,
-    MatIconButton,
     PasswordRules,
   ],
 })

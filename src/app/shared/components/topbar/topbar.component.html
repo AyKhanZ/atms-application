@@ -4,15 +4,14 @@
   </div>
 
   <div class="right">
-    <button mat-icon-button class="notification-btn">
-      <mat-icon>notifications</mat-icon>
+    <button type="button" class="notification-btn" aria-label="Notifications">
+      <i class="pi pi-bell"></i>
       <span class="notification-dot"></span>
     </button>
 
     <button class="avatar-button"
-            [matMenuTriggerFor]="userMenu"
-            (menuOpened)="isMenuOpen.set(true)"
-            (menuClosed)="isMenuOpen.set(false)">
+            type="button"
+            (click)="userMenu.toggle($event)">
       <div class="avatar">
         @if (meModel()?.avatarPath && meModel()?.avatarPath !== 'default-avatar.png') {
           <img [src]="meModel()?.avatarPath" [alt]="meModel()?.name" />
@@ -26,26 +25,17 @@
       <div class="avatar-button__info">
         <span class="avatar-button__name">{{ meModel()?.name }} {{ meModel()?.surname }}</span>
       </div>
-      <mat-icon class="avatar-button__chevron">
-        {{ isMenuOpen() ? 'expand_less' : 'expand_more' }}
-      </mat-icon>
+      <i class="avatar-button__chevron pi" [class.pi-chevron-up]="isMenuOpen()" [class.pi-chevron-down]="!isMenuOpen()"></i>
     </button>
 
-    <mat-menu #userMenu="matMenu" class="user-menu">
-      <button mat-menu-item (click)="onToggleSettings()" class="user-menu__settings">
-        <mat-icon>settings</mat-icon>
-        <span>Settings</span>
-      </button>
-
-      <button mat-menu-item (click)="onToggleHelp()" class="user-menu__help">
-        <mat-icon>help</mat-icon>
-        <span>Help</span>
-      </button>
-
-      <button mat-menu-item class="user-menu__logout" (click)="logout()">
-        <mat-icon>logout</mat-icon>
-        <span>Logout</span>
-      </button>
-    </mat-menu>
+    <p-menu
+      #userMenu
+      [model]="userMenuItems"
+      [popup]="true"
+      appendTo="body"
+      styleClass="user-menu"
+      (onShow)="isMenuOpen.set(true)"
+      (onHide)="isMenuOpen.set(false)"
+    />
   </div>
 </header>

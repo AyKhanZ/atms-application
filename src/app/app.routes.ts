@@ -26,12 +26,12 @@ export const routes: Routes = [
       },
       {
         path: 'dashboard',
-        data: { breadcrumb: { title: 'Dashboard', icon: 'dashboard' } },
+        data: { breadcrumb: { title: 'Dashboard', icon: 'pi-th-large' } },
         loadComponent: () => import('./pages/dashboard/dashboard').then((c) => c.Dashboard),
       },
       {
         path: 'users',
-        data: { breadcrumb: { title: 'Users', icon: 'group' } },
+        data: { breadcrumb: { title: 'Users', icon: 'pi-users' } },
         loadChildren: () => import('./pages/admin/users/users.routes').then((r) => r.USERS_ROUTES),
         canActivate: [roleGuard(Roles.SuperAdmin)],
       },

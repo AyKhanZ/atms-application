@@ -26,14 +26,25 @@
 .filter-row-main {
   display: grid;
   grid-template-columns: 0.6fr 0.6fr 1fr 0.3fr;
-  gap: 0 10px;
+  gap: 14px;
 }
 .filter-row-secondary {
   display: grid;
   grid-template-columns: 0.6fr 0.6fr 1.3fr;
-  gap: 0 10px;
+  gap: 14px;
 }
 
+.filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  span {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+  }
+}
 
 .filter-actions {
   display: flex;
@@ -44,26 +55,14 @@
 }
 
 .btn-cancel {
-  border-color: var(--text);
   color: var(--text);
   border-radius: 8px;
-
-  &:hover {
-    border-color: var(--orange);
-    color: var(--orange);
-  }
 }
 
 .btn-submit {
-  background: var(--orange);
-  color: var(--white-color);
   margin-top: 0;
   height: 40px;
   width: 110px;
   font-size: 16px;
   border-radius: 8px;
-
-  &:hover {
-    background: var(--orange);
-  }
 }

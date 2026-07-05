@@ -1,4 +1,4 @@
 <span>
-  <mat-icon>{{ config.icon }}</mat-icon>
-  {{ data.message }}
+  <i class="pi" [class.pi-check-circle]="data().type === 'success'" [class.pi-times-circle]="data().type === 'error'" [class.pi-exclamation-triangle]="data().type === 'warn'" [class.pi-info-circle]="data().type === 'info'"></i>
+  {{ data().message }}
 </span>

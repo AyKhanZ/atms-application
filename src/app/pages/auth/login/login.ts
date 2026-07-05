@@ -5,18 +5,9 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import {
-  MatCard,
-  MatCardContent,
-  MatCardHeader,
-  MatCardSubtitle,
-  MatCardTitle,
-} from '@angular/material/card';
-import { MatInput } from '@angular/material/input';
-import { MatIcon } from '@angular/material/icon';
-import { MatButton, MatIconButton } from '@angular/material/button';
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
 import { RouterLink } from '@angular/router';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { Store } from '@ngrx/store';
 import { AuthStoreActions, AuthStoreSelectors } from '../../../store/auth';
 
@@ -30,18 +21,10 @@ interface LoginCommand {
   templateUrl: './login.html',
   styleUrls: ['./login.scss'],
   imports: [
-    MatCard,
-    MatCardHeader,
-    MatCardSubtitle,
-    MatCardTitle,
-    MatCardContent,
     ReactiveFormsModule,
-    MatFormFieldModule,
-    MatIcon,
-    MatButton,
+    ButtonModule,
+    InputTextModule,
     RouterLink,
-    MatIconButton,
-    MatInput,
   ],
 })
 export class LoginComponent {

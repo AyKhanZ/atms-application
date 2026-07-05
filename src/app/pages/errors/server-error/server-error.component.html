@@ -1,2 +1,19 @@
-<h1>503</h1>
-<p>server-error.component works!</p>
+<main class="server-page">
+  <section class="server-card">
+    <div class="server-visual" aria-hidden="true">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+
+    <p class="eyebrow">Service unavailable</p>
+    <h1>API is not responding</h1>
+    <p class="description">
+      The backend is unavailable right now. Please wait a little and try again.
+    </p>
+
+    <button type="button" [disabled]="isChecking()" (click)="tryAgain()">
+      {{ isChecking() ? 'Checking...' : 'Try again' }}
+    </button>
+  </section>
+</main>

@@ -2,13 +2,11 @@ import { Component, computed, inject, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { UsersStoreSelectors } from '../../../../store/users';
 import { DictionaryStoreActions } from '../../../../store/dictionary';
-import { MatTableModule } from '@angular/material/table';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatBadgeModule } from '@angular/material/badge';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import { MenuItem } from 'primeng/api';
+import { ButtonModule } from 'primeng/button';
+import { MenuModule } from 'primeng/menu';
+import { ProgressBarModule } from 'primeng/progressbar';
+import { TableModule } from 'primeng/table';
 import { DatePipe, NgClass } from '@angular/common';
 import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
 import { UsersFilterService } from '../../../../core/services/users-filter.service';
@@ -25,13 +23,10 @@ const SORT_OPTIONS = [
 @Component({
   selector: 'app-users-list',
   imports: [
-    MatTableModule,
-    MatButtonModule,
-    MatIconModule,
-    MatMenuModule,
-    MatProgressBarModule,
-    MatBadgeModule,
-    MatTooltipModule,
+    ButtonModule,
+    MenuModule,
+    ProgressBarModule,
+    TableModule,
     DatePipe,
     NgClass,
     PaginationComponent,
@@ -53,7 +48,6 @@ export class UsersListComponent implements OnInit {
   readonly isFilterOpen = this.filterService.isFilterOpen;
 
   readonly sortOptions = SORT_OPTIONS;
-  readonly displayedColumns = ['fullName', 'email', 'position', 'userStatus', 'createdAt'];
 
   readonly currentSortLabel = computed(() => {
     const f = this.filter();
@@ -61,7 +55,16 @@ export class UsersListComponent implements OnInit {
   });
 
   readonly sortDirectionIcon = computed(() =>
-    this.filter().sortDirection === 1 ? 'arrow_upward' : 'arrow_downward',
+    this.filter().sortDirection === 1 ? 'pi pi-arrow-up' : 'pi pi-arrow-down',
+  );
+
+  readonly sortMenuItems = computed<MenuItem[]>(() =>
+    this.sortOptions.map((option) => ({
+      label: option.label,
+      icon: this.filter().sortBy === option.value ? this.sortDirectionIcon() : undefined,
+      styleClass: this.filter().sortBy === option.value ? 'sort-active' : undefined,
+      command: () => this.setSort(option.value),
+    })),
   );
 
   ngOnInit(): void {
