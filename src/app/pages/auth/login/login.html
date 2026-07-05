@@ -8,35 +8,39 @@
     <form [formGroup]="form" (ngSubmit)="onSubmit()">
       @let formControl = form.controls;
 
-      <label class="field">
-        <span>Email</span>
-        <input pInputText type="email" maxlength="100" formControlName="email" placeholder="you@example.com" />
-        @if (formControl.email.hasError('email') && formControl.email.touched) {
-          <small>Please enter a valid email address</small>
-        }
-        @if (formControl.email.hasError('required') && formControl.email.touched) {
-          <small>Email is required</small>
-        }
-      </label>
-
-      <label class="field">
-        <span>Password</span>
-        <div class="password-field">
-          <input pInputText maxlength="40" [type]="hidePassword() ? 'password' : 'text'" formControlName="password" />
-          <button
-            pButton
-            type="button"
-            text
-            rounded
-            class="eye-btn"
-            [icon]="hidePassword() ? 'pi pi-eye-slash' : 'pi pi-eye'"
-            (click)="hidePassword.set(!hidePassword())"
-          ></button>
+      <div class="field">
+        <p-floatlabel variant="on">
+          <input id="email" pInputText type="email" maxlength="100" formControlName="email" autocomplete="email" />
+          <label for="email">Email</label>
+        </p-floatlabel>
+        <div class="field-error">
+          @if (formControl.email.hasError('email') && formControl.email.touched) {
+            <small>Please enter a valid email address</small>
+          }
+          @if (formControl.email.hasError('required') && formControl.email.touched) {
+            <small>Email is required</small>
+          }
         </div>
-        @if (form.controls.password.hasError('required') && form.controls.password.touched) {
-          <small>Password is required</small>
-        }
-      </label>
+      </div>
+
+      <div class="field">
+        <p-floatlabel variant="on">
+          <p-password
+            inputId="password"
+            formControlName="password"
+            [maxlength]="40"
+            autocomplete="current-password"
+            [feedback]="false"
+            [toggleMask]="true"
+            fluid />
+          <label for="password">Password</label>
+        </p-floatlabel>
+        <div class="field-error">
+          @if (form.controls.password.hasError('required') && form.controls.password.touched) {
+            <small>Password is required</small>
+          }
+        </div>
+      </div>
 
       <div class="forgot-wrapper">
         <a routerLink="/forgot-password" class="forgot-link">Forgot password?</a>

@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import {
   FormControl,
   NonNullableFormBuilder,
@@ -7,6 +7,8 @@ import {
 } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
+import { FloatLabelModule } from 'primeng/floatlabel';
+import { PasswordModule } from 'primeng/password';
 import { RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { AuthStoreActions, AuthStoreSelectors } from '../../../store/auth';
@@ -23,7 +25,9 @@ interface LoginCommand {
   imports: [
     ReactiveFormsModule,
     ButtonModule,
+    FloatLabelModule,
     InputTextModule,
+    PasswordModule,
     RouterLink,
   ],
 })
@@ -36,7 +40,6 @@ export class LoginComponent {
     password: this.fb.control('', [Validators.required, Validators.maxLength(40)]),
   });
 
-  hidePassword = signal(true);
   isLoading = this.store.selectSignal(AuthStoreSelectors.isLoading);
 
   onSubmit(): void {

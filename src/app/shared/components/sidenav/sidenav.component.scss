@@ -1,8 +1,6 @@
 :host {
   --sidebar-width: 260px;
   --sidebar-collapsed-width: 80px;
-
-  --muted: #777;
 }
 
 .sidebar {
@@ -14,7 +12,7 @@
 
   width: var(--sidebar-width);
 
-  background: white;
+  background: var(--white);
 
   border-right: 1px solid var(--border);
 
@@ -82,7 +80,7 @@
 
     &.active {
       background: var(--orange);
-      color: white;
+      color: var(--white);
     }
 
     .pi {
@@ -96,16 +94,30 @@
   align-items: center;
   justify-content: center;
 
+  width: 40px;
   height: 40px;
 
-  margin: 12px;
+  margin: 12px auto 16px;
 
-  color: #444;
-  background: white;
-  border: 1px solid var(--border);
+  color: var(--gray-text);
+  background: transparent;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background 0.16s ease, color 0.16s ease, transform 0.16s ease;
+
+  .pi {
+    font-size: 1rem;
+  }
 
   &:hover {
     background: var(--orange-light-hover);
     color: var(--orange);
+    transform: translateY(-1px);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--orange-focus-outline);
+    outline-offset: 2px;
   }
 }

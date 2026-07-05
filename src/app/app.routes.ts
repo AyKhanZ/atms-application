@@ -2,13 +2,22 @@ import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { roleGuard } from './core/guards/role.guard';
 import { Roles } from './core/enums/roles.enum';
+import { guestGuard } from './core/guards/guest.guard';
 
 export const routes: Routes = [
+  {
+    path: 'server-unavailable',
+    loadComponent: () =>
+      import('./pages/errors/server-error/server-error.component').then(
+        (c) => c.ServerErrorComponent,
+      ),
+  },
   // Auth layout
   {
     path: '',
     loadComponent: () =>
       import('./shared/layouts/auth/auth-layout').then((c) => c.AuthLayoutComponent),
+    canActivateChild: [guestGuard],
     loadChildren: () => import('./pages/auth/auth.routes').then((c) => c.AUTH_ROUTES),
   },
   // Main layout

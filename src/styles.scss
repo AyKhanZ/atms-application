@@ -2,19 +2,52 @@
 
 :root {
   --orange: #fe9312;
+  --orange-hover: #ea7600;
+  --orange-text-hover: #d96f00;
   --orange-light: #fff1e1;
   --orange-light-hover: #fff7ed;
+  --orange-border: #ffe0b2;
   --orange-grad: linear-gradient(135deg, #fe9312, #ffb347);
+  --orange-focus-ring: rgba(254, 147, 18, 0.14);
+  --orange-focus-outline: rgb(254 147 18 / 32%);
   --dark: #222222;
   --white: #ffffff;
+  --white-soft: #fffdf9;
   --gray-bg: #f7f8fa;
   --gray-border: #eeeeee;
   --gray-text: #666666;
+  --gray-text-strong: #424242;
+  --gray-icon: #757575;
+  --gray-icon-muted: #9e9e9e;
+  --gray-hover: #f5f5f5;
+  --app-background:
+    radial-gradient(circle at top left, #fff1e1 0, transparent 32rem),
+    linear-gradient(135deg, #fffaf3, #f7f8fa);
   --green: #22c55e;
+  --green-text: #256f45;
   --blue: #3b82f6;
   --red: #ef4444;
+  --red-hover: #dc2626;
+  --red-hover-bg: #fff6f6;
   --yellow: #f59e0b;
   --purple: #a855f7;
+  --shadow-card: 0 24px 60px rgb(34 34 34 / 10%);
+  --shadow-menu: 0 12px 28px rgba(34, 34, 34, 0.1);
+  --shadow-inset-soft: inset 0 1px 0 rgb(255 255 255 / 70%);
+  --shadow-inset-strong: inset 0 1px 0 rgb(255 255 255 / 75%);
+  --auth-header-bg:
+    linear-gradient(135deg, rgb(254 147 18 / 96%), rgb(255 179 71 / 96%)),
+    radial-gradient(circle at top right, rgb(255 255 255 / 35%), transparent 12rem);
+  --autofill-bg: #fff4e8;
+  --password-rules-bg:
+    linear-gradient(180deg, rgb(255 255 255 / 94%), rgb(255 251 246 / 94%)),
+    radial-gradient(circle at top left, rgb(254 147 18 / 12%), transparent 10rem);
+  --password-rules-border: rgb(228 220 211 / 95%);
+  --password-rules-accent: linear-gradient(180deg, #ff9812, #ffbd73);
+  --password-rules-text: #2e2f33;
+  --password-rules-title: #35363a;
+  --password-rules-muted: #69717d;
+  --password-rules-icon: #c2cad3;
 
   --border: var(--gray-border);
   --muted: #777777;
@@ -51,7 +84,7 @@ app-root {
 
 body {
   min-height: 100vh;
-  background-color: var(--gray-bg);
+  background: var(--app-background);
   color: var(--text);
   font-family: Roboto, Arial, sans-serif;
 }
@@ -76,7 +109,7 @@ textarea {
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus {
-  -webkit-box-shadow: 0 0 0 1000px #fff4e8 inset;
+  -webkit-box-shadow: 0 0 0 1000px var(--autofill-bg) inset;
   -webkit-text-fill-color: var(--text);
 }
 
@@ -91,8 +124,8 @@ input:-webkit-autofill:focus {
 }
 
 .p-button:not(.p-button-text):not(.p-button-outlined):enabled:hover {
-  border-color: #ea7600;
-  background: #ea7600;
+  border-color: var(--orange-hover);
+  background: var(--orange-hover);
 }
 
 .p-button.p-button-outlined {
@@ -120,13 +153,13 @@ input:-webkit-autofill:focus {
 .p-select:not(.p-disabled).p-focus,
 .p-datepicker:not(.p-disabled).p-focus {
   border-color: var(--orange);
-  box-shadow: 0 0 0 3px rgba(254, 147, 18, 0.14);
+  box-shadow: 0 0 0 3px var(--orange-focus-ring);
 }
 
 .p-menu {
   border: 1px solid var(--gray-border);
   border-radius: 8px;
-  box-shadow: 0 12px 28px rgba(34, 34, 34, 0.1);
+  box-shadow: var(--shadow-menu);
 }
 
 .p-menu .p-menu-item-link {
@@ -136,13 +169,30 @@ input:-webkit-autofill:focus {
 .p-menu .p-menu-item-link:hover,
 .p-menu .p-menu-item-link:focus,
 .p-menu .sort-active .p-menu-item-link {
-  background: var(--orange-light);
-  color: var(--orange);
+  background: var(--orange-light-hover);
+  color: var(--orange-text-hover);
+}
+
+.p-menu .p-menu-item-link:hover .p-menu-item-icon,
+.p-menu .p-menu-item-link:focus .p-menu-item-icon,
+.p-menu .sort-active .p-menu-item-link .p-menu-item-icon {
+  color: var(--orange-text-hover);
 }
 
 .user-menu__logout .p-menu-item-link,
 .user-menu__logout .p-menu-item-icon {
   color: var(--red);
+}
+
+.user-menu__logout .p-menu-item-link:hover,
+.user-menu__logout .p-menu-item-link:focus {
+  background: var(--red-hover-bg);
+  color: var(--red-hover);
+}
+
+.user-menu__logout .p-menu-item-link:hover .p-menu-item-icon,
+.user-menu__logout .p-menu-item-link:focus .p-menu-item-icon {
+  color: var(--red-hover);
 }
 
 .p-toast .p-toast-message {

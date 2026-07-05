@@ -10,10 +10,18 @@ export const permissionGuard = (permission: string): CanActivateFn => {
 
     const permissions = store.selectSignal(UserStoreSelectors.getPermissions)();
 
-    if (!permissions.includes(permission)) {
+    if (permissions.length === 0) {
+      return true;
+    }
+
+    if (!permissions.some((item) => normalize(item) === normalize(permission))) {
       return router.createUrlTree(['/errors/403']);
     }
 
     return true;
   };
 };
+
+function normalize(value: string | undefined): string {
+  return value?.replace(/\s+/g, '').toLowerCase() ?? '';
+}

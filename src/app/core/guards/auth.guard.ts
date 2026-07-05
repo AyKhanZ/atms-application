@@ -1,12 +1,7 @@
 import { inject } from '@angular/core';
-import {
-  CanActivateFn,
-  Router,
-  ActivatedRouteSnapshot,
-  RouterStateSnapshot,
-} from '@angular/router';
-import { Store } from '@ngrx/store';
-import { AuthStoreSelectors } from '../../store/auth';
+import { CanActivateFn, Router } from '@angular/router';
+import { filter, map, take } from 'rxjs';
+import { AuthSessionService } from '../services/auth-session.service';
 
 /**
  * Guard проверяет авторизацию.
@@ -17,20 +12,19 @@ import { AuthStoreSelectors } from '../../store/auth';
  * ВАЖНО: APP_INITIALIZER (auth.initializer.ts) восстанавливает Store из localStorage
  * ДО того как этот Guard срабатывает. Поэтому isLoggedIn будет корректным при F5.
  */
-export const authGuard: CanActivateFn = (
-  _route: ActivatedRouteSnapshot,
-  state: RouterStateSnapshot,
-) => {
-  const store = inject(Store);
+export const authGuard: CanActivateFn = (_route, state) => {
+  const auth = inject(AuthSessionService);
   const router = inject(Router);
 
-  const isLoggedIn = store.selectSignal(AuthStoreSelectors.isLoggedIn)();
-
-  if (!isLoggedIn) {
-    return router.createUrlTree(['/login'], {
-      queryParams: { returnUrl: state.url },
-    });
-  }
-
-  return true;
+  return auth.ready$.pipe(
+    filter(Boolean),
+    take(1),
+    map(() =>
+      auth.isServerUnavailable()
+        ? router.createUrlTree(['/server-unavailable'], { queryParams: { returnUrl: state.url } })
+        : auth.isAuthenticated()
+          ? true
+          : router.createUrlTree(['/login'], { queryParams: { returnUrl: state.url } }),
+    ),
+  );
 };

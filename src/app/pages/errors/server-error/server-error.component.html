@@ -1,19 +1,29 @@
 <main class="server-page">
   <section class="server-card">
     <div class="server-visual" aria-hidden="true">
-      <span></span>
-      <span></span>
-      <span></span>
+      <div class="server-rack">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+      <i class="pi pi-wrench"></i>
     </div>
 
-    <p class="eyebrow">Service unavailable</p>
-    <h1>API is not responding</h1>
-    <p class="description">
-      The backend is unavailable right now. Please wait a little and try again.
-    </p>
+    <div class="server-copy">
+      <p class="eyebrow">Service unavailable</p>
+      <h1>Technical maintenance is in progress</h1>
+      <p>
+        The API is not responding right now. Please wait a little and try again.
+      </p>
+    </div>
 
-    <button type="button" [disabled]="isChecking()" (click)="tryAgain()">
-      {{ isChecking() ? 'Checking...' : 'Try again' }}
+    <button pButton type="button" [disabled]="isChecking()" (click)="tryAgain()">
+      <i
+        class="pi"
+        [class.pi-refresh]="!isChecking()"
+        [class.pi-spin]="isChecking()"
+        [class.pi-spinner]="isChecking()"></i>
+      <span>{{ isChecking() ? 'Checking...' : 'Try again' }}</span>
     </button>
   </section>
 </main>

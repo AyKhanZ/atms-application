@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
+import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
 import { SnackBarService } from '../../../core/services/snack-bar.service';
 
@@ -11,6 +12,7 @@ import { SnackBarService } from '../../../core/services/snack-bar.service';
   styleUrls: ['./forgot-password.scss'],
   imports: [
     ButtonModule,
+    FloatLabelModule,
     InputTextModule,
     ReactiveFormsModule,
     RouterLink,

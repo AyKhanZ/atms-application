@@ -26,11 +26,6 @@ export class TopbarComponent {
       command: () => this.onToggleSettings(),
     },
     {
-      label: 'Help',
-      icon: 'pi pi-question-circle',
-      command: () => this.onToggleHelp(),
-    },
-    {
       separator: true,
     },
     {
@@ -48,9 +43,5 @@ export class TopbarComponent {
   onToggleSettings(): void {
     console.log('Do letter !');
     this.router.navigate(['settings']);
-  }
-
-  onToggleHelp(): void {
-    console.log('Do letter !');
   }
 }

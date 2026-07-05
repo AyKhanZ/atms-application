@@ -1,4 +1,4 @@
-import { Directive, inject, Input, OnInit, TemplateRef, ViewContainerRef } from '@angular/core';
+import { Directive, effect, inject, input, TemplateRef, ViewContainerRef } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { UserStoreSelectors } from '../../store/user';
 
@@ -6,20 +6,25 @@ import { UserStoreSelectors } from '../../store/user';
   selector: '[hasPermission]',
   standalone: true,
 })
-export class HasPermissionDirective implements OnInit {
+export class HasPermissionDirective {
   private readonly store = inject(Store);
   private readonly templateRef = inject(TemplateRef);
   private readonly viewContainer = inject(ViewContainerRef);
+  private readonly permissions = this.store.selectSignal(UserStoreSelectors.getPermissions);
 
-  @Input() hasPermission!: string;
+  readonly hasPermission = input.required<string>();
 
-  ngOnInit(): void {
-    const permissions = this.store.selectSignal(UserStoreSelectors.getPermissions)();
-
-    if (permissions.includes(this.hasPermission)) {
-      this.viewContainer.createEmbeddedView(this.templateRef);
-    } else {
+  constructor() {
+    effect(() => {
       this.viewContainer.clear();
-    }
+
+      if (this.permissions().some((item) => normalize(item) === normalize(this.hasPermission()))) {
+        this.viewContainer.createEmbeddedView(this.templateRef);
+      }
+    });
   }
+}
+
+function normalize(value: string | undefined): string {
+  return value?.replace(/\s+/g, '').toLowerCase() ?? '';
 }

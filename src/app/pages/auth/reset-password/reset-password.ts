@@ -1,7 +1,8 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
+import { FloatLabelModule } from 'primeng/floatlabel';
+import { PasswordModule } from 'primeng/password';
 import { SnackBarService } from '../../../core/services/snack-bar.service';
 import { PasswordValidators } from '../../../shared/validators/password.validators';
 import { PasswordRules } from '../../../shared/components/password-rules/password-rules';
@@ -13,7 +14,8 @@ import { toSignal } from '@angular/core/rxjs-interop';
   styleUrls: ['./reset-password.scss'],
   imports: [
     ButtonModule,
-    InputTextModule,
+    FloatLabelModule,
+    PasswordModule,
     ReactiveFormsModule,
     PasswordRules,
   ],
@@ -22,9 +24,6 @@ export class ResetPasswordComponent {
   // private readonly store = inject(Store);
   private readonly snackBar = inject(SnackBarService);
   // reset-password.ts
-
-  hidePassword = signal(true);
-  hideConfirmPassword = signal(true);
 
   readonly form = new FormGroup(
     {
