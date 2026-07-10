@@ -1,4 +1,9 @@
-import { UserListItemModel, UserListFilter, UserModel } from '../../core/models/users/users.models';
+import {
+  defaultFilter,
+  UserListFilter,
+  UserListItemModel,
+  UserModel,
+} from '../../core/models/users/users.models';
 
 export interface UsersState {
   items: UserListItemModel[];
@@ -14,13 +19,6 @@ export interface UsersState {
   isLoading: boolean;
   isSubmitted: boolean;
 }
-
-export const defaultFilter: UserListFilter = {
-  page: 1,
-  pageSize: 10,
-  sortBy: 'createdAt',
-  sortDirection: 1,
-};
 
 export const initialUsersState: UsersState = {
   items: [],

@@ -6,6 +6,7 @@ const featureSelector = createFeatureSelector<AuthState>(Features.Auth);
 
 export const getAccessModel = createSelector(featureSelector, (state) => state.accessModel);
 export const isLoading = createSelector(featureSelector, (state) => state.isLoading);
+export const isReady = createSelector(featureSelector, (state) => state.isReady);
 
 export const isLoggedIn = createSelector(
   featureSelector,

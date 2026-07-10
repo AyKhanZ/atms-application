@@ -6,6 +6,7 @@ import { forkJoin } from 'rxjs';
 import * as UserStoreActions from './user.actions';
 import * as AuthStoreActions from '../auth/auth.actions';
 import { UserService } from '../../core/services/user.service';
+import { isServerUnavailable } from '../../core/utils/http-error.utils';
 import { Router } from '@angular/router';
 
 @Injectable()
@@ -16,7 +17,11 @@ export class UserEffects {
 
   loadUserData$ = createEffect(() =>
     this.actions$.pipe(
-      ofType(AuthStoreActions.loginSuccess, AuthStoreActions.restoreSession),
+      ofType(
+        AuthStoreActions.loginSuccess,
+        AuthStoreActions.restoreSession,
+        AuthStoreActions.refreshTokenSuccess,
+      ),
       switchMap(() =>
         forkJoin([
           this.userService.getMe(),
@@ -26,7 +31,9 @@ export class UserEffects {
           map(([me, roles, permissions]) =>
             UserStoreActions.loadUserDataSuccess({ me, roles, permissions }),
           ),
-          catchError(() => of(UserStoreActions.loadUserDataFailure())),
+          catchError((error) =>
+            of(UserStoreActions.loadUserDataFailure({ isServerUnavailable: isServerUnavailable(error) })),
+          ),
         ),
       ),
     ),
@@ -36,14 +43,16 @@ export class UserEffects {
     () =>
       this.actions$.pipe(
         ofType(UserStoreActions.loadUserDataFailure),
-        tap(() => this.router.navigate(['/login'])),
+        tap(({ isServerUnavailable }) =>
+          this.router.navigate([isServerUnavailable ? '/server-unavailable' : '/login']),
+        ),
       ),
     { dispatch: false },
   );
 
   clearOnLogout$ = createEffect(() =>
     this.actions$.pipe(
-      ofType(AuthStoreActions.logout),
+      ofType(AuthStoreActions.logoutCompleted),
       map(() => UserStoreActions.clearAll()),
     ),
   );

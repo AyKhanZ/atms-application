@@ -1,0 +1,89 @@
+.server-page {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 1.5rem;
+  background: var(--app-background);
+}
+
+.server-card {
+  display: grid;
+  width: min(100%, 34rem);
+  justify-items: center;
+  gap: 1.25rem;
+  padding: clamp(1.25rem, 4vw, 2.25rem);
+  border: 1px solid #eeeeee;
+  border-radius: 8px;
+  background: white;
+  box-shadow: 0 24px 60px rgb(34 34 34 / 12%);
+  text-align: center;
+}
+
+.server-visual {
+  position: relative;
+  display: grid;
+  width: 8rem;
+  height: 8rem;
+  place-items: center;
+  border-radius: 999px;
+  background: #fff1e1;
+  color: #fe9312;
+}
+
+.server-rack {
+  display: grid;
+  width: 4.5rem;
+  gap: 0.45rem;
+}
+
+.server-rack span {
+  height: 1rem;
+  border: 1px solid #ffd39b;
+  border-radius: 5px;
+  background: white;
+  box-shadow: inset 0.45rem 0 0 #fe9312;
+}
+
+.server-visual i {
+  position: absolute;
+  right: 1.25rem;
+  bottom: 1.1rem;
+  display: grid;
+  width: 2.1rem;
+  height: 2.1rem;
+  place-items: center;
+  border-radius: 999px;
+  background: #fe9312;
+  color: white;
+}
+
+.server-copy {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.eyebrow {
+  margin: 0;
+  color: #fe9312;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+h1 {
+  margin: 0;
+  color: #222222;
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  line-height: 1.2;
+}
+
+p {
+  margin: 0;
+  color: #555555;
+  line-height: 1.5;
+}
+
+button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}

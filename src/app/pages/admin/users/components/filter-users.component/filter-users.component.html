@@ -1,59 +1,59 @@
-<div class="filter-panel" [class.open]="isOpen()">
-  <form class="filter-panel__inner" [formGroup]="form">
-    <div class="filter-row-main">
-      <mat-form-field appearance="outline">
-        <mat-label>Name</mat-label>
-        <input matInput formControlName="name" placeholder="Enter name" />
-      </mat-form-field>
-
-      <mat-form-field appearance="outline">
-        <mat-label>Surname</mat-label>
-        <input matInput formControlName="surname" placeholder="Enter surname" />
-      </mat-form-field>
-
-      <mat-form-field appearance="outline">
-        <mat-label>Email</mat-label>
-        <input matInput formControlName="email" placeholder="Enter email" />
-      </mat-form-field>
-
-      <mat-form-field appearance="outline">
-        <mat-label>Status</mat-label>
-        <mat-select formControlName="userStatusId">
-          <mat-option [value]="null">All</mat-option>
-          @for (s of statuses(); track s.id) {
-            <mat-option [value]="s.id">
-              {{ s.name }}
-            </mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
+<form class="panel panel-padding filters" [formGroup]="form" (ngSubmit)="submit()">
+  <div class="form-grid">
+    <div class="field">
+      <label for="status">Status</label>
+      <p-select
+        inputId="status"
+        styleClass="filter-select"
+        formControlName="userStatusId"
+        [options]="statusOptions()"
+        optionLabel="name"
+        optionValue="id"
+        appendTo="body"
+        [loading]="statusesLoading()"
+        [disabled]="statusesLoading()"
+      />
     </div>
 
-    <div class="filter-row-secondary">
-
-      <mat-form-field appearance="outline">
-        <mat-label>Created From</mat-label>
-        <input matInput [matDatepicker]="fromPicker" formControlName="createdFrom" />
-        <mat-datepicker-toggle matIconSuffix [for]="fromPicker" />
-        <mat-datepicker #fromPicker color="primary" />
-      </mat-form-field>
-
-      <mat-form-field appearance="outline">
-        <mat-label>Created To</mat-label>
-        <input matInput [matDatepicker]="toPicker" formControlName="createdTo" />
-        <mat-datepicker-toggle matIconSuffix [for]="toPicker" />
-        <mat-datepicker #toPicker color="primary" />
-      </mat-form-field>
-
+    <div class="field date-field">
+      <label for="createdFrom">Created from</label>
+      <p-datepicker
+        inputId="createdFrom"
+        styleClass="filter-datepicker"
+        formControlName="createdFrom"
+        dateFormat="yy-mm-dd"
+        appendTo="body"
+        [showIcon]="true"
+        iconDisplay="input"
+        [maxDate]="createdFromMaxDate()"
+      />
     </div>
-  </form>
 
-  <div class="filter-actions">
-    <button mat-stroked-button class="btn-cancel" (click)="onCancel()">
-      Cancel
-    </button>
-    <button mat-flat-button class="btn-submit" (click)="onSubmit()">
-      Filter
-    </button>
+    <div class="field date-field">
+      <label for="createdTo">Created to</label>
+      <p-datepicker
+        inputId="createdTo"
+        styleClass="filter-datepicker"
+        formControlName="createdTo"
+        dateFormat="yy-mm-dd"
+        appendTo="body"
+        [showIcon]="true"
+        iconDisplay="input"
+        [minDate]="createdToMinDate()"
+        [maxDate]="today"
+      />
+    </div>
   </div>
-</div>
+
+  @if (form.hasError('createdDateRange') && (form.touched || form.dirty)) {
+    <small class="filter-error">Created from cannot be later than Created to.</small>
+  }
+
+  <div class="toolbar">
+    <button type="submit" class="apply-button" [disabled]="form.invalid">
+      <i class="pi pi-filter"></i>
+      <span>Apply</span>
+    </button>
+    <app-clear-button (clicked)="clearForm()" />
+  </div>
+</form>

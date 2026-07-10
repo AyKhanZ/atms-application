@@ -2,17 +2,13 @@
 
   <div class="pagination__page-size">
     <span class="pagination__label">Rows per page:</span>
-    <mat-select
+    <p-select
       class="pagination__size-select"
-      [value]="pageSize()"
-      (valueChange)="onPageSizeChange($event)"
-    >
-      @for (s of pageSizeOptions(); track s) {
-        <mat-option [value]="s">
-          {{ s }}
-        </mat-option>
-      }
-    </mat-select>
+      [options]="pageSizeOptions()"
+      [ngModel]="pageSize()"
+      (ngModelChange)="onPageSizeChange($event)"
+      appendTo="body"
+    />
   </div>
 
   <div class="pagination__info">
@@ -32,55 +28,65 @@
     />
     <span class="pagination__jump-sep">/ {{ totalPages() }}</span>
     <button
-      mat-icon-button
+      pButton
+      type="button"
+      icon="pi pi-arrow-right"
+      text
+      rounded
       class="pagination__btn pagination__btn--go"
       (click)="onJump()"
-      matTooltip="Go to page"
-    >
-      <mat-icon>subdirectory_arrow_right</mat-icon>
-    </button>
+      pTooltip="Go to page"
+    ></button>
   </div>
 
   <div class="pagination__controls">
     <button
-      mat-icon-button
+      pButton
+      type="button"
+      icon="pi pi-angle-double-left"
+      text
+      rounded
       class="pagination__btn"
       [disabled]="page() <= 1"
       (click)="changePage(1)"
-      matTooltip="First page"
-    >
-      <mat-icon>first_page</mat-icon>
-    </button>
+      pTooltip="First page"
+    ></button>
 
     <button
-      mat-icon-button
+      pButton
+      type="button"
+      icon="pi pi-angle-left"
+      text
+      rounded
       class="pagination__btn"
       [disabled]="page() <= 1"
       (click)="changePage(page() - 1)"
-      matTooltip="Previous page"
-    >
-      <mat-icon>chevron_left</mat-icon>
-    </button>
+      pTooltip="Previous page"
+    ></button>
 
 
     <button
-      mat-icon-button
+      pButton
+      type="button"
+      icon="pi pi-angle-right"
+      text
+      rounded
       class="pagination__btn"
       [disabled]="page() >= totalPages()"
       (click)="changePage(page() + 1)"
-      matTooltip="Next page"
-    >
-      <mat-icon>chevron_right</mat-icon>
-    </button>
+      pTooltip="Next page"
+    ></button>
 
     <button
-      mat-icon-button
+      pButton
+      type="button"
+      icon="pi pi-angle-double-right"
+      text
+      rounded
       class="pagination__btn"
       [disabled]="page() >= totalPages()"
       (click)="changePage(totalPages())"
-      matTooltip="Last page"
-    >
-      <mat-icon>last_page</mat-icon>
-    </button>
+      pTooltip="Last page"
+    ></button>
   </div>
 </div>

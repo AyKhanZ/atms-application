@@ -1,7 +1,9 @@
+import { DOCUMENT } from '@angular/common';
 import { inject } from '@angular/core';
-import { Store } from '@ngrx/store';
-import { AuthStoreActions } from '../../store/auth';
-import { AccessModel } from '../models/auth/auth.models';
+import { Router } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
+import { AuthSessionService } from '../services/auth-session.service';
+import { HealthService } from '../services/health.service';
 
 /**
  * provideAppInitializer — запускается СИНХРОННО до первого Guard'а.
@@ -14,23 +16,22 @@ import { AccessModel } from '../models/auth/auth.models';
  *   F5 → authInitializer восстанавливает accessModel в Store
  *       → Guard видит isLoggedIn=true → пропускает на нужный роут
  */
-export function authInitializer(): void {
-  const store = inject(Store);
+export async function authInitializer(): Promise<void> {
+  const auth = inject(AuthSessionService);
+  const health = inject(HealthService);
+  const router = inject(Router);
+  const document = inject(DOCUMENT);
+  const returnUrl = `${document.location.pathname}${document.location.search}${document.location.hash}`;
 
-  const accessToken = localStorage.getItem('accessToken');
-  const refreshToken = localStorage.getItem('refreshToken');
-  const accessTokenExpireTime = localStorage.getItem('tokenExpireTime');
-
-  if (!accessToken || !refreshToken || !accessTokenExpireTime) {
+  try {
+    await firstValueFrom(health.check());
+  } catch {
+    await router.navigate(['/server-unavailable'], {
+      queryParams: { returnUrl },
+      replaceUrl: true,
+    });
     return;
   }
 
-  const accessModel: AccessModel = {
-    accessToken,
-    refreshToken,
-    accessTokenExpireTime,
-  };
-
-  // Диспатчим restoreSession — effect подхватит и запланирует refresh токена
-  store.dispatch(AuthStoreActions.restoreSession({ accessModel }));
+  return auth.init();
 }

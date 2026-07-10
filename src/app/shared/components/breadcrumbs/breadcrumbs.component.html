@@ -6,17 +6,17 @@
         class="crumb__link"
         [class.crumb__link--first]="first"
         [class.crumb__link--last]="last"
-        [matTooltip]="crumb.title"
-        [matTooltipDisabled]="crumb.title.length < 20"
+        [pTooltip]="crumb.title"
+        [tooltipDisabled]="crumb.title.length < 20"
       >
         @if (crumb.icon) {
-          <mat-icon class="crumb__icon">{{ crumb.icon }}</mat-icon>
+          <i class="crumb__icon pi" [ngClass]="crumb.icon"></i>
         }
         <span class="crumb__title">{{ crumb.title }}</span>
       </a>
 
       @if (!last) {
-        <mat-icon class="crumb__separator">chevron_right</mat-icon>
+        <i class="crumb__separator pi pi-chevron-right"></i>
       }
     </div>
   }

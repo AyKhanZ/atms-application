@@ -1,4 +1,6 @@
 import { DictionaryModel } from '../dictionary.model';
+import { SortDirectionEnum } from '../../enums/sort-direction.enum';
+import { PaginatedFilter } from '../paginated.model';
 
 export interface UserListItemModel {
   id: string;
@@ -32,15 +34,16 @@ export interface UserListResponse {
   hasPrevious: boolean;
 }
 
-export interface UserListFilter {
-  name?: string;
-  surname?: string;
-  email?: string;
+export interface UserListFilter extends PaginatedFilter {
+  search?: string;
   userStatusId?: number;
   createdFrom?: string;
   createdTo?: string;
-  page: number;
-  pageSize: number;
-  sortBy?: string;
-  sortDirection?: number;
 }
+
+export const defaultFilter: UserListFilter = {
+  page: 1,
+  pageSize: 10,
+  sortBy: 'createdAt',
+  sortDirection: SortDirectionEnum.Desc,
+};

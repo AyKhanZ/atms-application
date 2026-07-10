@@ -1,144 +1,100 @@
-<div class="container">
+<section class="page">
+  <h1 class="page-title">Users Management</h1>
 
-  <!-- Toolbar -->
-  <div class="users-toolbar">
-    <h1 class="users-toolbar__title">Users Management</h1>
+  <div class="page-header users-header">
+    <app-list-search
+      class="users-search"
+      placeholder="Search users"
+      [value]="searchTerm()"
+      (valueChange)="onSearchChange($event)"
+    />
 
-    <div class="users-toolbar__actions">
-
-      <!-- Filter toggle -->
-      <button
-        mat-stroked-button
-        class="toolbar-btn"
-        [class.toolbar-btn--active]="isFilterOpen()"
-        (click)="toggleFilter()"
-      >
-        <mat-icon>tune</mat-icon>
-        Filters
-        @if (activeFilterCount() > 0) {
-          <span class="filter-badge">{{ activeFilterCount() }}</span>
-        }
+    <div class="page-actions">
+      <app-filter-toggle-button
+        [active]="filtersOpen()"
+        [count]="activeFilterCount()"
+        (clicked)="toggleFilters()"
+      />
+      <button type="button" class="register-user-button" (click)="openRegisterUser()">
+        <i class="pi pi-user-plus"></i>
+        <span>Register user</span>
       </button>
-
-      <!-- Sort menu -->
-      <button mat-stroked-button class="toolbar-btn" [matMenuTriggerFor]="sortMenu">
-        <mat-icon>{{ sortDirectionIcon() }}</mat-icon>
-        {{ currentSortLabel() }}
-        <mat-icon class="icon-trail">expand_more</mat-icon>
-      </button>
-
-      <mat-menu #sortMenu="matMenu" class="sort-menu">
-        @for (opt of sortOptions; track opt.value) {
-          <button
-            mat-menu-item
-            [class.sort-active]="filter().sortBy && filter().sortBy === opt.value"
-            (click)="setSort(opt.value)"
-            [tabIndex]="0"
-          >
-            @if (filter().sortBy === opt.value) {
-              <mat-icon>{{ sortDirectionIcon() }}</mat-icon>
-            }
-            {{ opt.label }}
-          </button>
-        }
-      </mat-menu>
-
     </div>
   </div>
 
-  <!-- Filter panel -->
-  <app-users-filter />
-
-  <!-- Table card -->
-  <div class="table-card">
-
-    @if (isLoading()) {
-      <mat-progress-bar mode="indeterminate" color="accent" class="table-loader" />
-    }
-
-    <table mat-table [dataSource]="users()" class="users-table">
-
-      <!-- Full Name -->
-      <ng-container matColumnDef="fullName">
-        <th mat-header-cell *matHeaderCellDef>Full Name</th>
-        <td mat-cell *matCellDef="let row">
-          <div class="user-cell">
-            <div class="user-avatar">
-              @if (row.avatarPath) {
-                <img src="https://img.freepik.com/free-photo/people-working-as-team-company_23-2149136890.jpg?semt=ais_hybrid&w=740&q=80" [alt]="row.name" />
-              } @else {
-                <span class="user-avatar__initials">
-                  {{ row.name[0] }}{{ row.surname[0] }}
-                </span>
-              }
-            </div>
-            <div class="user-meta">
-              <span class="user-meta__name">{{ row.name }} {{ row.surname }}</span>
-            </div>
-          </div>
-        </td>
-      </ng-container>
-
-      <!-- Email -->
-      <ng-container matColumnDef="email">
-        <th mat-header-cell *matHeaderCellDef>Email</th>
-        <td mat-cell *matCellDef="let row">
-          <a class="email-link" [href]="'mailto:' + row.email">{{ row.email }}</a>
-        </td>
-      </ng-container>
-
-      <!-- Position -->
-      <ng-container matColumnDef="position">
-        <th mat-header-cell *matHeaderCellDef>Position</th>
-        <td mat-cell *matCellDef="let row">
-          <span class="position-text">{{ row.position ?? '—' }}</span>
-        </td>
-      </ng-container>
-
-      <!-- Status -->
-      <ng-container matColumnDef="userStatus">
-        <th mat-header-cell *matHeaderCellDef>Status</th>
-        <td mat-cell *matCellDef="let row">
-          <span class="status-badge" [ngClass]="getStatusClass(row.userStatus.id)">
-            {{ row.userStatus.name }}
-          </span>
-        </td>
-      </ng-container>
-
-      <!-- Created At -->
-      <ng-container matColumnDef="createdAt">
-        <th mat-header-cell *matHeaderCellDef>Created At</th>
-        <td mat-cell *matCellDef="let row">
-          {{ row.createdAt | date: 'dd.MM.yyyy HH:mm' }}
-        </td>
-      </ng-container>
-
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr
-        mat-row
-        *matRowDef="let row; columns: displayedColumns"
-        class="table-row"
-      ></tr>
-
-      <!-- Empty state -->
-      <tr class="mat-row" *matNoDataRow>
-        <td class="empty-state" [attr.colspan]="displayedColumns.length">
-          <mat-icon>search_off</mat-icon>
-          <p>No users found</p>
-        </td>
-      </tr>
-
-    </table>
-
-    <app-pagination
-      [page]="filter().page"
-      [pageSize]="filter().pageSize"
-      [totalCount]="totalCount()"
-      [totalPages]="totalPages()"
-      [pageSizeOptions]="[10, 20, 50]"
-      (pageChange)="onPageChange($event)"
-      (pageSizeChange)="onPageSizeChange($event)"
+  @if (filtersOpen()) {
+    <app-users-filter
+      [filter]="filter()"
+      [statuses]="userStatuses()"
+      [statusesLoading]="userStatusesLoading()"
+      (apply)="applyFilters($event)"
+      (clear)="clearFilters()"
     />
+  }
 
+  <div class="panel users-table-panel" [class.users-table-panel--locked]="tableRequestsBlocked()">
+    <p-table
+      class="users-table"
+      [value]="users()"
+      [lazy]="true"
+      [loading]="loading()"
+      [paginator]="totalCount() > 0"
+      [rows]="filter().pageSize"
+      [first]="first()"
+      [totalRecords]="totalCount()"
+      [rowsPerPageOptions]="[10, 20, 50]"
+      [sortField]="filter().sortBy"
+      [sortOrder]="tableSortOrder()"
+      [tableStyle]="{ 'min-width': '58rem' }"
+      dataKey="id"
+      [paginatorDropdownAppendTo]="'body'"
+      (onLazyLoad)="onLazyLoad($event)"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="name" [pSortableColumnDisabled]="tableRequestsBlocked()">Full name <p-sortIcon field="name" /></th>
+          <th pSortableColumn="email" [pSortableColumnDisabled]="tableRequestsBlocked()">Email <p-sortIcon field="email" /></th>
+          <th pSortableColumn="position" [pSortableColumnDisabled]="tableRequestsBlocked()">Position <p-sortIcon field="position" /></th>
+          <th pSortableColumn="userStatus" [pSortableColumnDisabled]="tableRequestsBlocked()">Status <p-sortIcon field="userStatus" /></th>
+          <th pSortableColumn="createdAt" [pSortableColumnDisabled]="tableRequestsBlocked()">Created <p-sortIcon field="createdAt" /></th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-user>
+        <tr class="clickable-row" (click)="openDetails(user)">
+          <td>
+            <div class="user-cell">
+              <div class="user-photo">
+                @if (user.avatarPath && !avatarLoadFailed(user)) {
+                  <img
+                    [src]="user.avatarPath"
+                    [alt]="fullName(user)"
+                    (error)="onAvatarError(user)" />
+                } @else {
+                  <span>{{ initials(user) }}</span>
+                }
+              </div>
+              <span>{{ fullName(user) }}</span>
+            </div>
+          </td>
+          <td>
+            <a class="email-link" [href]="'mailto:' + user.email" (click)="$event.stopPropagation()">
+              {{ user.email }}
+            </a>
+          </td>
+          <td>{{ user.position ?? '-' }}</td>
+          <td><p-tag [value]="userStatus(user)" /></td>
+          <td>{{ user.createdAt | date: 'dd.MM.yyyy HH:mm' }}</td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr class="empty-row">
+          <td colspan="5">
+            <div class="table-empty-state">No users found.</div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
   </div>
-</div>
+</section>

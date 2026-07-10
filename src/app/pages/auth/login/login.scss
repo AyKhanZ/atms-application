@@ -2,65 +2,111 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 88vh;
+  min-height: calc(100vh - 76px);
+  padding: 32px 16px;
+}
 
-  mat-card {
-    width: 100%;
-    min-height: 500px;
-    max-width: 600px;
-    background-color: var(--white-color);
+.auth-card {
+  width: min(520px, calc(100vw - 32px));
+  background-color: var(--white-color);
+  border: 1.5px solid var(--gray-border);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
 
-    mat-card-header {
-      border-radius: 12px 12px 0 0;
-      background: linear-gradient(
-        135deg,
-        var(--primary-color),
-        var(--primary-light-color)
-      );
-      margin-bottom: 2.4rem;
-      padding: 2rem;
+  &__header {
+    background: var(--auth-header-bg);
+    margin-bottom: 2rem;
+    padding: 2rem 2rem 1.75rem;
+    color: var(--white-color);
 
-
-      mat-card-title {
-        font-size: 2rem;
-        font-weight: bold;
-      }
-
-      mat-card-subtitle {
-        font-size: 1.2rem;
-        font-weight: lighter;
-      }
-
-      mat-card-title, mat-card-subtitle {
-        color: var(--white-color);
-      }
+    h1 {
+      margin: 0;
+      font-size: clamp(1.75rem, 4vw, 2.15rem);
+      font-weight: 800;
+      line-height: 1.1;
     }
 
-    form {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-
-      .forgot-wrapper {
-        display: flex;
-        justify-content: flex-end;
-
-        .forgot-link {
-          font-size: 1rem;
-          text-align: right;
-          color: var(--primary-color);
-          text-decoration: none;
-          display: inline;
-
-          &:hover {
-            text-decoration: underline;
-          }
-        }
-      }
-
-      .eye-btn {
-        color: var(--primary-color);
-      }
+    p {
+      margin: 0.35rem 0 0;
+      font-size: 1rem;
+      font-weight: 400;
+      opacity: 0.92;
     }
   }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 0 2rem 2rem;
+  }
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+
+  small {
+    color: var(--red);
+    font-size: 0.82rem;
+  }
+}
+
+.field-error {
+  min-height: 1.1rem;
+  display: flex;
+  align-items: center;
+}
+
+:host ::ng-deep .field .p-floatlabel,
+:host ::ng-deep .field .p-password,
+:host ::ng-deep .field .p-password-input {
+  width: 100%;
+}
+
+:host ::ng-deep .field .p-inputtext {
+  height: 52px;
+  border-radius: 8px;
+  background: var(--white-soft);
+  box-shadow: var(--shadow-inset-soft);
+}
+
+:host ::ng-deep .field .p-password .p-inputtext {
+  padding-right: 3rem;
+}
+
+:host ::ng-deep .field .p-password-toggle-mask-icon {
+  color: var(--orange);
+  transition: color 0.15s ease, transform 0.15s ease;
+}
+
+:host ::ng-deep .field .p-password-toggle-mask-icon:hover {
+  color: var(--orange-hover);
+  transform: translateY(-50%) scale(1.05);
+}
+
+.forgot-wrapper {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.forgot-link {
+  font-size: 0.94rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  text-decoration: none;
+  text-underline-offset: 4px;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.submit-btn {
+  width: 100%;
+  margin-top: 0.35rem;
+  min-height: 46px;
+  font-size: 0.98rem;
 }

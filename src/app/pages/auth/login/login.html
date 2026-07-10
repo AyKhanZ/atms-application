@@ -1,52 +1,54 @@
 <div class="container">
-  <mat-card>
-    <mat-card-header>
-      <mat-card-title>Welcome back!</mat-card-title>
-      <mat-card-subtitle>Sign in to your account</mat-card-subtitle>
-    </mat-card-header>
+  <section class="auth-card">
+    <header class="auth-card__header">
+      <h1>Welcome back!</h1>
+      <p>Sign in to your account</p>
+    </header>
 
-    <mat-card-content>
-      <form [formGroup]="form" (ngSubmit)="onSubmit()">
-        @let formControl = form.controls;
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      @let formControl = form.controls;
 
-        <mat-form-field appearance="outline">
-          <mat-label>Email</mat-label>
-          <input matInput type="email" maxlength="100" formControlName="email" placeholder="you@example.com" />
-
-          @if (formControl.email.hasError('email')) {
-            <mat-error>Please enter a valid email address</mat-error>
+      <div class="field">
+        <p-floatlabel variant="on">
+          <input id="email" pInputText type="email" maxlength="100" formControlName="email" autocomplete="email" />
+          <label for="email">Email</label>
+        </p-floatlabel>
+        <div class="field-error">
+          @if (formControl.email.hasError('email') && formControl.email.touched) {
+            <small>Please enter a valid email address</small>
           }
-
-          @if (formControl.email.hasError('required')) {
-            <mat-error>Email is required</mat-error>
+          @if (formControl.email.hasError('required') && formControl.email.touched) {
+            <small>Email is required</small>
           }
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Password</mat-label>
-          <input matInput maxlength="40" [type]="hidePassword() ? 'password' : 'text'" formControlName="password" />
-
-          <button class="eye-btn" mat-icon-button matSuffix type="button" (click)="hidePassword.set(!hidePassword())">
-            <mat-icon>{{ hidePassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
-          </button>
-
-          @if (form.controls.password.hasError('required')) {
-            <mat-error>Password is required</mat-error>
-          }
-        </mat-form-field>
-
-        <div class="forgot-wrapper">
-          <a routerLink="/forgot-password" class="forgot-link">Forgot password?</a>
         </div>
+      </div>
 
-        <button mat-flat-button type="submit" [disabled]="isLoading() || form.invalid">
-          @if (isLoading()) {
-            Signing in...
-          } @else {
-            Sign in
+      <div class="field">
+        <p-floatlabel variant="on">
+          <p-password
+            inputId="password"
+            formControlName="password"
+            [maxlength]="40"
+            autocomplete="current-password"
+            [feedback]="false"
+            [toggleMask]="true"
+            fluid />
+          <label for="password">Password</label>
+        </p-floatlabel>
+        <div class="field-error">
+          @if (form.controls.password.hasError('required') && form.controls.password.touched) {
+            <small>Password is required</small>
           }
-        </button>
-      </form>
-    </mat-card-content>
-  </mat-card>
+        </div>
+      </div>
+
+      <div class="forgot-wrapper">
+        <a routerLink="/forgot-password" class="forgot-link">Forgot password?</a>
+      </div>
+
+      <button pButton type="submit" class="submit-btn" [disabled]="isLoading() || form.invalid">
+        {{ isLoading() ? 'Signing in...' : 'Sign in' }}
+      </button>
+    </form>
+  </section>
 </div>

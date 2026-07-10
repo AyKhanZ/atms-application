@@ -1,2 +1,29 @@
-<h1>503</h1>
-<p>server-error.component works!</p>
+<main class="server-page">
+  <section class="server-card">
+    <div class="server-visual" aria-hidden="true">
+      <div class="server-rack">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+      <i class="pi pi-wrench"></i>
+    </div>
+
+    <div class="server-copy">
+      <p class="eyebrow">Service unavailable</p>
+      <h1>Technical maintenance is in progress</h1>
+      <p>
+        The API is not responding right now. Please wait a little and try again.
+      </p>
+    </div>
+
+    <button pButton type="button" [disabled]="isChecking()" (click)="tryAgain()">
+      <i
+        class="pi"
+        [class.pi-refresh]="!isChecking()"
+        [class.pi-spin]="isChecking()"
+        [class.pi-spinner]="isChecking()"></i>
+      <span>{{ isChecking() ? 'Checking...' : 'Try again' }}</span>
+    </button>
+  </section>
+</main>

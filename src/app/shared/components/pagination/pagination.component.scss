@@ -28,15 +28,6 @@
 .pagination__size-select {
   width: 64px;
   font-size: 14px;
-
-  ::ng-deep .mat-mdc-select-value {
-    color: #ff9800;
-    font-weight: 600;
-  }
-
-  ::ng-deep .mat-mdc-select-arrow {
-    color: #ff9800;
-  }
 }
 
 .pagination__info {
@@ -52,16 +43,16 @@
 }
 
 .pagination__btn {
-  color: #ff9800 !important;
-  width: 36px !important;
-  height: 36px !important;
+  color: #ff9800;
+  width: 36px;
+  height: 36px;
 
   &:disabled {
-    color: #bdbdbd !important;
+    color: #bdbdbd;
   }
 
   &--go {
-    color: #f57c00 !important;
+    color: #f57c00;
   }
 }
 

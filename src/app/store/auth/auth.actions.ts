@@ -12,8 +12,11 @@ export const loginSuccess = createAction(
 export const loginFailure = createAction(`${key} Login Failure`, props<{ errors: string[] }>());
 
 export const refreshToken = createAction(`${key} Refresh Token`);
+export const refreshTokenFailure = createAction(`${key} Refresh Token Failure`);
 
 export const logout = createAction(`${key} Logout`);
+export const logoutCompleted = createAction(`${key} Logout Completed`);
+export const authReady = createAction(`${key} Auth Ready`);
 
 export const restoreSession = createAction(
   `${key} Restore Session`,

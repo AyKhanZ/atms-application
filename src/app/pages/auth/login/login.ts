@@ -1,22 +1,15 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import {
   FormControl,
   NonNullableFormBuilder,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import {
-  MatCard,
-  MatCardContent,
-  MatCardHeader,
-  MatCardSubtitle,
-  MatCardTitle,
-} from '@angular/material/card';
-import { MatInput } from '@angular/material/input';
-import { MatIcon } from '@angular/material/icon';
-import { MatButton, MatIconButton } from '@angular/material/button';
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { FloatLabelModule } from 'primeng/floatlabel';
+import { PasswordModule } from 'primeng/password';
 import { RouterLink } from '@angular/router';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { Store } from '@ngrx/store';
 import { AuthStoreActions, AuthStoreSelectors } from '../../../store/auth';
 
@@ -30,18 +23,12 @@ interface LoginCommand {
   templateUrl: './login.html',
   styleUrls: ['./login.scss'],
   imports: [
-    MatCard,
-    MatCardHeader,
-    MatCardSubtitle,
-    MatCardTitle,
-    MatCardContent,
     ReactiveFormsModule,
-    MatFormFieldModule,
-    MatIcon,
-    MatButton,
+    ButtonModule,
+    FloatLabelModule,
+    InputTextModule,
+    PasswordModule,
     RouterLink,
-    MatIconButton,
-    MatInput,
   ],
 })
 export class LoginComponent {
@@ -53,7 +40,6 @@ export class LoginComponent {
     password: this.fb.control('', [Validators.required, Validators.maxLength(40)]),
   });
 
-  hidePassword = signal(true);
   isLoading = this.store.selectSignal(AuthStoreSelectors.isLoading);
 
   onSubmit(): void {

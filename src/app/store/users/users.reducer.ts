@@ -1,6 +1,7 @@
 import { type Action, createReducer, on } from '@ngrx/store';
 import * as UsersStoreActions from './users.actions';
-import { type UsersState, initialUsersState, defaultFilter } from './users.state';
+import { defaultFilter } from '../../core/models/users/users.models';
+import { type UsersState, initialUsersState } from './users.state';
 
 const reducer = createReducer<UsersState>(
   initialUsersState,

@@ -1,0 +1,12 @@
+<label class="list-search">
+  <i class="pi pi-search"></i>
+  <input
+    pInputText
+    type="search"
+    [placeholder]="placeholder()"
+    [maxlength]="maxLength()"
+    [disabled]="disabled()"
+    [ngModel]="value()"
+    (ngModelChange)="valueChange.emit($event)"
+  />
+</label>

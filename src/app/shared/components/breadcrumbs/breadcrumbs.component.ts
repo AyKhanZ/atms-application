@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { NgClass } from '@angular/common';
 import { Router, NavigationEnd, ActivatedRoute, RouterLink } from '@angular/router';
 import { filter } from 'rxjs';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatIconModule } from '@angular/material/icon';
+import { TooltipModule } from 'primeng/tooltip';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 export interface BreadcrumbItem {
@@ -13,7 +13,7 @@ export interface BreadcrumbItem {
 
 @Component({
   selector: 'app-breadcrumbs',
-  imports: [RouterLink, MatIconModule, MatTooltipModule],
+  imports: [NgClass, RouterLink, TooltipModule],
   templateUrl: './breadcrumbs.component.html',
   styleUrl: './breadcrumbs.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
