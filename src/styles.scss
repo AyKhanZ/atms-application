@@ -52,6 +52,17 @@
   --border: var(--gray-border);
   --muted: #777777;
   --text: var(--dark);
+  --app-surface: var(--white);
+  --app-surface-muted: var(--gray-bg);
+  --app-border: var(--gray-border);
+  --app-black-border: var(--dark);
+  --app-text: var(--dark);
+  --app-muted: var(--gray-text);
+  --app-primary: var(--orange);
+  --app-primary-strong: var(--orange-hover);
+  --app-success: var(--green-text);
+  --app-danger: var(--red-hover);
+  --app-shadow: 0 14px 40px rgb(34 34 34 / 10%);
   --primary-color: var(--orange);
   --primary-light-color: #ffb347;
   --white-color: var(--white);
@@ -97,6 +108,68 @@ h5,
 h6 {
   font-family: Montserrat, Roboto, Arial, sans-serif;
   letter-spacing: 0;
+}
+
+.page {
+  display: grid;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.page-title {
+  margin: 0;
+  font-size: clamp(1.35rem, 2vw, 1.75rem);
+  line-height: 1.2;
+}
+
+.page-subtitle {
+  margin: 0.35rem 0 0;
+  color: var(--app-muted);
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.panel {
+  min-width: 0;
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+  background: var(--app-surface);
+  box-shadow: 0 1px 2px rgb(15 23 42 / 5%);
+}
+
+.panel-padding {
+  padding: 1rem;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  min-width: 0;
+}
+
+.field {
+  display: grid;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.field label {
+  color: var(--gray-text-strong);
+  font-size: 0.9rem;
+  font-weight: 650;
 }
 
 button,
@@ -150,8 +223,7 @@ input:-webkit-autofill:focus {
 }
 
 .p-inputtext:enabled:focus,
-.p-select:not(.p-disabled).p-focus,
-.p-datepicker:not(.p-disabled).p-focus {
+.p-select:not(.p-disabled).p-focus {
   border-color: var(--orange);
   box-shadow: 0 0 0 3px var(--orange-focus-ring);
 }
@@ -202,4 +274,15 @@ input:-webkit-autofill:focus {
 .p-progressbar {
   height: 3px;
   border-radius: 0;
+}
+
+@media (max-width: 760px) {
+  .page-header {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
 }

@@ -1,68 +1,135 @@
-:host {
-  display: block;
-}
-
-.filter-panel {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1),
-  opacity 0.25s ease;
-  opacity: 0;
-
-  &.open {
-    max-height: 400px;
-    opacity: 1;
-  }
-}
-
-.filter-panel__inner {
-  background: #fff;
-  border: 1.5px solid var(--border);
-  border-radius: 12px;
-  padding: 20px 24px 16px;
-  margin-bottom: 16px;
-}
-
-.filter-row-main {
+.filters {
   display: grid;
-  grid-template-columns: 0.6fr 0.6fr 1fr 0.3fr;
-  gap: 14px;
-}
-.filter-row-secondary {
-  display: grid;
-  grid-template-columns: 0.6fr 0.6fr 1.3fr;
-  gap: 14px;
+  gap: 1rem;
+  min-width: 0;
 }
 
-.filter-field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-
-  span {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text);
-  }
+:host ::ng-deep p-select,
+:host ::ng-deep .filter-select,
+:host ::ng-deep .filter-datepicker,
+:host ::ng-deep .filter-datepicker .p-inputtext {
+  width: 100%;
 }
 
-.filter-actions {
-  display: flex;
-  justify-content: flex-start;
+:host ::ng-deep .filter-select,
+:host ::ng-deep .filter-datepicker,
+:host ::ng-deep .filter-datepicker .p-datepicker-input {
+  border-color: #d5dbe3;
+  border-radius: 8px;
+  background: var(--white);
+  box-shadow: none;
+}
+
+:host ::ng-deep .filter-select,
+:host ::ng-deep .filter-datepicker .p-datepicker-input {
+  height: 2.35rem;
+}
+
+:host ::ng-deep .filter-datepicker {
+  border: 0;
+}
+
+:host ::ng-deep .filter-select:not(.p-disabled):hover,
+:host ::ng-deep .filter-datepicker .p-datepicker-input:hover {
+  border-color: #bac4d1;
+}
+
+:host ::ng-deep .filter-select:not(.p-disabled).p-focus {
+  border-color: var(--orange);
+  box-shadow: 0 0 0 3px var(--orange-focus-ring);
+}
+
+:host ::ng-deep .date-field .p-datepicker,
+:host ::ng-deep .date-field .p-datepicker.p-focus,
+:host ::ng-deep .date-field .p-datepicker.p-inputwrapper-focus {
+  border-color: transparent;
+  outline: 0;
+  box-shadow: none;
+}
+
+:host ::ng-deep .filter-datepicker:has(.p-inputtext:enabled:focus) .p-datepicker-input,
+:host ::ng-deep .filter-datepicker:has(.p-inputtext:enabled:focus-visible) .p-datepicker-input {
+  border-color: var(--orange);
+  box-shadow: 0 0 0 3px rgb(254 147 18 / 10%);
+}
+
+:host ::ng-deep .filter-datepicker .p-inputtext:enabled:focus,
+:host ::ng-deep .filter-datepicker .p-inputtext:enabled:focus-visible {
+  outline: 0;
+  box-shadow: none;
+}
+
+:host ::ng-deep .filter-datepicker .p-datepicker-input-icon-container {
+  right: 0.8rem;
+  color: var(--gray-icon);
+}
+
+:host ::ng-deep .filter-datepicker .p-inputtext {
+  padding-right: 2.5rem;
+}
+
+.toolbar button {
+  display: inline-flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 30px;
+  justify-content: center;
+  gap: 0.5rem;
+  min-width: 6.25rem;
+  height: 2.35rem;
+  appearance: none;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 750;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: none;
+  transition:
+    border-color 0.16s ease,
+    background 0.16s ease,
+    color 0.16s ease,
+    transform 0.16s ease;
 }
 
-.btn-cancel {
-  color: var(--text);
-  border-radius: 8px;
+.apply-button {
+  border-color: var(--orange);
+  background: var(--orange);
+  color: var(--white);
+  box-shadow: none;
 }
 
-.btn-submit {
-  margin-top: 0;
-  height: 40px;
-  width: 110px;
-  font-size: 16px;
-  border-radius: 8px;
+.apply-button:hover {
+  border-color: var(--orange-hover);
+  background: var(--orange-hover);
+  color: var(--white);
+  transform: none;
+}
+
+.apply-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.62;
+}
+
+.apply-button:focus-visible {
+  outline: 3px solid rgb(254 147 18 / 22%);
+  outline-offset: 2px;
+}
+
+.filter-error {
+  display: block;
+  margin-top: -0.25rem;
+  color: var(--red);
+  font-size: 0.83rem;
+  font-weight: 650;
+}
+
+@media (max-width: 480px) {
+  .toolbar {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .toolbar button {
+    justify-content: center;
+    min-width: 0;
+  }
 }

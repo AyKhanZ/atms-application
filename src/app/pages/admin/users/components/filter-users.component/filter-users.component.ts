@@ -1,72 +1,147 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { ButtonModule } from 'primeng/button';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output } from '@angular/core';
+import {
+  AbstractControl,
+  NonNullableFormBuilder,
+  ReactiveFormsModule,
+  ValidationErrors,
+} from '@angular/forms';
 import { DatePickerModule } from 'primeng/datepicker';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
+import { DictionaryModel } from '../../../../../core/models/dictionary.model';
 import { UserListFilter } from '../../../../../core/models/users/users.models';
-import { Store } from '@ngrx/store';
-import { UsersFilterService } from '../../../../../core/services/users-filter.service';
-import { DictionaryStoreSelectors } from '../../../../../store/dictionary';
+import { ClearButtonComponent } from '../../../../../shared/components/clear-button/clear-button.component';
+
+export interface UsersFilterFormValue {
+  userStatusId: number | null;
+  createdFrom: Date | null;
+  createdTo: Date | null;
+}
+
+type StatusOption = Pick<DictionaryModel, 'name' | 'code'> & { id: number | null };
 
 @Component({
   selector: 'app-users-filter',
   imports: [
     ReactiveFormsModule,
-    ButtonModule,
+    ClearButtonComponent,
     DatePickerModule,
     InputTextModule,
     SelectModule,
   ],
   templateUrl: './filter-users.component.html',
   styleUrl: './filter-users.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class UsersFilterComponent implements OnInit {
-  private readonly fb = inject(FormBuilder);
-  private readonly store = inject(Store);
-  private readonly filterService = inject(UsersFilterService);
+export class UsersFilterComponent {
+  private readonly fb = inject(NonNullableFormBuilder);
+  private syncedFilterKey = '';
+  readonly today = endOfToday();
 
-  readonly statuses = this.store.selectSignal(DictionaryStoreSelectors.getUserStatusesDictionaries);
-  readonly isOpen = this.filterService.isFilterOpen;
+  readonly filter = input.required<UserListFilter>();
+  readonly statuses = input.required<DictionaryModel[]>();
+  readonly statusesLoading = input(false);
+  readonly apply = output<Partial<UserListFilter>>();
+  readonly clear = output<void>();
 
-  form = this.fb.group({
-    name: [''],
-    surname: [''],
-    email: [''],
-    userStatusId: [null as number | null],
-    createdFrom: [null as Date | null],
-    createdTo: [null as Date | null],
-  });
+  readonly statusOptions = computed<StatusOption[]>(() => [
+    { id: null, name: 'Any status', code: '' },
+    ...this.statuses().map((status) => ({
+      ...status,
+      id: Number(status.id),
+    })),
+  ]);
 
-  ngOnInit(): void {
-    const f = this.filterService.currentFilter();
-    this.form.patchValue({
-      name: f.name ?? '',
-      surname: f.surname ?? '',
-      email: f.email ?? '',
-      userStatusId: f.userStatusId ?? null,
-      createdFrom: f.createdFrom ? new Date(f.createdFrom) : null,
-      createdTo: f.createdTo ? new Date(f.createdTo) : null,
+  readonly form = this.fb.group(
+    {
+      userStatusId: this.fb.control<number | null>(null),
+      createdFrom: this.fb.control<Date | null>(null),
+      createdTo: this.fb.control<Date | null>(null),
+    },
+    { validators: createdDateRangeValidator },
+  );
+
+  constructor() {
+    effect(() => {
+      const filter = this.filter();
+      const filterKey = filterSyncKey(filter);
+      if (filterKey === this.syncedFilterKey) {
+        return;
+      }
+
+      this.form.patchValue(
+        {
+          userStatusId: filter.userStatusId ?? null,
+          createdFrom: filter.createdFrom ? new Date(filter.createdFrom) : null,
+          createdTo: filter.createdTo ? new Date(filter.createdTo) : null,
+        },
+        { emitEvent: false },
+      );
+      this.syncedFilterKey = filterKey;
     });
   }
 
-  onSubmit(): void {
-    const v = this.form.value;
-    const partial: Partial<UserListFilter> = {
-      name: v.name || undefined,
-      surname: v.surname || undefined,
-      email: v.email || undefined,
-      userStatusId: v.userStatusId ?? undefined,
-      createdFrom: v.createdFrom ? v.createdFrom.toISOString().split('T')[0] : undefined,
-      createdTo: v.createdTo ? v.createdTo.toISOString().split('T')[0] : undefined,
-    };
-    this.filterService.applyFilter(partial);
-    this.filterService.closeFilter();
+  submit(): void {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
+
+    this.apply.emit(filterFromForm(this.form.getRawValue()));
   }
 
-  onCancel(): void {
-    this.form.reset();
-    this.filterService.clearFilter();
-    this.filterService.closeFilter();
+  createdFromMaxDate(): Date {
+    const createdTo = this.form.controls.createdTo.value;
+    return createdTo && createdTo < this.today ? createdTo : this.today;
   }
+
+  createdToMinDate(): Date | null {
+    return this.form.controls.createdFrom.value;
+  }
+
+  clearForm(): void {
+    this.form.reset({
+      userStatusId: null,
+      createdFrom: null,
+      createdTo: null,
+    });
+    this.clear.emit();
+  }
+}
+
+function filterFromForm(value: UsersFilterFormValue): Partial<UserListFilter> {
+  return {
+    userStatusId: value.userStatusId ?? undefined,
+    createdFrom: toDateOnly(value.createdFrom),
+    createdTo: toDateOnly(value.createdTo),
+  };
+}
+
+function toDateOnly(value: Date | null): string | undefined {
+  return value ? value.toISOString().slice(0, 10) : undefined;
+}
+
+function filterSyncKey(filter: UserListFilter): string {
+  return JSON.stringify({
+    userStatusId: filter.userStatusId ?? null,
+    createdFrom: filter.createdFrom ?? null,
+    createdTo: filter.createdTo ?? null,
+  });
+}
+
+function createdDateRangeValidator(control: AbstractControl): ValidationErrors | null {
+  const createdFrom = control.get('createdFrom')?.value as Date | null;
+  const createdTo = control.get('createdTo')?.value as Date | null;
+
+  if (createdFrom && createdTo && createdFrom > createdTo) {
+    return { createdDateRange: true };
+  }
+
+  return null;
+}
+
+function endOfToday(): Date {
+  const today = new Date();
+  today.setHours(23, 59, 59, 999);
+  return today;
 }

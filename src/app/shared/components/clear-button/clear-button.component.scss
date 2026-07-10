@@ -1,0 +1,33 @@
+.clear-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-width: 6.25rem;
+  height: 2.35rem;
+  padding-inline: 0.95rem;
+  border: 1px solid var(--app-border);
+  border-radius: 6px;
+  background: var(--white);
+  color: var(--gray-text-strong);
+  font-size: 0.9rem;
+  font-weight: 750;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: none;
+  transition:
+    border-color 0.16s ease,
+    background 0.16s ease,
+    color 0.16s ease;
+}
+
+.clear-button:hover {
+  border-color: var(--orange-border);
+  background: var(--orange-light-hover);
+  color: var(--orange-text-hover);
+}
+
+.clear-button:focus-visible {
+  outline: 3px solid var(--orange-focus-ring);
+  outline-offset: 2px;
+}

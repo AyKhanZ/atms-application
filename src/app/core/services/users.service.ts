@@ -18,9 +18,7 @@ export class UsersService {
   getUsers(filter: UserListFilter): Observable<UserListResponse> {
     let params = new HttpParams().set('Page', filter.page).set('PageSize', filter.pageSize);
 
-    if (filter.name) params = params.set('Name', filter.name);
-    if (filter.surname) params = params.set('Surname', filter.surname);
-    if (filter.email) params = params.set('Email', filter.email);
+    if (filter.search) params = params.set('Search', filter.search);
     if (filter.userStatusId) params = params.set('UserStatusId', filter.userStatusId);
     if (filter.createdFrom) params = params.set('CreatedFrom', filter.createdFrom);
     if (filter.createdTo) params = params.set('CreatedTo', filter.createdTo);

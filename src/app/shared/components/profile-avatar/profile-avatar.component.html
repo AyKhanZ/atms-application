@@ -1,0 +1,30 @@
+<button
+  class="avatar-button"
+  type="button"
+  [disabled]="!previewEnabled() || !canShowImage()"
+  (click)="openPreview()">
+  <div class="avatar">
+    @if (canShowImage()) {
+      <img [src]="normalizedImageUrl()!" [alt]="fullName()" (error)="onImageError()" />
+    } @else {
+      <span>{{ initials() }}</span>
+    }
+  </div>
+</button>
+
+<p-dialog
+  [(visible)]="previewVisible"
+  [modal]="true"
+  [dismissableMask]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [showHeader]="false"
+  styleClass="avatar-preview-dialog">
+  @if (canShowImage()) {
+    <img
+      class="avatar-preview-image"
+      [src]="normalizedImageUrl()!"
+      [alt]="fullName()"
+      (error)="onImageError()" />
+  }
+</p-dialog>

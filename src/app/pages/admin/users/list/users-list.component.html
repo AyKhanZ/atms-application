@@ -1,115 +1,100 @@
-<div class="container">
+<section class="page">
+  <h1 class="page-title">Users Management</h1>
 
-  <!-- Toolbar -->
-  <div class="users-toolbar">
-    <h1 class="users-toolbar__title">Users Management</h1>
+  <div class="page-header users-header">
+    <app-list-search
+      class="users-search"
+      placeholder="Search users"
+      [value]="searchTerm()"
+      (valueChange)="onSearchChange($event)"
+    />
 
-    <div class="users-toolbar__actions">
-
-      <!-- Filter toggle -->
-      <button
-        pButton
-        type="button"
-        outlined
-        icon="pi pi-filter"
-        class="toolbar-btn"
-        [class.toolbar-btn--active]="isFilterOpen()"
-        (click)="toggleFilter()"
-      >
-        <span>Filters</span>
-        @if (activeFilterCount() > 0) {
-          <span class="filter-badge">{{ activeFilterCount() }}</span>
-        }
+    <div class="page-actions">
+      <app-filter-toggle-button
+        [active]="filtersOpen()"
+        [count]="activeFilterCount()"
+        (clicked)="toggleFilters()"
+      />
+      <button type="button" class="register-user-button" (click)="openRegisterUser()">
+        <i class="pi pi-user-plus"></i>
+        <span>Register user</span>
       </button>
-
-      <!-- Sort menu -->
-      <button pButton type="button" outlined class="toolbar-btn" (click)="sortMenu.toggle($event)">
-        <i [class]="sortDirectionIcon()"></i>
-        <span>{{ currentSortLabel() }}</span>
-        <i class="icon-trail pi pi-chevron-down"></i>
-      </button>
-
-      <p-menu #sortMenu [model]="sortMenuItems()" [popup]="true" appendTo="body" styleClass="sort-menu" />
-
     </div>
   </div>
 
-  <!-- Filter panel -->
-  <app-users-filter />
+  @if (filtersOpen()) {
+    <app-users-filter
+      [filter]="filter()"
+      [statuses]="userStatuses()"
+      [statusesLoading]="userStatusesLoading()"
+      (apply)="applyFilters($event)"
+      (clear)="clearFilters()"
+    />
+  }
 
-  <!-- Table card -->
-  <div class="table-card">
-
-    @if (isLoading()) {
-      <p-progressbar mode="indeterminate" class="table-loader" />
-    }
-
-    <p-table [value]="users()" styleClass="users-table" [tableStyle]="{ 'min-width': '760px' }">
+  <div class="panel users-table-panel" [class.users-table-panel--locked]="tableRequestsBlocked()">
+    <p-table
+      class="users-table"
+      [value]="users()"
+      [lazy]="true"
+      [loading]="loading()"
+      [paginator]="totalCount() > 0"
+      [rows]="filter().pageSize"
+      [first]="first()"
+      [totalRecords]="totalCount()"
+      [rowsPerPageOptions]="[10, 20, 50]"
+      [sortField]="filter().sortBy"
+      [sortOrder]="tableSortOrder()"
+      [tableStyle]="{ 'min-width': '58rem' }"
+      dataKey="id"
+      [paginatorDropdownAppendTo]="'body'"
+      (onLazyLoad)="onLazyLoad($event)"
+    >
       <ng-template pTemplate="header">
         <tr>
-          <th>Full Name</th>
-          <th>Email</th>
-          <th>Position</th>
-          <th>Status</th>
-          <th>Created At</th>
+          <th pSortableColumn="name" [pSortableColumnDisabled]="tableRequestsBlocked()">Full name <p-sortIcon field="name" /></th>
+          <th pSortableColumn="email" [pSortableColumnDisabled]="tableRequestsBlocked()">Email <p-sortIcon field="email" /></th>
+          <th pSortableColumn="position" [pSortableColumnDisabled]="tableRequestsBlocked()">Position <p-sortIcon field="position" /></th>
+          <th pSortableColumn="userStatus" [pSortableColumnDisabled]="tableRequestsBlocked()">Status <p-sortIcon field="userStatus" /></th>
+          <th pSortableColumn="createdAt" [pSortableColumnDisabled]="tableRequestsBlocked()">Created <p-sortIcon field="createdAt" /></th>
         </tr>
       </ng-template>
 
-      <ng-template pTemplate="body" let-row>
-        <tr class="table-row">
+      <ng-template pTemplate="body" let-user>
+        <tr class="clickable-row" (click)="openDetails(user)">
           <td>
-          <div class="user-cell">
-            <div class="user-avatar">
-              @if (row.avatarPath) {
-                <img src="https://img.freepik.com/free-photo/people-working-as-team-company_23-2149136890.jpg?semt=ais_hybrid&w=740&q=80" [alt]="row.name" />
-              } @else {
-                <span class="user-avatar__initials">
-                  {{ row.name[0] }}{{ row.surname[0] }}
-                </span>
-              }
+            <div class="user-cell">
+              <div class="user-photo">
+                @if (user.avatarPath && !avatarLoadFailed(user)) {
+                  <img
+                    [src]="user.avatarPath"
+                    [alt]="fullName(user)"
+                    (error)="onAvatarError(user)" />
+                } @else {
+                  <span>{{ initials(user) }}</span>
+                }
+              </div>
+              <span>{{ fullName(user) }}</span>
             </div>
-            <div class="user-meta">
-              <span class="user-meta__name">{{ row.name }} {{ row.surname }}</span>
-            </div>
-          </div>
           </td>
           <td>
-          <a class="email-link" [href]="'mailto:' + row.email">{{ row.email }}</a>
+            <a class="email-link" [href]="'mailto:' + user.email" (click)="$event.stopPropagation()">
+              {{ user.email }}
+            </a>
           </td>
-          <td>
-          <span class="position-text">{{ row.position ?? '—' }}</span>
-          </td>
-          <td>
-          <span class="status-badge" [ngClass]="getStatusClass(row.userStatus.id)">
-            {{ row.userStatus.name }}
-          </span>
-          </td>
-          <td>
-          {{ row.createdAt | date: 'dd.MM.yyyy HH:mm' }}
-          </td>
+          <td>{{ user.position ?? '-' }}</td>
+          <td><p-tag [value]="userStatus(user)" /></td>
+          <td>{{ user.createdAt | date: 'dd.MM.yyyy HH:mm' }}</td>
         </tr>
       </ng-template>
 
       <ng-template pTemplate="emptymessage">
-        <tr>
-        <td class="empty-state" colspan="5">
-          <i class="pi pi-search"></i>
-          <p>No users found</p>
-        </td>
-      </tr>
+        <tr class="empty-row">
+          <td colspan="5">
+            <div class="table-empty-state">No users found.</div>
+          </td>
+        </tr>
       </ng-template>
-
     </p-table>
-
-    <app-pagination
-      [page]="filter().page"
-      [pageSize]="filter().pageSize"
-      [totalCount]="totalCount()"
-      [totalPages]="totalPages()"
-      [pageSizeOptions]="[10, 20, 50]"
-      (pageChange)="onPageChange($event)"
-      (pageSizeChange)="onPageSizeChange($event)"
-    />
-
   </div>
-</div>
+</section>

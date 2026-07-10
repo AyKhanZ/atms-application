@@ -1,0 +1,28 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.list-search {
+  position: relative;
+  display: block;
+  min-width: 0;
+}
+
+.list-search i {
+  position: absolute;
+  top: 50%;
+  left: 0.85rem;
+  color: var(--app-muted);
+  transform: translateY(-50%);
+}
+
+.list-search input {
+  width: 100%;
+  padding-left: 2.35rem;
+}
+
+.list-search input:disabled {
+  cursor: not-allowed;
+  opacity: 0.68;
+}

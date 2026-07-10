@@ -1,0 +1,97 @@
+<section class="page">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Details</h1>
+      <p class="page-subtitle">{{ fullName() || 'User information' }}</p>
+    </div>
+    <app-back-button (back)="back()" />
+  </div>
+
+  @if (user(); as user) {
+    <section class="details-layout">
+      <div class="panel profile-hero">
+        <app-profile-avatar
+          [imageUrl]="user.avatarPath"
+          [fullName]="fullName()"
+          [initials]="initials(user)" />
+
+        <div class="profile-copy">
+          <p-tag [value]="userStatus(user)" />
+          <h2>{{ fullName() }}</h2>
+          <p>{{ display(user.position) }}</p>
+          <p>{{ display(user.email) }}</p>
+        </div>
+      </div>
+
+      <div class="panel panel-padding details-panel">
+        <h2>Personal</h2>
+        <dl>
+          <div>
+            <dt>Email</dt>
+            <dd>{{ display(user.email) }}</dd>
+          </div>
+          <div>
+            <dt>Phone</dt>
+            <dd>{{ display(user.phoneNumber) }}</dd>
+          </div>
+          <div>
+            <dt>Birth date</dt>
+            <dd>{{ user.birthDate ? (user.birthDate | date: 'dd.MM.yyyy') : '-' }}</dd>
+          </div>
+          <div>
+            <dt>Gender</dt>
+            <dd>{{ display(user.gender.name) }}</dd>
+          </div>
+          <div>
+            <dt>Marital status</dt>
+            <dd>{{ display(user.maritalStatus.name) }}</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div class="panel panel-padding details-panel">
+        <h2>Work</h2>
+        <dl>
+          <div>
+            <dt>Position</dt>
+            <dd>{{ display(user.position) }}</dd>
+          </div>
+          <div>
+            <dt>Roles</dt>
+            <dd>
+              @if (roles().length) {
+                <span class="roles">
+                  @for (role of roles(); track role) {
+                    <p-tag [value]="role" severity="info" />
+                  }
+                </span>
+              } @else {
+                -
+              }
+            </dd>
+          </div>
+          <div>
+            <dt>Status</dt>
+            <dd>{{ userStatus(user) }}</dd>
+          </div>
+          <div>
+            <dt>Email confirmed</dt>
+            <dd>{{ user.emailConfirmed ? 'Yes' : 'No' }}</dd>
+          </div>
+          <div>
+            <dt>Survey completed</dt>
+            <dd>{{ user.hasCompletedSurvey ? 'Yes' : 'No' }}</dd>
+          </div>
+          <div>
+            <dt>Created</dt>
+            <dd>{{ user.createdAt ? (user.createdAt | date: 'dd.MM.yyyy HH:mm') : '-' }}</dd>
+          </div>
+        </dl>
+      </div>
+    </section>
+  } @else if (loading()) {
+    <div class="panel panel-padding">Loading...</div>
+  } @else {
+    <div class="panel panel-padding">User was not found.</div>
+  }
+</section>

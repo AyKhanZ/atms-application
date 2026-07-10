@@ -1,0 +1,95 @@
+.details-layout {
+  display: grid;
+  grid-template-columns: minmax(24rem, 0.9fr) minmax(0, 1.1fr);
+  gap: 1rem;
+}
+
+.profile-hero {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 1.5rem;
+  min-height: 12rem;
+  padding: 1.5rem;
+  background:
+    linear-gradient(135deg, rgb(254 147 18 / 8%), transparent 55%),
+    var(--white);
+}
+
+.profile-copy {
+  min-width: 0;
+}
+
+.profile-copy h2 {
+  margin: 0.75rem 0 0;
+  font-size: 1.5rem;
+}
+
+.profile-copy p {
+  margin: 0.35rem 0 0;
+  color: var(--app-muted);
+  overflow-wrap: anywhere;
+}
+
+.details-panel {
+  display: grid;
+  gap: 1rem;
+}
+
+.details-panel h2 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+dl {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+}
+
+dl > div {
+  display: grid;
+  grid-template-columns: minmax(8rem, 0.35fr) minmax(0, 1fr);
+  gap: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--app-border);
+}
+
+dl > div:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+dt {
+  color: var(--app-muted);
+  font-weight: 650;
+}
+
+dd {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.roles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+@media (max-width: 760px) {
+  .details-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-hero {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+  }
+
+  dl > div {
+    grid-template-columns: 1fr;
+    gap: 0.25rem;
+  }
+}

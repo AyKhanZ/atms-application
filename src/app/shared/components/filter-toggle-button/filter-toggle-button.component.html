@@ -1,0 +1,14 @@
+<button
+  type="button"
+  class="filter-toggle"
+  [class.filter-toggle--active]="active()"
+  [disabled]="disabled()"
+  (click)="clicked.emit()"
+>
+  <i class="pi pi-filter"></i>
+  <span>{{ label() }}</span>
+
+  @if (count() > 0) {
+    <span class="filter-count">{{ count() }}</span>
+  }
+</button>

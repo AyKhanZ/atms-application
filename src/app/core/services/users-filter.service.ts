@@ -29,7 +29,7 @@ export class UsersFilterService {
 
   readonly activeFilterCount = computed(() => {
     const f = this.currentFilter();
-    return [f.name, f.surname, f.email, f.userStatusId, f.createdFrom, f.createdTo].filter(
+    return [f.search, f.userStatusId, f.createdFrom, f.createdTo].filter(
       (v) => v !== undefined && v !== null && v !== '',
     ).length;
   });
@@ -46,9 +46,7 @@ export class UsersFilterService {
       pageSize: params['pageSize'] ? +params['pageSize'] : 10,
       sortBy: params['sortBy'] ?? 'createdAt',
       sortDirection: params['sortDirection'] ? +params['sortDirection'] : 1,
-      name: params['name'] ?? undefined,
-      surname: params['surname'] ?? undefined,
-      email: params['email'] ?? undefined,
+      search: params['search'] ?? undefined,
       userStatusId: params['userStatusId'] ? +params['userStatusId'] : undefined,
       createdFrom: params['createdFrom'] ?? undefined,
       createdTo: params['createdTo'] ?? undefined,
@@ -103,9 +101,7 @@ export class UsersFilterService {
 
   clearFilter(): void {
     this.applyFilter({
-      name: undefined,
-      surname: undefined,
-      email: undefined,
+      search: undefined,
       userStatusId: undefined,
       createdFrom: undefined,
       createdTo: undefined,
@@ -125,9 +121,7 @@ export class UsersFilterService {
       sortDirection: filter.sortDirection,
     };
 
-    if (filter.name) queryParams['name'] = filter.name;
-    if (filter.surname) queryParams['surname'] = filter.surname;
-    if (filter.email) queryParams['email'] = filter.email;
+    if (filter.search) queryParams['search'] = filter.search;
     if (filter.userStatusId) queryParams['userStatusId'] = filter.userStatusId;
     if (filter.createdFrom) queryParams['createdFrom'] = filter.createdFrom;
     if (filter.createdTo) queryParams['createdTo'] = filter.createdTo;
