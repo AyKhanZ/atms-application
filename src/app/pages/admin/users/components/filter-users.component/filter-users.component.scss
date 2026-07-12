@@ -4,6 +4,17 @@
   min-width: 0;
 }
 
+.form-grid {
+  display: grid;
+  grid-template-columns: minmax(13rem, 22rem) repeat(2, minmax(13rem, 20rem));
+  gap: 1rem;
+  justify-content: start;
+}
+
+.field {
+  min-width: 0;
+}
+
 :host ::ng-deep p-select,
 :host ::ng-deep .filter-select,
 :host ::ng-deep .filter-datepicker,
@@ -122,7 +133,17 @@
   font-weight: 650;
 }
 
+@media (max-width: 900px) {
+  .form-grid {
+    grid-template-columns: repeat(2, minmax(13rem, 1fr));
+  }
+}
+
 @media (max-width: 480px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
   .toolbar {
     display: grid;
     grid-template-columns: 1fr 1fr;

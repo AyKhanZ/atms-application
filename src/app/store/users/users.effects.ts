@@ -28,6 +28,22 @@ export class UsersEffects {
     ),
   );
 
+
+  // POST /account/register
+  registerUser$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(UsersStoreActions.registerUser),
+      switchMap(({ command }) =>
+        this.usersService.registerUser(command).pipe(
+          map((item) => UsersStoreActions.registerUserSuccess({ item })),
+          catchError((err) => {
+            console.error('[users] Failed to register user', err);
+            return of(UsersStoreActions.registerUserFailure());
+          }),
+        ),
+      ),
+    ),
+  );
   // GET /users/:id
   loadUser$ = createEffect(() =>
     this.actions$.pipe(
@@ -60,6 +76,24 @@ export class UsersEffects {
     ),
   );
 
+
+  registerUserSuccess$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(UsersStoreActions.registerUserSuccess),
+        tap(() => this.snackBar.success('User invitation was sent successfully.')),
+      ),
+    { dispatch: false },
+  );
+
+  registerUserFailure$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(UsersStoreActions.registerUserFailure),
+        tap(() => this.snackBar.error('Failed to register user.')),
+      ),
+    { dispatch: false },
+  );
   updateUserStatusSuccess$ = createEffect(
     () =>
       this.actions$.pipe(

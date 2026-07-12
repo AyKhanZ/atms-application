@@ -69,8 +69,49 @@
 :host ::ng-deep .field .p-inputtext {
   height: 52px;
   border-radius: 8px;
-  background: var(--white-soft);
+  background: var(--white-color);
+  color: var(--text);
+  font-size: 1rem;
+  font-weight: 400;
+  letter-spacing: 0;
   box-shadow: var(--shadow-inset-soft);
+  transition: border-color 0.16s ease, box-shadow 0.16s ease, background-color 0.16s ease;
+}
+
+:host ::ng-deep .field .p-inputtext::placeholder {
+  color: var(--app-muted);
+  font-weight: 400;
+  opacity: 0.75;
+}
+
+:host ::ng-deep .field .p-inputtext:-webkit-autofill,
+:host ::ng-deep .field .p-inputtext:-webkit-autofill:hover,
+:host ::ng-deep .field .p-inputtext:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--text);
+  caret-color: var(--text);
+  box-shadow: 0 0 0 1000px var(--white-color) inset, var(--shadow-inset-soft);
+  font-weight: 400;
+  transition: background-color 9999s ease-out;
+}
+:host ::ng-deep .field .p-inputtext:enabled:hover {
+  border-color: var(--orange-border);
+}
+
+:host ::ng-deep .field .p-inputtext:enabled:focus,
+:host ::ng-deep .field .p-inputtext:enabled:focus-visible {
+  border-color: var(--orange);
+  background: var(--white-color);
+  box-shadow: 0 0 0 3px var(--orange-focus-ring);
+}
+
+:host ::ng-deep .field .p-floatlabel label {
+  color: var(--app-muted);
+  font-weight: 500;
+}
+
+:host ::ng-deep .field .p-floatlabel:has(.p-inputtext:enabled:focus) label,
+:host ::ng-deep .field .p-floatlabel:has(.p-inputtext:enabled:focus-visible) label {
+  color: var(--orange-text-hover);
 }
 
 :host ::ng-deep .field .p-password .p-inputtext {

@@ -1,6 +1,6 @@
 import { type Action, createReducer, on } from '@ngrx/store';
 import * as UsersStoreActions from './users.actions';
-import { defaultFilter } from '../../core/models/users/users.models';
+import { createDefaultUserListFilter } from '../../core/models/users/users.models';
 import { type UsersState, initialUsersState } from './users.state';
 
 const reducer = createReducer<UsersState>(
@@ -36,6 +36,30 @@ const reducer = createReducer<UsersState>(
     }),
   ),
 
+
+  on(
+    UsersStoreActions.registerUser,
+    (state): UsersState => ({
+      ...state,
+      isSubmitted: true,
+    }),
+  ),
+
+  on(
+    UsersStoreActions.registerUserSuccess,
+    (state): UsersState => ({
+      ...state,
+      isSubmitted: false,
+    }),
+  ),
+
+  on(
+    UsersStoreActions.registerUserFailure,
+    (state): UsersState => ({
+      ...state,
+      isSubmitted: false,
+    }),
+  ),
   on(
     UsersStoreActions.loadUser,
     (state): UsersState => ({
@@ -115,7 +139,7 @@ const reducer = createReducer<UsersState>(
       totalPages: 0,
       hasNext: false,
       hasPrevious: false,
-      filter: defaultFilter,
+      filter: createDefaultUserListFilter(),
       isLoading: false,
     }),
   ),

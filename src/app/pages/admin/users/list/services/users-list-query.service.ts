@@ -2,12 +2,13 @@ import { Injectable } from '@angular/core';
 import { Params } from '@angular/router';
 import { SortDirectionEnum } from '../../../../../core/enums/sort-direction.enum';
 import {
-  defaultFilter,
+  createDefaultUserListFilter,
   UserListFilter,
 } from '../../../../../core/models/users/users.models';
 
 @Injectable()
 export class UsersListQueryService {
+  private readonly defaultFilter = createDefaultUserListFilter();
   private readonly sortFields = new Set([
     'name',
     'surname',
@@ -19,10 +20,10 @@ export class UsersListQueryService {
 
   fromParams(params: Params): UserListFilter {
     return {
-      page: this.readNumber(params['page'], defaultFilter.page),
-      pageSize: this.readNumber(params['pageSize'], defaultFilter.pageSize),
+      page: this.readNumber(params['page'], this.defaultFilter.page),
+      pageSize: this.readNumber(params['pageSize'], this.defaultFilter.pageSize),
       sortBy: this.readSortBy(params['sortBy']),
-      sortDirection: this.readSortDirection(params['sortDirection'], defaultFilter.sortDirection),
+      sortDirection: this.readSortDirection(params['sortDirection'], this.defaultFilter.sortDirection),
       search: this.readString(params['search']),
       userStatusId: this.readOptionalNumber(params['userStatusId']),
       createdFrom: this.readString(params['createdFrom']),
@@ -58,8 +59,8 @@ export class UsersListQueryService {
   }
 
   private readSortBy(value: unknown): string {
-    const sortBy = String(value ?? defaultFilter.sortBy);
-    return this.sortFields.has(sortBy) ? sortBy : defaultFilter.sortBy;
+    const sortBy = String(value ?? this.defaultFilter.sortBy);
+    return this.sortFields.has(sortBy) ? sortBy : this.defaultFilter.sortBy;
   }
 
   private readNumber(value: unknown, fallback: number): number {

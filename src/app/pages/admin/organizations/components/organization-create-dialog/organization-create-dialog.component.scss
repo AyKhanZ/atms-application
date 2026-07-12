@@ -1,0 +1,131 @@
+:host ::ng-deep .organization-create-dialog {
+  width: min(94vw, 72rem);
+}
+
+:host ::ng-deep .organization-create-dialog .p-dialog-header {
+  padding: 1.35rem 1.5rem 0.7rem;
+}
+
+:host ::ng-deep .organization-create-dialog .p-dialog-content {
+  padding: 0.65rem 1.5rem 1.35rem;
+}
+
+:host ::ng-deep .organization-create-dialog .p-dialog-title {
+  color: var(--app-text);
+  font-size: 1.3rem;
+  font-weight: 780;
+}
+
+.organization-form,
+.details-panel {
+  display: grid;
+  gap: 1rem;
+}
+
+.details-panel {
+  padding: 1.1rem;
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+  background: var(--app-surface);
+}
+
+.fields-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(13rem, 18rem);
+  gap: 1rem;
+  align-items: start;
+}
+
+label {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.34rem 0.6rem;
+  min-width: 0;
+}
+
+label span,
+.logo-heading span {
+  color: var(--app-text);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+label b {
+  color: var(--orange);
+  font-weight: 800;
+}
+
+label input {
+  grid-column: 1 / -1;
+  width: 100%;
+  font-weight: 450;
+}
+
+small {
+  min-height: 1.05rem;
+  color: transparent;
+  font-size: 0.76rem;
+  line-height: 1.05rem;
+}
+
+small.visible {
+  color: rgb(220 38 38 / 86%);
+}
+
+em {
+  color: var(--app-muted);
+  font-size: 0.75rem;
+  font-style: normal;
+  line-height: 1.05rem;
+  text-align: right;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding-top: 0.2rem;
+}
+
+.dialog-actions button {
+  display: inline-flex;
+  min-width: 8.75rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+@media (max-width: 760px) {
+  :host ::ng-deep .organization-create-dialog {
+    width: 96vw;
+  }
+
+  .fields-row {
+    grid-template-columns: 1fr;
+  }
+
+  .dialog-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .dialog-actions button {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 440px) {
+  :host ::ng-deep .organization-create-dialog .p-dialog-header,
+  :host ::ng-deep .organization-create-dialog .p-dialog-content {
+    padding-inline: 1rem;
+  }
+
+  .details-panel {
+    padding: 0.9rem;
+  }
+
+  .dialog-actions {
+    grid-template-columns: 1fr;
+  }
+}

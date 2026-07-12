@@ -4,6 +4,7 @@ import { environment } from '../../../environments/environment';
 @Injectable({ providedIn: 'root' })
 export class ImageUrlService {
   private readonly apiOrigin = new URL(environment.apiUrl, window.location.origin).origin;
+  private readonly imagesPath = '/app/images';
 
   normalize(value: string | null | undefined): string | null {
     if (!value) {
@@ -23,7 +24,7 @@ export class ImageUrlService {
 
       return value;
     } catch {
-      return value;
+      return `${this.apiOrigin}${this.imagesPath}/${value.replace(/^\/+/, '')}`;
     }
   }
 }

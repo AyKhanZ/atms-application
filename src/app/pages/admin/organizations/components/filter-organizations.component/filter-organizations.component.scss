@@ -1,0 +1,135 @@
+.filters {
+  display: grid;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.form-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.organizations-filter-grid {
+  grid-template-columns: repeat(2, minmax(13rem, 20rem));
+  justify-content: start;
+}
+
+:host ::ng-deep .filter-datepicker,
+:host ::ng-deep .filter-datepicker .p-inputtext {
+  width: 100%;
+}
+
+:host ::ng-deep .filter-datepicker,
+:host ::ng-deep .filter-datepicker .p-datepicker-input {
+  border-color: #d5dbe3;
+  border-radius: 8px;
+  background: var(--white);
+  box-shadow: none;
+}
+
+:host ::ng-deep .filter-datepicker .p-datepicker-input {
+  height: 2.35rem;
+}
+
+:host ::ng-deep .filter-datepicker {
+  border: 0;
+}
+
+:host ::ng-deep .filter-datepicker .p-datepicker-input:hover {
+  border-color: #bac4d1;
+}
+
+:host ::ng-deep .date-field .p-datepicker,
+:host ::ng-deep .date-field .p-datepicker.p-focus,
+:host ::ng-deep .date-field .p-datepicker.p-inputwrapper-focus {
+  border-color: transparent;
+  outline: 0;
+  box-shadow: none;
+}
+
+:host ::ng-deep .filter-datepicker:has(.p-inputtext:enabled:focus) .p-datepicker-input,
+:host ::ng-deep .filter-datepicker:has(.p-inputtext:enabled:focus-visible) .p-datepicker-input {
+  border-color: var(--orange);
+  box-shadow: 0 0 0 3px var(--orange-focus-ring);
+}
+
+:host ::ng-deep .filter-datepicker .p-inputtext:enabled:focus,
+:host ::ng-deep .filter-datepicker .p-inputtext:enabled:focus-visible {
+  outline: 0;
+  box-shadow: none;
+}
+
+:host ::ng-deep .filter-datepicker .p-datepicker-input-icon-container {
+  right: 0.8rem;
+  color: var(--gray-icon);
+}
+
+:host ::ng-deep .filter-datepicker .p-inputtext {
+  padding-right: 2.5rem;
+}
+
+.toolbar button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-width: 6.25rem;
+  height: 2.35rem;
+  appearance: none;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 750;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: none;
+  transition: border-color 0.16s ease, background 0.16s ease, color 0.16s ease;
+}
+
+.apply-button {
+  border-color: var(--orange);
+  background: var(--orange);
+  color: var(--white);
+}
+
+.apply-button:hover {
+  border-color: var(--orange-hover);
+  background: var(--orange-hover);
+  color: var(--white);
+}
+
+.apply-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.62;
+}
+
+.apply-button:focus-visible {
+  outline: 3px solid var(--orange-focus-ring);
+  outline-offset: 2px;
+}
+
+.filter-error {
+  display: block;
+  margin-top: -0.25rem;
+  color: var(--red);
+  font-size: 0.83rem;
+  font-weight: 650;
+}
+
+@media (max-width: 760px) {
+  .organizations-filter-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .toolbar {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .toolbar button {
+    justify-content: center;
+    min-width: 0;
+  }
+}

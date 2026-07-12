@@ -1,0 +1,41 @@
+<section class="file-upload">
+  <div class="file-upload__heading">
+    <span>{{ label() }}</span>
+    <p>{{ hint }}</p>
+  </div>
+
+  <div class="file-upload__body">
+    <div class="file-upload__preview" [class.file-upload__preview--empty]="!previewUrl()">
+      @if (previewUrl()) {
+        <img [src]="previewUrl()" [alt]="previewAlt()" />
+        <button type="button" class="file-upload__remove" (click)="remove(upload)" aria-label="Remove file">
+          <i class="pi pi-times"></i>
+        </button>
+      } @else {
+        <i class="pi pi-image"></i>
+      }
+    </div>
+
+    <div class="file-upload__content">
+      <p-fileUpload
+        #upload
+        mode="basic"
+        [chooseLabel]="chooseLabel()"
+        chooseIcon="pi pi-upload"
+        [accept]="accept"
+        [maxFileSize]="imageValidator.maxSizeBytes"
+        [auto]="false"
+        [customUpload]="true"
+        (onSelect)="onFileSelected($event, upload)">
+        <ng-template #filelabel></ng-template>
+      </p-fileUpload>
+
+      <div class="file-upload__file-line" [class.file-upload__file-line--empty]="!fileLabel()">
+        <span>Selected file:</span>
+        <strong [title]="fileLabel()">{{ fileLabel() || 'No file selected' }}</strong>
+      </div>
+
+      <small [class.visible]="errorMessage()">{{ errorMessage() || ' ' }}</small>
+    </div>
+  </div>
+</section>

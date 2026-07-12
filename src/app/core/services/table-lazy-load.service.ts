@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
 import { TableLazyLoadEvent } from 'primeng/table';
 import { SortDirectionEnum } from '../enums/sort-direction.enum';
-import { PaginatedFilter } from '../models/paginated.model';
+import { PaginationRequest } from '../models/paginated.model';
 
 @Injectable({ providedIn: 'root' })
 export class TableLazyLoadService {
-  toFilter<TFilter extends PaginatedFilter>(
+  toFilter<TFilter extends PaginationRequest>(
     event: TableLazyLoadEvent,
     currentFilter: TFilter,
   ): TFilter {

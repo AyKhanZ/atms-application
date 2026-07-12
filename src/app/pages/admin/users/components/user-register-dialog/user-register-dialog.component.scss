@@ -1,0 +1,210 @@
+:host ::ng-deep .user-register-dialog {
+  width: min(96vw, 117rem);
+}
+
+:host ::ng-deep .user-register-dialog .p-dialog-header {
+  padding: 1.7rem 2.1rem 1rem;
+}
+
+:host ::ng-deep .user-register-dialog .p-dialog-content {
+  padding: 0.9rem 2.1rem 1.65rem;
+}
+
+:host ::ng-deep .user-register-dialog .p-dialog-title {
+  color: var(--app-text);
+  font-size: 1.35rem;
+  font-weight: 780;
+}
+
+.register-form,
+.details-panel {
+  display: grid;
+  gap: 1.15rem;
+}
+
+.details-panel {
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.fields-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  align-items: start;
+}
+
+label {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.36rem 0.7rem;
+  min-width: 0;
+}
+
+label span {
+  color: var(--app-text);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+label b {
+  color: var(--orange);
+  font-weight: 800;
+}
+
+label input,
+label p-select {
+  grid-column: 1 / -1;
+  width: 100%;
+}
+
+label input {
+  min-height: 2.7rem;
+  font-weight: 450;
+}
+
+small {
+  min-height: 1.05rem;
+  color: transparent;
+  font-size: 0.76rem;
+  line-height: 1.05rem;
+}
+
+small.visible {
+  color: rgb(220 38 38 / 86%);
+}
+
+em {
+  color: var(--app-muted);
+  font-size: 0.75rem;
+  font-style: normal;
+  line-height: 1.05rem;
+  text-align: right;
+}
+
+.organization-field {
+  grid-template-columns: 1fr;
+}
+
+:host ::ng-deep .register-select,
+:host ::ng-deep .organization-select {
+  width: 100%;
+  min-height: 2.7rem;
+  border-color: #d5dbe3;
+  border-radius: 8px;
+  background: var(--white);
+  box-shadow: none;
+}
+
+:host ::ng-deep .register-select:not(.p-disabled):hover,
+:host ::ng-deep .organization-select:not(.p-disabled):hover {
+  border-color: #bac4d1;
+}
+
+:host ::ng-deep .register-select.p-focus,
+:host ::ng-deep .organization-select.p-focus {
+  border-color: var(--orange);
+  box-shadow: 0 0 0 3px var(--orange-focus-ring);
+}
+
+.organization-option {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.organization-option--selected {
+  gap: 0.55rem;
+}
+
+.organization-logo {
+  display: grid;
+  width: 2.35rem;
+  height: 2.35rem;
+  flex: 0 0 auto;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid var(--orange-border);
+  border-radius: 8px;
+  background: var(--orange-light-hover);
+  color: var(--orange);
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.organization-logo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0.18rem;
+  object-fit: contain;
+  background: var(--white);
+}
+
+.organization-copy {
+  display: grid;
+  min-width: 0;
+  gap: 0.12rem;
+}
+
+.organization-copy strong,
+.organization-option--selected span {
+  overflow: hidden;
+  color: var(--app-text);
+  font-size: 0.92rem;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.organization-copy small {
+  min-height: 0;
+  color: var(--app-muted);
+  line-height: 1.15;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding-top: 0.2rem;
+}
+
+.dialog-actions button {
+  display: inline-flex;
+  min-width: 9rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+@media (max-width: 760px) {
+:host ::ng-deep .user-register-dialog {
+    width: 96vw;
+  }
+
+.dialog-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .dialog-actions button {
+    min-width: 0;
+  }
+}
+
+@media (max-width: 420px) {
+  :host ::ng-deep .user-register-dialog .p-dialog-header {
+    padding-inline: 1rem;
+  }
+
+  :host ::ng-deep .user-register-dialog .p-dialog-content {
+    padding-inline: 1rem;
+  }
+
+  .details-panel {
+    padding: 0.9rem;
+  }
+}

@@ -26,6 +26,7 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  white-space: nowrap;
 }
 
 .register-user-button {
@@ -267,7 +268,7 @@
   color: var(--orange-text-hover);
 }
 
-@media (max-width: 1080px) {
+@media (max-width: 1280px) {
   .users-header {
     grid-template-columns: 1fr;
     align-items: stretch;
@@ -275,12 +276,22 @@
 
   .users-search {
     width: 100%;
-    max-width: 46rem;
+    max-width: none;
   }
 
   .page-actions {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     width: 100%;
-    justify-content: start;
+    justify-content: stretch;
+  }
+
+  .page-actions app-filter-toggle-button,
+  .page-actions app-create-button {
+    width: 100%;
+  }
+
+  .page-actions button {
+    width: 100%;
   }
 }
 
@@ -289,22 +300,6 @@
     min-height: 30rem;
   }
 
-  .page-actions {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    width: 100%;
-    justify-content: stretch;
-  }
-
-  .page-actions button {
-    width: 100%;
-    min-width: 0;
-    padding-inline: 0.7rem;
-  }
-
-  .page-actions app-filter-toggle-button {
-    width: 100%;
-  }
 
   :host ::ng-deep .users-table .p-datatable-table {
     min-width: 44rem;

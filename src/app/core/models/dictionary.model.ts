@@ -1,5 +1,5 @@
-export interface DictionaryModel {
-  id: number;
+export interface DictionaryModel<TId = number> {
+  id: TId;
   name: string;
   code: string;
 }

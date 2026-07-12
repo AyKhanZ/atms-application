@@ -1,0 +1,53 @@
+<p-dialog
+  [visible]="visible()"
+  (visibleChange)="visible.set($event)"
+  [modal]="true"
+  [closable]="true"
+  [dismissableMask]="false"
+  [draggable]="false"
+  [resizable]="false"
+  [header]="dialogTitle()"
+  styleClass="organization-create-dialog">
+  <form class="organization-form" [formGroup]="form" (ngSubmit)="submit()">
+    <section class="details-panel">
+      <div class="fields-row">
+        <label class="title-field">
+          <span>Title <b>*</b></span>
+          <input pInputText formControlName="title" autocomplete="organization" maxlength="100" />
+          <small [class.visible]="hasError('title')">{{ errorMessage('title') || ' ' }}</small>
+          <em>{{ titleLength() }}/100</em>
+        </label>
+
+        <label class="voen-field">
+          <span>VOEN <b>*</b></span>
+          <input pInputText formControlName="voen" maxlength="20" />
+          <small [class.visible]="hasError('voen')">{{ errorMessage('voen') || ' ' }}</small>
+          <em>{{ voenLength() }}/20</em>
+        </label>
+      </div>
+
+      <app-file-upload
+        label="Logo"
+        chooseLabel="Choose logo"
+        previewAlt="Organization logo preview"
+        [existingFileName]="existingImageFileName()"
+        [existingPreviewUrl]="existingImageUrl()"
+        [resetKey]="visible() + ':' + (organization()?.id ?? 'new')"
+        [errorMessage]="errorMessage('logo')"
+        (fileChange)="onImageChange($event)"
+        (fileRemove)="onImageRemoved()" />
+    </section>
+
+    <div class="dialog-actions">
+      <button pButton type="button" severity="secondary" outlined="true" [disabled]="isSaving()" (click)="cancel()">
+        <i class="pi pi-times"></i>
+        <span>Cancel</span>
+      </button>
+
+      <button pButton type="submit" [loading]="isSaving()">
+        <i class="pi pi-check"></i>
+        <span>{{ submitLabel() }}</span>
+      </button>
+    </div>
+  </form>
+</p-dialog>

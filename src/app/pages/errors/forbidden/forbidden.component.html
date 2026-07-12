@@ -1,1 +1,18 @@
-<p>403 forbidden.component works!</p>
+<section class="forbidden-page">
+  <div class="forbidden-card">
+    <div class="forbidden-art" aria-hidden="true">
+      <div class="shield"><i class="pi pi-lock"></i></div>
+    </div>
+
+    <div class="forbidden-content">
+      <span class="status">403</span>
+      <h1>Access Denied</h1>
+      <p>You do not have access to open this page.</p>
+
+      <div class="actions">
+        <button type="button" class="primary" (click)="back()">Back</button>
+        <button type="button" class="secondary" (click)="logout()">Log out</button>
+      </div>
+    </div>
+  </div>
+</section>

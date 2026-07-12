@@ -58,6 +58,21 @@ export class DictionaryEffects {
     ),
   );
 
+  // GET /dictionary/roles
+  loadRoles$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(DictionaryStoreActions.loadRoleDictionaries),
+      switchMap(() =>
+        this.dictionaryService.getRoleDictionaries().pipe(
+          map((items) => DictionaryStoreActions.loadRoleDictionariesSuccess({ items })),
+          catchError((err) => {
+            console.error('[Dictionary] Failed to load role dictionaries', err);
+            return EMPTY;
+          }),
+        ),
+      ),
+    ),
+  );
   // GET /dictionary/permissions
   loadPermissions$ = createEffect(() =>
     this.actions$.pipe(

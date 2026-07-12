@@ -17,19 +17,11 @@ export class HasRoleDirective {
 
   constructor() {
     effect(() => {
-      const role = normalize(this.hasRole());
       this.viewContainer.clear();
 
-      if (
-        this.roles().some((item) =>
-          normalize(item.code) === role || normalize(item.name) === role)
-      ) {
+      if (this.roles().some((role) => role.code === this.hasRole())) {
         this.viewContainer.createEmbeddedView(this.templateRef);
       }
     });
   }
-}
-
-function normalize(value: string | undefined): string {
-  return value?.replace(/\s+/g, '').toLowerCase() ?? '';
 }
