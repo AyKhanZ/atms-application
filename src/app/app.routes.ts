@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
-import { roleGuard } from './core/guards/role.guard';
-import { Roles } from './core/enums/roles.enum';
+import { permissionGuard } from './core/guards/permission.guard';
+import { Permissions } from './core/enums/permissions.enum';
 import { guestGuard } from './core/guards/guest.guard';
 
 export const routes: Routes = [
@@ -42,7 +42,16 @@ export const routes: Routes = [
         path: 'users',
         data: { breadcrumb: { title: 'Users', icon: 'pi-users' } },
         loadChildren: () => import('./pages/admin/users/users.routes').then((r) => r.USERS_ROUTES),
-        canActivate: [roleGuard(Roles.SuperAdmin)],
+        canActivate: [permissionGuard(Permissions.User.View)],
+      },
+      {
+        path: 'organizations',
+        data: { breadcrumb: { title: 'Organizations', icon: 'pi-building' } },
+        loadChildren: () =>
+          import('./pages/admin/organizations/organizations.routes').then(
+            (r) => r.ORGANIZATIONS_ROUTES,
+          ),
+        canActivate: [permissionGuard(Permissions.Organization.View)],
       },
     ],
   },

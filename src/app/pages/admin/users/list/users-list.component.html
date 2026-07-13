@@ -15,10 +15,11 @@
         [count]="activeFilterCount()"
         (clicked)="toggleFilters()"
       />
-      <button type="button" class="register-user-button" (click)="openRegisterUser()">
-        <i class="pi pi-user-plus"></i>
-        <span>Register user</span>
-      </button>
+      @if (canRegisterUser()) {
+        <app-create-button
+          label="Register user"
+          (clicked)="openRegisterUser()" />
+      }
     </div>
   </div>
 
@@ -97,4 +98,6 @@
       </ng-template>
     </p-table>
   </div>
+  <app-user-register-dialog [(visible)]="registerDialogVisible" (saved)="onUserRegistered()" />
 </section>
+

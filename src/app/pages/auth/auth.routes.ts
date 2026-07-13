@@ -20,4 +20,9 @@ export const AUTH_ROUTES: Routes = [
     loadComponent: () =>
       import('./reset-password/reset-password').then((c) => c.ResetPasswordComponent),
   },
+  {
+    path: 'email-confirmation',
+    loadComponent: () =>
+      import('./email-confirmation/email-confirmation').then((c) => c.EmailConfirmationComponent),
+  },
 ];

@@ -12,6 +12,9 @@ export interface DictionaryState {
 
   permissionDictionaries: DictionaryModel[];
   permissionDictionariesIsLoading: boolean;
+
+  roleDictionaries: DictionaryModel<string>[];
+  roleDictionariesIsLoading: boolean;
 }
 
 export const initialDictionaryState: DictionaryState = {
@@ -26,4 +29,7 @@ export const initialDictionaryState: DictionaryState = {
 
   permissionDictionaries: [],
   permissionDictionariesIsLoading: false,
+
+  roleDictionaries: [],
+  roleDictionariesIsLoading: false,
 };

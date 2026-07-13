@@ -26,16 +26,28 @@
       }
     </a>
 
-    <a
-      routerLink="/users"
-      routerLinkActive="active">
+    @if (canManageAdministration()) {
+      <a
+        routerLink="/users"
+        routerLinkActive="active">
 
-      <i class="pi pi-users"></i>
+        <i class="pi pi-users"></i>
 
-      @if (!layout.collapsed()) {
-        <span>Users</span>
-      }
-    </a>
+        @if (!layout.collapsed()) {
+          <span>Users</span>
+        }
+      </a>
+      <a
+        routerLink="/organizations"
+        routerLinkActive="active">
+
+        <i class="pi pi-building"></i>
+
+        @if (!layout.collapsed()) {
+          <span>Organizations</span>
+        }
+      </a>
+    }
   </nav>
 
   <button

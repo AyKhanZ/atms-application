@@ -4,6 +4,11 @@ export const Permissions = {
     Edit: 'UserEdit',
     Delete: 'UserDelete',
   },
+  Organization: {
+    View: 'OrganizationView',
+    Edit: 'OrganizationEdit',
+    Delete: 'OrganizationDelete',
+  },
   Role: {
     View: 'RoleView',
     Edit: 'RoleEdit',

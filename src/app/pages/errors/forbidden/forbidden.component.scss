@@ -1,0 +1,144 @@
+.forbidden-page {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: clamp(1rem, 3vw, 2rem);
+  background: var(--app-background);
+}
+
+.forbidden-card {
+  display: grid;
+  grid-template-columns: minmax(18rem, 26rem) minmax(0, 32rem);
+  align-items: center;
+  gap: clamp(2rem, 5vw, 4.5rem);
+  width: min(100%, 72rem);
+  min-height: min(70vh, 34rem);
+  padding: clamp(1.75rem, 5vw, 4rem);
+  border: 1px solid var(--orange-border);
+  border-radius: 8px;
+  background: rgb(255 255 255 / 92%);
+  box-shadow: var(--shadow-card);
+}
+
+.forbidden-art {
+  display: grid;
+  place-items: center;
+}
+
+.shield {
+  display: grid;
+  width: min(60vw, 18rem);
+  aspect-ratio: 1;
+  place-items: center;
+  border: 1px solid var(--orange-border);
+  border-radius: 999px;
+  background:
+    radial-gradient(circle, rgb(254 147 18 / 10%) 0 48%, transparent 49%),
+    var(--orange-light-hover);
+  color: var(--orange);
+}
+
+.shield i {
+  display: grid;
+  width: 7.5rem;
+  height: 7.5rem;
+  place-items: center;
+  border-radius: 28% 28% 38% 38%;
+  background: var(--orange-grad);
+  color: var(--white);
+  font-size: 2.8rem;
+  box-shadow: 0 16px 36px rgb(254 147 18 / 24%);
+}
+
+.forbidden-content {
+  display: grid;
+  gap: 1rem;
+}
+
+.status {
+  width: fit-content;
+  padding: 0.35rem 0.9rem;
+  border-radius: 999px;
+  background: var(--orange-light);
+  color: var(--orange-text-hover);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
+h1 {
+  margin: 0;
+  color: var(--text);
+  font-size: clamp(2.4rem, 6vw, 4.5rem);
+  line-height: 0.98;
+}
+
+p {
+  max-width: 30rem;
+  margin: 0;
+  color: var(--app-muted);
+  font-size: 1.05rem;
+  line-height: 1.55;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.4rem;
+}
+
+button {
+  min-width: 7.5rem;
+  height: 2.65rem;
+  padding-inline: 1.1rem;
+  border-radius: 6px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: border-color 0.16s ease, background 0.16s ease, color 0.16s ease;
+}
+
+.primary {
+  border: 1px solid var(--orange);
+  background: var(--orange);
+  color: var(--white);
+}
+
+.primary:hover {
+  border-color: var(--orange-hover);
+  background: var(--orange-hover);
+}
+
+.secondary {
+  border: 1px solid var(--orange-border);
+  background: var(--white);
+  color: var(--orange-text-hover);
+}
+
+.secondary:hover {
+  border-color: var(--orange);
+  background: var(--orange-light-hover);
+}
+
+button:focus-visible {
+  outline: 3px solid var(--orange-focus-ring);
+  outline-offset: 2px;
+}
+
+@media (max-width: 700px) {
+  .forbidden-card {
+    grid-template-columns: 1fr;
+    min-height: auto;
+    text-align: center;
+  }
+
+  .status,
+  .actions {
+    justify-self: center;
+  }
+
+  p {
+    justify-self: center;
+  }
+}
+
+

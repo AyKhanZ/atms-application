@@ -1,2 +1,22 @@
-<h1>404</h1>
-<p>not-found.component works!</p>
+<section class="not-found-page">
+  <div class="not-found-card">
+    <div class="not-found-art" aria-hidden="true">
+      <div class="orbit orbit-one"></div>
+      <div class="orbit orbit-two"></div>
+      <div class="map-pin"><i class="pi pi-map-marker"></i></div>
+      <span class="code code-left">4</span>
+      <span class="code code-right">4</span>
+    </div>
+
+    <div class="not-found-content">
+      <span class="status">404</span>
+      <h1>Page Not Found</h1>
+      <p>The page may have been moved, deleted, or the address was typed incorrectly.</p>
+
+      <div class="actions">
+        <button type="button" class="primary" (click)="back()">Back</button>
+        <button type="button" class="secondary" (click)="logout()">Log out</button>
+      </div>
+    </div>
+  </div>
+</section>

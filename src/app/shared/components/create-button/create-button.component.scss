@@ -1,0 +1,47 @@
+:host {
+  display: inline-flex;
+  min-width: 0;
+}
+
+.create-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-width: 9.75rem;
+  height: 2.35rem;
+  padding-inline: 0.95rem;
+  border: 1px solid var(--orange);
+  border-radius: 6px;
+  background: var(--orange);
+  color: var(--white);
+  font-size: 0.9rem;
+  font-weight: 750;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  box-shadow: none;
+  transition: border-color 0.16s ease, background 0.16s ease, color 0.16s ease;
+}
+
+.create-button:hover {
+  border-color: var(--orange-hover);
+  background: var(--orange-hover);
+  color: var(--white);
+}
+
+.create-button:focus-visible {
+  outline: 3px solid var(--orange-focus-ring);
+  outline-offset: 2px;
+}
+
+.create-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.62;
+}
+
+
+:host-context(.page-actions) .create-button {
+  width: 100%;
+  min-width: 9.75rem;
+}

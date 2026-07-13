@@ -1,0 +1,25 @@
+.action-button {
+  display: inline-grid;
+  width: 2rem;
+  height: 2rem;
+  place-items: center;
+  border: 1px solid var(--app-border);
+  border-radius: 999px;
+  background: var(--white);
+  color: var(--gray-icon);
+  cursor: pointer;
+  transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease, transform 0.16s ease;
+}
+
+.action-button:hover,
+.action-button:focus-visible {
+  border-color: var(--orange-border);
+  background: var(--orange-light-hover);
+  color: var(--orange-text-hover);
+  transform: translateY(-1px);
+}
+
+.action-button:focus-visible {
+  outline: 3px solid var(--orange-focus-ring);
+  outline-offset: 2px;
+}

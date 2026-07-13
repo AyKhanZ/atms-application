@@ -18,13 +18,9 @@ export class HasPermissionDirective {
     effect(() => {
       this.viewContainer.clear();
 
-      if (this.permissions().some((item) => normalize(item) === normalize(this.hasPermission()))) {
+      if (this.permissions().includes(this.hasPermission())) {
         this.viewContainer.createEmbeddedView(this.templateRef);
       }
     });
   }
-}
-
-function normalize(value: string | undefined): string {
-  return value?.replace(/\s+/g, '').toLowerCase() ?? '';
 }

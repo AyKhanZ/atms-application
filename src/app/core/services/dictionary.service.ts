@@ -24,6 +24,11 @@ export class DictionaryService {
     return this.http.get<DictionaryModel[]>(`${this.baseUrl}/user-statuses`);
   }
 
+  // GET /dictionary/roles
+  getRoleDictionaries(): Observable<DictionaryModel<string>[]> {
+    return this.http.get<DictionaryModel<string>[]>(`${this.baseUrl}/roles`);
+  }
+
   // GET /dictionary/permissions
   getPermissionDictionaries(): Observable<DictionaryModel[]> {
     return this.http.get<DictionaryModel[]>(`${this.baseUrl}/permissions`);

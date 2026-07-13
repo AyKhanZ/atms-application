@@ -1,5 +1,5 @@
 import {
-  defaultFilter,
+  createDefaultUserListFilter,
   UserListFilter,
   UserListItemModel,
   UserModel,
@@ -29,7 +29,7 @@ export const initialUsersState: UsersState = {
 
   item: null,
 
-  filter: defaultFilter,
+  filter: createDefaultUserListFilter(),
 
   isLoading: false,
   isSubmitted: false,

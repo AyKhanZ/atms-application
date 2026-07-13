@@ -69,6 +69,21 @@ const reducer = createReducer<DictionaryState>(
     }),
   ),
 
+  on(
+    DictionaryStoreActions.loadRoleDictionaries,
+    (state): DictionaryState => ({
+      ...state,
+      roleDictionariesIsLoading: true,
+    }),
+  ),
+  on(
+    DictionaryStoreActions.loadRoleDictionariesSuccess,
+    (state, { items }): DictionaryState => ({
+      ...state,
+      roleDictionariesIsLoading: false,
+      roleDictionaries: items,
+    }),
+  ),
   on(DictionaryStoreActions.clearAll, (): DictionaryState => initialDictionaryState),
 );
 

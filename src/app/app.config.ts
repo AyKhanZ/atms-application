@@ -24,9 +24,11 @@ import { userReducer } from './store/user/user.reducer';
 import { AuthEffects } from './store/auth/auth.effects';
 import { UserEffects } from './store/user/user.effects';
 import { UsersEffects } from './store/users/users.effects';
+import { OrganizationsEffects } from './store/organizations/organizations.effects';
 import { DictionaryEffects } from './store/dictionary/dictionary.effects';
 import { Features } from './store/features.enum';
 import { dictionaryReducer } from './store/dictionary/dictionary.reducer';
+import { organizationsReducer } from './store/organizations/organizations.reducer';
 import { provideStoreDevtools } from '@ngrx/store-devtools';
 
 const BaimTheme = definePreset(Aura, {
@@ -86,10 +88,11 @@ export const appConfig: ApplicationConfig = {
     provideStore({
       [Features.Auth]: authReducer,
       [Features.Users]: usersReducer,
+      [Features.Organizations]: organizationsReducer,
       [Features.User]: userReducer,
       [Features.Dictionary]: dictionaryReducer,
     }),
-    provideEffects([AuthEffects, UsersEffects, UserEffects, DictionaryEffects]),
+    provideEffects([AuthEffects, UsersEffects, OrganizationsEffects, UserEffects, DictionaryEffects]),
     provideAppInitializer(authInitializer),
     provideZonelessChangeDetection(),
     // Redux DevTools

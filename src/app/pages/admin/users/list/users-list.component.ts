@@ -14,8 +14,9 @@ import { Store } from '@ngrx/store';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
-import { UserListFilter, UserListItemModel, defaultFilter } from '../../../../core/models/users/users.models';
+import { UserListFilter, UserListItemModel, createDefaultUserListFilter } from '../../../../core/models/users/users.models';
 import { UsersStoreActions, UsersStoreSelectors } from '../../../../store/users';
+import { UserStoreSelectors } from '../../../../store/user';
 import { DictionaryStoreActions, DictionaryStoreSelectors } from '../../../../store/dictionary';
 import { SortDirectionEnum } from '../../../../core/enums/sort-direction.enum';
 import { UserDisplayService } from '../../../../core/services/user-display.service';
@@ -24,16 +25,22 @@ import { UsersFilterComponent } from '../components/filter-users.component/filte
 import { UsersListQueryService } from './services/users-list-query.service';
 import { ListSearchComponent } from '../../../../shared/components/list-search/list-search.component';
 import { FilterToggleButtonComponent } from '../../../../shared/components/filter-toggle-button/filter-toggle-button.component';
+import { CreateButtonComponent } from '../../../../shared/components/create-button/create-button.component';
+import { UserRegisterDialogComponent } from '../components/user-register-dialog/user-register-dialog.component';
+import { Permissions } from '../../../../core/enums/permissions.enum';
+import { Roles } from '../../../../core/enums/roles.enum';
 
 @Component({
   selector: 'app-users-list',
   imports: [
+    CreateButtonComponent,
     DatePipe,
     FilterToggleButtonComponent,
     ListSearchComponent,
     TableModule,
     TagModule,
     UsersFilterComponent,
+    UserRegisterDialogComponent,
   ],
   providers: [UsersListQueryService],
   templateUrl: './users-list.component.html',
@@ -53,15 +60,18 @@ export class UsersListComponent implements OnInit, OnDestroy {
   readonly hasLoaded = signal(false);
   readonly failedAvatarIds = signal<Set<string>>(new Set<string>());
   readonly users = this.store.selectSignal(UsersStoreSelectors.getItems);
+  readonly permissions = this.store.selectSignal(UserStoreSelectors.getPermissions);
+  readonly roles = this.store.selectSignal(UserStoreSelectors.getRoles);
   readonly totalCount = this.store.selectSignal(UsersStoreSelectors.getTotalCount);
   readonly loading = this.store.selectSignal(UsersStoreSelectors.isLoading);
   readonly userStatuses = this.store.selectSignal(DictionaryStoreSelectors.getUserStatusesDictionaries);
   readonly userStatusesLoading = this.store.selectSignal(
     DictionaryStoreSelectors.getUserStatusesDictionariesIsLoading,
   );
-  readonly filter = signal<UserListFilter>(defaultFilter);
+  readonly filter = signal<UserListFilter>(createDefaultUserListFilter());
   readonly searchTerm = signal('');
   readonly filtersOpen = signal(false);
+  readonly registerDialogVisible = signal(false);
   readonly first = computed(() => (this.filter().page - 1) * this.filter().pageSize);
   readonly activeFilterCount = computed(() => this.query.activeFilterCount(this.filter()));
   readonly tableRequestsBlocked = computed(() => {
@@ -72,6 +82,9 @@ export class UsersListComponent implements OnInit, OnDestroy {
   });
   readonly tableSortOrder = computed(() =>
     this.filter().sortDirection === SortDirectionEnum.Desc ? -1 : 1,
+  );
+  readonly canRegisterUser = computed(() =>
+    this.roles().some((role) => role.code === Roles.SuperAdmin) || this.permissions().includes(Permissions.User.Edit),
   );
 
   constructor() {
@@ -103,7 +116,7 @@ export class UsersListComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     if (Object.keys(this.route.snapshot.queryParams).length === 0) {
-      this.writeUrl(defaultFilter);
+      this.writeUrl(createDefaultUserListFilter());
     }
   }
 
@@ -121,7 +134,7 @@ export class UsersListComponent implements OnInit, OnDestroy {
 
   clearFilters(): void {
     this.writeUrl({
-      ...defaultFilter,
+      ...createDefaultUserListFilter(),
       search: this.filter().search,
     });
   }
@@ -131,7 +144,16 @@ export class UsersListComponent implements OnInit, OnDestroy {
   }
 
   openRegisterUser(): void {
-    // Register dialog will be wired when the user creation flow is added.
+    if (!this.canRegisterUser()) {
+      return;
+    }
+
+    this.registerDialogVisible.set(true);
+  }
+
+  onUserRegistered(): void {
+    this.lastLoadKey = '';
+    this.loadUsers(this.filter());
   }
 
   onLazyLoad(event: TableLazyLoadEvent): void {
@@ -193,3 +215,4 @@ export class UsersListComponent implements OnInit, OnDestroy {
     });
   }
 }
+

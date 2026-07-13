@@ -29,4 +29,9 @@ export const loadPermissionDictionariesSuccess = createAction(
   props<{ items: DictionaryModel[] }>(),
 );
 
+export const loadRoleDictionaries = createAction(`${key} Load Role Dictionaries`);
+export const loadRoleDictionariesSuccess = createAction(
+  `${key} Load Role Dictionaries Success`,
+  props<{ items: DictionaryModel<string>[] }>(),
+);
 export const clearAll = createAction(`${key} Clear All`);

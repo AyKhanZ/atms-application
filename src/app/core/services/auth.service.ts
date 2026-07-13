@@ -11,6 +11,7 @@ import { LogoutCommand } from '../models/auth/logout.command';
 export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${environment.apiUrl}/auth`;
+  private readonly accountUrl = `${environment.apiUrl}/account`;
 
   // POST /auth/login
   login(command: LoginCommand): Observable<AccessModel> {
@@ -20,6 +21,10 @@ export class AuthService {
   // POST /auth/refresh
   refresh(command: RefreshCommand): Observable<AccessModel> {
     return this.http.post<AccessModel>(`${this.baseUrl}/refresh`, command);
+  }
+
+  resendEmailConfirmation(command: { email: string }): Observable<void> {
+    return this.http.post<void>(`${this.accountUrl}/email-confirmation/resend`, command);
   }
 
   // DELETE /auth/logout

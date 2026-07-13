@@ -1,0 +1,276 @@
+.organizations-header {
+  display: grid;
+  grid-template-columns: minmax(18rem, 46rem) auto;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.organizations-search {
+  display: block;
+  width: min(100%, 46rem);
+  min-width: 0;
+}
+
+.page-actions {
+  display: grid;
+  grid-template-columns: auto auto;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.page-actions button {
+  white-space: nowrap;
+}
+
+.organizations-table-panel {
+  min-width: 0;
+  border: 0;
+  overflow: visible;
+  background: transparent;
+  box-shadow: none;
+}
+
+.organizations-table-panel--locked {
+  cursor: default;
+}
+
+:host ::ng-deep .organizations-table-panel--locked th[pSortableColumn] {
+  cursor: default;
+}
+
+:host ::ng-deep .organizations-table {
+  position: relative;
+  overflow: visible;
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+  background: var(--white);
+  box-shadow: 0 1px 2px rgb(15 23 42 / 5%);
+}
+
+:host ::ng-deep .organizations-table .p-datatable-wrapper {
+  min-height: 9rem;
+  overflow-x: auto;
+  overflow-y: visible;
+  border-radius: 8px 8px 0 0;
+  scrollbar-width: thin;
+}
+
+:host ::ng-deep .organizations-table .p-datatable-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+:host ::ng-deep .organizations-table .p-datatable-thead > tr > th {
+  border-top: 0;
+  border-right: 0;
+  border-left: 0;
+  border-bottom: 1px solid var(--app-border);
+  background: var(--white);
+  color: var(--text);
+}
+
+:host ::ng-deep .organizations-table .p-datatable-thead > tr:first-child > th:first-child {
+  border-top-left-radius: 8px;
+}
+
+:host ::ng-deep .organizations-table .p-datatable-thead > tr:first-child > th:last-child {
+  border-top-right-radius: 8px;
+}
+
+:host ::ng-deep .organizations-table .p-datatable-tbody > tr > td {
+  border-right: 0;
+  border-left: 0;
+  border-bottom: 1px solid var(--app-border);
+}
+
+:host ::ng-deep .organizations-table .p-datatable-tbody > tr:last-child > td {
+  border-bottom: 0;
+}
+
+:host ::ng-deep .organizations-table .clickable-row {
+  cursor: pointer;
+}
+
+:host ::ng-deep .organizations-table .clickable-row:hover > td {
+  background: var(--app-surface-muted);
+}
+
+.organization-cell {
+  display: grid;
+  grid-template-columns: 2.25rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 14rem;
+}
+
+.organization-cell span:last-child {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-weight: 650;
+}
+
+.organization-logo {
+  display: grid;
+  width: 2.25rem;
+  height: 2.25rem;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid var(--orange-border);
+  border-radius: 8px;
+  background: var(--orange-light);
+  color: var(--orange);
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
+.organization-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.actions-column {
+  width: 7.5rem;
+  text-align: center;
+}
+
+.actions-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-width: 7.5rem;
+}
+
+.table-empty-state {
+  display: grid;
+  min-height: 8rem;
+  place-items: center;
+  color: var(--app-muted);
+  font-weight: 650;
+}
+
+:host ::ng-deep .organizations-table .p-paginator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 4rem;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--app-border);
+  border-radius: 0 0 8px 8px;
+  background: var(--white);
+}
+
+:host ::ng-deep .organizations-table .p-paginator .p-paginator-pages {
+  display: inline-flex;
+  gap: 0.25rem;
+}
+
+:host ::ng-deep .organizations-table .p-paginator .p-paginator-page,
+:host ::ng-deep .organizations-table .p-paginator .p-paginator-first,
+:host ::ng-deep .organizations-table .p-paginator .p-paginator-prev,
+:host ::ng-deep .organizations-table .p-paginator .p-paginator-next,
+:host ::ng-deep .organizations-table .p-paginator .p-paginator-last {
+  min-width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 999px;
+  color: var(--gray-icon-muted);
+}
+
+:host ::ng-deep .organizations-table .p-paginator .p-paginator-page.p-paginator-page-selected {
+  background: var(--orange-light);
+  color: var(--orange-text-hover);
+  font-weight: 750;
+}
+
+:host ::ng-deep .organizations-table .p-paginator .p-paginator-first:not(.p-disabled):hover,
+:host ::ng-deep .organizations-table .p-paginator .p-paginator-prev:not(.p-disabled):hover,
+:host ::ng-deep .organizations-table .p-paginator .p-paginator-next:not(.p-disabled):hover,
+:host ::ng-deep .organizations-table .p-paginator .p-paginator-last:not(.p-disabled):hover,
+:host ::ng-deep .organizations-table .p-paginator .p-paginator-page:not(.p-paginator-page-selected):hover {
+  background: var(--orange-light-hover);
+  color: var(--orange-text-hover);
+}
+
+:host ::ng-deep .organizations-table .p-paginator-rpp-dropdown,
+:host ::ng-deep .organizations-table .p-paginator .p-select {
+  width: 5.25rem;
+  min-width: 5.25rem;
+  max-width: 5.25rem;
+  height: 2.35rem;
+  overflow: visible;
+  border-radius: 8px;
+}
+
+:host ::ng-deep .organizations-table .p-paginator-rpp-dropdown .p-select-label {
+  padding-block: 0.45rem;
+  padding-inline: 0.75rem 0.25rem;
+}
+
+:host ::ng-deep .organizations-table .p-select-overlay {
+  width: 5.25rem;
+  min-width: 5.25rem;
+  z-index: 30;
+}
+
+:host ::ng-deep .organizations-table .p-select-option {
+  padding-inline: 0.85rem;
+}
+
+:host ::ng-deep .organizations-table .p-select-option.p-select-option-selected,
+:host ::ng-deep .organizations-table .p-select-option:not(.p-select-option-selected):not(.p-disabled):hover {
+  background: var(--orange-light-hover);
+  color: var(--orange-text-hover);
+}
+@media (max-width: 1280px) {
+  .organizations-header {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+
+  .organizations-search {
+    width: 100%;
+    max-width: none;
+  }
+
+  .page-actions {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .page-actions app-filter-toggle-button,
+  .page-actions app-create-button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 760px) {
+  :host ::ng-deep .organizations-table .p-datatable-wrapper {
+    min-height: 30rem;
+  }
+
+  :host ::ng-deep .organizations-table .p-datatable-table {
+    min-width: 36rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .organizations-header {
+    gap: 0.75rem;
+  }
+
+  .page-actions {
+    grid-template-columns: 1fr;
+  }
+
+  :host ::ng-deep .organizations-table .p-paginator {
+    justify-content: center;
+    gap: 0.25rem;
+    padding-inline: 0.35rem;
+  }
+}
