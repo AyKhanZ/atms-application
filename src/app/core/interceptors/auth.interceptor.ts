@@ -11,6 +11,7 @@ const PUBLIC_ENDPOINTS = [
   '/auth/refresh',
   '/auth/forgot-password',
   '/auth/reset-password',
+  '/account/email-confirmation/resend',
 ];
 
 /**

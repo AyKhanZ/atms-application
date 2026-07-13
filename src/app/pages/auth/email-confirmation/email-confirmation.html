@@ -1,0 +1,53 @@
+<div class="container">
+  <section class="confirmation-card" [class.confirmation-card--failed]="!isSuccess()">
+    <div class="status-mark">
+      <i [class]="iconClass()"></i>
+    </div>
+
+    <div class="confirmation-card__content">
+      <p class="eyebrow">Account verification</p>
+      <h1>{{ title() }}</h1>
+      <p class="subtitle">{{ subtitle() }}</p>
+
+      <div class="status-panel">
+        <i class="pi pi-shield"></i>
+        <p>{{ note() }}</p>
+      </div>
+
+      @if (!isSuccess()) {
+        <form class="resend-form" [formGroup]="resendForm" (ngSubmit)="resendConfirmation()">
+          <div class="field">
+            <p-floatlabel variant="on">
+              <input id="confirmationEmail" pInputText type="email" maxlength="100" formControlName="email" autocomplete="email" />
+              <label for="confirmationEmail">Email</label>
+            </p-floatlabel>
+            <div class="field-error">
+              @if (resendForm.controls.email.hasError('email') && resendForm.controls.email.touched) {
+                <small>Please enter a valid email address</small>
+              }
+              @if (resendForm.controls.email.hasError('required') && resendForm.controls.email.touched) {
+                <small>Email is required</small>
+              }
+            </div>
+          </div>
+
+          @if (resendSent()) {
+            <p class="resend-success">A new confirmation link has been sent. Please check your inbox.</p>
+          }
+
+          <button pButton type="submit" class="primary-action" [disabled]="resendForm.invalid || isResending()">
+            {{ isResending() ? 'Sending...' : 'Request new link' }}
+          </button>
+        </form>
+      }
+
+      <div class="actions">
+        @if (isSuccess()) {
+          <a pButton routerLink="/login" class="primary-action">Go to login</a>
+        } @else {
+          <a routerLink="/login" class="secondary-link">Back to login</a>
+        }
+      </div>
+    </div>
+  </section>
+</div>
