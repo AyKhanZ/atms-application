@@ -29,6 +29,7 @@ import { CreateButtonComponent } from '../../../../shared/components/create-butt
 import { UserRegisterDialogComponent } from '../components/user-register-dialog/user-register-dialog.component';
 import { Permissions } from '../../../../core/enums/permissions.enum';
 import { Roles } from '../../../../core/enums/roles.enum';
+import { ImageUrlService } from '../../../../core/services/image-url.service';
 
 @Component({
   selector: 'app-users-list',
@@ -54,6 +55,7 @@ export class UsersListComponent implements OnInit, OnDestroy {
   private readonly userDisplay = inject(UserDisplayService);
   private readonly query = inject(UsersListQueryService);
   private readonly tableLazyLoad = inject(TableLazyLoadService);
+  private readonly imageUrlService = inject(ImageUrlService);
   private readonly searchChanges = new Subject<string>();
   private lastLoadKey = '';
 
@@ -183,6 +185,10 @@ export class UsersListComponent implements OnInit, OnDestroy {
 
   avatarLoadFailed(user: UserListItemModel): boolean {
     return this.failedAvatarIds().has(user.id);
+  }
+
+  avatarUrl(user: UserListItemModel): string | null {
+    return this.imageUrlService.normalize(user.avatarPath);
   }
 
   onAvatarError(user: UserListItemModel): void {

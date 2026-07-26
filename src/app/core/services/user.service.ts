@@ -2,7 +2,8 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { MeModel, RoleModel } from '../models/users/user.models';
+import { MeModel } from '../models/users/me.model';
+import { RoleModel } from '../models/users/user.models';
 
 @Injectable({ providedIn: 'root' })
 export class UserService {

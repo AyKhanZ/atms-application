@@ -1,0 +1,733 @@
+<div class="onboarding-page">
+  <header class="topbar">
+    <img src="/baim-logo.png" alt="BAIM" />
+    <button
+      type="button"
+      class="icon-button"
+      pTooltip="Log out"
+      tooltipPosition="left"
+      (click)="logout()"
+    >
+      <i class="pi pi-sign-out" aria-hidden="true"></i>
+      <span class="sr-only">Log out</span>
+    </button>
+  </header>
+
+  <main class="onboarding-main">
+    @if (completed()) {
+      <section class="success-card" aria-live="polite">
+        <div class="confetti" aria-hidden="true">
+          @for (
+            piece of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
+            track piece
+          ) {
+            <i></i>
+          }
+        </div>
+        <div class="success-icon"><i class="pi pi-check"></i></div>
+        <p class="eyebrow">Setup complete</p>
+        <h1>Welcome to BAIM</h1>
+        <p>Your account is ready. Everything you need is now in place.</p>
+        @if (invitationsQueued() > 0) {
+          <span class="success-note">
+            <i class="pi pi-send"></i>
+            {{ invitationsQueued() }}
+            {{ invitationsQueued() === 1 ? 'invitation is' : 'invitations are' }} on the way
+          </span>
+        }
+        <button
+          pButton
+          type="button"
+          icon="pi pi-arrow-right"
+          iconPos="right"
+          (click)="goToDashboard()"
+        >
+          Go to dashboard
+        </button>
+      </section>
+    } @else {
+      <section class="onboarding-card">
+        <header class="welcome-header">
+          <div>
+            <h1>Complete your profile</h1>
+          </div>
+          @if (!initialLoading() && !loadFailed() && model(); as onboarding) {
+            <nav class="stepper" aria-label="Account setup progress">
+              @for (step of onboarding.steps; track step.code; let index = $index) {
+                <button
+                  type="button"
+                  class="step"
+                  [class.step--active]="activeView() === step.code"
+                  [class.step--done]="step.status === 'completed' || step.status === 'skipped'"
+                  [disabled]="!stepIsAvailable(step.code)"
+                  (click)="openStep(step.code)"
+                >
+                  <span class="step__marker">
+                    @if (step.status === 'completed' || step.status === 'skipped') {
+                      <i class="pi pi-check"></i>
+                    } @else if (step.code === 'personalInfo') {
+                      <i class="pi pi-user"></i>
+                    } @else if (step.code === 'security') {
+                      <i class="pi pi-shield"></i>
+                    } @else {
+                      <i class="pi pi-send"></i>
+                    }
+                  </span>
+                  <span class="step__text">
+                    <strong>{{
+                      step.code === 'personalInfo'
+                        ? 'Profile'
+                        : step.code === 'security'
+                          ? 'Security'
+                          : 'Invite'
+                    }}</strong>
+                  </span>
+                </button>
+                @if (index < onboarding.steps.length - 1) {
+                  <span class="step-line"></span>
+                }
+              }
+            </nav>
+          }
+        </header>
+
+        @if (initialLoading()) {
+          <div class="form-content" aria-label="Loading account setup">
+            @if (activeView() === 'security') {
+              <div class="security-content">
+                <p-skeleton width="100%" height="15rem" />
+                <div class="security-fields">
+                  <div class="field">
+                    <p-skeleton width="6rem" height=".9rem" />
+                    <p-skeleton width="100%" height="48px" />
+                    <div class="field-line">
+                      <p-skeleton width="3rem" height=".7rem" />
+                    </div>
+                  </div>
+                  <div class="field">
+                    <p-skeleton width="9rem" height=".9rem" />
+                    <p-skeleton width="100%" height="48px" />
+                    <div class="field-line">
+                      <p-skeleton width="3rem" height=".7rem" />
+                    </div>
+                  </div>
+                </div>
+                <footer class="form-actions form-actions--end span-2">
+                  <p-skeleton width="8rem" height="2.75rem" />
+                  <p-skeleton width="9.5rem" height="2.75rem" />
+                </footer>
+              </div>
+            } @else if (activeView() === 'invitations') {
+              <div class="invite-count">
+                <p-skeleton width="5.5rem" height=".9rem" />
+              </div>
+              <div class="invite-table">
+                <div class="invite-head">
+                  <p-skeleton width="5rem" height=".9rem" />
+                  <p-skeleton width="5rem" height=".9rem" />
+                  <p-skeleton width="6rem" height=".9rem" />
+                  <span></span>
+                </div>
+                @for (item of [1, 2, 3]; track item) {
+                  <div class="invite-row">
+                    <p-skeleton width="100%" height="48px" />
+                    <p-skeleton width="100%" height="48px" />
+                    <p-skeleton width="100%" height="48px" />
+                    <p-skeleton width="38px" height="38px" />
+                  </div>
+                }
+              </div>
+              <footer class="form-actions form-actions--end">
+                <p-skeleton width="8rem" height="2.75rem" />
+                <p-skeleton width="9.5rem" height="2.75rem" />
+              </footer>
+            } @else if (activeView() === 'review') {
+              <div class="review-content">
+                <p-skeleton shape="circle" width="4rem" height="4rem" />
+                <p-skeleton width="7rem" height=".85rem" />
+                <p-skeleton width="15rem" height="1.45rem" />
+                <p-skeleton width="20rem" height=".9rem" />
+                <div class="review-list">
+                  @for (item of [1, 2, 3]; track item) {
+                    <span>
+                      <p-skeleton shape="circle" width="18px" height="18px" />
+                      <p-skeleton width="9rem" height=".95rem" />
+                      <p-skeleton width="4rem" height=".8rem" />
+                    </span>
+                  }
+                </div>
+                <footer class="form-actions">
+                  <p-skeleton width="8rem" height="2.75rem" />
+                  <p-skeleton width="8rem" height="2.75rem" />
+                </footer>
+              </div>
+            } @else if (activeView() === 'personalInfo') {
+              <div class="personal-grid">
+                <p-skeleton width="100%" height="100%" />
+                <div class="personal-fields">
+                  @for (
+                    item of [
+                      { span: 8, label: '3.2rem' },
+                      { span: 12, label: '4.4rem' },
+                      { span: 13, label: '3rem' },
+                      { span: 7, label: '5.6rem' },
+                      { span: 12, label: '4rem' },
+                      { span: 8, label: '4.8rem' },
+                      { span: 8, label: '4.4rem' },
+                      { span: 6, label: '3.5rem' },
+                      { span: 6, label: '5.4rem' },
+                    ];
+                    track $index
+                  ) {
+                    <div class="field" [style.grid-column]="'span ' + item.span">
+                      <p-skeleton [width]="item.label" height=".9rem" />
+                      <p-skeleton width="100%" height="48px" />
+                      <div class="field-line">
+                        <p-skeleton width="3rem" height=".7rem" />
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+              <footer class="form-actions form-actions--end">
+                <p-skeleton width="9.5rem" height="2.75rem" />
+              </footer>
+            } @else {
+              <div class="neutral-skeleton">
+                <p-skeleton shape="circle" width="3.25rem" height="3.25rem" />
+                <p-skeleton width="14rem" height="1.45rem" />
+                <p-skeleton width="18rem" height=".9rem" />
+              </div>
+            }
+          </div>
+        } @else if (loadFailed()) {
+          <div class="load-error">
+            <i class="pi pi-cloud-off"></i>
+            <h2>We could not load your setup</h2>
+            <p>Check the connection and try again.</p>
+            <button pButton type="button" icon="pi pi-refresh" (click)="load()">Try again</button>
+          </div>
+        } @else if (model(); as onboarding) {
+          @if (activeView() === 'personalInfo') {
+            <form [formGroup]="personalForm" (ngSubmit)="savePersonalInfo()">
+              <div class="form-content">
+                <div class="personal-grid">
+                  <app-file-upload
+                    class="photo-field"
+                    label="Profile photo"
+                    chooseLabel="Choose photo"
+                    previewAlt="Profile photo preview"
+                    [roundPreview]="true"
+                    [existingFileName]="existingAvatarName()"
+                    [existingPreviewUrl]="existingAvatarUrl()"
+                    [resetKey]="avatarResetKey()"
+                    [errorMessage]="avatarError()"
+                    (fileChange)="onAvatarChange($event)"
+                  />
+
+                  <div class="personal-fields">
+                    <div class="field" style="grid-column: span 8">
+                      <div class="field-label">
+                        <label for="name">Name</label>
+                      </div>
+                      <input
+                        id="name"
+                        pInputText
+                        maxlength="50"
+                        autocomplete="given-name"
+                        formControlName="name"
+                      />
+                      <div class="field-line">
+                        <div class="field-error">
+                          @if (
+                            personalForm.controls.name.touched && personalForm.controls.name.invalid
+                          ) {
+                            <small>Name is required.</small>
+                          }
+                        </div>
+                        @if (personalForm.controls.name.value.length) {
+                          <small class="counter">{{ personalForm.controls.name.value.length }}/50</small>
+                        }
+                      </div>
+                    </div>
+
+                    <div class="field" style="grid-column: span 12">
+                      <div class="field-label">
+                        <label for="surname">Surname</label>
+                      </div>
+                      <input
+                        id="surname"
+                        pInputText
+                        maxlength="100"
+                        autocomplete="family-name"
+                        formControlName="surname"
+                      />
+                      <div class="field-line">
+                        <div class="field-error">
+                          @if (
+                            personalForm.controls.surname.touched &&
+                            personalForm.controls.surname.invalid
+                          ) {
+                            <small>Surname is required.</small>
+                          }
+                        </div>
+                        @if (personalForm.controls.surname.value.length) {
+                          <small class="counter">{{ personalForm.controls.surname.value.length }}/100</small>
+                        }
+                      </div>
+                    </div>
+
+                    <div class="field" style="grid-column: span 13">
+                      <label for="email">Email</label>
+                      <input id="email" pInputText readonly formControlName="email" />
+                      <div class="field-error"></div>
+                    </div>
+
+                    <div class="field" style="grid-column: span 7">
+                      <div class="field-label">
+                        <label for="phone">Phone number</label>
+                      </div>
+                      <input
+                        id="phone"
+                        pInputText
+                        maxlength="20"
+                        autocomplete="tel"
+                        placeholder="+994 50 000 00 00"
+                        formControlName="phoneNumber"
+                      />
+                      <div class="field-line">
+                        <div class="field-error">
+                          @if (personalForm.controls.phoneNumber.touched) {
+                            @if (personalForm.controls.phoneNumber.hasError('required')) {
+                              <small>Phone number is required.</small>
+                            } @else if (personalForm.controls.phoneNumber.invalid) {
+                              <small>Enter a valid phone number.</small>
+                            }
+                          }
+                        </div>
+                        @if (personalForm.controls.phoneNumber.value.length) {
+                          <small class="counter">{{ personalForm.controls.phoneNumber.value.length }}/20</small>
+                        }
+                      </div>
+                    </div>
+
+                    <div class="field" style="grid-column: span 12">
+                      <div class="field-label">
+                        <label for="position">Position</label>
+                      </div>
+                      <input
+                        id="position"
+                        pInputText
+                        maxlength="100"
+                        autocomplete="organization-title"
+                        formControlName="position"
+                      />
+                      <div class="field-line">
+                        <div class="field-error">
+                          @if (
+                            personalForm.controls.position.touched &&
+                            personalForm.controls.position.invalid
+                          ) {
+                            <small>Position is required.</small>
+                          }
+                        </div>
+                        @if (personalForm.controls.position.value.length) {
+                          <small class="counter">{{ personalForm.controls.position.value.length }}/100</small>
+                        }
+                      </div>
+                    </div>
+
+                    <div class="field" style="grid-column: span 8">
+                      <label for="language"
+                        >Language
+                        <i
+                          class="pi pi-info-circle"
+                          pTooltip="Choose the language you want to use in BAIM for the interface, onboarding flow and system notifications."
+                          tooltipStyleClass="language-tooltip"
+                        ></i
+                      ></label>
+                      <p-select
+                        inputId="language"
+                        [options]="languageOptions()"
+                        appendTo="body"
+                        optionLabel="label"
+                        optionValue="id"
+                        placeholder="Select language"
+                        formControlName="languageId"
+                      />
+                      <div class="field-error">
+                        @if (
+                          personalForm.controls.languageId.touched &&
+                          personalForm.controls.languageId.invalid
+                        ) {
+                          <small>Select a language.</small>
+                        }
+                      </div>
+                    </div>
+
+                    <div class="field" style="grid-column: span 8">
+                      <label for="birthDate">Birth date</label>
+                      <p-datepicker
+                        inputId="birthDate"
+                        formControlName="birthDate"
+                        styleClass="inline-calendar"
+                        [minDate]="minBirthDate"
+                        [maxDate]="maxBirthDate"
+                        [defaultDate]="maxBirthDate"
+                        [showIcon]="true"
+                        iconDisplay="input"
+                        [showButtonBar]="true"
+                        appendTo="body"
+                        dateFormat="dd.mm.yy"
+                        placeholder="DD.MM.YYYY"
+                        (onInput)="onBirthDateInput($event)"
+                        (onBlur)="onBirthDateBlur($event)"
+                      />
+                      <div class="field-error">
+                        @if (personalForm.controls.birthDate.touched) {
+                          @if (personalForm.controls.birthDate.hasError('required')) {
+                            <small>Birth date is required.</small>
+                          } @else if (personalForm.controls.birthDate.invalid) {
+                            <small>You must be at least 18 years old.</small>
+                          }
+                        }
+                      </div>
+                    </div>
+
+                    <div class="field" style="grid-column: span 6">
+                      <label for="gender">Gender</label>
+                      <p-select
+                        inputId="gender"
+                        [options]="genders()"
+                        appendTo="body"
+                        optionLabel="name"
+                        optionValue="id"
+                        placeholder="Select gender"
+                        formControlName="genderId"
+                      />
+                      <div class="field-error">
+                        @if (
+                          personalForm.controls.genderId.touched &&
+                          personalForm.controls.genderId.invalid
+                        ) {
+                          <small>Select a gender.</small>
+                        }
+                      </div>
+                    </div>
+
+                    <div class="field" style="grid-column: span 6">
+                      <label for="maritalStatus">Marital status</label>
+                      <p-select
+                        inputId="maritalStatus"
+                        [options]="maritalStatuses()"
+                        appendTo="body"
+                        optionLabel="name"
+                        optionValue="id"
+                        placeholder="Select status"
+                        formControlName="maritalStatusId"
+                      />
+                      <div class="field-error">
+                        @if (
+                          personalForm.controls.maritalStatusId.touched &&
+                          personalForm.controls.maritalStatusId.invalid
+                        ) {
+                          <small>Select a marital status.</small>
+                        }
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <footer class="form-actions form-actions--end">
+                  <button
+                    pButton
+                    type="submit"
+                    icon="pi pi-arrow-right"
+                    iconPos="right"
+                    [loading]="actionLoading()"
+                  >
+                    Continue
+                  </button>
+                </footer>
+              </div>
+            </form>
+          }
+
+          @if (activeView() === 'security') {
+            <form [formGroup]="securityForm" (ngSubmit)="saveSecurity()">
+              <div class="form-content security-content">
+                <app-password-rules
+                  [class.password-rules--pulse]="passwordRulesPulse()"
+                  [password]="passwordValue"
+                  [confirmPassword]="confirmPasswordValue"
+                />
+                <div class="security-fields">
+                  <div class="field">
+                    <label for="newPassword">New password</label>
+                    <p-password
+                      inputId="newPassword"
+                      formControlName="password"
+                      [maxlength]="40"
+                      [feedback]="false"
+                      [toggleMask]="true"
+                      autocomplete="new-password"
+                      fluid
+                    />
+                    <div class="field-error">
+                      @if (
+                        securityForm.controls.password.touched &&
+                        securityForm.controls.password.hasError('required')
+                      ) {
+                        <small>Password is required.</small>
+                      }
+                    </div>
+                  </div>
+                  <div class="field">
+                    <label for="confirmPassword">Confirm new password</label>
+                    <p-password
+                      inputId="confirmPassword"
+                      formControlName="confirmPassword"
+                      [maxlength]="40"
+                      [feedback]="false"
+                      [toggleMask]="true"
+                      autocomplete="new-password"
+                      fluid
+                    />
+                    <div class="field-error">
+                      @if (
+                        securityForm.controls.confirmPassword.touched &&
+                        securityForm.controls.confirmPassword.hasError('required')
+                      ) {
+                        <small>Confirm password is required.</small>
+                      } @else if (
+                        securityForm.controls.confirmPassword.touched &&
+                        securityForm.hasError('mismatch')
+                      ) {
+                        <small>Passwords do not match.</small>
+                      }
+                    </div>
+                  </div>
+                </div>
+                <footer class="form-actions form-actions--end span-2">
+                  <button
+                    pButton
+                    type="button"
+                    severity="secondary"
+                    [outlined]="true"
+                    icon="pi pi-arrow-left"
+                    (click)="goBack()"
+                  >
+                    Back</button
+                  ><button
+                    pButton
+                    type="submit"
+                    icon="pi pi-arrow-right"
+                    iconPos="right"
+                    [loading]="actionLoading()"
+                  >
+                    Continue
+                  </button>
+                </footer>
+              </div>
+            </form>
+          }
+
+          @if (activeView() === 'invitations') {
+            <div>
+              <div class="form-content">
+                <div class="invite-count">
+                  <span>{{ invitationRows.length }}/{{ maxInvitations() }} added</span>
+                </div>
+                <div class="invite-table">
+                  <div class="invite-head">
+                    <span>Name</span><span>Surname</span><span>Email</span><span></span>
+                  </div>
+                  @for (row of invitationRows.controls; track row; let index = $index) {
+                    <div class="invite-row" [formGroup]="row">
+                      <div class="invite-row__header">
+                        <strong>Colleague {{ index + 1 }}</strong>
+                        @if (invitationRows.length > 1) {
+                          <button
+                            type="button"
+                            class="remove-row"
+                            pTooltip="Remove user"
+                            (click)="removeInvitation(index)"
+                          >
+                            <i class="pi pi-trash"></i><span class="sr-only">Remove user</span>
+                          </button>
+                        }
+                      </div>
+                      <div>
+                        <input
+                          pInputText
+                          maxlength="50"
+                          placeholder="Name"
+                          [attr.aria-label]="'Name for invitation ' + (index + 1)"
+                          formControlName="name"
+                        />
+                        <div class="field-line">
+                          <small>
+                            @if (row.controls.name.touched && row.controls.name.hasError('required')) {
+                              Name is required.
+                            }
+                          </small>
+                          @if (row.controls.name.value.length) {
+                            <span class="counter">{{ row.controls.name.value.length }}/50</span>
+                          }
+                        </div>
+                      </div>
+                      <div>
+                        <input
+                          pInputText
+                          maxlength="100"
+                          placeholder="Surname"
+                          [attr.aria-label]="'Surname for invitation ' + (index + 1)"
+                          formControlName="surname"
+                        />
+                        <div class="field-line">
+                          <small>
+                            @if (row.controls.surname.touched && row.controls.surname.hasError('required')) {
+                              Surname is required.
+                            }
+                          </small>
+                          @if (row.controls.surname.value.length) {
+                            <span class="counter">{{ row.controls.surname.value.length }}/100</span>
+                          }
+                        </div>
+                      </div>
+                      <div>
+                        <input
+                          pInputText
+                          type="email"
+                          maxlength="100"
+                          placeholder="name@company.com"
+                          [attr.aria-label]="'Email for invitation ' + (index + 1)"
+                          formControlName="email"
+                        />
+                        <div class="field-line">
+                          <small>
+                            @if (row.controls.email.touched && row.controls.email.hasError('required')) {
+                              Email is required.
+                            } @else if (row.controls.email.touched && row.controls.email.hasError('email')) {
+                              Enter a valid email.
+                            }
+                          </small>
+                          @if (row.controls.email.value.length) {
+                            <span class="counter">{{ row.controls.email.value.length }}/100</span>
+                          }
+                        </div>
+                      </div>
+                      @if (invitationRows.length > 1) {
+                        <button
+                          type="button"
+                          class="remove-row remove-row--desktop"
+                          pTooltip="Remove user"
+                          (click)="removeInvitation(index)"
+                        >
+                          <i class="pi pi-trash"></i><span class="sr-only">Remove user</span>
+                        </button>
+                      }
+                    </div>
+                  }
+                </div>
+                <div class="invite-add">
+                  <button
+                    pButton
+                    type="button"
+                    [text]="true"
+                    icon="pi pi-plus"
+                    [disabled]="!canAddInvitation"
+                    (click)="addInvitation()"
+                  >
+                    Add another user
+                  </button>
+                  @if (!canAddInvitation) {
+                    <small>You can invite up to {{ maxInvitations() }} users at a time.</small>
+                  }
+                </div>
+                <footer class="form-actions form-actions--end">
+                  <button
+                    pButton
+                    type="button"
+                    severity="secondary"
+                    [outlined]="true"
+                    icon="pi pi-arrow-left"
+                    (click)="goBack()"
+                  >
+                    Back
+                  </button>
+                  <button
+                    pButton
+                    type="button"
+                    [text]="true"
+                    [disabled]="actionLoading()"
+                    (click)="skipInvitations()"
+                  >
+                    Skip for now</button
+                  ><button
+                    pButton
+                    type="button"
+                    icon="pi pi-arrow-right"
+                    iconPos="right"
+                    [loading]="actionLoading()"
+                    (click)="saveInvitations()"
+                  >
+                    Continue
+                  </button>
+                </footer>
+              </div>
+            </div>
+          }
+
+          @if (activeView() === 'review') {
+            <div class="review-content">
+              <div class="review-icon"><i class="pi pi-check"></i></div>
+              <p class="eyebrow">Ready to finish</p>
+              <h2>Everything is ready</h2>
+              <p>Press Complete to finish onboarding and start working.</p>
+              <div class="review-list">
+                <span
+                  ><i class="pi pi-check-circle"></i><strong>Personal information</strong
+                  ><small>Done</small></span
+                >
+                <span
+                  ><i class="pi pi-check-circle"></i><strong>New password</strong
+                  ><small>Done</small></span
+                >
+                @if (isClientManager()) {
+                  <span
+                    ><i class="pi pi-check-circle"></i><strong>Team invitations</strong
+                    ><small>{{
+                      onboarding.invitedUsers.length
+                        ? onboarding.invitedUsers.length + ' ready to send'
+                        : 'Skipped'
+                    }}</small></span
+                  >
+                }
+              </div>
+              <footer class="form-actions">
+                <button
+                  pButton
+                  type="button"
+                  severity="secondary"
+                  [outlined]="true"
+                  icon="pi pi-arrow-left"
+                  (click)="goBack()"
+                >
+                  Back</button
+                ><button
+                  pButton
+                  type="button"
+                  icon="pi pi-check"
+                  [loading]="actionLoading()"
+                  (click)="completeOnboarding()"
+                >
+                  Complete
+                </button>
+              </footer>
+            </div>
+          }
+        }
+      </section>
+    }
+  </main>
+</div>

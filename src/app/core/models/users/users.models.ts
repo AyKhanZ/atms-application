@@ -19,8 +19,8 @@ export interface UserModel extends UserListItemModel {
   gender: DictionaryModel;
   maritalStatus: DictionaryModel;
   lockoutEnd: string;
-  hasCompletedSurvey: string;
-  emailConfirmed: string;
+  hasCompletedOnboarding: boolean;
+  emailConfirmed: boolean;
 }
 
 export interface UserListFilter extends PaginationRequest {

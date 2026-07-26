@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { DictionaryModel } from '../models/dictionary.model';
 import { environment } from '../../../environments/environment';
+import { LanguageModel } from '../models/language.model';
 
 @Injectable({ providedIn: 'root' })
 export class DictionaryService {
@@ -17,6 +18,10 @@ export class DictionaryService {
   // GET /dictionary/marital-statuses
   getMaritalStatusDictionaries(): Observable<DictionaryModel[]> {
     return this.http.get<DictionaryModel[]>(`${this.baseUrl}/marital-statuses`);
+  }
+
+  getLanguageDictionaries(): Observable<LanguageModel[]> {
+    return this.http.get<LanguageModel[]>(`${this.baseUrl}/languages`);
   }
 
   // GET /dictionary/user-statuses

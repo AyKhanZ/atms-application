@@ -3,6 +3,8 @@ import { authGuard } from './core/guards/auth.guard';
 import { permissionGuard } from './core/guards/permission.guard';
 import { Permissions } from './core/enums/permissions.enum';
 import { guestGuard } from './core/guards/guest.guard';
+import { onboardingCompletedGuard, onboardingPageGuard } from './core/guards/onboarding.guard';
+import { unsavedChangesGuard } from './core/guards/unsaved-changes.guard';
 
 export const routes: Routes = [
   {
@@ -11,6 +13,13 @@ export const routes: Routes = [
       import('./pages/errors/server-error/server-error.component').then(
         (c) => c.ServerErrorComponent,
       ),
+  },
+  {
+    path: 'onboarding',
+    canActivate: [authGuard, onboardingPageGuard],
+    canDeactivate: [unsavedChangesGuard],
+    loadComponent: () =>
+      import('./pages/onboarding/onboarding.component').then((c) => c.OnboardingComponent),
   },
   // Auth layout
   {
@@ -25,8 +34,8 @@ export const routes: Routes = [
     path: '',
     loadComponent: () =>
       import('./shared/layouts/main-layout/main-layout').then((c) => c.MainLayoutComponent),
-    canActivate: [authGuard],
-    canActivateChild: [authGuard],
+    canActivate: [authGuard, onboardingCompletedGuard],
+    canActivateChild: [authGuard, onboardingCompletedGuard],
     children: [
       {
         path: '',

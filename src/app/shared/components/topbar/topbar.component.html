@@ -13,8 +13,8 @@
             type="button"
             (click)="userMenu.toggle($event)">
       <div class="avatar">
-        @if (meModel()?.avatarPath && meModel()?.avatarPath !== 'default-avatar.png') {
-          <img [src]="meModel()?.avatarPath" [alt]="meModel()?.name" />
+        @if (avatarUrl() && meModel()?.avatarPath !== 'default-avatar.png') {
+          <img [src]="avatarUrl()" [alt]="meModel()?.name" />
         } @else {
           <span class="avatar__initials">
             {{ meModel()?.name?.[0] }}{{ meModel()?.surname?.[0] }}

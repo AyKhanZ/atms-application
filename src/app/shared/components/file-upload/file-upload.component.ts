@@ -26,6 +26,7 @@ export class FileUploadComponent implements OnDestroy {
   readonly existingPreviewUrl = input<string | null>(null);
   readonly resetKey = input<unknown>(null);
   readonly errorMessage = input('');
+  readonly roundPreview = input(false);
 
   readonly fileChange = output<FileUploadValue>();
   readonly fileRemove = output<void>();

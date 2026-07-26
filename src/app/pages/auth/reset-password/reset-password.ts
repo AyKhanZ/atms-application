@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { FloatLabelModule } from 'primeng/floatlabel';
@@ -45,15 +45,28 @@ export class ResetPasswordComponent {
       validators: [PasswordValidators.passwordsMatch('password', 'confirmPassword')],
     },
   );
-  passwordValue = toSignal(this.form.controls.password.valueChanges, { initialValue: '' });
-  confirmValue = toSignal(this.form.controls.confirmPassword.valueChanges, { initialValue: '' });
+  readonly passwordRulesPulse = signal(false);
+  readonly passwordValue = toSignal(this.form.controls.password.valueChanges, { initialValue: '' });
+  readonly confirmValue = toSignal(this.form.controls.confirmPassword.valueChanges, { initialValue: '' });
+  private passwordRulesPulseTimeout?: ReturnType<typeof setTimeout>;
 
   onSubmit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      this.pulsePasswordRules();
       return;
     }
     this.snackBar.success('Password successfully updated.');
     //   this.store.dispatch(AuthActions.login({ credentials: this.form.getRawValue() }));
+  }
+
+  private pulsePasswordRules(): void {
+    if (!this.passwordValue() && !this.confirmValue()) return;
+    clearTimeout(this.passwordRulesPulseTimeout);
+    this.passwordRulesPulse.set(false);
+    this.passwordRulesPulseTimeout = setTimeout(() => {
+      this.passwordRulesPulse.set(true);
+      this.passwordRulesPulseTimeout = setTimeout(() => this.passwordRulesPulse.set(false), 650);
+    });
   }
 }
