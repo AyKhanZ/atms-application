@@ -1,5 +1,5 @@
 <div class="container">
-  <section class="confirmation-card" [class.confirmation-card--failed]="!isSuccess()">
+  <section class="confirmation-card" [class.confirmation-card--failed]="isFailed()">
     <div class="status-mark">
       <i [class]="iconClass()"></i>
     </div>
@@ -14,7 +14,7 @@
         <p>{{ note() }}</p>
       </div>
 
-      @if (!isSuccess()) {
+      @if (isFailed()) {
         <form class="resend-form" [formGroup]="resendForm" (ngSubmit)="resendConfirmation()">
           <div class="field">
             <p-floatlabel variant="on">
@@ -42,7 +42,7 @@
       }
 
       <div class="actions">
-        @if (isSuccess()) {
+        @if (!isFailed()) {
           <a pButton routerLink="/login" class="primary-action">Go to login</a>
         } @else {
           <a routerLink="/login" class="secondary-link">Back to login</a>

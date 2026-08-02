@@ -21,15 +21,40 @@ export class EmailConfirmationComponent {
 
   readonly isResending = signal(false);
   readonly resendSent = signal(false);
-  readonly isSuccess = computed(() => this.route.snapshot.queryParamMap.get('status') === 'success');
-  readonly iconClass = computed(() => this.isSuccess() ? 'pi pi-check' : 'pi pi-times');
-  readonly title = computed(() => this.isSuccess() ? 'Email confirmed' : 'Confirmation failed');
-  readonly subtitle = computed(() => this.isSuccess()
-    ? 'Your account is active. You can now sign in and continue working.'
-    : 'The confirmation link is invalid or expired. Enter your email and we will send a new link.');
-  readonly note = computed(() => this.isSuccess()
-    ? 'Use the login and temporary password from your email. You can update your password after signing in.'
-    : 'For security, confirmation links work for a limited time only.');
+  readonly status = computed(() => this.route.snapshot.queryParamMap.get('status'));
+  readonly isSuccess = computed(() => this.status() === 'success');
+  readonly isAlreadyConfirmed = computed(() => this.status() === 'already-confirmed');
+  readonly isFailed = computed(() => !this.isSuccess() && !this.isAlreadyConfirmed());
+  readonly iconClass = computed(() => this.isFailed() ? 'pi pi-times' : 'pi pi-check');
+  readonly title = computed(() => {
+    if (this.isSuccess()) {
+      return 'Email confirmed';
+    }
+
+    if (this.isAlreadyConfirmed()) {
+      return 'Email already confirmed';
+    }
+
+    return 'Confirmation failed';
+  });
+  readonly subtitle = computed(() => {
+    if (this.isSuccess()) {
+      return 'Your account is active. You can now sign in and continue working.';
+    }
+
+    if (this.isAlreadyConfirmed()) {
+      return 'This account was confirmed earlier. You can safely continue to login.';
+    }
+
+    return 'The confirmation link is invalid or expired. Enter your email and we will send a new link.';
+  });
+  readonly note = computed(() => {
+    if (this.isFailed()) {
+      return 'For security, confirmation links work for a limited time only.';
+    }
+
+    return 'Use the login and temporary password from your email. You can update your password after signing in.';
+  });
 
   readonly resendForm = new FormGroup({
     email: new FormControl<string>(this.route.snapshot.queryParamMap.get('email') ?? '', {

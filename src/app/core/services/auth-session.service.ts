@@ -8,6 +8,7 @@ import { AccessModel } from '../models/auth/auth.models';
 import { AuthService } from './auth.service';
 import { TokenStorageService } from './token-storage.service';
 import { isServerUnavailable } from '../utils/http-error.utils';
+import { hasCompletedOnboarding } from '../utils/jwt-claims.utils';
 
 @Injectable({ providedIn: 'root' })
 export class AuthSessionService {
@@ -22,6 +23,9 @@ export class AuthSessionService {
   readonly ready$ = this.readySubject.asObservable();
   readonly accessModel = this.store.selectSignal(AuthStoreSelectors.getAccessModel);
   readonly isAuthenticated = computed(() => Boolean(this.accessModel()?.accessToken));
+  readonly isOnboardingCompleted = computed(() =>
+    hasCompletedOnboarding(this.accessModel()?.accessToken),
+  );
 
   init(): Promise<void> {
     const saved = this.tokenStorage.getAccessModel();
@@ -98,6 +102,21 @@ export class AuthSessionService {
     if (redirectToLogin) {
       void this.router.navigate(['/login']);
     }
+  }
+
+  updateAccessToken(accessToken: string, accessTokenExpireTime: string): void {
+    const current = this.tokenStorage.getAccessModel();
+    if (!current?.refreshToken) {
+      throw new Error('Refresh token is missing.');
+    }
+
+    const accessModel: AccessModel = {
+      accessToken,
+      accessTokenExpireTime,
+      refreshToken: current.refreshToken,
+    };
+    this.tokenStorage.save(accessModel);
+    this.store.dispatch(AuthStoreActions.refreshTokenSuccess({ accessModel }));
   }
 
   private clearSession(): void {

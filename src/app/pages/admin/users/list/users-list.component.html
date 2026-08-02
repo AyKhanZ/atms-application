@@ -66,9 +66,9 @@
           <td>
             <div class="user-cell">
               <div class="user-photo">
-                @if (user.avatarPath && !avatarLoadFailed(user)) {
+                @if (avatarUrl(user) && user.avatarPath !== 'default-avatar.png' && !avatarLoadFailed(user)) {
                   <img
-                    [src]="user.avatarPath"
+                    [src]="avatarUrl(user)"
                     [alt]="fullName(user)"
                     (error)="onAvatarError(user)" />
                 } @else {

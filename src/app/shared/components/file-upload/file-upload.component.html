@@ -1,39 +1,46 @@
 <section class="file-upload">
   <div class="file-upload__heading">
     <span>{{ label() }}</span>
-    <p>{{ hint }}</p>
   </div>
 
   <div class="file-upload__body">
-    <div class="file-upload__preview" [class.file-upload__preview--empty]="!previewUrl()">
+    <div
+      class="file-upload__preview"
+      [class.file-upload__preview--empty]="!previewUrl()"
+      [class.file-upload__preview--round]="roundPreview()">
       @if (previewUrl()) {
         <img [src]="previewUrl()" [alt]="previewAlt()" />
-        <button type="button" class="file-upload__remove" (click)="remove(upload)" aria-label="Remove file">
-          <i class="pi pi-times"></i>
-        </button>
       } @else {
         <i class="pi pi-image"></i>
       }
     </div>
 
     <div class="file-upload__content">
-      <p-fileUpload
-        #upload
-        mode="basic"
-        [chooseLabel]="chooseLabel()"
-        chooseIcon="pi pi-upload"
-        [accept]="accept"
-        [maxFileSize]="imageValidator.maxSizeBytes"
-        [auto]="false"
-        [customUpload]="true"
-        (onSelect)="onFileSelected($event, upload)">
-        <ng-template #filelabel></ng-template>
-      </p-fileUpload>
+      <div class="file-upload__actions">
+        <p-fileUpload
+          #upload
+          mode="basic"
+          [chooseLabel]="chooseLabel()"
+          chooseIcon="pi pi-upload"
+          [accept]="accept"
+          [maxFileSize]="imageValidator.maxSizeBytes"
+          [auto]="false"
+          [customUpload]="true"
+          (onSelect)="onFileSelected($event, upload)">
+          <ng-template #filelabel></ng-template>
+        </p-fileUpload>
+        @if (fileLabel()) {
+          <button type="button" class="file-upload__remove" title="Delete photo" aria-label="Delete photo" (click)="remove(upload)">
+            <i class="pi pi-times"></i>
+          </button>
+        }
+      </div>
 
       <div class="file-upload__file-line" [class.file-upload__file-line--empty]="!fileLabel()">
         <span>Selected file:</span>
         <strong [title]="fileLabel()">{{ fileLabel() || 'No file selected' }}</strong>
       </div>
+      <p>{{ hint }}</p>
 
       <small [class.visible]="errorMessage()">{{ errorMessage() || ' ' }}</small>
     </div>
