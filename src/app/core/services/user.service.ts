@@ -1,14 +1,14 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../../environments/environment';
 import { MeModel } from '../models/users/me.model';
 import { RoleModel } from '../models/users/user.models';
+import { adminApiUrl } from '../constants/api-url.constants';
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${environment.apiUrl}/me`;
+  private readonly baseUrl = `${adminApiUrl}/me`;
 
   // GET /me
   getMe(): Observable<MeModel> {

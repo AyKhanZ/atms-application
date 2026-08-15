@@ -1,0 +1,187 @@
+<section class="page project-form-page">
+  <div class="page-header create-header">
+    <div>
+      <h1 class="page-title">{{ pageTitle() }}</h1>
+    </div>
+
+    <div class="create-actions">
+      <app-back-button (back)="cancel()" />
+      <button
+        pButton
+        type="button"
+        class="cancel-button"
+        severity="secondary"
+        outlined="true"
+        [disabled]="isSaving()"
+        (click)="cancel()"
+      >
+        <i class="pi pi-times"></i>
+        <span>Cancel</span>
+      </button>
+      <button pButton type="submit" form="projectCreateForm" [loading]="isSaving()">
+        <i class="pi pi-check"></i>
+        <span>{{ submitLabel() }}</span>
+      </button>
+    </div>
+  </div>
+
+  <section class="panel project-form-panel">
+    <form id="projectCreateForm" class="create-form" [formGroup]="form" (ngSubmit)="submit()">
+      <label class="field full-field title-field">
+        <span>Title <b>*</b></span>
+        <input
+          pInputText
+          formControlName="title"
+          maxlength="80"
+          placeholder="Enter project title"
+        />
+        <div class="field-meta">
+          <small [class.visible]="error('title')">{{ error('title') || ' ' }}</small>
+          <em>{{ form.controls.title.value?.length || 0 }}/80</em>
+        </div>
+      </label>
+
+      <label class="field full-field description-field">
+        <span>Description</span>
+        <textarea
+          pTextarea
+          formControlName="description"
+          maxlength="2000"
+          placeholder="Enter project description"
+        ></textarea>
+        <div class="field-meta">
+          <small></small>
+          <em>{{ form.controls.description.value?.length || 0 }}/2000</em>
+        </div>
+      </label>
+
+      <div class="classification-grid">
+        <div class="field">
+          <label for="projectType">Type <b>*</b></label>
+          <p-select
+            inputId="projectType"
+            formControlName="projectTypeId"
+            [options]="types()"
+            optionLabel="name"
+            optionValue="id"
+            placeholder="Select type"
+            appendTo="body"
+          />
+          <small [class.visible]="error('projectTypeId')">{{
+            error('projectTypeId') || ' '
+          }}</small>
+        </div>
+
+        <div class="field">
+          <label for="projectKind">Kind <b>*</b></label>
+          <p-select
+            inputId="projectKind"
+            formControlName="projectKindId"
+            [options]="kinds()"
+            optionLabel="name"
+            optionValue="id"
+            placeholder="Select kind"
+            appendTo="body"
+          />
+          <small [class.visible]="error('projectKindId')">{{
+            error('projectKindId') || ' '
+          }}</small>
+        </div>
+
+        <div class="field">
+          <label for="projectStatus">Status <b>*</b></label>
+          <p-select
+            inputId="projectStatus"
+            formControlName="projectStatusId"
+            [options]="statuses()"
+            optionLabel="name"
+            optionValue="id"
+            placeholder="Select status"
+            appendTo="body"
+          />
+          <small [class.visible]="error('projectStatusId')">{{
+            error('projectStatusId') || ' '
+          }}</small>
+        </div>
+      </div>
+
+      <div class="timeline-grid">
+        <div class="field">
+          <label for="projectStartDate">Start date</label>
+          <p-datepicker
+            inputId="projectStartDate"
+            formControlName="startDate"
+            dateFormat="dd.mm.yy"
+            placeholder="Select start date"
+            iconDisplay="input"
+            [showIcon]="true"
+            [readonlyInput]="false"
+            appendTo="body"
+            (onInput)="onDateInput($event, 'startDate')"
+            (onBlur)="onDateBlur($event, 'startDate')"
+          />
+        </div>
+
+        <div class="field">
+          <label for="projectTargetDate">Target date</label>
+          <p-datepicker
+            inputId="projectTargetDate"
+            formControlName="endDate"
+            dateFormat="dd.mm.yy"
+            placeholder="Select target date"
+            iconDisplay="input"
+            [showIcon]="true"
+            [readonlyInput]="false"
+            appendTo="body"
+            (onInput)="onDateInput($event, 'endDate')"
+            (onBlur)="onDateBlur($event, 'endDate')"
+          />
+        </div>
+      </div>
+
+      @if (form.hasError('dateRange') && (form.touched || submitted())) {
+        <small class="form-error">Target date must be the same as or later than start date.</small>
+      }
+
+      @if (!isInternalProject()) {
+        <div class="field organization-field">
+          <label for="projectOrganization"
+            >Organization
+            @if (requiresOrganization()) {
+              <b>*</b>
+            }
+          </label>
+          <p-select
+            inputId="projectOrganization"
+            formControlName="organizationId"
+            [options]="organizations()"
+            optionLabel="title"
+            optionValue="id"
+            placeholder="Select organization"
+            [filter]="true"
+            filterBy="title"
+            [showClear]="true"
+            appendTo="body"
+            (onChange)="organizationChanged($event.value)"
+          />
+          <small [class.visible]="error('organizationId')">{{
+            error('organizationId') || ' '
+          }}</small>
+        </div>
+      }
+
+      <app-project-participants
+        [participants]="participants"
+        [organization]="organization()"
+        [teamMembers]="teamMembers()"
+        [roles]="roles()"
+        [maxParticipants]="maxParticipants"
+        [submitted]="submitted()"
+        [participantsRequired]="requiresOrganization()"
+        [canAddParticipants]="canAddParticipants()"
+        (addParticipant)="addParticipant()"
+        (removeParticipant)="removeParticipant($event)"
+      />
+    </form>
+  </section>
+</section>

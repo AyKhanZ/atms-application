@@ -1,7 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../../environments/environment';
 import { PaginatedResponse } from '../models/paginated.model';
 import {
   UserListFilter,
@@ -10,11 +9,12 @@ import {
 } from '../models/users/users.models';
 import { UpdateUserStatusCommand } from '../models/users/update-user-status.command';
 import { RegisterUserCommand } from '../models/users/register-user.command';
+import { adminApiUrl } from '../constants/api-url.constants';
 
 @Injectable({ providedIn: 'root' })
 export class UsersService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${environment.apiUrl}/users`;
+  private readonly baseUrl = `${adminApiUrl}/users`;
 
   // GET /users
   getUsers(filter: UserListFilter): Observable<PaginatedResponse<UserListItemModel>> {
@@ -38,7 +38,7 @@ export class UsersService {
 
   // POST /account/register
   registerUser(command: RegisterUserCommand): Observable<UserModel> {
-    return this.http.post<UserModel>(`${environment.apiUrl}/account/register`, command);
+    return this.http.post<UserModel>(`${adminApiUrl}/account/register`, command);
   }
 
   // PATCH /users/status/:id

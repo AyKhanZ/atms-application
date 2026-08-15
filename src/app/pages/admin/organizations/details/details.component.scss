@@ -8,43 +8,36 @@
   align-items: center;
   justify-content: flex-end;
   gap: 0.65rem;
+  width: auto;
 }
 
 .details-actions button {
+  width: auto;
   min-width: 7.75rem;
   justify-content: center;
   gap: 0.45rem;
   white-space: nowrap;
 }
 
-.details-layout {
+.organization-overview {
   display: grid;
-  grid-template-columns: minmax(22rem, 0.9fr) minmax(0, 1.1fr);
-  gap: 1rem;
-}
-
-.organization-hero {
-  display: grid;
-  grid-template-columns: minmax(11rem, 14rem) minmax(0, 1fr);
+  grid-template-columns: minmax(14rem, 19rem) minmax(0, 1fr);
   align-items: center;
-  gap: 1.4rem;
-  min-height: 13rem;
-  padding: 1.4rem;
-  background:
-    linear-gradient(135deg, rgb(254 147 18 / 10%), transparent 62%),
-    var(--white);
+  gap: clamp(1.5rem, 3cqi, 3rem);
+  padding: clamp(1.25rem, 2.2cqi, 2rem);
+  background: linear-gradient(135deg, rgb(254 147 18 / 8%), var(--white) 36%);
 }
 
 .logo-card {
   position: relative;
   display: grid;
   width: 100%;
-  aspect-ratio: 16 / 11;
+  aspect-ratio: 16 / 10;
   place-items: center;
   overflow: hidden;
   border: 1px solid var(--orange-border);
   border-radius: 8px;
-  background: var(--orange-light);
+  background: var(--white);
   color: var(--orange);
   font-size: 1.35rem;
   font-weight: 800;
@@ -54,14 +47,12 @@
   width: 100%;
   height: 100%;
   object-fit: contain;
-  padding: 0.75rem;
+  padding: clamp(0.75rem, 1.5cqi, 1.25rem);
   background: var(--white);
 }
 
 .logo-card--empty {
-  background:
-    linear-gradient(180deg, rgb(255 255 255 / 82%), rgb(255 241 225 / 88%)),
-    radial-gradient(circle, rgb(254 147 18 / 20%), transparent 70%);
+  background: var(--orange-light);
 }
 
 .logo-zoom {
@@ -72,68 +63,64 @@
   height: 2.25rem;
   min-width: 2.25rem;
   padding: 0;
-  color: var(--orange-text-hover);
-  box-shadow: 0 10px 24px rgb(15 23 42 / 12%);
+  border: 0;
+  border-radius: 999px;
+  background: rgb(15 23 42 / 72%);
+  color: var(--white);
+  cursor: pointer;
+  transition: background 0.18s ease;
 }
 
-.hero-copy {
+.logo-zoom:hover,
+.logo-zoom:focus-visible {
+  background: rgb(15 23 42 / 88%);
+}
+
+.logo-zoom:focus-visible {
+  outline: 3px solid var(--orange-focus-outline);
+  outline-offset: 2px;
+}
+
+.organization-identity {
   min-width: 0;
 }
 
-.hero-copy h2 {
-  margin: 0.75rem 0 0;
-  color: var(--app-text);
-  font-size: 1.65rem;
-  line-height: 1.15;
+.organization-identity h2 {
+  margin: 0;
+  font-size: clamp(1.65rem, 3cqi, 2.25rem);
+  line-height: 1.1;
   overflow-wrap: anywhere;
 }
 
-.hero-copy p {
-  margin: 0.45rem 0 0;
+.registration-number {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem 0.75rem;
+  margin-top: 1rem;
+}
+
+.registration-number span {
   color: var(--app-muted);
-  font-weight: 650;
+  font-weight: 750;
 }
 
-.details-panel {
-  display: grid;
-  gap: 1rem;
+.registration-number strong {
+  overflow-wrap: anywhere;
 }
 
-.details-panel h2,
+.created-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.75rem 0 0;
+  color: var(--app-muted);
+  font-size: 0.82rem;
+}
+
 .employees-panel h2 {
   margin: 0;
-  color: var(--app-text);
   font-size: 1rem;
-}
-
-dl {
-  display: grid;
-  gap: 0.75rem;
-  margin: 0;
-}
-
-dl > div {
-  display: grid;
-  grid-template-columns: minmax(7rem, 0.3fr) minmax(0, 1fr);
-  gap: 1rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 1px solid var(--app-border);
-}
-
-dl > div:last-child {
-  padding-bottom: 0;
-  border-bottom: 0;
-}
-
-dt {
-  color: var(--app-muted);
-  font-weight: 650;
-}
-
-dd {
-  min-width: 0;
-  margin: 0;
-  overflow-wrap: anywhere;
 }
 
 .employees-panel {
@@ -168,12 +155,12 @@ dd {
   border: 1px solid var(--app-border);
   border-radius: 8px;
   background: var(--white);
+  --avatar-size: 3.25rem;
+  --avatar-radius: 50%;
 }
 
 .employee-card h3 {
   margin: 0;
-  color: var(--app-text);
-  font-size: 0.95rem;
   overflow-wrap: anywhere;
 }
 
@@ -201,10 +188,6 @@ dd {
   font-size: 2rem;
 }
 
-.empty-employees strong {
-  color: var(--app-text);
-}
-
 :host ::ng-deep .organization-logo-preview {
   width: min(92vw, 42rem);
 }
@@ -221,29 +204,18 @@ dd {
   object-fit: contain;
 }
 
-@media (max-width: 900px) {
+@container (max-width: 42rem) {
   .details-header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
     align-items: stretch;
   }
 
   .details-actions {
-    justify-content: flex-start;
-  }
-
-  .details-layout,
-  .organization-hero {
-    grid-template-columns: 1fr;
-  }
-
-  .logo-card {
-    width: min(100%, 18rem);
-  }
-}
-
-@media (max-width: 560px) {
-  .details-actions {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
+    width: 100%;
+    justify-content: stretch;
   }
 
   .details-actions button,
@@ -251,7 +223,23 @@ dd {
     width: 100%;
   }
 
-  dl > div,
+  :host ::ng-deep .details-actions app-back-button button {
+    width: 100%;
+  }
+}
+
+@container (max-width: 38rem) {
+  .organization-overview {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.25rem;
+  }
+
+  .logo-card {
+    width: min(100%, 22rem);
+  }
+}
+
+@container (max-width: 35rem) {
   .employee-card {
     grid-template-columns: 1fr;
   }

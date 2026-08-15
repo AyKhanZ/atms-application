@@ -12,7 +12,7 @@
   height: 2.35rem;
   padding-inline: 0.95rem;
   border: 1px solid var(--orange);
-  border-radius: 6px;
+  border-radius: var(--radius-btn);
   background: var(--orange);
   color: var(--white);
   font-size: 0.9rem;
@@ -39,7 +39,6 @@
   cursor: not-allowed;
   opacity: 0.62;
 }
-
 
 :host-context(.page-actions) .create-button {
   width: 100%;

@@ -121,3 +121,34 @@
     outline-offset: 2px;
   }
 }
+
+@media (max-width: 768px) {
+  .sidebar,
+  .sidebar.collapsed {
+    width: 72px;
+  }
+
+  .logo img {
+    width: 28px;
+    height: 28px;
+    object-fit: cover;
+    object-position: left;
+  }
+
+  .menu {
+    padding-inline: 10px;
+
+    a {
+      justify-content: center;
+      padding-inline: 0;
+
+      span {
+        display: none;
+      }
+    }
+  }
+
+  .collapse-btn {
+    display: none;
+  }
+}

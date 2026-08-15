@@ -1,0 +1,112 @@
+<p-confirmDialog />
+<section class="page">
+  <h1 class="page-title">Projects</h1>
+  <div class="projects-header management-list-header">
+    <app-list-search
+      class="management-list-search"
+      placeholder="Search by title, code or organization"
+      [value]="searchTerm()"
+      (valueChange)="onSearchChange($event)"
+    />
+    <div class="page-actions management-list-actions">
+      <app-filter-toggle-button
+        [active]="filtersOpen()"
+        [count]="activeFilterCount()"
+        (clicked)="toggleFilters()"
+      />
+      @if (canManage()) {
+        <app-create-button label="Create" (clicked)="openCreate()" />
+      }
+    </div>
+  </div>
+  @if (filtersOpen()) {
+    <app-project-filter
+      [filter]="filter()"
+      [types]="types()"
+      [kinds]="kinds()"
+      [statuses]="statuses()"
+      (apply)="applyFilters($event)"
+      (clear)="clearFilters()"
+    />
+  }
+  <div class="projects-table-shell">
+    <p-table
+      class="projects-table management-table"
+      [value]="projects()"
+      [lazy]="true"
+      [loading]="loading()"
+      [paginator]="totalCount() > 0"
+      [rows]="filter().pageSize"
+      [first]="first()"
+      [totalRecords]="totalCount()"
+      [rowsPerPageOptions]="[10, 20, 50]"
+      [sortField]="filter().sortBy"
+      [sortOrder]="filter().sortDirection === 2 ? -1 : 1"
+      dataKey="id"
+      [tableStyle]="{ 'min-width': canManage() ? '58rem' : '52rem' }"
+      [paginatorDropdownAppendTo]="'body'"
+      (onLazyLoad)="onLazyLoad($event)"
+    >
+      <ng-template pTemplate="header"
+        ><tr>
+          <th pSortableColumn="code">Code <p-sortIcon field="code" /></th>
+          <th pSortableColumn="title">Project <p-sortIcon field="title" /></th>
+          <th>Organization</th>
+          <th>Type</th>
+          <th>Status</th>
+          <th pSortableColumn="startDate">Timeline <p-sortIcon field="startDate" /></th>
+          @if (canManage()) {
+            <th class="actions-column">Actions</th>
+          }
+        </tr></ng-template
+      >
+      <ng-template pTemplate="body" let-project
+        ><tr class="clickable-row" (click)="openDetails(project)">
+          <td>
+            <span class="project-code">#{{ project.code }}</span>
+          </td>
+          <td>
+            <div class="project-title">
+              <strong>{{ project.title }}</strong
+              ><small>{{ project.projectKind.name }}</small>
+            </div>
+          </td>
+          <td>{{ project.organization?.title || 'Not assigned' }}</td>
+          <td>{{ project.projectType.name }}</td>
+          <td>
+            <span class="status-badge">{{ project.projectStatus.name }}</span>
+          </td>
+          <td>
+            {{ project.startDate ? (project.startDate | date: 'dd.MM.yyyy') : 'Not set' }}
+            <span class="date-separator">-</span>
+            {{ project.endDate ? (project.endDate | date: 'dd.MM.yyyy') : 'Open' }}
+          </td>
+          @if (canManage()) {
+            <td class="actions-cell" (click)="$event.stopPropagation()">
+              <app-edit-action-button (clicked)="openEdit(project)" /><app-delete-action-button
+                (clicked)="confirmDelete(project)"
+              />
+            </td>
+          }</tr
+      ></ng-template>
+      <ng-template pTemplate="emptymessage"
+        ><tr>
+          <td [attr.colspan]="canManage() ? 7 : 6">
+            <div class="empty-state">
+              <i class="pi pi-briefcase"></i><strong>No projects found</strong
+              ><span>Try changing the search or filters.</span>
+            </div>
+          </td>
+        </tr></ng-template
+      >
+    </p-table>
+  </div>
+  <app-project-form-dialog
+    [(visible)]="dialogVisible"
+    [project]="selectedProject()"
+    [types]="types()"
+    [kinds]="kinds()"
+    [statuses]="statuses()"
+    (saved)="onSaved()"
+  />
+</section>

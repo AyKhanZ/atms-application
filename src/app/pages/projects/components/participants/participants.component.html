@@ -1,0 +1,118 @@
+<section class="participants-section">
+  <div class="participants-heading">
+    <div>
+      <h2>
+        Participants
+        @if (participantsRequired()) {
+          <b>*</b>
+        }
+      </h2>
+      <small>Choose a user first. Available project roles will match their side.</small>
+    </div>
+    <span>{{ participants().length }}/{{ maxParticipants() }} participants</span>
+  </div>
+
+  <div class="participants-body">
+    @if (participants().length > 0) {
+      <div class="participant-list">
+        @for (participant of participants().controls; track participant; let index = $index) {
+          <div class="participant-row" [formGroup]="asFormGroup(participant)">
+            <div class="field user-field">
+              <div class="participant-field-label">
+                <label [for]="'participantUser' + index">User <b>*</b></label>
+                @if (participantSource(index); as source) {
+                  <span class="participant-source">{{ source }}</span>
+                }
+              </div>
+              <p-select
+                [inputId]="'participantUser' + index"
+                formControlName="userId"
+                [options]="availableUserGroups(index)"
+                [group]="true"
+                optionLabel="email"
+                optionValue="id"
+                placeholder="Select user"
+                [filter]="true"
+                appendTo="body"
+                (onChange)="participantUserChanged(index)"
+              >
+                <ng-template pTemplate="group" let-group>
+                  <div class="user-group">{{ group.label }}</div>
+                </ng-template>
+                <ng-template pTemplate="selectedItem" let-user
+                  >{{ user.name }} {{ user.surname }}</ng-template
+                >
+                <ng-template pTemplate="item" let-user>
+                  <div class="user-option">
+                    <strong>{{ user.name }} {{ user.surname }}</strong>
+                    <small>{{ user.email }}</small>
+                  </div>
+                </ng-template>
+              </p-select>
+              <small [class.visible]="error(index, 'userId')">{{
+                error(index, 'userId') || ' '
+              }}</small>
+            </div>
+
+            <div class="field role-field">
+              <label [for]="'participantRole' + index">Role <b>*</b></label>
+              <p-select
+                [inputId]="'participantRole' + index"
+                formControlName="roleId"
+                [options]="availableRoles(index)"
+                optionLabel="name"
+                optionValue="id"
+                placeholder="Select user first"
+                appendTo="body"
+              />
+              <small [class.visible]="error(index, 'roleId')">{{
+                error(index, 'roleId') || ' '
+              }}</small>
+            </div>
+
+            <button
+              type="button"
+              class="remove-participant"
+              title="Remove participant"
+              (click)="removeParticipant.emit(index)"
+            >
+              <i class="pi pi-trash"></i>
+              <span>Remove</span>
+            </button>
+          </div>
+        }
+      </div>
+    } @else {
+      <div class="participants-empty">
+        <i class="pi pi-users"></i>
+        <strong>{{
+          canAddParticipants()
+            ? 'No participants added yet'
+            : 'Select a project kind and organization first'
+        }}</strong>
+      </div>
+    }
+  </div>
+
+  @if (participantsError(); as error) {
+    <div class="field">
+      <small class="visible">{{ error }}</small>
+    </div>
+  }
+
+  <div class="participants-actions">
+    @if (participants().length < maxParticipants()) {
+      <button
+        pButton
+        type="button"
+        class="add-participant-button"
+        outlined="true"
+        [disabled]="!canAddParticipants()"
+        (click)="addParticipant.emit()"
+      >
+        <i class="pi pi-plus"></i>
+        <span>Add participant</span>
+      </button>
+    }
+  </div>
+</section>

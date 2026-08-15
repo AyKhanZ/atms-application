@@ -1,14 +1,14 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { environment } from '../../../environments/environment';
 import { InvitedUserCommand, SaveSecurityCommand } from '../models/onboarding/onboarding.commands';
 import { OnboardingCompletionModel, OnboardingModel } from '../models/onboarding/onboarding.models';
+import { adminApiUrl } from '../constants/api-url.constants';
 
 @Injectable({ providedIn: 'root' })
 export class OnboardingService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${environment.apiUrl}/onboarding`;
+  private readonly baseUrl = `${adminApiUrl}/onboarding`;
 
   get(): Observable<OnboardingModel> {
     return this.http.get<OnboardingModel>(this.baseUrl);

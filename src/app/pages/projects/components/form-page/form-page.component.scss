@@ -1,0 +1,240 @@
+:host {
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+
+.project-form-page {
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  margin: 0;
+}
+
+.create-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1rem;
+}
+
+.page-title {
+  overflow-wrap: anywhere;
+}
+
+.create-actions {
+  display: grid;
+  grid-template-columns: repeat(3, 8.5rem);
+  align-items: center;
+  gap: 0.65rem;
+  width: auto;
+  min-width: 0;
+}
+
+.create-actions button,
+.create-actions app-back-button {
+  width: 100%;
+  min-width: 0;
+}
+
+.create-actions button {
+  min-height: 2.6rem;
+  justify-content: center;
+  gap: 0.45rem;
+  white-space: nowrap;
+}
+
+:host ::ng-deep .create-actions app-back-button button {
+  min-width: 0;
+  min-height: 2.6rem;
+  justify-content: center;
+}
+
+.create-actions .cancel-button {
+  border-color: #d8dde5;
+  background: var(--white);
+  color: var(--gray-text-strong);
+  box-shadow: none;
+}
+
+.create-actions .cancel-button:enabled:hover {
+  border-color: var(--orange-border);
+  background: var(--orange-light-hover);
+  color: var(--orange-text-hover);
+}
+
+.project-form-panel {
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+  padding: clamp(1rem, 1.5vw, 1.4rem);
+  overflow: hidden;
+}
+
+.create-form {
+  display: grid;
+  gap: clamp(0.9rem, 1vw, 1.1rem);
+  width: 100%;
+  min-width: 0;
+}
+
+.field {
+  position: relative;
+  display: grid;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.field > span,
+.field > label {
+  color: var(--gray-text-strong);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.field b {
+  color: var(--orange);
+}
+
+.field small {
+  min-height: 0.95rem;
+  color: var(--red);
+  opacity: 0;
+}
+
+.field small.visible {
+  opacity: 1;
+}
+
+.field-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-height: 0.95rem;
+}
+
+.field-meta small {
+  min-height: 0;
+}
+
+.field em {
+  margin-left: auto;
+  color: var(--app-muted);
+  font-size: 0.75rem;
+  font-style: normal;
+  line-height: 1;
+}
+
+.description-field textarea {
+  width: 100%;
+  min-height: clamp(9rem, 18vh, 13rem);
+  max-height: 18rem;
+  resize: vertical;
+}
+
+.classification-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  min-width: 0;
+}
+
+.timeline-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  width: min(100%, 48rem);
+  min-width: 0;
+}
+
+.organization-field {
+  width: min(100%, 36rem);
+}
+
+app-project-participants {
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+
+.form-error {
+  color: var(--red);
+}
+
+:host ::ng-deep .p-select,
+:host ::ng-deep .p-select-label,
+:host ::ng-deep .p-datepicker,
+:host ::ng-deep .p-datepicker input,
+:host ::ng-deep .p-inputtext,
+:host ::ng-deep .p-textarea {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+
+:host ::ng-deep .p-select-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+:host ::ng-deep .p-select-overlay,
+:host ::ng-deep .p-datepicker-panel {
+  max-width: min(32rem, calc(100vw - 1rem));
+}
+
+@container (max-width: 56.25rem) {
+  .create-header {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+
+  .create-actions {
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
+
+  .timeline-grid,
+  .organization-field {
+    width: 100%;
+  }
+}
+
+@container (max-width: 38.75rem) {
+  .create-header {
+    gap: 0.7rem;
+  }
+
+  .create-actions {
+    gap: 0.45rem;
+  }
+
+  .create-actions button,
+  :host ::ng-deep .create-actions app-back-button button {
+    min-height: 2.75rem;
+    padding-inline: 0.5rem;
+    font-size: 0.82rem;
+  }
+
+  .project-form-panel {
+    padding: 0.9rem;
+  }
+
+  .classification-grid,
+  .timeline-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .description-field textarea {
+    min-height: 9rem;
+  }
+}
+
+@container (max-width: 23.75rem) {
+  .create-actions button,
+  :host ::ng-deep .create-actions app-back-button button {
+    gap: 0.25rem;
+    padding-inline: 0.3rem;
+    font-size: 0.75rem;
+  }
+}

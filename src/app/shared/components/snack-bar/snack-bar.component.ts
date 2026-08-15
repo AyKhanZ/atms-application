@@ -14,7 +14,6 @@ const CONFIG = {
 
 @Component({
   selector: 'app-snack-bar',
-  standalone: true,
   templateUrl: './snack-bar.component.html',
   styleUrl: './snack-bar.component.scss',
 })

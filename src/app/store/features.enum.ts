@@ -3,5 +3,6 @@ export enum Features {
   User = 'user',
   Users = 'users',
   Organizations = 'organizations',
+  WorkProjects = 'workProjects',
   Dictionary = 'dictionary',
 }

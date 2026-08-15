@@ -4,7 +4,7 @@
   height: 2rem;
   place-items: center;
   border: 1px solid var(--app-border);
-  border-radius: 999px;
+  border-radius: var(--radius-btn);
   background: var(--white);
   color: var(--gray-icon);
   cursor: pointer;

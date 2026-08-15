@@ -100,3 +100,14 @@
     color: var(--orange);
   }
 }
+
+@media (max-width: 480px) {
+  .topbar {
+    padding-inline: 12px;
+  }
+
+  .avatar-button__info,
+  .avatar-button__chevron {
+    display: none;
+  }
+}

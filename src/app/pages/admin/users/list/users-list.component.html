@@ -1,24 +1,22 @@
 <section class="page">
   <h1 class="page-title">Users Management</h1>
 
-  <div class="page-header users-header">
+  <div class="page-header management-list-header">
     <app-list-search
-      class="users-search"
+      class="management-list-search"
       placeholder="Search users"
       [value]="searchTerm()"
       (valueChange)="onSearchChange($event)"
     />
 
-    <div class="page-actions">
+    <div class="page-actions management-list-actions">
       <app-filter-toggle-button
         [active]="filtersOpen()"
         [count]="activeFilterCount()"
         (clicked)="toggleFilters()"
       />
       @if (canRegisterUser()) {
-        <app-create-button
-          label="Register user"
-          (clicked)="openRegisterUser()" />
+        <app-create-button label="Register user" (clicked)="openRegisterUser()" />
       }
     </div>
   </div>
@@ -35,7 +33,7 @@
 
   <div class="panel users-table-panel" [class.users-table-panel--locked]="tableRequestsBlocked()">
     <p-table
-      class="users-table"
+      class="users-table management-table management-table--pill-pages"
       [value]="users()"
       [lazy]="true"
       [loading]="loading()"
@@ -53,11 +51,21 @@
     >
       <ng-template pTemplate="header">
         <tr>
-          <th pSortableColumn="name" [pSortableColumnDisabled]="tableRequestsBlocked()">Full name <p-sortIcon field="name" /></th>
-          <th pSortableColumn="email" [pSortableColumnDisabled]="tableRequestsBlocked()">Email <p-sortIcon field="email" /></th>
-          <th pSortableColumn="position" [pSortableColumnDisabled]="tableRequestsBlocked()">Position <p-sortIcon field="position" /></th>
-          <th pSortableColumn="userStatus" [pSortableColumnDisabled]="tableRequestsBlocked()">Status <p-sortIcon field="userStatus" /></th>
-          <th pSortableColumn="createdAt" [pSortableColumnDisabled]="tableRequestsBlocked()">Created <p-sortIcon field="createdAt" /></th>
+          <th pSortableColumn="name" [pSortableColumnDisabled]="tableRequestsBlocked()">
+            Full name <p-sortIcon field="name" />
+          </th>
+          <th pSortableColumn="email" [pSortableColumnDisabled]="tableRequestsBlocked()">
+            Email <p-sortIcon field="email" />
+          </th>
+          <th pSortableColumn="position" [pSortableColumnDisabled]="tableRequestsBlocked()">
+            Position <p-sortIcon field="position" />
+          </th>
+          <th pSortableColumn="userStatus" [pSortableColumnDisabled]="tableRequestsBlocked()">
+            Status <p-sortIcon field="userStatus" />
+          </th>
+          <th pSortableColumn="createdAt" [pSortableColumnDisabled]="tableRequestsBlocked()">
+            Created <p-sortIcon field="createdAt" />
+          </th>
         </tr>
       </ng-template>
 
@@ -66,11 +74,16 @@
           <td>
             <div class="user-cell">
               <div class="user-photo">
-                @if (avatarUrl(user) && user.avatarPath !== 'default-avatar.png' && !avatarLoadFailed(user)) {
+                @if (
+                  avatarUrl(user) &&
+                  user.avatarPath !== 'default-avatar.png' &&
+                  !avatarLoadFailed(user)
+                ) {
                   <img
                     [src]="avatarUrl(user)"
                     [alt]="fullName(user)"
-                    (error)="onAvatarError(user)" />
+                    (error)="onAvatarError(user)"
+                  />
                 } @else {
                   <span>{{ initials(user) }}</span>
                 }
@@ -79,7 +92,11 @@
             </div>
           </td>
           <td>
-            <a class="email-link" [href]="'mailto:' + user.email" (click)="$event.stopPropagation()">
+            <a
+              class="email-link"
+              [href]="'mailto:' + user.email"
+              (click)="$event.stopPropagation()"
+            >
               {{ user.email }}
             </a>
           </td>
@@ -100,4 +117,3 @@
   </div>
   <app-user-register-dialog [(visible)]="registerDialogVisible" (saved)="onUserRegistered()" />
 </section>
-

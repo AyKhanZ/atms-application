@@ -1,3 +1,7 @@
+:host {
+  display: inline-block;
+}
+
 .back-button {
   display: inline-flex;
   align-items: center;
@@ -5,7 +9,7 @@
   gap: 0.5rem;
   min-height: 2.5rem;
   border: 1px solid var(--app-border);
-  border-radius: 8px;
+  border-radius: var(--radius-btn);
   background: var(--white);
   color: var(--app-primary);
   cursor: pointer;
@@ -15,6 +19,10 @@
     background 0.16s ease,
     border-color 0.16s ease,
     color 0.16s ease;
+}
+
+:host-context(.create-actions) .back-button {
+  width: 100%;
 }
 
 .back-button:hover {

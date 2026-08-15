@@ -23,5 +23,17 @@
   overflow-y: auto;
   overflow-x: hidden;
 
-  padding: 32px;
+  padding: clamp(1rem, 2vw, 2rem);
+}
+
+@media (max-width: 768px) {
+  .page-content {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-content {
+    padding: 16px;
+  }
 }

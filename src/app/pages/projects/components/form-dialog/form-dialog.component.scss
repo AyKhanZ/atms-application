@@ -1,0 +1,209 @@
+:host ::ng-deep .project-dialog {
+  width: min(72rem, calc(100vw - 2rem));
+}
+
+:host ::ng-deep .project-dialog .p-dialog-content {
+  padding: 0;
+}
+
+.project-form {
+  display: grid;
+  gap: 1.25rem;
+  padding: 1.25rem;
+}
+
+.primary-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.title-field {
+  grid-column: span 5;
+}
+
+.organization-field {
+  grid-column: span 7;
+}
+
+.dictionary-field {
+  grid-column: span 4;
+}
+
+.date-field {
+  grid-column: span 6;
+}
+
+.field {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.field > span,
+.field > label {
+  color: var(--gray-text-strong);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.field b {
+  color: var(--orange);
+}
+
+.field small {
+  min-height: 1rem;
+  color: var(--red);
+  opacity: 0;
+}
+
+.field small.visible {
+  opacity: 1;
+}
+
+.field em {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  color: var(--app-muted);
+  font-size: 0.75rem;
+  font-style: normal;
+}
+
+.description-field textarea {
+  min-height: 7.5rem;
+  max-height: 18rem;
+  resize: vertical;
+  overflow-y: auto;
+}
+
+.description-field em {
+  bottom: -1rem;
+}
+
+.participants-section {
+  display: grid;
+  gap: 0.85rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--app-border);
+}
+
+.section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.section-heading h3 {
+  margin: 0;
+}
+
+.participant-list {
+  display: grid;
+  max-height: 15rem;
+  gap: 0.75rem;
+  overflow-y: auto;
+  padding-right: 0.25rem;
+}
+
+.participant-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(15rem, 22rem) 2.45rem;
+  align-items: start;
+  gap: 0.75rem;
+  padding: 0.85rem;
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+  background: var(--app-surface-muted);
+}
+
+.participant-row .field {
+  gap: 0.3rem;
+}
+
+.remove-participant {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.45rem;
+  height: 2.45rem;
+  margin-top: 1.45rem;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  background: var(--white);
+  color: var(--red);
+  cursor: pointer;
+}
+
+.user-option {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.user-option small {
+  color: var(--app-muted);
+}
+
+.participants-empty {
+  display: flex;
+  min-height: 5rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  border: 1px dashed var(--app-border);
+  border-radius: 8px;
+  color: var(--app-muted);
+}
+
+.participant-count {
+  justify-self: end;
+  color: var(--app-muted);
+}
+
+.form-error {
+  color: var(--red);
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding-top: 0.25rem;
+}
+
+@media (max-width: 700px) {
+  .title-field,
+  .organization-field,
+  .dictionary-field,
+  .date-field {
+    grid-column: span 12;
+  }
+}
+
+@media (max-width: 520px) {
+  .participant-row {
+    grid-template-columns: minmax(0, 1fr) 2.45rem;
+    gap: 0.65rem;
+  }
+
+  .participant-row .field {
+    grid-column: 1 / -1;
+  }
+
+  .section-heading {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .remove-participant {
+    grid-column: 2;
+    justify-self: end;
+    margin-top: 0;
+  }
+  .dialog-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+}

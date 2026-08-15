@@ -3,7 +3,7 @@
 <section class="page organization-details-page">
   <div class="page-header details-header">
     <div>
-      <h1 class="page-title">Organization details</h1>
+      <h1 class="page-title">Details</h1>
       <p class="page-subtitle">{{ organization()?.title || 'Company profile' }}</p>
     </div>
 
@@ -16,7 +16,14 @@
         </button>
       }
       @if (canDelete() && organization()) {
-        <button pButton type="button" severity="danger" outlined="true" [loading]="isSubmitted()" (click)="confirmDelete()">
+        <button
+          pButton
+          type="button"
+          severity="danger"
+          outlined="true"
+          [loading]="isSubmitted()"
+          (click)="confirmDelete()"
+        >
           <i class="pi pi-trash"></i>
           <span>Delete</span>
         </button>
@@ -25,48 +32,35 @@
   </div>
 
   @if (organization(); as organization) {
-    <section class="details-layout">
-      <article class="panel organization-hero">
-        <div class="logo-card" [class.logo-card--empty]="!logoUrl()">
-          @if (logoUrl()) {
-            <img [src]="logoUrl()" [alt]="organization.title" />
-            <button pButton type="button" class="logo-zoom" rounded="true" severity="secondary" (click)="openLogoPreview()" aria-label="Preview logo">
-              <i class="pi pi-search"></i>
-            </button>
-          } @else {
-            <span>{{ initials(organization) }}</span>
-          }
-        </div>
+    <article class="panel organization-overview">
+      <div class="logo-card" [class.logo-card--empty]="!logoUrl()">
+        @if (logoUrl()) {
+          <img [src]="logoUrl()" [alt]="organization.title" />
+          <button
+            type="button"
+            class="logo-zoom"
+            (click)="openLogoPreview()"
+            aria-label="Preview logo"
+          >
+            <i class="pi pi-search"></i>
+          </button>
+        } @else {
+          <span>{{ initials(organization) }}</span>
+        }
+      </div>
 
-        <div class="hero-copy">
-          <p-tag value="Client organization" />
-          <h2>{{ organization.title }}</h2>
-          <p>VOEN: {{ display(organization.voen) }}</p>
+      <div class="organization-identity">
+        <h2>{{ organization.title }}</h2>
+        <div class="registration-number">
+          <span>VOEN</span>
+          <strong>{{ display(organization.voen) }}</strong>
         </div>
-      </article>
-
-      <article class="panel panel-padding details-panel">
-        <h2>Summary</h2>
-        <dl>
-          <div>
-            <dt>Title</dt>
-            <dd>{{ display(organization.title) }}</dd>
-          </div>
-          <div>
-            <dt>VOEN</dt>
-            <dd>{{ display(organization.voen) }}</dd>
-          </div>
-          <div>
-            <dt>Created</dt>
-            <dd>{{ createdAt() ? (createdAt() | date: 'dd.MM.yyyy HH:mm') : '-' }}</dd>
-          </div>
-          <div>
-            <dt>Employees</dt>
-            <dd>{{ employees().length }}</dd>
-          </div>
-        </dl>
-      </article>
-    </section>
+        <p class="created-meta">
+          <i class="pi pi-calendar" aria-hidden="true"></i>
+          <span>Created {{ createdAt() ? (createdAt() | date: 'dd.MM.yyyy HH:mm') : '-' }}</span>
+        </p>
+      </div>
+    </article>
 
     <section class="panel panel-padding employees-panel">
       <div class="section-heading">
@@ -85,7 +79,8 @@
                 [imageUrl]="user.avatarPath"
                 [fullName]="fullName(user)"
                 [initials]="initials(user)"
-                [previewEnabled]="true" />
+                [previewEnabled]="true"
+              />
               <div>
                 <h3>{{ fullName(user) }}</h3>
                 <p>{{ display(user.email) }}</p>
@@ -114,11 +109,16 @@
     [modal]="true"
     [draggable]="false"
     [resizable]="false"
-    styleClass="organization-logo-preview">
+    styleClass="organization-logo-preview"
+  >
     @if (logoUrl()) {
       <img [src]="logoUrl()" [alt]="organization()?.title || 'Organization logo'" />
     }
   </p-dialog>
 
-  <app-organization-create-dialog [(visible)]="editDialogVisible" [organization]="organization()" (saved)="onSaved()" />
+  <app-organization-create-dialog
+    [(visible)]="editDialogVisible"
+    [organization]="organization()"
+    (saved)="onSaved()"
+  />
 </section>

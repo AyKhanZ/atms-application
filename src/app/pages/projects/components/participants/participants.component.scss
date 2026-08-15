@@ -1,0 +1,306 @@
+.participants-section {
+  display: grid;
+  gap: 0.6rem;
+  min-width: 0;
+  max-width: 100%;
+  container-type: inline-size;
+}
+
+.participants-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.participants-heading h2 {
+  margin: 0;
+  color: var(--app-text);
+  font-size: 1rem;
+}
+
+.participants-heading small {
+  color: var(--app-muted);
+  font-size: 0.78rem;
+}
+
+.participants-heading span {
+  color: var(--app-muted);
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.participants-body {
+  height: clamp(13.5rem, 25vh, 16.5rem);
+  overflow: hidden;
+  border: 1px dashed var(--app-border);
+  border-radius: 8px;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.participant-list {
+  display: grid;
+  height: 100%;
+  align-content: start;
+  gap: 0.55rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0.55rem;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.participant-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(15rem, 22rem) 2.35rem;
+  align-items: end;
+  gap: 0.75rem;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+  background: var(--app-surface-muted);
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.field {
+  position: relative;
+  display: grid;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.field > label {
+  color: var(--gray-text-strong);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.participant-field-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.participant-field-label label {
+  color: var(--gray-text-strong);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.participant-source {
+  padding: 0.12rem 0.4rem;
+  border-radius: 999px;
+  background: var(--orange-light-hover);
+  color: var(--orange-text-hover);
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.field b {
+  color: var(--orange);
+}
+
+.field small {
+  min-height: 0.9rem;
+  color: var(--red);
+  font-size: 0.72rem;
+  opacity: 0;
+}
+
+.field small.visible {
+  opacity: 1;
+}
+
+.remove-participant {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.35rem;
+  min-width: 2.35rem;
+  height: 2.35rem;
+  padding: 0;
+  align-self: center;
+  justify-self: end;
+  border: 1px solid rgb(239 68 68 / 26%);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--red);
+  cursor: pointer;
+  transition:
+    background 0.16s ease,
+    border-color 0.16s ease,
+    color 0.16s ease;
+}
+
+.remove-participant span {
+  display: none;
+}
+
+.remove-participant:hover {
+  border-color: rgb(239 68 68 / 44%);
+  background: #fef2f2;
+}
+
+.participants-empty {
+  display: grid;
+  height: 100%;
+  place-items: center;
+  align-content: center;
+  gap: 0.6rem;
+  color: var(--app-muted);
+  text-align: center;
+}
+
+.participants-empty i {
+  color: var(--orange);
+  font-size: 3.35rem;
+}
+
+.participants-empty strong {
+  color: var(--app-text);
+}
+
+.add-participant-button {
+  width: fit-content;
+  min-width: 0;
+  justify-self: center;
+  height: 2.35rem;
+  padding-inline: 0.95rem;
+  font-size: 0.88rem;
+}
+
+.add-participant-button i {
+  font-size: 0.85rem;
+}
+
+.participants-actions {
+  display: grid;
+  min-height: 2.35rem;
+  place-items: center;
+}
+
+.user-option {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.user-group {
+  color: var(--orange-text-hover);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+:host ::ng-deep .p-select {
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+}
+
+:host ::ng-deep .p-select-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+:host ::ng-deep .p-select-overlay {
+  max-width: min(30rem, calc(100vw - 1rem));
+}
+
+@media (max-width: 980px) {
+  .participants-body {
+    height: 18rem;
+  }
+
+  .participant-row {
+    grid-template-columns: minmax(0, 1fr) minmax(13rem, 18rem) 2.35rem;
+  }
+
+  .remove-participant {
+    justify-self: end;
+  }
+}
+
+@media (max-width: 720px) {
+  .participants-heading {
+    align-items: start;
+  }
+
+  .participants-body {
+    height: 18rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .participants-heading {
+    display: grid;
+    gap: 0.15rem;
+  }
+}
+
+@container (max-width: 58rem) {
+  .participants-body {
+    height: 18rem;
+  }
+
+  .participant-list {
+    padding: 0.45rem;
+  }
+
+  .participants-empty {
+    gap: 0.45rem;
+  }
+
+  .participants-empty i {
+    font-size: 2.7rem;
+  }
+}
+
+@container (max-width: 30rem) {
+  .participant-row {
+    grid-template-columns: minmax(0, 1fr) 2.35rem;
+    align-items: end;
+    gap: 0.65rem;
+    padding: 0.6rem;
+  }
+
+  .user-field,
+  .role-field {
+    grid-column: 1 / -1;
+  }
+
+  .remove-participant {
+    grid-column: 2;
+    grid-row: 2;
+    width: 2.35rem;
+    min-width: 2.35rem;
+    height: 2.35rem;
+    justify-self: end;
+    align-self: end;
+    background: #fff;
+  }
+
+  .participants-body {
+    height: 17.5rem;
+  }
+}
+
+@container (max-width: 24rem) {
+  .participant-row {
+    grid-template-columns: minmax(0, 1fr) 2.35rem;
+  }
+
+  .remove-participant {
+    grid-column: 2;
+    grid-row: 2;
+    width: 2.35rem;
+    justify-self: end;
+  }
+}

@@ -1,0 +1,115 @@
+.projects-header {
+  --management-search-max: 48rem;
+}
+
+.projects-table-shell {
+  min-width: 0;
+}
+
+:host ::ng-deep .projects-table {
+  display: block;
+  overflow: visible;
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+  background: var(--white);
+  box-shadow: 0 1px 2px rgb(15 23 42 / 5%);
+}
+
+:host ::ng-deep .projects-table .p-datatable-wrapper {
+  overflow-x: auto;
+  overflow-y: visible;
+  border-radius: 8px 8px 0 0;
+  scrollbar-width: thin;
+}
+
+:host ::ng-deep .projects-table .p-datatable-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+:host ::ng-deep .projects-table th {
+  background: var(--white);
+  color: var(--text);
+}
+
+:host ::ng-deep .projects-table td,
+:host ::ng-deep .projects-table th {
+  border-width: 0 0 1px;
+  border-color: var(--app-border);
+}
+
+:host ::ng-deep .projects-table .p-datatable-tbody > tr:last-child > td {
+  border-bottom: 0;
+}
+
+.clickable-row {
+  cursor: pointer;
+}
+
+:host ::ng-deep .clickable-row:hover td {
+  background: var(--app-surface-muted);
+}
+
+.project-code {
+  color: var(--orange-text-hover);
+  font-weight: 750;
+}
+
+.project-title {
+  display: grid;
+  gap: 0.25rem;
+  min-width: 14rem;
+}
+
+.project-title small {
+  color: var(--app-muted);
+}
+
+.status-badge {
+  display: inline-flex;
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  background: var(--orange-light);
+  color: var(--orange-text-hover);
+  font-weight: 700;
+}
+
+.date-separator {
+  padding-inline: 0.3rem;
+  color: var(--gray-icon-muted);
+}
+
+.actions-column {
+  width: 7rem;
+  text-align: center;
+}
+
+.actions-cell {
+  display: flex;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.empty-state {
+  display: grid;
+  min-height: 13rem;
+  place-items: center;
+  align-content: center;
+  gap: 0.5rem;
+  color: var(--app-muted);
+}
+
+.empty-state i {
+  color: var(--orange);
+  font-size: 2rem;
+}
+
+.empty-state strong {
+  color: var(--text);
+}
+
+@media (max-width: 760px) {
+  :host ::ng-deep .projects-table .p-datatable-table {
+    min-width: 44rem;
+  }
+}
