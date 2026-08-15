@@ -82,18 +82,28 @@ export class ProjectDetailsComponent implements OnDestroy {
     this.store.dispatch(WorkProjectsStoreActions.clearItem());
   }
   back(): void {
-    void this.router.navigateByUrl(history.state?.returnUrl || '/projects');
+    const state = history.state as { returnUrl?: unknown };
+    void this.router.navigateByUrl(projectNavigationUrl(state.returnUrl) ?? '/projects');
   }
   edit(): void {
+    const state = history.state as { returnUrl?: unknown };
+    const detailsReturnUrl = projectNavigationUrl(state.returnUrl) ?? '/projects';
+
     void this.router.navigate(['/projects', this.id, 'edit'], {
-      state: { returnUrl: `/projects/${this.id}` },
+      state: {
+        cancelUrl: `/projects/${this.id}`,
+        detailsReturnUrl,
+      },
     });
   }
   changeStatus(projectStatusId: number): void {
     const project = this.project();
     if (!project || project.projectStatus.id === projectStatusId) return;
     this.store.dispatch(
-      WorkProjectsStoreActions.updateProjectStatus({ id: project.id, projectStatusId }),
+      WorkProjectsStoreActions.updateProjectStatus({
+        id: project.id,
+        projectStatusId,
+      }),
     );
   }
   confirmDelete(): void {
@@ -110,4 +120,11 @@ export class ProjectDetailsComponent implements OnDestroy {
       accept: () => this.store.dispatch(WorkProjectsStoreActions.deleteProject({ id: project.id })),
     });
   }
+}
+
+function projectNavigationUrl(value: unknown): string | null {
+  if (typeof value !== 'string') return null;
+  return value === '/projects' || value.startsWith('/projects?') || value.startsWith('/projects/')
+    ? value
+    : null;
 }

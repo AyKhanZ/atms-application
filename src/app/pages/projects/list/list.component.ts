@@ -2,7 +2,6 @@ import { DatePipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
   OnDestroy,
   computed,
   inject,
@@ -20,12 +19,10 @@ import {
   createDefaultWorkProjectListFilter,
   WorkProjectItemModel,
   WorkProjectListFilter,
-  WorkProjectModel,
 } from '../../../core/models/work-projects';
 import { Roles } from '../../../core/enums/roles.enum';
 import { DictionaryService } from '../../../core/services/dictionary.service';
 import { TableLazyLoadService } from '../../../core/services/table-lazy-load.service';
-import { WorkProjectsService } from '../../../core/services/work-projects.service';
 import { CreateButtonComponent } from '../../../shared/components/create-button/create-button.component';
 import { DeleteActionButtonComponent } from '../../../shared/components/delete-action-button/delete-action-button.component';
 import { EditActionButtonComponent } from '../../../shared/components/edit-action-button/edit-action-button.component';
@@ -34,7 +31,6 @@ import { ListSearchComponent } from '../../../shared/components/list-search/list
 import { UserStoreSelectors } from '../../../store/user';
 import { WorkProjectsStoreActions, WorkProjectsStoreSelectors } from '../../../store/work-projects';
 import { ProjectFilterComponent } from '../components/filter/filter.component';
-import { ProjectFormDialogComponent } from '../components/form-dialog/form-dialog.component';
 import { ProjectListQueryService } from './services/list-query.service';
 
 @Component({
@@ -49,7 +45,6 @@ import { ProjectListQueryService } from './services/list-query.service';
     FilterToggleButtonComponent,
     ListSearchComponent,
     ProjectFilterComponent,
-    ProjectFormDialogComponent,
   ],
   providers: [ConfirmationService, ProjectListQueryService],
   templateUrl: './list.component.html',
@@ -64,8 +59,6 @@ export class ProjectListComponent implements OnDestroy {
   private readonly query = inject(ProjectListQueryService);
   private readonly tableLazyLoad = inject(TableLazyLoadService);
   private readonly dictionaryService = inject(DictionaryService);
-  private readonly service = inject(WorkProjectsService);
-  private readonly destroyRef = inject(DestroyRef);
   private readonly searchChanges = new Subject<string>();
   private readonly roles = this.store.selectSignal(UserStoreSelectors.getRoles);
 
@@ -77,8 +70,6 @@ export class ProjectListComponent implements OnDestroy {
   readonly filter = signal(createDefaultWorkProjectListFilter());
   readonly searchTerm = signal('');
   readonly filtersOpen = signal(false);
-  readonly dialogVisible = signal(false);
-  readonly selectedProject = signal<WorkProjectModel | null>(null);
   readonly types = signal<DictionaryModel[]>([]);
   readonly kinds = signal<DictionaryModel[]>([]);
   readonly statuses = signal<DictionaryModel[]>([]);
@@ -90,7 +81,11 @@ export class ProjectListComponent implements OnDestroy {
     this.searchChanges
       .pipe(debounceTime(350), distinctUntilChanged(), takeUntilDestroyed())
       .subscribe((search) =>
-        this.writeUrl({ ...this.filter(), search: this.query.clean(search), page: 1 }),
+        this.writeUrl({
+          ...this.filter(),
+          search: this.query.clean(search),
+          page: 1,
+        }),
       );
     this.route.queryParams.pipe(takeUntilDestroyed()).subscribe((params) => {
       const filter = this.query.fromParams(params);
@@ -126,13 +121,22 @@ export class ProjectListComponent implements OnDestroy {
     this.writeUrl({ ...this.filter(), ...filter, page: 1 });
   }
   clearFilters(): void {
-    this.writeUrl({ ...createDefaultWorkProjectListFilter(), search: this.filter().search });
+    this.writeUrl({
+      ...createDefaultWorkProjectListFilter(),
+      search: this.filter().search,
+    });
   }
   onLazyLoad(event: TableLazyLoadEvent): void {
     this.writeUrl(this.tableLazyLoad.toFilter(event, this.filter()));
   }
   openCreate(): void {
-    void this.router.navigate(['create'], { relativeTo: this.route });
+    void this.router.navigate(['create'], {
+      relativeTo: this.route,
+      state: {
+        cancelUrl: this.router.url,
+        detailsReturnUrl: this.router.url,
+      },
+    });
   }
   openDetails(project: WorkProjectItemModel): void {
     void this.router.navigate([project.id], {
@@ -141,13 +145,13 @@ export class ProjectListComponent implements OnDestroy {
     });
   }
   openEdit(project: WorkProjectItemModel): void {
-    this.service
-      .getProject(project.id)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((item) => {
-        this.selectedProject.set(item);
-        this.dialogVisible.set(true);
-      });
+    void this.router.navigate([project.id, 'edit'], {
+      relativeTo: this.route,
+      state: {
+        cancelUrl: this.router.url,
+        detailsReturnUrl: this.router.url,
+      },
+    });
   }
   confirmDelete(project: WorkProjectItemModel): void {
     this.confirmation.confirm({
@@ -161,11 +165,6 @@ export class ProjectListComponent implements OnDestroy {
       accept: () => this.store.dispatch(WorkProjectsStoreActions.deleteProject({ id: project.id })),
     });
   }
-  onSaved(): void {
-    this.lastLoadKey = '';
-    this.load(this.filter());
-  }
-
   private load(filter: WorkProjectListFilter): void {
     const key = JSON.stringify(this.query.toParams(filter));
     if (key === this.lastLoadKey) return;

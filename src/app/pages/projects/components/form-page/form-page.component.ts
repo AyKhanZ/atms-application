@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  HostListener,
   computed,
   inject,
   input,
@@ -78,6 +79,8 @@ export class ProjectFormPageComponent implements OnDestroy {
   private readonly dictionaryService = inject(DictionaryService);
   private readonly workProjectsService = inject(WorkProjectsService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly navigationState = history.state as ProjectFormNavigationState;
+  private navigationComplete = false;
 
   readonly submitted = signal(false);
   readonly organizations = signal<OrganizationListItemModel[]>([]);
@@ -95,6 +98,11 @@ export class ProjectFormPageComponent implements OnDestroy {
   readonly isSaving = this.store.selectSignal(WorkProjectsStoreSelectors.isSubmitted);
   readonly project = this.store.selectSignal(WorkProjectsStoreSelectors.getItem);
   readonly id = this.route.snapshot.paramMap.get('id');
+  readonly cancelUrl =
+    projectNavigationUrl(this.navigationState.cancelUrl) ??
+    (this.id ? `/projects/${this.id}` : '/projects');
+  readonly detailsReturnUrl =
+    projectNavigationUrl(this.navigationState.detailsReturnUrl) ?? '/projects';
   readonly isEdit = computed(() => this.mode() === 'edit');
   readonly pageTitle = computed(() => (this.isEdit() ? 'Edit project' : 'Create project'));
   readonly submitLabel = computed(() => (this.isEdit() ? 'Save' : 'Create'));
@@ -152,7 +160,10 @@ export class ProjectFormPageComponent implements OnDestroy {
     this.actions$
       .pipe(ofType(WorkProjectsStoreActions.createProjectSuccess), takeUntilDestroyed())
       .subscribe(({ id }) => {
-        void this.router.navigate(['/projects', id], { state: { returnUrl: '/projects' } });
+        this.navigationComplete = true;
+        void this.router.navigate(['/projects', id], {
+          state: { returnUrl: this.detailsReturnUrl },
+        });
       });
 
     this.actions$
@@ -164,8 +175,12 @@ export class ProjectFormPageComponent implements OnDestroy {
     this.actions$
       .pipe(ofType(WorkProjectsStoreActions.updateProjectSuccess), takeUntilDestroyed())
       .subscribe(() => {
-        if (this.id)
-          void this.router.navigate(['/projects', this.id], { state: { returnUrl: '/projects' } });
+        if (this.id) {
+          this.navigationComplete = true;
+          void this.router.navigate(['/projects', this.id], {
+            state: { returnUrl: this.detailsReturnUrl },
+          });
+        }
       });
   }
 
@@ -225,7 +240,9 @@ export class ProjectFormPageComponent implements OnDestroy {
     const command = this.createCommand();
     if (this.id) {
       this.store.dispatch(
-        WorkProjectsStoreActions.updateProject({ command: { ...command, id: this.id } }),
+        WorkProjectsStoreActions.updateProject({
+          command: { ...command, id: this.id },
+        }),
       );
       return;
     }
@@ -234,7 +251,23 @@ export class ProjectFormPageComponent implements OnDestroy {
   }
 
   cancel(): void {
-    void this.router.navigate(['/projects']);
+    if (this.id && this.cancelUrl === `/projects/${this.id}`) {
+      void this.router.navigateByUrl(this.cancelUrl, {
+        state: { returnUrl: this.detailsReturnUrl },
+      });
+      return;
+    }
+
+    void this.router.navigateByUrl(this.cancelUrl);
+  }
+
+  hasUnsavedChanges(): boolean {
+    return !this.navigationComplete && this.form.dirty;
+  }
+
+  @HostListener('window:beforeunload', ['$event'])
+  beforeUnload(event: BeforeUnloadEvent): void {
+    if (this.hasUnsavedChanges()) event.preventDefault();
   }
 
   error(
@@ -265,6 +298,8 @@ export class ProjectFormPageComponent implements OnDestroy {
       this.addParticipant(participant.userId, participant.role.id),
     );
     if (project.organization?.id) this.loadOrganization(project.organization.id);
+    this.form.markAsPristine();
+    this.form.markAsUntouched();
   }
 
   private loadOrganization(organizationId: string): void {
@@ -317,7 +352,10 @@ export class ProjectFormPageComponent implements OnDestroy {
 
   private createCommand(): WorkProjectCommand {
     const value = this.form.getRawValue();
-    const participants = value.participants as { userId: string | null; roleId: string | null }[];
+    const participants = value.participants as {
+      userId: string | null;
+      roleId: string | null;
+    }[];
     return {
       title: (value.title ?? '').trim(),
       description: (value.description ?? '').trim() || null,
@@ -333,6 +371,18 @@ export class ProjectFormPageComponent implements OnDestroy {
       })),
     };
   }
+}
+
+interface ProjectFormNavigationState {
+  cancelUrl?: unknown;
+  detailsReturnUrl?: unknown;
+}
+
+function projectNavigationUrl(value: unknown): string | null {
+  if (typeof value !== 'string') return null;
+  return value === '/projects' || value.startsWith('/projects?') || value.startsWith('/projects/')
+    ? value
+    : null;
 }
 
 function toDate(value: Date | null): string | null {

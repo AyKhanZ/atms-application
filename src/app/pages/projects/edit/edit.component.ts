@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, viewChild } from '@angular/core';
+import { HasUnsavedChanges } from '../../../core/guards/unsaved-changes.guard';
 import { ProjectFormPageComponent } from '../components/form-page/form-page.component';
 
 @Component({
@@ -7,4 +8,10 @@ import { ProjectFormPageComponent } from '../components/form-page/form-page.comp
   templateUrl: './edit.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ProjectEditComponent {}
+export class ProjectEditComponent implements HasUnsavedChanges {
+  private readonly formPage = viewChild.required(ProjectFormPageComponent);
+
+  hasUnsavedChanges(): boolean {
+    return this.formPage().hasUnsavedChanges();
+  }
+}
