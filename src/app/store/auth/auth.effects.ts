@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { of, tap, timer } from 'rxjs';
-import { catchError, map, switchMap, takeUntil } from 'rxjs/operators';
+import { catchError, ignoreElements, map, switchMap, takeUntil } from 'rxjs/operators';
 import { HttpErrorResponse } from '@angular/common/http';
 import * as AuthStoreActions from './auth.actions';
 import { AuthService } from '../../core/services/auth.service';
@@ -9,12 +9,14 @@ import { ValidationErrorModel } from '../../core/models/auth/auth.models';
 import { SnackBarService } from '../../core/services/snack-bar.service';
 import { Router } from '@angular/router';
 import { TokenStorageService } from '../../core/services/token-storage.service';
+import { AuthSessionService } from '../../core/services/auth-session.service';
 
 @Injectable()
 export class AuthEffects {
   private readonly actions$ = inject(Actions);
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
+  private readonly authSession = inject(AuthSessionService);
   private readonly tokenStorage = inject(TokenStorageService);
   private readonly snackBar = inject(SnackBarService);
 
@@ -74,7 +76,9 @@ export class AuthEffects {
       switchMap(({ accessModel }) => {
         return timer(getRefreshDelay(accessModel.accessTokenExpireTime)).pipe(
           map(() => AuthStoreActions.refreshToken()),
-          takeUntil(this.actions$.pipe(ofType(AuthStoreActions.logout, AuthStoreActions.logoutCompleted))),
+          takeUntil(
+            this.actions$.pipe(ofType(AuthStoreActions.logout, AuthStoreActions.logoutCompleted)),
+          ),
         );
       }),
     ),
@@ -83,17 +87,12 @@ export class AuthEffects {
   refreshToken$ = createEffect(() =>
     this.actions$.pipe(
       ofType(AuthStoreActions.refreshToken),
-      switchMap(() => {
-        const refreshToken = this.tokenStorage.getAccessModel()?.refreshToken;
-        if (!refreshToken) {
-          return of(AuthStoreActions.refreshTokenFailure());
-        }
-
-        return this.authService.refresh({ refreshToken }).pipe(
-          map((accessModel) => AuthStoreActions.refreshTokenSuccess({ accessModel })),
+      switchMap(() =>
+        this.authSession.refreshAccessToken().pipe(
+          ignoreElements(),
           catchError(() => of(AuthStoreActions.refreshTokenFailure())),
-        );
-      }),
+        ),
+      ),
     ),
   );
 

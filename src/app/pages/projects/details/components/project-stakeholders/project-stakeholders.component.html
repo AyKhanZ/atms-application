@@ -1,0 +1,99 @@
+<section class="stakeholders-content">
+  @if (!isInternal() && project().organization; as organization) {
+    <section class="organization-strip">
+      <div class="organization-logo">
+        @if (logoUrl(organization.logoPath); as logo) {
+          <img [src]="logo" [alt]="organization.title" />
+        } @else {
+          <span>{{ organizationInitials(organization.title) }}</span>
+        }
+      </div>
+      <h3>{{ organization.title }}</h3>
+    </section>
+  }
+
+  <section class="participants-panel">
+    <div class="participants-header">
+      <h3>Participants</h3>
+      @if (canManage()) {
+        <button
+          pButton
+          type="button"
+          class="add-participant-button"
+          [disabled]="participantsCount() >= 20 || isSaving()"
+          (click)="openAddDialog()"
+        >
+          <i class="pi pi-plus"></i>
+          <span>Add</span>
+        </button>
+      }
+    </div>
+
+    @if (project().participants.length) {
+      <div class="participants-table" role="table" aria-label="Participants">
+        <div class="participants-row participants-row--head" role="row">
+          <span role="columnheader">Participant</span>
+          <span role="columnheader">Role</span>
+          @if (canManage()) {
+            <span role="columnheader" class="actions-head">Actions</span>
+          }
+        </div>
+
+        @for (participant of project().participants; track participant.id) {
+          <div class="participants-row" role="row">
+            <div class="person-cell" role="cell">
+              <app-profile-avatar
+                [imageUrl]="participant.avatarPath"
+                [fullName]="fullName(participant)"
+                [initials]="initials(participant)"
+                [previewEnabled]="true"
+              />
+              <div class="person-copy">
+                <strong>{{ fullName(participant) }}</strong>
+                <span>{{ participant.email }}</span>
+              </div>
+            </div>
+            <span class="role-cell" role="cell">
+              {{ participant.role.name }}
+            </span>
+            @if (canManage()) {
+              <div class="actions-cell" role="cell">
+                <button
+                  type="button"
+                  class="row-menu-button"
+                  [attr.aria-label]="'Actions for ' + fullName(participant)"
+                  (click)="openParticipantMenu($event, participant, participantMenu)"
+                >
+                  <i class="pi pi-ellipsis-v"></i>
+                </button>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    } @else {
+      <div class="participants-empty">
+        <i class="pi pi-users"></i>
+        <span>No participants yet</span>
+      </div>
+    }
+  </section>
+</section>
+
+<p-menu #participantMenu [model]="participantActions()" [popup]="true" appendTo="body" />
+
+<app-add-participant-dialog
+  [(visible)]="addDialogVisible"
+  [users]="availableUsers()"
+  [roles]="roles()"
+  [isSaving]="isSaving()"
+  (submitted)="submitAdd($event)"
+/>
+
+<app-change-participant-role-dialog
+  [(visible)]="roleDialogVisible"
+  [participant]="selectedParticipant()"
+  [roles]="roles()"
+  [isSaving]="isSaving()"
+  (submitted)="submitRole($event)"
+/>

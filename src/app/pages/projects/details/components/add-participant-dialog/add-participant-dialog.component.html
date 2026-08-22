@@ -1,0 +1,61 @@
+<p-dialog
+  header="Add participant"
+  [visible]="visible()"
+  (visibleChange)="updateVisible($event)"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  styleClass="participant-dialog"
+>
+  <form class="participant-dialog-form" [formGroup]="form" (ngSubmit)="submit()">
+    <div class="field">
+      <label for="participantUser">User</label>
+      <p-select
+        inputId="participantUser"
+        [class.control-invalid]="showError('userId')"
+        formControlName="userId"
+        [options]="users()"
+        optionLabel="email"
+        optionValue="id"
+        placeholder="Select user"
+        [filter]="true"
+        appendTo="body"
+      >
+        <ng-template pTemplate="selectedItem" let-user>
+          {{ candidateName(user) }}
+        </ng-template>
+        <ng-template pTemplate="item" let-user>
+          <div class="user-option">
+            <strong>{{ candidateName(user) }}</strong>
+            <span>{{ user.email }}</span>
+          </div>
+        </ng-template>
+      </p-select>
+      @if (showError('userId')) {
+        <small>User is required.</small>
+      }
+    </div>
+
+    <div class="field">
+      <label for="participantRole">Role</label>
+      <p-select
+        inputId="participantRole"
+        [class.control-invalid]="showError('roleId')"
+        formControlName="roleId"
+        [options]="availableRoles()"
+        optionLabel="name"
+        optionValue="id"
+        placeholder="Select role"
+        appendTo="body"
+      />
+      @if (showError('roleId')) {
+        <small>Role is required.</small>
+      }
+    </div>
+
+    <div class="dialog-actions">
+      <button pButton type="button" outlined="true" (click)="close()">Cancel</button>
+      <button pButton type="submit" [disabled]="isSaving()">Add</button>
+    </div>
+  </form>
+</p-dialog>

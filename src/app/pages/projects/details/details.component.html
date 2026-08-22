@@ -1,159 +1,227 @@
 <p-confirmDialog />
-<section class="project-page">
-  @if (project(); as item) {
-    <header class="project-header">
-      <div class="project-identity">
-        <span class="project-code">PROJECT #{{ item.code }}</span>
-        <h1>{{ item.title }}</h1>
-        <div class="project-meta">
-          <span
-            ><i class="pi pi-building"></i>{{ item.organization?.title || 'No organization' }}</span
-          >
-        </div>
-      </div>
-      <div class="header-actions">
-        <button pButton type="button" severity="secondary" outlined="true" (click)="back()">
-          <i class="pi pi-arrow-left"></i><span>Back</span>
+<p-confirmDialog key="projectParticipantDanger" styleClass="participant-danger-dialog" />
+
+<section class="page project-details-page">
+  <div class="page-header details-header">
+    <div>
+      <h1 class="page-title">Details</h1>
+      <p class="page-subtitle">{{ project()?.title || 'Project workspace' }}</p>
+    </div>
+    <div class="details-actions">
+      <app-back-button (back)="back()" />
+      @if (canManage() && project()) {
+        <button pButton
+                type="button"
+                severity="secondary"
+                outlined="true"
+                (click)="edit()">
+          <i class="pi pi-pencil"></i>
+          <span>Edit</span>
         </button>
-        @if (canManage()) {
-          <button pButton type="button" outlined="true" (click)="edit()">
-            <i class="pi pi-pencil"></i><span>Edit</span></button
-          ><button
-            pButton
-            type="button"
-            severity="danger"
-            outlined="true"
-            (click)="confirmDelete()"
-          >
-            <i class="pi pi-trash"></i><span>Delete</span>
-          </button>
-        }
-      </div>
-    </header>
-    <nav class="project-tabs" aria-label="Project sections">
-      <button
-        type="button"
-        [class.active]="activeTab() === 'details'"
-        (click)="activeTab.set('details')"
-      >
-        <i class="pi pi-align-left"></i><span>Details</span></button
-      ><button
-        type="button"
-        [class.active]="activeTab() === 'links'"
-        (click)="activeTab.set('links')"
-      >
-        <i class="pi pi-link"></i><span>Links</span>
-      </button>
-    </nav>
-    @if (activeTab() === 'details') {
-      <div class="details-layout">
-        <main class="details-main">
-          <section class="content-section">
-            <h2>Description</h2>
+        <button
+          pButton
+          type="button"
+          severity="danger"
+          outlined="true"
+          [loading]="isSaving()"
+          (click)="confirmDelete()">
+          <i class="pi pi-trash"></i><span>Delete</span>
+        </button>
+      }
+    </div>
+  </div>
+
+  @if (project(); as item) {
+    <article class="panel project-panel">
+      <header class="project-hero">
+        <div class="project-identity">
+          <span class="project-code">PROJECT #{{ item.code }}</span>
+          <h2>{{ item.title }}</h2>
+          @if (item.updatedAt && item.updatedBy) {
+            <p class="updated-meta">
+              Updated by {{ item.updatedBy.name }} {{ item.updatedBy.surname }} ·
+              {{ updatedLabel(item.updatedAt) }}
+            </p>
+          }
+        </div>
+        <div class="status-area">
+          <span class="status-label">Status</span>
+          @if (canManage()) {
+            <p-select
+              class="hero-status-select"
+              [options]="statuses()"
+              optionLabel="name"
+              optionValue="id"
+              [ngModel]="item.projectStatus.id"
+              [disabled]="isSaving()"
+              appendTo="body"
+              ariaLabel="Status"
+              (onChange)="changeStatus($event.value)"
+            />
+          } @else {
+            <span class="hero-status-badge">{{ item.projectStatus.name }}</span>
+          }
+        </div>
+      </header>
+
+      <nav class="project-tabs" aria-label="Project sections">
+        <button type="button"
+                [class.active]="activeTab() === 'details'"
+                (click)="selectTab('details')">
+          <i class="pi pi-align-left"></i>
+          <span>Details</span>
+        </button>
+        <button type="button"
+          [class.active]="activeTab() === 'stakeholders'"
+          (click)="selectTab('stakeholders')">
+          <i class="pi pi-users"></i>
+          <span>Stakeholders</span>
+        </button>
+        <button type="button"
+                [class.active]="activeTab() === 'links'"
+                (click)="selectTab('links')">
+          <i class="pi pi-link">
+          </i><span>Links</span>
+        </button>
+        <button type="button"
+          [class.active]="activeTab() === 'attachments'"
+          (click)="selectTab('attachments')">
+          <i class="pi pi-paperclip"></i>
+          <span>Attachments</span>
+        </button>
+        <button type="button"
+          [class.active]="activeTab() === 'history'"
+          (click)="selectTab('history')">
+          <i class="pi pi-history"></i>
+          <span>History</span>
+        </button>
+      </nav>
+
+      @if (activeTab() === 'details') {
+        <div class="details-content">
+          <section class="description-card content-card">
+            <div class="section-heading">
+              <h3>Description</h3>
+            </div>
             @if (item.description) {
               <p class="description">{{ item.description }}</p>
             } @else {
-              <div class="quiet-empty">No description has been added.</div>
+              <p class="inline-empty">No description has been added.</p>
             }
           </section>
-          <section class="content-section discussion-placeholder">
-            <div>
-              <h2>Discussion</h2>
-              <p>Project comments will appear here in a later version.</p>
+
+          <aside class="project-information">
+            <section>
+              <h3>Information</h3>
+              <dl>
+                <div>
+                  <dt>Start date</dt>
+                  <dd>{{ item.startDate ? (item.startDate | date: 'dd.MM.yyyy') : 'Not set' }}</dd>
+                </div>
+                <div>
+                  <dt>Target date</dt>
+                  <dd>{{ item.endDate ? (item.endDate | date: 'dd.MM.yyyy') : 'Not set' }}</dd>
+                </div>
+                <div>
+                  <dt>Type</dt>
+                  <dd>{{ item.projectType.name }}</dd>
+                </div>
+                <div>
+                  <dt>Kind</dt>
+                  <dd>{{ item.projectKind.name }}</dd>
+                </div>
+              </dl>
+            </section>
+          </aside>
+
+          <section class="discussion content-card">
+            <div class="section-heading">
+              <div>
+                <h3>Discussion</h3>
+              </div>
             </div>
-            <div class="comment-shell">
-              <i class="pi pi-comment"></i><span>Comments are not available yet.</span>
-            </div>
-          </section>
-        </main>
-        <aside class="details-aside">
-          <section class="facts-panel">
-            <h2>Project details</h2>
-            <dl>
-              <div>
-                <dt>Status</dt>
-                <dd>
-                  @if (canManage()) {
-                    <p-select
-                      class="status-select"
-                      [options]="statuses()"
-                      optionLabel="name"
-                      optionValue="id"
-                      [ngModel]="item.projectStatus.id"
-                      [disabled]="isSaving()"
-                      appendTo="body"
-                      ariaLabel="Project status"
-                      (onChange)="changeStatus($event.value)"
-                    />
-                  } @else {
-                    <span class="status-badge">{{ item.projectStatus.name }}</span>
-                  }
-                </dd>
-              </div>
-              <div>
-                <dt>Type</dt>
-                <dd>{{ item.projectType.name }}</dd>
-              </div>
-              <div>
-                <dt>Kind</dt>
-                <dd>{{ item.projectKind.name }}</dd>
-              </div>
-              <div>
-                <dt>Created</dt>
-                <dd>{{ item.createdAt | date: 'dd.MM.yyyy HH:mm' }}</dd>
-              </div>
-            </dl>
-          </section>
-          <section class="facts-panel participants-panel">
-            <div class="panel-title">
-              <h2>Participants</h2>
-              <span>{{ item.participants.length }}</span>
-            </div>
-            @if (item.participants.length) {
-              <div class="participant-list">
-                @for (participant of item.participants; track participant.userId) {
-                  <div class="participant">
-                    <span class="avatar"
-                      >{{ participant.name[0] }}{{ participant.surname[0] }}</span
-                    >
-                    <div>
-                      <strong>{{ participant.name }} {{ participant.surname }}</strong
-                      ><small>{{ participant.role.name }}</small>
-                    </div>
-                  </div>
+            <div class="comments-viewport" aria-label="Project comments">
+              @if (previewComments().length) {
+                @for (comment of previewComments(); track $index) {
+                  <article class="preview-comment">
+                    <span class="composer-avatar">SA</span>
+                    <div><strong>You</strong>
+                      <p>{{ comment }}</p></div>
+                  </article>
                 }
-              </div>
-            } @else {
-              <div class="quiet-empty">No participants assigned.</div>
-            }
+              } @else {
+                <div class="empty-discussion">
+                  <i class="pi pi-comments"></i>
+                  <strong>No comments yet</strong>
+                </div>
+              }
+            </div>
+            <div class="composer">
+              <span class="composer-avatar">SA</span>
+              <textarea
+                rows="2"
+                placeholder="Add a comment..."
+                aria-label="Comment"
+                [ngModel]="commentDraft()"
+                (ngModelChange)="commentDraft.set($event)"
+              ></textarea>
+              <button
+                pButton
+                type="button"
+                class="send-comment"
+                aria-label="Send comment"
+                title="Send"
+                (click)="sendComment()"
+              >
+                <i class="pi pi-send"></i>
+              </button>
+            </div>
           </section>
-        </aside>
-      </div>
-    } @else {
-      <section class="links-section">
-        <div class="links-toolbar">
-          <div>
-            <h2>Links</h2>
-            <p>Related work will be collected here.</p>
+        </div>
+      } @else if (activeTab() === 'stakeholders') {
+        <app-project-stakeholders
+          [project]="item"
+          [canManage]="canManage()"
+          [isSaving]="isSaving()"
+        />
+      } @else if (activeTab() === 'links') {
+        <section class="future-state">
+          <div class="future-icon">
+            <i class="pi pi-link"></i>
           </div>
-        </div>
-        <div class="links-empty">
-          <i class="pi pi-link"></i><strong>No links yet</strong
-          ><span
-            >Links to groups, milestones and work items will appear here when that functionality is
-            added.</span
-          >
-        </div>
-      </section>
-    }
+          <h3>No links yet</h3>
+          <button pButton type="button" (click)="showUnavailable('Add link')">
+            <i class="pi pi-plus"></i>
+            <span>Add link</span>
+          </button>
+        </section>
+      } @else if (activeTab() === 'attachments') {
+        <section class="future-state">
+          <div class="future-icon">
+            <i class="pi pi-paperclip"></i>
+          </div>
+          <h3>No attachments yet</h3>
+          <button pButton type="button" (click)="showUnavailable('Upload files')">
+            <i class="pi pi-upload"></i>
+            <span>Upload files</span>
+          </button>
+        </section>
+      } @else {
+        <section class="future-state">
+          <div class="future-icon">
+            <i class="pi pi-history"></i>
+          </div>
+          <h3>No activity yet</h3>
+        </section>
+      }
+    </article>
+
   } @else if (loading()) {
-    <div class="details-loading">
-      <i class="pi pi-spin pi-spinner"></i><span>Loading project...</span>
-    </div>
+    <div class="panel details-loading"><i class="pi pi-spin pi-spinner"></i><span>Loading project...</span></div>
   } @else {
-    <div class="details-loading">
-      <i class="pi pi-exclamation-circle"></i><span>Project could not be loaded.</span
-      ><button pButton type="button" outlined="true" (click)="back()">Back to projects</button>
+    <div class="panel details-loading">
+      <i class="pi pi-exclamation-circle"></i><span>Project could not be loaded.</span>
+      <button pButton type="button" outlined="true" (click)="back()">Back to projects</button>
     </div>
   }
 </section>

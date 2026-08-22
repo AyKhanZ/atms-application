@@ -14,4 +14,8 @@ export class ProjectEditComponent implements HasUnsavedChanges {
   hasUnsavedChanges(): boolean {
     return this.formPage().hasUnsavedChanges();
   }
+
+  confirmUnsavedChanges(): Promise<boolean> {
+    return this.formPage().confirmUnsavedChanges();
+  }
 }

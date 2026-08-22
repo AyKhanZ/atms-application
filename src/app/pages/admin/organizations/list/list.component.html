@@ -93,12 +93,14 @@
           </td>
           @if (showActions()) {
             <td class="actions-cell" (click)="$event.stopPropagation()">
-              @if (canEdit()) {
-                <app-edit-action-button (clicked)="openEditOrganization(organization)" />
-              }
-              @if (canDelete()) {
-                <app-delete-action-button (clicked)="confirmDeleteOrganization(organization)" />
-              }
+              <div class="management-table-actions">
+                @if (canEdit()) {
+                  <app-edit-action-button (clicked)="openEditOrganization(organization)" />
+                }
+                @if (canDelete()) {
+                  <app-delete-action-button (clicked)="confirmDeleteOrganization(organization)" />
+                }
+              </div>
             </td>
           }
         </tr>

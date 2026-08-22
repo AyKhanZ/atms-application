@@ -43,6 +43,34 @@ export const updateProjectStatusSuccess = createAction(`${key} Update Status Suc
 export const updateProjectStatusFailure = createAction(`${key} Update Status Failure`);
 
 
+export const addProjectParticipant = createAction(
+  `${key} Add Participant`,
+  props<{ id: string; userId: string; roleId: string }>(),
+);
+
+export const addProjectParticipantSuccess = createAction(`${key} Add Participant Success`);
+
+export const addProjectParticipantFailure = createAction(`${key} Add Participant Failure`);
+
+export const updateProjectParticipant = createAction(
+  `${key} Update Participant`,
+  props<{ id: string; participantId: string; roleId: string }>(),
+);
+
+export const updateProjectParticipantSuccess = createAction(`${key} Update Participant Success`);
+
+export const updateProjectParticipantFailure = createAction(`${key} Update Participant Failure`);
+
+export const deleteProjectParticipant = createAction(
+  `${key} Delete Participant`,
+  props<{ id: string; participantId: string }>(),
+);
+
+export const deleteProjectParticipantSuccess = createAction(`${key} Delete Participant Success`);
+
+export const deleteProjectParticipantFailure = createAction(`${key} Delete Participant Failure`);
+
+
 export const deleteProject = createAction(`${key} Delete`, props<{ id: string }>());
 
 export const deleteProjectSuccess = createAction(`${key} Delete Success`, props<{ id: string }>());

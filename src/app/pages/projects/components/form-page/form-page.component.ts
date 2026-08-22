@@ -22,7 +22,9 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Actions, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { forkJoin } from 'rxjs';
+import { ConfirmationService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DatePickerModule } from 'primeng/datepicker';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
@@ -54,6 +56,7 @@ import { ProjectParticipantsComponent } from '../participants/participants.compo
   imports: [
     ReactiveFormsModule,
     ButtonModule,
+    ConfirmDialogModule,
     DatePickerModule,
     InputTextModule,
     SelectModule,
@@ -61,6 +64,7 @@ import { ProjectParticipantsComponent } from '../participants/participants.compo
     BackButtonComponent,
     ProjectParticipantsComponent,
   ],
+  providers: [ConfirmationService],
   templateUrl: './form-page.component.html',
   styleUrl: './form-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -78,9 +82,11 @@ export class ProjectFormPageComponent implements OnDestroy {
   private readonly organizationsService = inject(OrganizationsService);
   private readonly dictionaryService = inject(DictionaryService);
   private readonly workProjectsService = inject(WorkProjectsService);
+  private readonly confirmation = inject(ConfirmationService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly navigationState = history.state as ProjectFormNavigationState;
   private navigationComplete = false;
+  private participantIntentHandled = false;
 
   readonly submitted = signal(false);
   readonly organizations = signal<OrganizationListItemModel[]>([]);
@@ -91,6 +97,7 @@ export class ProjectFormPageComponent implements OnDestroy {
   readonly statuses = signal<DictionaryModel[]>([]);
   readonly roles = signal<WorkProjectRoleModel[]>([]);
   readonly isInternalProject = signal(false);
+  readonly highlightedParticipantIndex = signal<number | null>(null);
   readonly requiresOrganization = signal(false);
   readonly canAddParticipants = computed(
     () => this.isInternalProject() || (this.requiresOrganization() && Boolean(this.organization())),
@@ -200,6 +207,29 @@ export class ProjectFormPageComponent implements OnDestroy {
 
   removeParticipant(index: number): void {
     this.participants.removeAt(index);
+    this.highlightedParticipantIndex.set(null);
+  }
+
+  requestRemoveParticipant(index: number): void {
+    if (this.isEmptyParticipant(index)) {
+      this.removeParticipant(index);
+      return;
+    }
+
+    const participant = this.project()?.participants[index];
+    const displayName = participant
+      ? `${participant.name} ${participant.surname}`.trim()
+      : 'this participant';
+    this.confirmation.confirm({
+      header: 'Remove participant',
+      message: `Remove ${displayName} from this project? The change will be applied only after Save.`,
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Remove',
+      rejectLabel: 'Keep',
+      acceptButtonStyleClass: 'p-button-danger',
+      rejectButtonStyleClass: 'p-button-outlined',
+      accept: () => this.removeParticipant(index),
+    });
   }
 
   organizationChanged(organizationId: string | null): void {
@@ -251,14 +281,33 @@ export class ProjectFormPageComponent implements OnDestroy {
   }
 
   cancel(): void {
-    if (this.id && this.cancelUrl === `/projects/${this.id}`) {
-      void this.router.navigateByUrl(this.cancelUrl, {
-        state: { returnUrl: this.detailsReturnUrl },
+    if (this.hasUnsavedChanges()) {
+      this.confirmUnsavedChanges().then((confirmed) => {
+        if (confirmed) this.navigateToCancelUrl();
       });
       return;
     }
 
-    void this.router.navigateByUrl(this.cancelUrl);
+    this.navigateToCancelUrl();
+  }
+
+  confirmUnsavedChanges(): Promise<boolean> {
+    return new Promise((resolve) => {
+      this.confirmation.confirm({
+        header: 'Discard changes',
+        message: 'You have unsaved changes. Leave this page without saving?',
+        icon: 'pi pi-exclamation-triangle',
+        acceptLabel: 'Leave',
+        rejectLabel: 'Stay',
+        acceptButtonStyleClass: 'p-button-danger',
+        rejectButtonStyleClass: 'p-button-outlined',
+        accept: () => {
+          this.navigationComplete = true;
+          resolve(true);
+        },
+        reject: () => resolve(false),
+      });
+    });
   }
 
   hasUnsavedChanges(): boolean {
@@ -268,6 +317,17 @@ export class ProjectFormPageComponent implements OnDestroy {
   @HostListener('window:beforeunload', ['$event'])
   beforeUnload(event: BeforeUnloadEvent): void {
     if (this.hasUnsavedChanges()) event.preventDefault();
+  }
+
+  private navigateToCancelUrl(): void {
+    if (this.id && this.cancelUrl === `/projects/${this.id}`) {
+      void this.router.navigateByUrl(this.cancelUrl, {
+        state: { returnUrl: this.detailsReturnUrl },
+      });
+      return;
+    }
+
+    void this.router.navigateByUrl(this.cancelUrl);
   }
 
   error(
@@ -300,6 +360,41 @@ export class ProjectFormPageComponent implements OnDestroy {
     if (project.organization?.id) this.loadOrganization(project.organization.id);
     this.form.markAsPristine();
     this.form.markAsUntouched();
+    this.applyParticipantIntent(project);
+  }
+
+  private applyParticipantIntent(project: WorkProjectModel): void {
+    if (this.participantIntentHandled || this.route.snapshot.queryParamMap.get('section') !== 'participants') {
+      return;
+    }
+    this.participantIntentHandled = true;
+    const action = this.route.snapshot.queryParamMap.get('action');
+    const participantId = this.route.snapshot.queryParamMap.get('participantId');
+
+    if (action === 'add') {
+      this.addParticipant();
+      this.highlightedParticipantIndex.set(this.participants.length - 1);
+      this.scrollToParticipant(this.participants.length - 1);
+      return;
+    }
+
+    const index = project.participants.findIndex((participant) => participant.userId === participantId);
+    if (index < 0) return;
+    this.highlightedParticipantIndex.set(index);
+    this.scrollToParticipant(index);
+    if (action === 'remove') {
+      queueMicrotask(() => this.requestRemoveParticipant(index));
+    }
+  }
+
+  private scrollToParticipant(index: number): void {
+    setTimeout(() => {
+      document.getElementById(`project-participant-${index}`)?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
+      document.getElementById(`participantRole${index}`)?.focus();
+    });
   }
 
   private loadOrganization(organizationId: string): void {
@@ -348,6 +443,13 @@ export class ProjectFormPageComponent implements OnDestroy {
         this.participants.removeAt(index);
       }
     }
+  }
+
+  private isEmptyParticipant(index: number): boolean {
+    const participant = this.participants.at(index);
+    if (!participant) return true;
+
+    return !participant.get('userId')?.value && !participant.get('roleId')?.value;
   }
 
   private createCommand(): WorkProjectCommand {

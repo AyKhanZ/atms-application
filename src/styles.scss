@@ -294,6 +294,13 @@ input:-webkit-autofill:focus {
   --management-pagination-radius: 999px;
 }
 
+.management-table-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+}
+
 .management-table .p-datatable-wrapper {
   min-height: 9rem;
 }
@@ -711,4 +718,36 @@ app-onboarding .confetti i:nth-child(5n) {
     white-space: normal;
     overflow-wrap: anywhere;
   }
+}
+
+.participant-menu-danger .p-menu-item-link,
+.participant-menu-danger .p-menu-item-icon {
+  color: var(--red);
+}
+
+.participant-menu-danger .p-menu-item-link:hover,
+.participant-menu-danger .p-menu-item-link:focus {
+  background: var(--red-hover-bg);
+  color: var(--red-hover);
+}
+
+.participant-menu-danger .p-menu-item-link:hover .p-menu-item-icon,
+.participant-menu-danger .p-menu-item-link:focus .p-menu-item-icon {
+  color: var(--red-hover);
+}
+
+.participant-danger-dialog .p-confirmdialog-icon {
+  color: var(--red-hover);
+}
+
+.p-button.p-button-danger.participant-danger-confirm-button:not(.p-button-text):not(.p-button-outlined) {
+  background: var(--red-hover);
+  border-color: var(--red-hover);
+  color: var(--white);
+}
+
+.p-button.p-button-danger.participant-danger-confirm-button:not(.p-button-text):not(.p-button-outlined):enabled:hover {
+  background: #b91c1c;
+  border-color: #b91c1c;
+  color: var(--white);
 }

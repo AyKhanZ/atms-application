@@ -20,12 +20,24 @@ import { SelectModule } from 'primeng/select';
 import { DictionaryModel } from '../../../core/models/dictionary.model';
 import { Roles } from '../../../core/enums/roles.enum';
 import { DictionaryService } from '../../../core/services/dictionary.service';
+import { BackButtonComponent } from '../../../shared/components/back-button/back-button.component';
 import { UserStoreSelectors } from '../../../store/user';
 import { WorkProjectsStoreActions, WorkProjectsStoreSelectors } from '../../../store/work-projects';
+import { ProjectStakeholdersComponent } from './components/project-stakeholders/project-stakeholders.component';
+
+type ProjectTab = 'details' | 'stakeholders' | 'links' | 'attachments' | 'history';
 
 @Component({
   selector: 'app-project-details',
-  imports: [DatePipe, FormsModule, ButtonModule, ConfirmDialogModule, SelectModule],
+  imports: [
+    DatePipe,
+    FormsModule,
+    ButtonModule,
+    ConfirmDialogModule,
+    SelectModule,
+    BackButtonComponent,
+    ProjectStakeholdersComponent,
+  ],
   providers: [ConfirmationService],
   templateUrl: './details.component.html',
   styleUrl: './details.component.scss',
@@ -38,20 +50,24 @@ export class ProjectDetailsComponent implements OnDestroy {
   private readonly actions$ = inject(Actions);
   private readonly confirmation = inject(ConfirmationService);
   private readonly dictionaryService = inject(DictionaryService);
-
   private readonly roles = this.store.selectSignal(UserStoreSelectors.getRoles);
 
   readonly project = this.store.selectSignal(WorkProjectsStoreSelectors.getItem);
   readonly loading = this.store.selectSignal(WorkProjectsStoreSelectors.isLoading);
   readonly isSaving = this.store.selectSignal(WorkProjectsStoreSelectors.isSubmitted);
   readonly canManage = computed(() => this.roles().some((role) => role.code === Roles.SuperAdmin));
-  readonly activeTab = signal<'details' | 'links'>('details');
+  readonly activeTab = signal<ProjectTab>('details');
   readonly types = signal<DictionaryModel[]>([]);
   readonly kinds = signal<DictionaryModel[]>([]);
   readonly statuses = signal<DictionaryModel[]>([]);
+  readonly commentDraft = signal('');
+  readonly previewComments = signal<string[]>([]);
   readonly id = this.route.snapshot.paramMap.get('id')!;
 
   constructor() {
+    this.route.queryParamMap.pipe(takeUntilDestroyed()).subscribe((params) => {
+      this.activeTab.set(parseProjectTab(params.get('tab')));
+    });
     this.store.dispatch(WorkProjectsStoreActions.loadProject({ id: this.id }));
     forkJoin({
       types: this.dictionaryService.getProjectTypeDictionaries(),
@@ -69,6 +85,9 @@ export class ProjectDetailsComponent implements OnDestroy {
         ofType(
           WorkProjectsStoreActions.updateProjectSuccess,
           WorkProjectsStoreActions.updateProjectStatusSuccess,
+          WorkProjectsStoreActions.addProjectParticipantSuccess,
+          WorkProjectsStoreActions.updateProjectParticipantSuccess,
+          WorkProjectsStoreActions.deleteProjectParticipantSuccess,
         ),
         takeUntilDestroyed(),
       )
@@ -81,31 +100,52 @@ export class ProjectDetailsComponent implements OnDestroy {
   ngOnDestroy(): void {
     this.store.dispatch(WorkProjectsStoreActions.clearItem());
   }
+
+  selectTab(tab: ProjectTab): void {
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { tab: tab === 'details' ? null : tab },
+      queryParamsHandling: 'merge',
+    });
+  }
+
   back(): void {
     const state = history.state as { returnUrl?: unknown };
     void this.router.navigateByUrl(projectNavigationUrl(state.returnUrl) ?? '/projects');
   }
+
   edit(): void {
     const state = history.state as { returnUrl?: unknown };
     const detailsReturnUrl = projectNavigationUrl(state.returnUrl) ?? '/projects';
-
     void this.router.navigate(['/projects', this.id, 'edit'], {
-      state: {
-        cancelUrl: `/projects/${this.id}`,
-        detailsReturnUrl,
-      },
+      state: { cancelUrl: this.router.url, detailsReturnUrl },
     });
   }
+
   changeStatus(projectStatusId: number): void {
     const project = this.project();
     if (!project || project.projectStatus.id === projectStatusId) return;
     this.store.dispatch(
-      WorkProjectsStoreActions.updateProjectStatus({
-        id: project.id,
-        projectStatusId,
-      }),
+      WorkProjectsStoreActions.updateProjectStatus({ id: project.id, projectStatusId }),
     );
   }
+
+  sendComment(): void {
+    const comment = this.commentDraft().trim();
+    if (!comment) return;
+    this.previewComments.update((comments) => [...comments, comment]);
+    this.commentDraft.set('');
+  }
+
+  showUnavailable(feature: string): void {
+    this.confirmation.confirm({
+      header: feature,
+      message: 'This action is not available yet.',
+      acceptLabel: 'Close',
+      rejectVisible: false,
+    });
+  }
+
   confirmDelete(): void {
     const project = this.project();
     if (!project) return;
@@ -120,6 +160,30 @@ export class ProjectDetailsComponent implements OnDestroy {
       accept: () => this.store.dispatch(WorkProjectsStoreActions.deleteProject({ id: project.id })),
     });
   }
+
+  updatedLabel(updatedAt?: string | null): string {
+    if (!updatedAt) return '';
+    const updated = new Date(updatedAt);
+    const seconds = Math.round((updated.getTime() - Date.now()) / 1000);
+    const formatter = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
+    if (Math.abs(seconds) < 60) return formatter.format(seconds, 'second');
+    const minutes = Math.round(seconds / 60);
+    if (Math.abs(minutes) < 60) return formatter.format(minutes, 'minute');
+    const hours = Math.round(minutes / 60);
+    if (Math.abs(hours) < 24) return formatter.format(hours, 'hour');
+    const days = Math.round(hours / 24);
+    if (Math.abs(days) < 30) return formatter.format(days, 'day');
+    return updated.toLocaleDateString('en-GB');
+  }
+}
+
+export function parseProjectTab(value: string | null): ProjectTab {
+  return value === 'stakeholders' ||
+    value === 'links' ||
+    value === 'attachments' ||
+    value === 'history'
+    ? value
+    : 'details';
 }
 
 function projectNavigationUrl(value: unknown): string | null {

@@ -32,6 +32,21 @@ Treat this repository as a real production application. Follow the existing arch
 
 ---
 
+# Code layout and vertical readability
+
+- Optimize code for vertical scanning and readable diffs, not for minimizing the number of lines.
+- Keep short, cohesive expressions on one line. Do not split every word, argument, or property mechanically.
+- Break code across multiple lines when a single line becomes difficult to scan, requires horizontal scrolling, contains several logical parts, or hides the structure of the code.
+- In CSS and SCSS:
+  - place each selector in a long selector list on its own line;
+  - keep declarations vertically aligned with one property per line;
+  - split long descendant or compound selectors at meaningful selector boundaries;
+  - do not compress multiple rules or declarations into a wide one-line block.
+- In HTML and TypeScript, format long attribute lists, parameter lists, object literals, chained calls, conditions, and generic types vertically when that makes their structure clearer.
+- Follow the repository formatter, but improve the source layout when the formatter alone still leaves code unnecessarily wide or difficult to review.
+
+---
+
 # Angular architecture
 
 - Write new frontend code using modern Angular 22 patterns.

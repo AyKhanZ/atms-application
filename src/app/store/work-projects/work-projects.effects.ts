@@ -66,6 +66,39 @@ export class WorkProjectsEffects {
       ),
     ),
   );
+  addParticipant$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(WorkProjectsStoreActions.addProjectParticipant),
+      switchMap(({ id, userId, roleId }) =>
+        this.service.addParticipant(id, userId, roleId).pipe(
+          map(() => WorkProjectsStoreActions.addProjectParticipantSuccess()),
+          catchError(() => of(WorkProjectsStoreActions.addProjectParticipantFailure())),
+        ),
+      ),
+    ),
+  );
+  updateParticipant$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(WorkProjectsStoreActions.updateProjectParticipant),
+      switchMap(({ id, participantId, roleId }) =>
+        this.service.updateParticipant(id, participantId, roleId).pipe(
+          map(() => WorkProjectsStoreActions.updateProjectParticipantSuccess()),
+          catchError(() => of(WorkProjectsStoreActions.updateProjectParticipantFailure())),
+        ),
+      ),
+    ),
+  );
+  deleteParticipant$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(WorkProjectsStoreActions.deleteProjectParticipant),
+      switchMap(({ id, participantId }) =>
+        this.service.deleteParticipant(id, participantId).pipe(
+          map(() => WorkProjectsStoreActions.deleteProjectParticipantSuccess()),
+          catchError(() => of(WorkProjectsStoreActions.deleteProjectParticipantFailure())),
+        ),
+      ),
+    ),
+  );
   delete$ = createEffect(() =>
     this.actions$.pipe(
       ofType(WorkProjectsStoreActions.deleteProject),
@@ -85,11 +118,16 @@ export class WorkProjectsEffects {
           WorkProjectsStoreActions.createProjectSuccess,
           WorkProjectsStoreActions.updateProjectSuccess,
           WorkProjectsStoreActions.updateProjectStatusSuccess,
+          WorkProjectsStoreActions.addProjectParticipantSuccess,
+          WorkProjectsStoreActions.updateProjectParticipantSuccess,
+          WorkProjectsStoreActions.deleteProjectParticipantSuccess,
           WorkProjectsStoreActions.deleteProjectSuccess,
         ),
         tap((action) =>
           this.snackBar.success(
-            action.type.includes('Delete')
+            action.type.includes('Participant')
+              ? 'Participants successfully updated.'
+              : action.type.includes('Delete')
               ? 'Project successfully deleted.'
               : action.type.includes('Create')
                 ? 'Project successfully created.'
@@ -107,6 +145,9 @@ export class WorkProjectsEffects {
           WorkProjectsStoreActions.createProjectFailure,
           WorkProjectsStoreActions.updateProjectFailure,
           WorkProjectsStoreActions.updateProjectStatusFailure,
+          WorkProjectsStoreActions.addProjectParticipantFailure,
+          WorkProjectsStoreActions.updateProjectParticipantFailure,
+          WorkProjectsStoreActions.deleteProjectParticipantFailure,
           WorkProjectsStoreActions.deleteProjectFailure,
         ),
         tap(() => this.snackBar.error('The project could not be saved. Please try again.')),

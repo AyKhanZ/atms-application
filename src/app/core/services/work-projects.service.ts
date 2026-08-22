@@ -52,6 +52,18 @@ export class WorkProjectsService {
     return this.http.patch<void>(`${this.baseUrl}/status/${id}`, command);
   }
 
+  addParticipant(id: string, userId: string, roleId: string): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/${id}/participants`, { userId, roleId });
+  }
+
+  updateParticipant(id: string, participantId: string, roleId: string): Observable<void> {
+    return this.http.patch<void>(`${this.baseUrl}/${id}/participants/${participantId}`, { roleId });
+  }
+
+  deleteParticipant(id: string, participantId: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/${id}/participants/${participantId}`);
+  }
+
   deleteProject(id: string): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${id}`);
   }

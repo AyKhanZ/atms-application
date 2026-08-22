@@ -16,7 +16,12 @@
     @if (participants().length > 0) {
       <div class="participant-list">
         @for (participant of participants().controls; track participant; let index = $index) {
-          <div class="participant-row" [formGroup]="asFormGroup(participant)">
+          <div
+            class="participant-row"
+            [class.participant-row--highlighted]="highlightedIndex() === index"
+            [id]="'project-participant-' + index"
+            [formGroup]="asFormGroup(participant)"
+          >
             <div class="field user-field">
               <div class="participant-field-label">
                 <label [for]="'participantUser' + index">User <b>*</b></label>

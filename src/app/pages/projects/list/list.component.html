@@ -83,9 +83,11 @@
           </td>
           @if (canManage()) {
             <td class="actions-cell" (click)="$event.stopPropagation()">
-              <app-edit-action-button (clicked)="openEdit(project)" /><app-delete-action-button
-                (clicked)="confirmDelete(project)"
-              />
+              <div class="management-table-actions">
+                <app-edit-action-button (clicked)="openEdit(project)" /><app-delete-action-button
+                  (clicked)="confirmDelete(project)"
+                />
+              </div>
             </td>
           }</tr
       ></ng-template>
