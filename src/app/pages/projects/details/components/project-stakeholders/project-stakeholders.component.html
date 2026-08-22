@@ -8,7 +8,15 @@
           <span>{{ organizationInitials(organization.title) }}</span>
         }
       </div>
-      <h3>{{ organization.title }}</h3>
+      <h3>
+        <a
+          class="organization-link"
+          [routerLink]="['/organizations', organization.id]"
+          [state]="{ returnUrl: projectReturnUrl }"
+        >
+          {{ organization.title }}
+        </a>
+      </h3>
     </section>
   }
 

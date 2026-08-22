@@ -8,6 +8,7 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Router, RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { ConfirmationService, MenuItem } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
@@ -39,6 +40,7 @@ import { ParticipantCandidate, ParticipantSide } from '../participant-candidate.
   imports: [
     ButtonModule,
     MenuModule,
+    RouterLink,
     ProfileAvatarComponent,
     AddParticipantDialogComponent,
     ChangeParticipantRoleDialogComponent,
@@ -55,10 +57,12 @@ export class ProjectStakeholdersComponent {
   private readonly organizationsService = inject(OrganizationsService);
   private readonly workProjectsService = inject(WorkProjectsService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly router = inject(Router);
 
   readonly project = input.required<WorkProjectModel>();
   readonly canManage = input(false);
   readonly isSaving = input(false);
+  readonly projectReturnUrl = this.router.url;
 
   readonly roles = signal<WorkProjectRoleModel[]>([]);
   readonly teamMembers = signal<ParticipantCandidate[]>([]);
