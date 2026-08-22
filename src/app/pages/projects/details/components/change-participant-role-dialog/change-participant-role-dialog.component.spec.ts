@@ -59,4 +59,20 @@ describe('ChangeParticipantRoleDialogComponent', () => {
 
     expect(submitted).toHaveBeenCalledWith(projectRoleIds.clientOrganizationViewer);
   });
+
+  it('initializes the form with the participant role when the dialog is shown', () => {
+    component.initializeForm();
+
+    expect(component.form.controls.roleId.value).toBe(projectRoleIds.clientOrganizationViewer);
+  });
+
+  it('does not reset the user selection during later change detection', () => {
+    component.initializeForm();
+    component.form.controls.roleId.setValue(projectRoleIds.developer);
+
+    fixture.componentRef.setInput('participant', { ...participant });
+    fixture.detectChanges();
+
+    expect(component.form.controls.roleId.value).toBe(projectRoleIds.developer);
+  });
 });

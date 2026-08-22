@@ -29,7 +29,6 @@ export class ProjectParticipantsComponent {
   readonly maxParticipants = input.required<number>();
   readonly submitted = input(false);
   readonly participantsRequired = input(false);
-  readonly canAddParticipants = input(false);
   readonly highlightedIndex = input<number | null>(null);
   readonly addParticipant = output<void>();
   readonly removeParticipant = output<number>();

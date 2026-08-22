@@ -74,7 +74,7 @@
           <td>{{ project.organization?.title || 'Not assigned' }}</td>
           <td>{{ project.projectType.name }}</td>
           <td>
-            <span class="status-badge">{{ project.projectStatus.name }}</span>
+            <app-project-status-badge [status]="project.projectStatus" />
           </td>
           <td>
             {{ project.startDate ? (project.startDate | date: 'dd.MM.yyyy') : 'Not set' }}

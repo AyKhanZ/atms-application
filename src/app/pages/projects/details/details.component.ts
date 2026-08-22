@@ -8,21 +8,17 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Actions, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
-import { forkJoin } from 'rxjs';
 import { ConfirmationService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { SelectModule } from 'primeng/select';
-import { DictionaryModel } from '../../../core/models/dictionary.model';
 import { Roles } from '../../../core/enums/roles.enum';
-import { DictionaryService } from '../../../core/services/dictionary.service';
 import { BackButtonComponent } from '../../../shared/components/back-button/back-button.component';
 import { UserStoreSelectors } from '../../../store/user';
 import { WorkProjectsStoreActions, WorkProjectsStoreSelectors } from '../../../store/work-projects';
+import { ProjectStatusBadgeComponent } from '../components/status-badge/project-status-badge.component';
 import { ProjectStakeholdersComponent } from './components/project-stakeholders/project-stakeholders.component';
 
 type ProjectTab = 'details' | 'stakeholders' | 'links' | 'attachments' | 'history';
@@ -31,11 +27,10 @@ type ProjectTab = 'details' | 'stakeholders' | 'links' | 'attachments' | 'histor
   selector: 'app-project-details',
   imports: [
     DatePipe,
-    FormsModule,
     ButtonModule,
     ConfirmDialogModule,
-    SelectModule,
     BackButtonComponent,
+    ProjectStatusBadgeComponent,
     ProjectStakeholdersComponent,
   ],
   providers: [ConfirmationService],
@@ -49,7 +44,6 @@ export class ProjectDetailsComponent implements OnDestroy {
   private readonly store = inject(Store);
   private readonly actions$ = inject(Actions);
   private readonly confirmation = inject(ConfirmationService);
-  private readonly dictionaryService = inject(DictionaryService);
   private readonly roles = this.store.selectSignal(UserStoreSelectors.getRoles);
 
   readonly project = this.store.selectSignal(WorkProjectsStoreSelectors.getItem);
@@ -57,11 +51,6 @@ export class ProjectDetailsComponent implements OnDestroy {
   readonly isSaving = this.store.selectSignal(WorkProjectsStoreSelectors.isSubmitted);
   readonly canManage = computed(() => this.roles().some((role) => role.code === Roles.SuperAdmin));
   readonly activeTab = signal<ProjectTab>('details');
-  readonly types = signal<DictionaryModel[]>([]);
-  readonly kinds = signal<DictionaryModel[]>([]);
-  readonly statuses = signal<DictionaryModel[]>([]);
-  readonly commentDraft = signal('');
-  readonly previewComments = signal<string[]>([]);
   readonly id = this.route.snapshot.paramMap.get('id')!;
 
   constructor() {
@@ -69,22 +58,10 @@ export class ProjectDetailsComponent implements OnDestroy {
       this.activeTab.set(parseProjectTab(params.get('tab')));
     });
     this.store.dispatch(WorkProjectsStoreActions.loadProject({ id: this.id }));
-    forkJoin({
-      types: this.dictionaryService.getProjectTypeDictionaries(),
-      kinds: this.dictionaryService.getProjectKindDictionaries(),
-      statuses: this.dictionaryService.getProjectStatusDictionaries(),
-    })
-      .pipe(takeUntilDestroyed())
-      .subscribe((result) => {
-        this.types.set(result.types);
-        this.kinds.set(result.kinds);
-        this.statuses.set(result.statuses);
-      });
     this.actions$
       .pipe(
         ofType(
           WorkProjectsStoreActions.updateProjectSuccess,
-          WorkProjectsStoreActions.updateProjectStatusSuccess,
           WorkProjectsStoreActions.addProjectParticipantSuccess,
           WorkProjectsStoreActions.updateProjectParticipantSuccess,
           WorkProjectsStoreActions.deleteProjectParticipantSuccess,
@@ -120,21 +97,6 @@ export class ProjectDetailsComponent implements OnDestroy {
     void this.router.navigate(['/projects', this.id, 'edit'], {
       state: { cancelUrl: this.router.url, detailsReturnUrl },
     });
-  }
-
-  changeStatus(projectStatusId: number): void {
-    const project = this.project();
-    if (!project || project.projectStatus.id === projectStatusId) return;
-    this.store.dispatch(
-      WorkProjectsStoreActions.updateProjectStatus({ id: project.id, projectStatusId }),
-    );
-  }
-
-  sendComment(): void {
-    const comment = this.commentDraft().trim();
-    if (!comment) return;
-    this.previewComments.update((comments) => [...comments, comment]);
-    this.commentDraft.set('');
   }
 
   showUnavailable(feature: string): void {

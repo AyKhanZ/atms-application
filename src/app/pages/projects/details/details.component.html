@@ -44,23 +44,8 @@
             </p>
           }
         </div>
-        <div class="status-area">
-          <span class="status-label">Status</span>
-          @if (canManage()) {
-            <p-select
-              class="hero-status-select"
-              [options]="statuses()"
-              optionLabel="name"
-              optionValue="id"
-              [ngModel]="item.projectStatus.id"
-              [disabled]="isSaving()"
-              appendTo="body"
-              ariaLabel="Status"
-              (onChange)="changeStatus($event.value)"
-            />
-          } @else {
-            <span class="hero-status-badge">{{ item.projectStatus.name }}</span>
-          }
+        <div class="status-area" [attr.aria-label]="'Project status: ' + item.projectStatus.name">
+          <app-project-status-badge [status]="item.projectStatus" [prominent]="true" />
         </div>
       </header>
 
@@ -124,59 +109,24 @@
                 </div>
                 <div>
                   <dt>Type</dt>
-                  <dd>{{ item.projectType.name }}</dd>
+                  <dd>
+                    <span class="project-metadata-tag project-metadata-tag--type">
+                      {{ item.projectType.name }}
+                    </span>
+                  </dd>
                 </div>
                 <div>
                   <dt>Kind</dt>
-                  <dd>{{ item.projectKind.name }}</dd>
+                  <dd>
+                    <span class="project-metadata-tag project-metadata-tag--kind">
+                      {{ item.projectKind.name }}
+                    </span>
+                  </dd>
                 </div>
               </dl>
             </section>
           </aside>
 
-          <section class="discussion content-card">
-            <div class="section-heading">
-              <div>
-                <h3>Discussion</h3>
-              </div>
-            </div>
-            <div class="comments-viewport" aria-label="Project comments">
-              @if (previewComments().length) {
-                @for (comment of previewComments(); track $index) {
-                  <article class="preview-comment">
-                    <span class="composer-avatar">SA</span>
-                    <div><strong>You</strong>
-                      <p>{{ comment }}</p></div>
-                  </article>
-                }
-              } @else {
-                <div class="empty-discussion">
-                  <i class="pi pi-comments"></i>
-                  <strong>No comments yet</strong>
-                </div>
-              }
-            </div>
-            <div class="composer">
-              <span class="composer-avatar">SA</span>
-              <textarea
-                rows="2"
-                placeholder="Add a comment..."
-                aria-label="Comment"
-                [ngModel]="commentDraft()"
-                (ngModelChange)="commentDraft.set($event)"
-              ></textarea>
-              <button
-                pButton
-                type="button"
-                class="send-comment"
-                aria-label="Send comment"
-                title="Send"
-                (click)="sendComment()"
-              >
-                <i class="pi pi-send"></i>
-              </button>
-            </div>
-          </section>
         </div>
       } @else if (activeTab() === 'stakeholders') {
         <app-project-stakeholders

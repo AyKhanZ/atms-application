@@ -5,6 +5,7 @@
   [modal]="true"
   [draggable]="false"
   [resizable]="false"
+  (onShow)="initializeForm()"
   styleClass="participant-dialog participant-dialog--narrow"
 >
   @if (participant(); as selectedParticipant) {

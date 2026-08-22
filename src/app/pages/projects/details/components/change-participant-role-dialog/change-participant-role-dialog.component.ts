@@ -2,7 +2,6 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  effect,
   inject,
   input,
   model,
@@ -45,16 +44,6 @@ export class ChangeParticipantRoleDialogComponent {
     return participant ? availableParticipantRoles(this.roles(), side) : [];
   });
 
-  constructor() {
-    effect(() => {
-      const participant = this.participant();
-
-      if (this.visible() && participant) {
-        this.form.reset({ roleId: participant.role.id });
-      }
-    });
-  }
-
   fullName(participant: WorkProjectParticipantModel): string {
     return `${participant.name} ${participant.surname}`.trim();
   }
@@ -69,6 +58,10 @@ export class ChangeParticipantRoleDialogComponent {
 
   close(): void {
     this.visible.set(false);
+  }
+
+  initializeForm(): void {
+    this.form.reset({ roleId: this.participant()?.role.id ?? '' });
   }
 
   submit(): void {

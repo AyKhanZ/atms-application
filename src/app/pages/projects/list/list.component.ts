@@ -31,6 +31,7 @@ import { ListSearchComponent } from '../../../shared/components/list-search/list
 import { UserStoreSelectors } from '../../../store/user';
 import { WorkProjectsStoreActions, WorkProjectsStoreSelectors } from '../../../store/work-projects';
 import { ProjectFilterComponent } from '../components/filter/filter.component';
+import { ProjectStatusBadgeComponent } from '../components/status-badge/project-status-badge.component';
 import { ProjectListQueryService } from './services/list-query.service';
 
 @Component({
@@ -45,6 +46,7 @@ import { ProjectListQueryService } from './services/list-query.service';
     FilterToggleButtonComponent,
     ListSearchComponent,
     ProjectFilterComponent,
+    ProjectStatusBadgeComponent,
   ],
   providers: [ConfirmationService, ProjectListQueryService],
   templateUrl: './list.component.html',

@@ -65,15 +65,6 @@
   color: var(--app-muted);
 }
 
-.status-badge {
-  display: inline-flex;
-  padding: 0.35rem 0.65rem;
-  border-radius: 999px;
-  background: var(--orange-light);
-  color: var(--orange-text-hover);
-  font-weight: 700;
-}
-
 .date-separator {
   padding-inline: 0.3rem;
   color: var(--gray-icon-muted);

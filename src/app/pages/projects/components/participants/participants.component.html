@@ -90,11 +90,7 @@
     } @else {
       <div class="participants-empty">
         <i class="pi pi-users"></i>
-        <strong>{{
-          canAddParticipants()
-            ? 'No participants added yet'
-            : 'Select a project kind and organization first'
-        }}</strong>
+        <strong>No participants added yet</strong>
       </div>
     }
   </div>
@@ -112,7 +108,6 @@
         type="button"
         class="add-participant-button"
         outlined="true"
-        [disabled]="!canAddParticipants()"
         (click)="addParticipant.emit()"
       >
         <i class="pi pi-plus"></i>

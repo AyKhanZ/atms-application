@@ -99,9 +99,6 @@ export class ProjectFormPageComponent implements OnDestroy {
   readonly isInternalProject = signal(false);
   readonly highlightedParticipantIndex = signal<number | null>(null);
   readonly requiresOrganization = signal(false);
-  readonly canAddParticipants = computed(
-    () => this.isInternalProject() || (this.requiresOrganization() && Boolean(this.organization())),
-  );
   readonly isSaving = this.store.selectSignal(WorkProjectsStoreSelectors.isSubmitted);
   readonly project = this.store.selectSignal(WorkProjectsStoreSelectors.getItem);
   readonly id = this.route.snapshot.paramMap.get('id');

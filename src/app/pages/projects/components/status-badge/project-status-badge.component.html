@@ -1,0 +1,11 @@
+<span
+  class="project-status-badge"
+  [class.project-status-badge--prominent]="prominent()"
+  [class.project-status-badge--draft]="tone() === 'draft'"
+  [class.project-status-badge--active]="tone() === 'active'"
+  [class.project-status-badge--review]="tone() === 'review'"
+  [class.project-status-badge--closed]="tone() === 'closed'"
+  [class.project-status-badge--unknown]="tone() === 'unknown'"
+>
+  {{ status().name }}
+</span>

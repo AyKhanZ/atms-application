@@ -22,9 +22,9 @@
 
 .project-hero {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(13rem, 17rem);
-  align-items: center;
-  gap: 2rem;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 1.5rem;
   padding: 1.5rem;
   border-bottom: 1px solid var(--app-border);
   background: var(--white);
@@ -49,36 +49,9 @@
 }
 
 .status-area {
-  display: grid;
-  gap: .4rem;
-}
-
-.status-label {
-  color: var(--app-muted);
-  font-size: .78rem;
-  font-weight: 700;
-}
-
-.hero-status-badge {
-  display: inline-flex;
-  min-height: 2.75rem;
+  display: flex;
   align-items: center;
-  padding: 0 .85rem;
-  border-left: 3px solid var(--orange);
-  background: var(--orange-light);
-  color: var(--orange-text-hover);
-  font-weight: 800;
-}
-
-:host ::ng-deep .hero-status-select .p-select {
-  width: 100%;
-  min-height: 2.75rem;
-  font-weight: 750;
-}
-
-:host ::ng-deep .hero-status-select .p-select:focus-within {
-  outline: 3px solid var(--orange-focus-outline);
-  outline-offset: 2px;
+  justify-self: end;
 }
 
 .project-tabs {
@@ -111,8 +84,7 @@
   color: var(--orange-text-hover);
 }
 
-.project-tabs button:focus-visible,
-.composer-actions button:focus-visible {
+.project-tabs button:focus-visible {
   outline: 3px solid var(--orange-focus-outline);
   outline-offset: -3px;
 }
@@ -120,6 +92,7 @@
 .details-content {
   display: grid;
   grid-template-columns: minmax(0, 1.75fr) minmax(18rem, .75fr);
+  min-height: clamp(28rem, 52vh, 36rem);
   background: var(--white);
 }
 
@@ -195,106 +168,26 @@
   text-align: right;
 }
 
-.discussion {
-  grid-column: 1 / -1;
-  padding: 1.5rem;
-  border-top: 1px solid var(--app-border);
-}
-
-.comments-viewport {
-  display: grid;
-  min-height: 10rem;
-  max-height: 20rem;
-  margin-top: 1rem;
-  overflow-y: auto;
-  border: 1px solid var(--app-border);
-  border-radius: 8px 8px 0 0;
-}
-
-.empty-discussion {
-  display: grid;
-  place-items: center;
-  align-content: center;
-  gap: .55rem;
-  color: var(--app-muted);
-}
-
-.empty-discussion i {
-  color: var(--orange);
-  font-size: 2rem;
-}
-
-.empty-discussion strong {
-  color: var(--app-text);
-  font-size: .9rem;
-}
-
-.preview-comment {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: start;
-  gap: .7rem;
-  padding: .9rem 1rem;
-  border-bottom: 1px solid var(--app-border);
-}
-
-.preview-comment strong {
-  font-size: .82rem;
-}
-
-.preview-comment p {
-  margin: .25rem 0 0;
-  white-space: pre-wrap;
-  line-height: 1.5;
-}
-
-.composer {
-  display: grid;
-  grid-template-columns: 2.5rem minmax(0, 1fr) 2.75rem;
-  align-items: end;
-  gap: .8rem;
-  padding: 1rem;
-  border: 1px solid var(--app-border);
-  border-top: 0;
-  border-radius: 0 0 8px 8px;
-}
-
-.composer-avatar {
-  display: grid;
-  width: 2.5rem;
-  height: 2.5rem;
-  place-items: center;
-  border-radius: 50%;
-  background: var(--orange-light);
-  color: var(--orange-text-hover);
-  font-size: .72rem;
-  font-weight: 800;
-}
-
-.composer > .composer-avatar {
-  align-self: start;
-}
-
-.composer textarea {
-  width: 100%;
-  height: 3.5rem;
-  min-height: 3.5rem;
-  max-height: 3.5rem;
-  resize: none;
-  overflow-y: auto;
-  padding: .75rem;
-  border: 1px solid var(--app-border);
-  border-radius: 8px;
-  background: var(--white);
-  font: inherit;
-}
-
-.send-comment {
-  width: 2.75rem;
-  min-width: 2.75rem;
-  height: 2.75rem;
-  padding: 0;
+.project-metadata-tag {
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 750;
+  line-height: normal;
+  white-space: nowrap;
+}
+
+.project-metadata-tag--type {
+  background: #f3e8ff;
+  color: #7e22ce;
+}
+
+.project-metadata-tag--kind {
+  background: #e0f2fe;
+  color: #0369a1;
 }
 
 .future-state {
@@ -342,11 +235,12 @@
   }
 
   .status-area {
-    width: min(100%, 17rem);
+    justify-self: start;
   }
 
   .details-content {
     grid-template-columns: minmax(0, 1fr);
+    min-height: 0;
   }
 
   .description-card {
@@ -376,26 +270,11 @@
     width: 100%;
   }
 
-  .project-hero, .description-card, .project-information, .discussion {
+  .project-hero, .description-card, .project-information {
     padding: 1rem;
   }
 
   .project-tabs {
     padding-inline: .5rem;
-  }
-}
-
-@container (max-width: 30rem) {
-  .composer {
-    grid-template-columns: 2.5rem minmax(0, 1fr);
-  }
-
-  .composer textarea {
-    grid-column: 2;
-  }
-
-  .send-comment {
-    grid-column: 2;
-    justify-self: end;
   }
 }
