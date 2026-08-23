@@ -1,0 +1,49 @@
+:host ::ng-deep .participant-dialog {
+  width: min(32rem, calc(100vw - 2rem));
+}
+
+.participant-dialog-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.field small {
+  color: var(--red);
+}
+
+:host ::ng-deep .control-invalid .p-select {
+  border-color: var(--red);
+}
+
+:host ::ng-deep .control-invalid .p-select:not(.p-disabled):hover,
+:host ::ng-deep .control-invalid .p-select.p-focus {
+  border-color: var(--red);
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.12);
+}
+
+.user-option span {
+  overflow: hidden;
+  color: var(--app-muted);
+  font-size: 0.8rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  padding-top: 0.25rem;
+}
+
+@media (max-width: 30rem) {
+  .dialog-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+}

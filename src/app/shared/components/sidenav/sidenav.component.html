@@ -26,6 +26,17 @@
       }
     </a>
 
+    <a
+      routerLink="/projects"
+      routerLinkActive="active">
+
+      <i class="pi pi-briefcase"></i>
+
+      @if (!layout.collapsed()) {
+        <span>Projects</span>
+      }
+    </a>
+
     @if (canManageAdministration()) {
       <a
         routerLink="/users"

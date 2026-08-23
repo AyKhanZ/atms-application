@@ -7,7 +7,6 @@ import { UserStoreSelectors } from '../../../store/user';
 
 @Component({
   selector: 'app-sidenav',
-  standalone: true,
   imports: [RouterLink, RouterLinkActive],
   templateUrl: './sidenav.component.html',
   styleUrl: './sidenav.component.scss',

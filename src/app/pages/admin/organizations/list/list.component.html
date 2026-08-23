@@ -3,11 +3,20 @@
 <section class="page">
   <h1 class="page-title">Organizations</h1>
 
-  <div class="page-header organizations-header">
-    <app-list-search class="organizations-search" placeholder="Search organizations" [value]="searchTerm()" (valueChange)="onSearchChange($event)" />
+  <div class="page-header management-list-header">
+    <app-list-search
+      class="management-list-search"
+      placeholder="Search organizations"
+      [value]="searchTerm()"
+      (valueChange)="onSearchChange($event)"
+    />
 
-    <div class="page-actions">
-      <app-filter-toggle-button [active]="filtersOpen()" [count]="activeFilterCount()" (clicked)="toggleFilters()" />
+    <div class="page-actions management-list-actions">
+      <app-filter-toggle-button
+        [active]="filtersOpen()"
+        [count]="activeFilterCount()"
+        (clicked)="toggleFilters()"
+      />
       @if (canEdit()) {
         <app-create-button label="Create" (clicked)="openCreateOrganization()" />
       }
@@ -15,16 +24,45 @@
   </div>
 
   @if (filtersOpen()) {
-    <app-organizations-filter [filter]="filter()" (apply)="applyFilters($event)" (clear)="clearFilters()" />
+    <app-organizations-filter
+      [filter]="filter()"
+      (apply)="applyFilters($event)"
+      (clear)="clearFilters()"
+    />
   }
 
-  <div class="panel organizations-table-panel" [class.organizations-table-panel--locked]="tableRequestsBlocked()">
-    <p-table class="organizations-table" [value]="organizations()" [lazy]="true" [loading]="loading()" [paginator]="totalCount() > 0" [rows]="filter().pageSize" [first]="first()" [totalRecords]="totalCount()" [rowsPerPageOptions]="[10, 20, 50]" [sortField]="filter().sortBy" [sortOrder]="tableSortOrder()" [tableStyle]="{ 'min-width': showActions() ? '50rem' : '44rem' }" dataKey="id" [paginatorDropdownAppendTo]="'body'" (onLazyLoad)="onLazyLoad($event)">
+  <div
+    class="panel organizations-table-panel"
+    [class.organizations-table-panel--locked]="tableRequestsBlocked()"
+  >
+    <p-table
+      class="organizations-table management-table management-table--pill-pages"
+      [value]="organizations()"
+      [lazy]="true"
+      [loading]="loading()"
+      [paginator]="totalCount() > 0"
+      [rows]="filter().pageSize"
+      [first]="first()"
+      [totalRecords]="totalCount()"
+      [rowsPerPageOptions]="[10, 20, 50]"
+      [sortField]="filter().sortBy"
+      [sortOrder]="tableSortOrder()"
+      [tableStyle]="{ 'min-width': showActions() ? '50rem' : '44rem' }"
+      dataKey="id"
+      [paginatorDropdownAppendTo]="'body'"
+      (onLazyLoad)="onLazyLoad($event)"
+    >
       <ng-template pTemplate="header">
         <tr>
-          <th pSortableColumn="title" [pSortableColumnDisabled]="tableRequestsBlocked()">Title <p-sortIcon field="title" /></th>
-          <th pSortableColumn="voen" [pSortableColumnDisabled]="tableRequestsBlocked()">VOEN <p-sortIcon field="voen" /></th>
-          <th pSortableColumn="createdAt" [pSortableColumnDisabled]="tableRequestsBlocked()">Created <p-sortIcon field="createdAt" /></th>
+          <th pSortableColumn="title" [pSortableColumnDisabled]="tableRequestsBlocked()">
+            Title <p-sortIcon field="title" />
+          </th>
+          <th pSortableColumn="voen" [pSortableColumnDisabled]="tableRequestsBlocked()">
+            VOEN <p-sortIcon field="voen" />
+          </th>
+          <th pSortableColumn="createdAt" [pSortableColumnDisabled]="tableRequestsBlocked()">
+            Created <p-sortIcon field="createdAt" />
+          </th>
           @if (showActions()) {
             <th class="actions-column">Actions</th>
           }
@@ -46,25 +84,41 @@
             </div>
           </td>
           <td>{{ organization.voen }}</td>
-          <td>{{ displayCreatedAt(organization) ? (displayCreatedAt(organization) | date: 'dd.MM.yyyy HH:mm') : '-' }}</td>
+          <td>
+            {{
+              displayCreatedAt(organization)
+                ? (displayCreatedAt(organization) | date: 'dd.MM.yyyy HH:mm')
+                : '-'
+            }}
+          </td>
           @if (showActions()) {
             <td class="actions-cell" (click)="$event.stopPropagation()">
-              @if (canEdit()) {
-                <app-edit-action-button (clicked)="openEditOrganization(organization)" />
-              }
-              @if (canDelete()) {
-                <app-delete-action-button (clicked)="confirmDeleteOrganization(organization)" />
-              }
+              <div class="management-table-actions">
+                @if (canEdit()) {
+                  <app-edit-action-button (clicked)="openEditOrganization(organization)" />
+                }
+                @if (canDelete()) {
+                  <app-delete-action-button (clicked)="confirmDeleteOrganization(organization)" />
+                }
+              </div>
             </td>
           }
         </tr>
       </ng-template>
 
       <ng-template pTemplate="emptymessage">
-        <tr class="empty-row"><td [attr.colspan]="showActions() ? 4 : 3"><div class="table-empty-state">No organizations found.</div></td></tr>
+        <tr class="empty-row">
+          <td [attr.colspan]="showActions() ? 4 : 3">
+            <div class="table-empty-state">No organizations found.</div>
+          </td>
+        </tr>
       </ng-template>
     </p-table>
   </div>
 
-  <app-organization-create-dialog [(visible)]="createDialogVisible" [organization]="selectedOrganization()" (saved)="onOrganizationSaved()" />
+  <app-organization-create-dialog
+    [(visible)]="createDialogVisible"
+    [organization]="selectedOrganization()"
+    (saved)="onOrganizationSaved()"
+  />
 </section>

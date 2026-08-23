@@ -10,16 +10,18 @@
   @if (user(); as user) {
     <section class="details-layout">
       <div class="panel profile-hero">
-        <app-profile-avatar
-          [imageUrl]="user.avatarPath"
-          [fullName]="fullName()"
-          [initials]="initials(user)" />
+        <div class="profile-hero__content">
+          <app-profile-avatar
+            [imageUrl]="user.avatarPath"
+            [fullName]="fullName()"
+            [initials]="initials(user)" />
 
-        <div class="profile-copy">
-          <p-tag [value]="userStatus(user)" />
-          <h2>{{ fullName() }}</h2>
-          <p>{{ display(user.position) }}</p>
-          <p>{{ display(user.email) }}</p>
+          <div class="profile-copy">
+            <p-tag [value]="userStatus(user)" />
+            <h2>{{ fullName() }}</h2>
+            <p>{{ display(user.position) }}</p>
+            <p>{{ display(user.email) }}</p>
+          </div>
         </div>
       </div>
 

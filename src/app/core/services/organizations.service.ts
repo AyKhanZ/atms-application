@@ -1,7 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../../environments/environment';
 import { PaginatedResponse } from '../models/paginated.model';
 import {
   CreateOrganizationCommand,
@@ -10,11 +9,12 @@ import {
   OrganizationModel,
   UpdateOrganizationCommand,
 } from '../models/organizations/organizations.models';
+import { projectApiUrl } from '../constants/api-url.constants';
 
 @Injectable({ providedIn: 'root' })
 export class OrganizationsService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${environment.apiUrl.replace('/admin/', '/project/')}/organization`;
+  private readonly baseUrl = `${projectApiUrl}/organization`;
 
   getOrganizations(filter: OrganizationListFilter): Observable<PaginatedResponse<OrganizationListItemModel>> {
     let params = new HttpParams().set('Page', filter.page).set('PageSize', filter.pageSize);

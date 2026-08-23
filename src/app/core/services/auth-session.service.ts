@@ -2,7 +2,17 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { BehaviorSubject, catchError, finalize, Observable, of, shareReplay, tap, throwError } from 'rxjs';
+import {
+  BehaviorSubject,
+  catchError,
+  finalize,
+  firstValueFrom,
+  from,
+  Observable,
+  of,
+  tap,
+  throwError,
+} from 'rxjs';
 import { AuthStoreActions, AuthStoreSelectors } from '../../store/auth';
 import { AccessModel } from '../models/auth/auth.models';
 import { AuthService } from './auth.service';
@@ -17,7 +27,7 @@ export class AuthSessionService {
   private readonly store = inject(Store);
   private readonly router = inject(Router);
   private readonly readySubject = new BehaviorSubject(false);
-  private refreshRequest$: Observable<AccessModel> | null = null;
+  private refreshRequest: Promise<AccessModel> | null = null;
 
   readonly isServerUnavailable = signal(false);
   readonly ready$ = this.readySubject.asObservable();
@@ -67,8 +77,8 @@ export class AuthSessionService {
   }
 
   refreshAccessToken(): Observable<AccessModel> {
-    if (this.refreshRequest$) {
-      return this.refreshRequest$;
+    if (this.refreshRequest) {
+      return from(this.refreshRequest);
     }
 
     const saved = this.tokenStorage.getAccessModel();
@@ -76,19 +86,45 @@ export class AuthSessionService {
       return throwError(() => new Error('Refresh token is missing.'));
     }
 
-    this.refreshRequest$ = this.api.refresh({ refreshToken: saved.refreshToken }).pipe(
-      tap((accessModel) => {
-        this.isServerUnavailable.set(false);
-        this.tokenStorage.save(accessModel);
-        this.store.dispatch(AuthStoreActions.refreshTokenSuccess({ accessModel }));
-      }),
-      finalize(() => {
-        this.refreshRequest$ = null;
-      }),
-      shareReplay({ bufferSize: 1, refCount: true }),
-    );
+    this.refreshRequest = this.refreshAcrossTabs(saved.refreshToken).finally(() => {
+      this.refreshRequest = null;
+    });
 
-    return this.refreshRequest$;
+    return from(this.refreshRequest);
+  }
+
+  private refreshAcrossTabs(requestedRefreshToken: string): Promise<AccessModel> {
+    const refresh = async (): Promise<AccessModel> => {
+      const current = this.tokenStorage.getAccessModel();
+      if (!current?.refreshToken) {
+        throw new Error('Refresh token is missing.');
+      }
+
+      if (current.refreshToken !== requestedRefreshToken) {
+        this.applyAccessModel(current);
+        return current;
+      }
+
+      return firstValueFrom(
+        this.api
+          .refresh({ refreshToken: current.refreshToken })
+          .pipe(tap((accessModel) => this.applyAccessModel(accessModel))),
+      );
+    };
+
+    if (typeof navigator !== 'undefined' && navigator.locks) {
+      return navigator.locks
+        .request<Promise<AccessModel>>('atms-auth-refresh', refresh)
+        .then((accessModel) => accessModel);
+    }
+
+    return refresh();
+  }
+
+  private applyAccessModel(accessModel: AccessModel): void {
+    this.isServerUnavailable.set(false);
+    this.tokenStorage.save(accessModel);
+    this.store.dispatch(AuthStoreActions.refreshTokenSuccess({ accessModel }));
   }
 
   logout(redirectToLogin = true): void {

@@ -1,0 +1,241 @@
+:host {
+  display: block;
+}
+
+.stakeholders-content {
+  display: grid;
+  gap: 1.25rem;
+  padding: clamp(1rem, 2.5cqi, 2rem);
+  background: var(--white);
+}
+
+.organization-strip {
+  display: grid;
+  grid-template-columns: 3.25rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.85rem;
+  min-width: 0;
+}
+
+.organization-strip h3,
+.participants-header h3 {
+  margin: 0;
+  color: var(--app-text);
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.organization-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.organization-link:focus-visible {
+  border-radius: 3px;
+  outline: 3px solid rgb(254 147 18 / 18%);
+  outline-offset: 2px;
+}
+
+.organization-logo {
+  display: grid;
+  width: 3.25rem;
+  height: 3.25rem;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+  background: var(--white);
+  color: var(--orange-text-hover);
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.organization-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 0.45rem;
+}
+
+.participants-panel {
+  display: grid;
+  gap: 0.9rem;
+  min-width: 0;
+}
+
+.participants-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.add-participant-button {
+  min-width: 5.5rem;
+  min-height: 2.5rem;
+  justify-content: center;
+  gap: 0.4rem;
+  border-radius: 8px;
+  font-weight: 800;
+}
+
+.participants-table {
+  display: grid;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+  background: var(--white);
+}
+
+.participants-row {
+  display: grid;
+  grid-template-columns: minmax(18rem, 1.2fr) minmax(12rem, 1fr) 4rem;
+  align-items: center;
+  gap: 1rem;
+  min-width: 0;
+  min-height: 4rem;
+  padding: 0.55rem 0.8rem;
+  border-top: 1px solid var(--app-border);
+}
+
+.participants-row--head {
+  min-height: 2.75rem;
+  background: var(--white);
+  color: var(--text);
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.person-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-width: 0;
+  --avatar-size: 2.25rem;
+  --avatar-radius: 50%;
+  --avatar-font-size: 0.8rem;
+}
+
+.person-copy {
+  display: grid;
+  min-width: 0;
+  gap: 0.12rem;
+}
+
+.person-copy strong {
+  overflow: hidden;
+  color: var(--app-text);
+  font-size: 0.9rem;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.person-copy span {
+  overflow: hidden;
+  color: var(--app-muted);
+  font-size: 0.78rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.role-cell {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: var(--app-text);
+  font-size: 0.85rem;
+}
+
+:host ::ng-deep .person-cell .avatar {
+  background: var(--white);
+  box-shadow: none;
+}
+
+.actions-head,
+.actions-cell {
+  justify-self: end;
+}
+
+.row-menu-button {
+  display: grid;
+  width: 2.25rem;
+  height: 2.25rem;
+  place-items: center;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--app-muted);
+  cursor: pointer;
+}
+
+.row-menu-button:hover,
+.row-menu-button:focus-visible {
+  border-color: var(--app-border);
+  background: var(--app-surface, #fafafa);
+  color: var(--app-text);
+  outline: 0;
+}
+
+.participants-empty {
+  display: grid;
+  min-height: 8rem;
+  place-items: center;
+  align-content: center;
+  gap: 0.55rem;
+  border: 1px dashed var(--app-border);
+  border-radius: 8px;
+  color: var(--app-muted);
+}
+
+@container (max-width: 48rem) {
+  .participants-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .participants-header button {
+    width: 100%;
+  }
+
+  .participants-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.45rem 0.75rem;
+    min-height: auto;
+    padding: 0.8rem;
+  }
+
+  .participants-row--head {
+    display: none;
+  }
+
+  .person-cell {
+    grid-column: 1 / -1;
+  }
+
+  .role-cell {
+    color: var(--app-muted);
+  }
+
+  .actions-cell {
+    grid-column: 2;
+    grid-row: 2 / span 2;
+    align-self: center;
+  }
+}
+
+@container (max-width: 30rem) {
+  .stakeholders-content {
+    padding: 1rem;
+  }
+
+  .organization-strip {
+    grid-template-columns: 2.75rem minmax(0, 1fr);
+  }
+
+  .organization-logo {
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+}

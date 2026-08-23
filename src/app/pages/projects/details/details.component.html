@@ -1,0 +1,177 @@
+<p-confirmDialog />
+<p-confirmDialog key="projectParticipantDanger" styleClass="participant-danger-dialog" />
+
+<section class="page project-details-page">
+  <div class="page-header details-header">
+    <div>
+      <h1 class="page-title">Details</h1>
+      <p class="page-subtitle">{{ project()?.title || 'Project workspace' }}</p>
+    </div>
+    <div class="details-actions">
+      <app-back-button (back)="back()" />
+      @if (canManage() && project()) {
+        <button pButton
+                type="button"
+                severity="secondary"
+                outlined="true"
+                (click)="edit()">
+          <i class="pi pi-pencil"></i>
+          <span>Edit</span>
+        </button>
+        <button
+          pButton
+          type="button"
+          severity="danger"
+          outlined="true"
+          [loading]="isSaving()"
+          (click)="confirmDelete()">
+          <i class="pi pi-trash"></i><span>Delete</span>
+        </button>
+      }
+    </div>
+  </div>
+
+  @if (project(); as item) {
+    <article class="panel project-panel">
+      <header class="project-hero">
+        <div class="project-identity">
+          <span class="project-code">PROJECT #{{ item.code }}</span>
+          <h2>{{ item.title }}</h2>
+          @if (item.updatedAt && item.updatedBy) {
+            <p class="updated-meta">
+              Updated by {{ item.updatedBy.name }} {{ item.updatedBy.surname }} ·
+              {{ updatedLabel(item.updatedAt) }}
+            </p>
+          }
+        </div>
+        <div class="status-area" [attr.aria-label]="'Project status: ' + item.projectStatus.name">
+          <app-project-status-badge [status]="item.projectStatus" [prominent]="true" />
+        </div>
+      </header>
+
+      <nav class="project-tabs" aria-label="Project sections">
+        <button type="button"
+                [class.active]="activeTab() === 'details'"
+                (click)="selectTab('details')">
+          <i class="pi pi-align-left"></i>
+          <span>Details</span>
+        </button>
+        <button type="button"
+          [class.active]="activeTab() === 'stakeholders'"
+          (click)="selectTab('stakeholders')">
+          <i class="pi pi-users"></i>
+          <span>Stakeholders</span>
+        </button>
+        <button type="button"
+                [class.active]="activeTab() === 'links'"
+                (click)="selectTab('links')">
+          <i class="pi pi-link">
+          </i><span>Links</span>
+        </button>
+        <button type="button"
+          [class.active]="activeTab() === 'attachments'"
+          (click)="selectTab('attachments')">
+          <i class="pi pi-paperclip"></i>
+          <span>Attachments</span>
+        </button>
+        <button type="button"
+          [class.active]="activeTab() === 'history'"
+          (click)="selectTab('history')">
+          <i class="pi pi-history"></i>
+          <span>History</span>
+        </button>
+      </nav>
+
+      @if (activeTab() === 'details') {
+        <div class="details-content">
+          <section class="description-card content-card">
+            <div class="section-heading">
+              <h3>Description</h3>
+            </div>
+            @if (item.description) {
+              <p class="description">{{ item.description }}</p>
+            } @else {
+              <p class="inline-empty">No description has been added.</p>
+            }
+          </section>
+
+          <aside class="project-information">
+            <section>
+              <h3>Information</h3>
+              <dl>
+                <div>
+                  <dt>Start date</dt>
+                  <dd>{{ item.startDate ? (item.startDate | date: 'dd.MM.yyyy') : 'Not set' }}</dd>
+                </div>
+                <div>
+                  <dt>Target date</dt>
+                  <dd>{{ item.endDate ? (item.endDate | date: 'dd.MM.yyyy') : 'Not set' }}</dd>
+                </div>
+                <div>
+                  <dt>Type</dt>
+                  <dd>
+                    <span class="project-metadata-tag project-metadata-tag--type">
+                      {{ item.projectType.name }}
+                    </span>
+                  </dd>
+                </div>
+                <div>
+                  <dt>Kind</dt>
+                  <dd>
+                    <span class="project-metadata-tag project-metadata-tag--kind">
+                      {{ item.projectKind.name }}
+                    </span>
+                  </dd>
+                </div>
+              </dl>
+            </section>
+          </aside>
+
+        </div>
+      } @else if (activeTab() === 'stakeholders') {
+        <app-project-stakeholders
+          [project]="item"
+          [canManage]="canManage()"
+          [isSaving]="isSaving()"
+        />
+      } @else if (activeTab() === 'links') {
+        <section class="future-state">
+          <div class="future-icon">
+            <i class="pi pi-link"></i>
+          </div>
+          <h3>No links yet</h3>
+          <button pButton type="button" (click)="showUnavailable('Add link')">
+            <i class="pi pi-plus"></i>
+            <span>Add link</span>
+          </button>
+        </section>
+      } @else if (activeTab() === 'attachments') {
+        <section class="future-state">
+          <div class="future-icon">
+            <i class="pi pi-paperclip"></i>
+          </div>
+          <h3>No attachments yet</h3>
+          <button pButton type="button" (click)="showUnavailable('Upload files')">
+            <i class="pi pi-upload"></i>
+            <span>Upload files</span>
+          </button>
+        </section>
+      } @else {
+        <section class="future-state">
+          <div class="future-icon">
+            <i class="pi pi-history"></i>
+          </div>
+          <h3>No activity yet</h3>
+        </section>
+      }
+    </article>
+
+  } @else if (loading()) {
+    <div class="panel details-loading"><i class="pi pi-spin pi-spinner"></i><span>Loading project...</span></div>
+  } @else {
+    <div class="panel details-loading">
+      <i class="pi pi-exclamation-circle"></i><span>Project could not be loaded.</span>
+      <button pButton type="button" outlined="true" (click)="back()">Back to projects</button>
+    </div>
+  }
+</section>

@@ -1,0 +1,73 @@
+<form class="panel panel-padding project-filters" [formGroup]="form" (ngSubmit)="submit()">
+  <div class="filter-grid">
+    <div class="field">
+      <label for="projectType">Type</label
+      ><p-select
+        inputId="projectType"
+        formControlName="projectTypeId"
+        [options]="types()"
+        optionLabel="name"
+        optionValue="id"
+        placeholder="Any type"
+        [showClear]="true"
+        appendTo="body"
+      />
+    </div>
+    <div class="field">
+      <label for="projectKind">Kind</label
+      ><p-select
+        inputId="projectKind"
+        formControlName="projectKindId"
+        [options]="kinds()"
+        optionLabel="name"
+        optionValue="id"
+        placeholder="Any kind"
+        [showClear]="true"
+        appendTo="body"
+      />
+    </div>
+    <div class="field">
+      <label for="projectStatus">Status</label
+      ><p-select
+        inputId="projectStatus"
+        formControlName="projectStatusId"
+        [options]="statuses()"
+        optionLabel="name"
+        optionValue="id"
+        placeholder="Any status"
+        [showClear]="true"
+        appendTo="body"
+      />
+    </div>
+    <div class="field">
+      <label for="startDate">Starts from</label
+      ><p-datepicker
+        inputId="startDate"
+        formControlName="startDate"
+        dateFormat="yy-mm-dd"
+        iconDisplay="input"
+        [showIcon]="true"
+        appendTo="body"
+      />
+    </div>
+    <div class="field">
+      <label for="endDate">Ends by</label
+      ><p-datepicker
+        inputId="endDate"
+        formControlName="endDate"
+        dateFormat="yy-mm-dd"
+        iconDisplay="input"
+        [showIcon]="true"
+        appendTo="body"
+      />
+    </div>
+  </div>
+  @if (form.hasError('dateRange') && (form.touched || form.dirty)) {
+    <small class="filter-error">Start date cannot be later than end date.</small>
+  }
+  <div class="toolbar">
+    <button type="submit" class="apply-button" [disabled]="form.invalid">
+      <i class="pi pi-filter"></i><span>Apply</span></button
+    ><app-clear-button (clicked)="clearForm()" />
+  </div>
+</form>

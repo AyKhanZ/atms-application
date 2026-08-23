@@ -62,6 +62,12 @@ export const routes: Routes = [
           ),
         canActivate: [permissionGuard(Permissions.Organization.View)],
       },
+      {
+        path: 'projects',
+        data: { breadcrumb: { title: 'Projects', icon: 'pi-briefcase' } },
+        loadChildren: () =>
+          import('./pages/projects/projects.routes').then((r) => r.PROJECTS_ROUTES),
+      },
     ],
   },
   {

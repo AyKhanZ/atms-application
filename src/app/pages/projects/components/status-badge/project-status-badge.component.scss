@@ -1,0 +1,43 @@
+:host {
+  display: inline-flex;
+}
+
+.project-status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 8px;
+  border: 0;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 750;
+  line-height: normal;
+  white-space: nowrap;
+}
+
+.project-status-badge--prominent {
+  padding: 8px 12px;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.project-status-badge--draft,
+.project-status-badge--unknown {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.project-status-badge--active {
+  background: var(--orange-light);
+  color: var(--orange-text-hover);
+}
+
+.project-status-badge--review {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.project-status-badge--closed {
+  background: #dcfce7;
+  color: #15803d;
+}

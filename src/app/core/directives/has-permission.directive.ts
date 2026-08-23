@@ -4,7 +4,6 @@ import { UserStoreSelectors } from '../../store/user';
 
 @Directive({
   selector: '[hasPermission]',
-  standalone: true,
 })
 export class HasPermissionDirective {
   private readonly store = inject(Store);

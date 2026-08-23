@@ -5,7 +5,6 @@ import { Role } from '../enums/roles.enum';
 
 @Directive({
   selector: '[hasRole]',
-  standalone: true,
 })
 export class HasRoleDirective {
   private readonly store = inject(Store);

@@ -6,11 +6,12 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 24px;
+  gap: 0.75rem;
   padding: 12px 16px;
   background: #fff;
   border-radius: 0 0 12px 12px;
   flex-wrap: wrap;
+  min-width: 0;
 }
 
 .pagination__label {
@@ -23,6 +24,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  min-width: 0;
 }
 
 .pagination__size-select {
@@ -40,6 +42,7 @@
   display: flex;
   align-items: center;
   gap: 2px;
+  min-width: 0;
 }
 
 .pagination__btn {
@@ -84,6 +87,31 @@
   &:focus {
     border-color: #f57c00;
     box-shadow: 0 0 0 3px rgba(255, 152, 0, 0.15);
+  }
+}
+
+@media (max-width: 640px) {
+  .pagination {
+    width: 100%;
+    justify-content: center;
+    gap: 12px;
+  }
+
+  .pagination__page-size,
+  .pagination__jump,
+  .pagination__controls {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 420px) {
+  .pagination {
+    display: grid;
+    justify-items: center;
+  }
+
+  .pagination__label {
+    white-space: normal;
   }
 }
 

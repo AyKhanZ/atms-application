@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
-import { environment } from '../../../environments/environment';
+import { adminApiUrl } from '../constants/api-url.constants';
 
 @Injectable({ providedIn: 'root' })
 export class ImageUrlService {
-  private readonly apiOrigin = new URL(environment.apiUrl, window.location.origin).origin;
+  private readonly apiOrigin = new URL(adminApiUrl, window.location.origin).origin;
   private readonly imagesPath = '/app/images';
 
   normalize(value: string | null | undefined): string | null {

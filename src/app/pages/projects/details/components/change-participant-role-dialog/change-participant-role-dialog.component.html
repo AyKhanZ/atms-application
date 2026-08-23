@@ -1,0 +1,41 @@
+<p-dialog
+  header="Change role"
+  [visible]="visible()"
+  (visibleChange)="updateVisible($event)"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  (onShow)="initializeForm()"
+  styleClass="participant-dialog participant-dialog--narrow"
+>
+  @if (participant(); as selectedParticipant) {
+    <form class="participant-dialog-form" [formGroup]="form" (ngSubmit)="submit()">
+      <div class="selected-person">
+        <strong>{{ fullName(selectedParticipant) }}</strong>
+        <span>{{ selectedParticipant.email }}</span>
+      </div>
+
+      <div class="field">
+        <label for="participantNewRole">Role</label>
+        <p-select
+          inputId="participantNewRole"
+          [class.control-invalid]="showError()"
+          formControlName="roleId"
+          [options]="availableRoles()"
+          optionLabel="name"
+          optionValue="id"
+          placeholder="Select role"
+          appendTo="body"
+        />
+        @if (showError()) {
+          <small>Role is required.</small>
+        }
+      </div>
+
+      <div class="dialog-actions">
+        <button pButton type="button" outlined="true" (click)="close()">Cancel</button>
+        <button pButton type="submit" [disabled]="isSaving()">Save</button>
+      </div>
+    </form>
+  }
+</p-dialog>

@@ -1,17 +1,17 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../../environments/environment';
 import { AccessModel } from '../models/auth/auth.models';
 import { LoginCommand } from '../models/auth/login.command';
 import { RefreshCommand } from '../models/auth/refresh.command';
 import { LogoutCommand } from '../models/auth/logout.command';
+import { adminApiUrl } from '../constants/api-url.constants';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${environment.apiUrl}/auth`;
-  private readonly accountUrl = `${environment.apiUrl}/account`;
+  private readonly baseUrl = `${adminApiUrl}/auth`;
+  private readonly accountUrl = `${adminApiUrl}/account`;
 
   // POST /auth/login
   login(command: LoginCommand): Observable<AccessModel> {

@@ -13,7 +13,7 @@
   height: 2.35rem;
   padding-inline: 0.95rem;
   border: 1px solid var(--orange-border);
-  border-radius: 8px;
+  border-radius: var(--radius-btn);
   background: var(--white);
   color: var(--app-primary);
   font-size: 0.9rem;
