@@ -77,6 +77,14 @@
   color: var(--app-muted);
   font-weight: 700;
   cursor: pointer;
+  transition: background-color .15s ease, color .15s ease;
+}
+
+.project-tabs button:not(.active):hover,
+.project-tabs button:not(.active):focus-visible {
+  border-radius: 6px 6px 0 0;
+  background: var(--orange-light-hover);
+  color: var(--orange-text-hover);
 }
 
 .project-tabs button.active {
@@ -114,7 +122,8 @@
   gap: 1rem;
 }
 
-.section-heading h3, .project-information h3, .future-state h3 {
+.section-heading h3,
+.project-information h3 {
   margin: 0;
   font-size: 1rem;
 }
@@ -188,35 +197,6 @@
 .project-metadata-tag--kind {
   background: #e0f2fe;
   color: #0369a1;
-}
-
-.future-state {
-  display: grid;
-  min-height: 30rem;
-  place-items: center;
-  align-content: center;
-  gap: .85rem;
-  padding: 2rem 1rem;
-  text-align: center;
-}
-
-.future-state h3 {
-  font-size: 1.2rem;
-}
-
-.future-icon {
-  display: grid;
-  width: 5.5rem;
-  height: 5.5rem;
-  place-items: center;
-  border-radius: 50%;
-  background: var(--orange-light);
-  color: var(--orange);
-  font-size: 2.25rem;
-}
-
-.future-icon i {
-  font-size: 2.25rem;
 }
 
 .details-loading {

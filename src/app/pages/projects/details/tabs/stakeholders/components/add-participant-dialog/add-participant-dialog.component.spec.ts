@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { projectRoleIds } from '../../../../../core/constants/project-role-ids.constants';
-import { WorkProjectRoleModel } from '../../../../../core/models/work-projects';
+import { projectRoleIds } from '../../../../../../../core/constants/project-role-ids.constants';
+import { WorkProjectRoleModel } from '../../../../../../../core/models/work-projects';
 import { AddParticipantDialogComponent } from './add-participant-dialog.component';
 
 describe('AddParticipantDialogComponent', () => {

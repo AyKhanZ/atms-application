@@ -1,3 +1,5 @@
+<p-confirmDialog key="projectParticipantDanger" styleClass="participant-danger-dialog" />
+
 <section class="stakeholders-content">
   @if (!isInternal() && project().organization; as organization) {
     <section class="organization-strip">
@@ -12,8 +14,7 @@
         <a
           class="organization-link"
           [routerLink]="['/organizations', organization.id]"
-          [state]="{ returnUrl: projectReturnUrl }"
-        >
+          [state]="{ returnUrl: projectReturnUrl }">
           {{ organization.title }}
         </a>
       </h3>
@@ -29,8 +30,7 @@
           type="button"
           class="add-participant-button"
           [disabled]="participantsCount() >= 20 || isSaving()"
-          (click)="openAddDialog()"
-        >
+          (click)="openAddDialog()">
           <i class="pi pi-plus"></i>
           <span>Add</span>
         </button>
@@ -70,8 +70,7 @@
                   type="button"
                   class="row-menu-button"
                   [attr.aria-label]="'Actions for ' + fullName(participant)"
-                  (click)="openParticipantMenu($event, participant, participantMenu)"
-                >
+                  (click)="openParticipantMenu($event, participant, participantMenu)">
                   <i class="pi pi-ellipsis-v"></i>
                 </button>
               </div>

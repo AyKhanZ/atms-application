@@ -12,12 +12,13 @@ import { Router, RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { ConfirmationService, MenuItem } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { Menu, MenuModule } from 'primeng/menu';
 import { forkJoin, of } from 'rxjs';
 import {
   OrganizationModel,
   OrganizationUserModel,
-} from '../../../../../core/models/organizations/organizations.models';
+} from '../../../../../core/models/organizations/organization.model';
 import {
   WorkProjectModel,
   WorkProjectParticipantCandidateModel,
@@ -31,25 +32,26 @@ import { OrganizationsService } from '../../../../../core/services/organizations
 import { WorkProjectsService } from '../../../../../core/services/work-projects.service';
 import { ProfileAvatarComponent } from '../../../../../shared/components/profile-avatar/profile-avatar.component';
 import { WorkProjectsStoreActions } from '../../../../../store/work-projects';
-import { AddParticipantDialogComponent } from '../add-participant-dialog/add-participant-dialog.component';
-import { ChangeParticipantRoleDialogComponent } from '../change-participant-role-dialog/change-participant-role-dialog.component';
-import { ParticipantCandidate, ParticipantSide } from '../participant-candidate.model';
+import { AddParticipantDialogComponent } from './components/add-participant-dialog/add-participant-dialog.component';
+import { ChangeParticipantRoleDialogComponent } from './components/change-participant-role-dialog/change-participant-role-dialog.component';
+import { ParticipantCandidate, ParticipantSide } from './participant-candidate.model';
 
 @Component({
-  selector: 'app-project-stakeholders',
+  selector: 'app-stakeholders-tab',
   imports: [
     ButtonModule,
+    ConfirmDialogModule,
     MenuModule,
     RouterLink,
     ProfileAvatarComponent,
     AddParticipantDialogComponent,
     ChangeParticipantRoleDialogComponent,
   ],
-  templateUrl: './project-stakeholders.component.html',
-  styleUrl: './project-stakeholders.component.scss',
+  templateUrl: './stakeholders-tab.component.html',
+  styleUrl: './stakeholders-tab.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ProjectStakeholdersComponent {
+export class StakeholdersTabComponent {
   private readonly store = inject(Store);
   private readonly confirmation = inject(ConfirmationService);
   private readonly dictionaryService = inject(DictionaryService);

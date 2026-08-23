@@ -1,0 +1,9 @@
+<span
+  class="work-group-status-badge"
+  [class.work-group-status-badge--planned]="tone() === 'planned'"
+  [class.work-group-status-badge--active]="tone() === 'active'"
+  [class.work-group-status-badge--done]="tone() === 'done'"
+  [class.work-group-status-badge--unknown]="tone() === 'unknown'"
+>
+  {{ status().name }}
+</span>

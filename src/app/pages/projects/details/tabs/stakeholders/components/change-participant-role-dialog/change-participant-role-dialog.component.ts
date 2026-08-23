@@ -14,8 +14,8 @@ import { SelectModule } from 'primeng/select';
 import {
   WorkProjectParticipantModel,
   WorkProjectRoleModel,
-} from '../../../../../core/models/work-projects';
-import { availableParticipantRoles } from '../participant-role.utils';
+} from '../../../../../../../core/models/work-projects';
+import { availableParticipantRoles } from '../../participant-role.utils';
 
 @Component({
   selector: 'app-change-participant-role-dialog',

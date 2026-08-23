@@ -6,8 +6,7 @@
   [draggable]="false"
   [resizable]="false"
   (onShow)="initializeForm()"
-  styleClass="participant-dialog participant-dialog--narrow"
->
+  styleClass="participant-dialog participant-dialog--narrow">
   @if (participant(); as selectedParticipant) {
     <form class="participant-dialog-form" [formGroup]="form" (ngSubmit)="submit()">
       <div class="selected-person">
@@ -25,8 +24,7 @@
           optionLabel="name"
           optionValue="id"
           placeholder="Select role"
-          appendTo="body"
-        />
+          appendTo="body"/>
         @if (showError()) {
           <small>Role is required.</small>
         }
