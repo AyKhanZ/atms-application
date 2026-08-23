@@ -19,9 +19,11 @@ import { BackButtonComponent } from '../../../shared/components/back-button/back
 import { UserStoreSelectors } from '../../../store/user';
 import { WorkProjectsStoreActions, WorkProjectsStoreSelectors } from '../../../store/work-projects';
 import { ProjectStatusBadgeComponent } from '../components/status-badge/project-status-badge.component';
-import { ProjectStakeholdersComponent } from './components/project-stakeholders/project-stakeholders.component';
+import { GroupsTabComponent } from './tabs/groups/groups-tab.component';
+import { WorkGroupExpansionStateService } from './tabs/groups/work-group-expansion-state.service';
+import { StakeholdersTabComponent } from './tabs/stakeholders/stakeholders-tab.component';
 
-type ProjectTab = 'details' | 'stakeholders' | 'links' | 'attachments' | 'history';
+type ProjectTab = 'details' | 'stakeholders' | 'groups' | 'attachments' | 'history';
 
 @Component({
   selector: 'app-project-details',
@@ -31,9 +33,10 @@ type ProjectTab = 'details' | 'stakeholders' | 'links' | 'attachments' | 'histor
     ConfirmDialogModule,
     BackButtonComponent,
     ProjectStatusBadgeComponent,
-    ProjectStakeholdersComponent,
+    GroupsTabComponent,
+    StakeholdersTabComponent,
   ],
-  providers: [ConfirmationService],
+  providers: [ConfirmationService, WorkGroupExpansionStateService],
   templateUrl: './details.component.html',
   styleUrl: './details.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -81,7 +84,7 @@ export class ProjectDetailsComponent implements OnDestroy {
   selectTab(tab: ProjectTab): void {
     void this.router.navigate([], {
       relativeTo: this.route,
-      queryParams: { tab: tab === 'details' ? null : tab },
+      queryParams: { tab: projectTabQueryParam(tab) },
       queryParamsHandling: 'merge',
     });
   }
@@ -96,15 +99,6 @@ export class ProjectDetailsComponent implements OnDestroy {
     const detailsReturnUrl = projectNavigationUrl(state.returnUrl) ?? '/projects';
     void this.router.navigate(['/projects', this.id, 'edit'], {
       state: { cancelUrl: this.router.url, detailsReturnUrl },
-    });
-  }
-
-  showUnavailable(feature: string): void {
-    this.confirmation.confirm({
-      header: feature,
-      message: 'This action is not available yet.',
-      acceptLabel: 'Close',
-      rejectVisible: false,
     });
   }
 
@@ -140,12 +134,17 @@ export class ProjectDetailsComponent implements OnDestroy {
 }
 
 export function parseProjectTab(value: string | null): ProjectTab {
-  return value === 'stakeholders' ||
-    value === 'links' ||
-    value === 'attachments' ||
-    value === 'history'
+  if (value === 'plan' || value === 'links') return 'groups';
+
+  return value === 'stakeholders' || value === 'attachments' || value === 'history'
     ? value
     : 'details';
+}
+
+export function projectTabQueryParam(tab: ProjectTab): string | null {
+  if (tab === 'details') return null;
+
+  return tab === 'groups' ? 'plan' : tab;
 }
 
 function projectNavigationUrl(value: unknown): string | null {

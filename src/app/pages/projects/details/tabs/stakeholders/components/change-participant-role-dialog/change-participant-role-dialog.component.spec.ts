@@ -1,9 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { projectRoleIds } from '../../../../../core/constants/project-role-ids.constants';
+import { projectRoleIds } from '../../../../../../../core/constants/project-role-ids.constants';
 import {
   WorkProjectParticipantModel,
   WorkProjectRoleModel,
-} from '../../../../../core/models/work-projects';
+} from '../../../../../../../core/models/work-projects';
 import { ChangeParticipantRoleDialogComponent } from './change-participant-role-dialog.component';
 
 describe('ChangeParticipantRoleDialogComponent', () => {

@@ -1,0 +1,32 @@
+:host {
+  display: inline-flex;
+}
+
+.work-group-status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 8px;
+  border: 0;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 750;
+  line-height: normal;
+  white-space: nowrap;
+}
+
+.work-group-status-badge--planned,
+.work-group-status-badge--unknown {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.work-group-status-badge--active {
+  background: var(--orange-light);
+  color: var(--orange-text-hover);
+}
+
+.work-group-status-badge--done {
+  background: #dcfce7;
+  color: #15803d;
+}

@@ -736,8 +736,148 @@ app-onboarding .confetti i:nth-child(5n) {
   color: var(--red-hover);
 }
 
+.work-groups-menu-danger .p-menu-item-link,
+.work-groups-menu-danger .p-menu-item-icon {
+  color: var(--red);
+}
+
+.work-groups-menu-danger .p-menu-item-link:hover,
+.work-groups-menu-danger .p-menu-item-link:focus {
+  background: var(--red-hover-bg);
+  color: var(--red-hover);
+}
+
+.work-groups-menu-danger .p-menu-item-link:hover .p-menu-item-icon,
+.work-groups-menu-danger .p-menu-item-link:focus .p-menu-item-icon {
+  color: var(--red-hover);
+}
+
+.groups-add-menu .p-menu-item-link {
+  min-height: 2.75rem;
+}
+
+.groups-add-menu .p-menu-item:not(.p-disabled) .p-menu-item-icon {
+  color: var(--orange-text-hover);
+}
+
+.groups-toolbar__actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-left: auto;
+}
+
+.groups-toolbar--pending {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.groups-expansion-toggle {
+  min-height: 2.5rem;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+}
+
+.group-progress {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 0.3rem;
+  margin-left: auto;
+  color: var(--app-muted);
+  font-size: 0.8rem;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.group-progress i {
+  font-size: 0.72rem;
+}
+
+.group-progress--complete {
+  color: var(--green-text);
+}
+
+@container (max-width: 42rem) {
+  .groups-toolbar__actions {
+    display: contents;
+  }
+
+  .groups-expansion-toggle {
+    grid-column: 1 / -1;
+    width: 100%;
+    min-height: 3rem;
+    justify-content: center;
+  }
+
+  .groups-toolbar .groups-add-button {
+    grid-column: 1 / -1;
+    width: 100%;
+    min-height: 3rem;
+  }
+}
+
+@media (max-width: 42rem) {
+  .groups-add-menu .p-menu-item-link {
+    min-height: 3rem;
+  }
+}
+
+.work-group-parent-select-panel .p-select-option:not(.p-select-option-selected):not(.p-disabled):hover,
+.work-group-parent-select-panel .p-select-option:not(.p-select-option-selected):not(.p-disabled).p-focus {
+  background: var(--orange-light-hover);
+  color: var(--orange-text-hover);
+}
+
 .participant-danger-dialog .p-confirmdialog-icon {
   color: var(--red-hover);
+}
+
+.work-groups-danger-dialog .p-confirmdialog-icon {
+  color: var(--red-hover);
+}
+
+.work-groups-danger-dialog {
+  width: min(36rem, calc(100vw - 2rem));
+  margin: 1rem;
+}
+
+.work-groups-danger-dialog .p-confirmdialog-message {
+  overflow-wrap: anywhere;
+}
+
+.project-tab-empty-state {
+  display: grid;
+  min-height: 30rem;
+  place-items: center;
+  align-content: center;
+  gap: 0.85rem;
+  padding: 2rem 1rem;
+  text-align: center;
+}
+
+.project-tab-empty-state--compact {
+  min-height: 22rem;
+}
+
+.project-tab-empty-state h3 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.project-tab-empty-state__icon {
+  display: grid;
+  width: 5.5rem;
+  height: 5.5rem;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--orange-light);
+  color: var(--orange);
+}
+
+.project-tab-empty-state__icon i {
+  font-size: 2.25rem;
 }
 
 .p-button.p-button-danger.participant-danger-confirm-button:not(.p-button-text):not(.p-button-outlined) {
@@ -749,5 +889,17 @@ app-onboarding .confetti i:nth-child(5n) {
 .p-button.p-button-danger.participant-danger-confirm-button:not(.p-button-text):not(.p-button-outlined):enabled:hover {
   background: #b91c1c;
   border-color: #b91c1c;
+  color: var(--white);
+}
+
+.p-button.p-button-danger.work-groups-danger-confirm-button:not(.p-button-text):not(.p-button-outlined) {
+  border-color: var(--red-hover);
+  background: var(--red-hover);
+  color: var(--white);
+}
+
+.p-button.p-button-danger.work-groups-danger-confirm-button:not(.p-button-text):not(.p-button-outlined):enabled:hover {
+  border-color: #b91c1c;
+  background: #b91c1c;
   color: var(--white);
 }

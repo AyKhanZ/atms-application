@@ -1,0 +1,149 @@
+:host ::ng-deep .work-group-dialog {
+  width: min(42rem, calc(100vw - 2rem));
+}
+
+:host ::ng-deep .work-group-dialog .p-dialog-header {
+  padding: 1.35rem 1.5rem 0.7rem;
+}
+
+:host ::ng-deep .work-group-dialog .p-dialog-content {
+  overflow: visible;
+  padding: 0.65rem 1.5rem 1.35rem;
+}
+
+:host ::ng-deep .work-group-dialog .p-dialog-title {
+  color: var(--app-text);
+  font-size: 1.3rem;
+  font-weight: 780;
+}
+
+.work-group-form {
+  display: grid;
+  gap: 1.1rem;
+}
+
+.form-field {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.38rem 0.65rem;
+  min-width: 0;
+  margin: 0;
+}
+
+.form-field > span,
+.form-field > label {
+  color: var(--app-text);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.form-field b {
+  color: var(--orange);
+}
+
+.form-field input,
+.form-field p-select,
+.locked-parent {
+  grid-column: 1 / -1;
+  width: 100%;
+}
+
+.form-field input,
+.locked-parent {
+  min-height: 2.75rem;
+}
+
+.form-field p-select {
+  min-height: 2.75rem;
+}
+
+.parent-group-option {
+  display: flex;
+  min-width: 0;
+  align-items: flex-start;
+  gap: 0.6rem;
+  white-space: normal;
+}
+
+.parent-group-option i {
+  flex: 0 0 auto;
+  margin-top: 0.15rem;
+  color: var(--orange-text-hover);
+}
+
+.parent-group-option span {
+  display: -webkit-box;
+  min-width: 0;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-height: 1.25;
+}
+
+.parent-group-option--selected {
+  width: 100%;
+}
+
+:host ::ng-deep .work-group-dialog .p-select-label {
+  min-width: 0;
+  white-space: normal;
+}
+
+.locked-parent {
+  display: flex;
+  align-items: center;
+  padding: 0.65rem 0.8rem;
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+  background: var(--app-surface-muted);
+  color: var(--app-text);
+  overflow-wrap: anywhere;
+}
+
+.form-field small {
+  min-height: 1.05rem;
+  color: transparent;
+  font-size: 0.76rem;
+  line-height: 1.05rem;
+}
+
+.form-field small.visible {
+  color: var(--red-hover);
+}
+
+.form-field em {
+  color: var(--app-muted);
+  font-size: 0.75rem;
+  font-style: normal;
+  line-height: 1.05rem;
+  text-align: right;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding-top: 0.2rem;
+}
+
+.dialog-actions button {
+  min-width: 8.75rem;
+  justify-content: center;
+}
+
+@media (max-width: 30rem) {
+  :host ::ng-deep .work-group-dialog .p-dialog-header,
+  :host ::ng-deep .work-group-dialog .p-dialog-content {
+    padding-inline: 1rem;
+  }
+
+  .dialog-actions {
+    grid-template-columns: minmax(0, 1fr);
+    display: grid;
+  }
+
+  .dialog-actions button {
+    width: 100%;
+  }
+}

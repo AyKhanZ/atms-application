@@ -31,6 +31,8 @@ import { dictionaryReducer } from './store/dictionary/dictionary.reducer';
 import { organizationsReducer } from './store/organizations/organizations.reducer';
 import { workProjectsReducer } from './store/work-projects/work-projects.reducer';
 import { WorkProjectsEffects } from './store/work-projects/work-projects.effects';
+import { workGroupsReducer } from './store/work-groups/work-groups.reducer';
+import { WorkGroupsEffects } from './store/work-groups/work-groups.effects';
 import { provideStoreDevtools } from '@ngrx/store-devtools';
 
 const BaimTheme = definePreset(Aura, {
@@ -92,10 +94,19 @@ export const appConfig: ApplicationConfig = {
       [Features.Users]: usersReducer,
       [Features.Organizations]: organizationsReducer,
       [Features.WorkProjects]: workProjectsReducer,
+      [Features.WorkGroups]: workGroupsReducer,
       [Features.User]: userReducer,
       [Features.Dictionary]: dictionaryReducer,
     }),
-    provideEffects([AuthEffects, UsersEffects, OrganizationsEffects, WorkProjectsEffects, UserEffects, DictionaryEffects]),
+    provideEffects([
+      AuthEffects,
+      UsersEffects,
+      OrganizationsEffects,
+      WorkProjectsEffects,
+      WorkGroupsEffects,
+      UserEffects,
+      DictionaryEffects,
+    ]),
     provideAppInitializer(authInitializer),
     provideZonelessChangeDetection(),
     // Redux DevTools

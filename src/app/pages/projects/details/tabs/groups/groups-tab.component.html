@@ -1,0 +1,210 @@
+<p-confirmDialog key="workGroupsDanger" styleClass="work-groups-danger-dialog" />
+
+<section class="groups-content" [attr.aria-busy]="loading()">
+  <header
+    class="groups-toolbar"
+    [class.groups-toolbar--pending]="!initialLoadComplete()"
+    [attr.aria-hidden]="!initialLoadComplete()"
+  >
+    @if (groups().length > 0) {
+      <h3>Groups</h3>
+    }
+    <div class="groups-toolbar__actions">
+      @if (groups().length > 0 && showExpansionControls()) {
+        <button
+          pButton
+          type="button"
+          outlined="true"
+          class="groups-expansion-toggle"
+          (click)="toggleAllGroups()"
+        >
+          <i
+            class="pi"
+            [class.pi-chevron-up]="allGroupsExpanded()"
+            [class.pi-chevron-down]="!allGroupsExpanded()"
+          ></i>
+          <span>{{ allGroupsExpanded() ? 'Collapse all' : 'Expand all' }}</span>
+        </button>
+      }
+      @if (canManage()) {
+        <button
+          pButton
+          type="button"
+          class="groups-add-button"
+          aria-haspopup="menu"
+          [disabled]="saving()"
+          (click)="openAddMenu($event, addMenu)"
+        >
+          <i class="pi pi-plus"></i>
+          <span>Add</span>
+        </button>
+      }
+    </div>
+  </header>
+
+  @if (!initialLoadComplete() || (loading() && groups().length === 0)) {
+    <div class="groups-state" role="status">
+      <i class="pi pi-spin pi-spinner"></i>
+      <span>Loading the plan...</span>
+    </div>
+  } @else if (loadError() && groups().length === 0) {
+    <div class="groups-state groups-state--error">
+      <i class="pi pi-exclamation-circle"></i>
+      <strong>The plan is temporarily unavailable</strong>
+      <span>We couldn't load the plan. Please try again in a moment.</span>
+      <button pButton type="button" outlined="true" (click)="loadGroups()">Try again</button>
+    </div>
+  } @else if (groups().length === 0) {
+    <div class="project-tab-empty-state project-tab-empty-state--compact groups-state--empty">
+      <div class="project-tab-empty-state__icon">
+        <i class="pi pi-folder-open"></i>
+      </div>
+      <h3>No groups in the plan yet</h3>
+    </div>
+  } @else {
+    @if (loadError()) {
+      <div class="groups-refresh-error" role="alert">
+        <div class="groups-refresh-error__message">
+          <i class="pi pi-exclamation-circle"></i>
+          <span>{{ loadError() }}</span>
+        </div>
+        <button
+          pButton
+          type="button"
+          severity="danger"
+          outlined="true"
+          [disabled]="loading()"
+          (click)="loadGroups()"
+        >
+          Try again
+        </button>
+      </div>
+    }
+
+    <div class="groups-tree">
+      @for (group of groups(); track group.id) {
+        @let completedMilestones = completedMilestoneCount(group);
+        <article class="group-card">
+          <header class="group-header">
+            <button
+              type="button"
+              class="group-toggle"
+              [attr.aria-expanded]="isExpanded(group.id)"
+              [attr.aria-controls]="'milestones-' + group.id"
+              (click)="toggleGroup(group.id)"
+            >
+              <i
+                class="pi expand-icon"
+                [class.pi-chevron-down]="isExpanded(group.id)"
+                [class.pi-chevron-right]="!isExpanded(group.id)"
+              >
+              </i>
+              <i class="pi pi-folder structure-icon"> </i>
+              <strong>{{ group.title }}</strong>
+              <span class="item-meta">
+                <app-work-group-status-badge [status]="group.status" />
+              </span>
+            </button>
+
+            @if (group.milestones.length > 0) {
+              <span
+                class="group-progress"
+                [class.group-progress--complete]="completedMilestones === group.milestones.length"
+                [attr.aria-label]="
+                  completedMilestones +
+                  ' of ' +
+                  group.milestones.length +
+                  ' milestones completed'
+                "
+                [pTooltip]="
+                  completedMilestones +
+                  ' of ' +
+                  group.milestones.length +
+                  ' milestones completed'
+                "
+                tooltipPosition="top"
+              >
+                <i class="pi pi-check" aria-hidden="true"></i>
+                <span>{{ completedMilestones }}/{{ group.milestones.length }}</span>
+              </span>
+            } @else {
+              <span class="item-count">No milestones</span>
+            }
+
+            @if (canManage()) {
+              <button
+                type="button"
+                class="item-menu-button"
+                [attr.aria-label]="'Options for group ' + group.title"
+                [disabled]="saving()"
+                (click)="openItemMenu($event, group, 'group', itemMenu)"
+              >
+                <i class="pi pi-ellipsis-v"></i>
+              </button>
+            }
+          </header>
+
+          @if (isExpanded(group.id)) {
+            <section class="milestone-list" [id]="'milestones-' + group.id">
+              @if (group.milestones.length) {
+                @for (milestone of group.milestones; track milestone.id) {
+                  <div class="milestone-row">
+                    <div class="milestone-identity">
+                      <i class="pi pi-flag structure-icon"></i>
+                      <strong>{{ milestone.title }}</strong>
+                      <span class="item-meta">
+                        <app-work-group-status-badge [status]="milestone.status" />
+                        @if (milestone.ticketCount > 0) {
+                          <span class="item-count">
+                            {{ milestone.ticketCount }}
+                            {{ milestone.ticketCount === 1 ? 'ticket' : 'tickets' }}
+                          </span>
+                        }
+                      </span>
+                    </div>
+
+                    @if (canManage()) {
+                      <button
+                        type="button"
+                        class="item-menu-button"
+                        [attr.aria-label]="'Options for milestone ' + milestone.title"
+                        [disabled]="saving()"
+                        (click)="openItemMenu($event, milestone, 'milestone', itemMenu)"
+                      >
+                        <i class="pi pi-ellipsis-v"></i>
+                      </button>
+                    }
+                  </div>
+                }
+              } @else {
+                <div class="milestones-empty">No milestones in this group yet</div>
+              }
+            </section>
+          }
+        </article>
+      }
+    </div>
+  }
+</section>
+
+<p-menu
+  #addMenu
+  [model]="addActions()"
+  [popup]="true"
+  [style]="{ width: addMenuWidth() }"
+  styleClass="groups-add-menu"
+  appendTo="body"
+/>
+<p-menu #itemMenu [model]="itemActions()" [popup]="true" appendTo="body" />
+
+<app-work-group-dialog
+  [(visible)]="dialogVisible"
+  [mode]="dialogMode()"
+  [kind]="dialogKind()"
+  [item]="dialogItem()"
+  [groups]="groups()"
+  [initialParentWorkGroupId]="dialogParentWorkGroupId()"
+  [parentSelectionLocked]="dialogParentLocked()"
+  [isSaving]="saving()"
+  (submitted)="submitDialog($event)"
+/>

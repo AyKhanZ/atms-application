@@ -1,0 +1,89 @@
+<p-dialog
+  [header]="title()"
+  [visible]="visible()"
+  (visibleChange)="updateVisible($event)"
+  [modal]="true"
+  [closable]="!isSaving()"
+  [closeOnEscape]="!isSaving()"
+  [dismissableMask]="false"
+  [draggable]="false"
+  [resizable]="false"
+  (onShow)="initializeForm()"
+  styleClass="work-group-dialog"
+>
+  <form class="work-group-form" [formGroup]="form" (ngSubmit)="submit()">
+    <label class="form-field" for="workGroupName">
+      <span>Name <b>*</b></span>
+      <input
+        pInputText
+        id="workGroupName"
+        formControlName="title"
+        maxlength="100"
+        autocomplete="off"
+        placeholder="Enter a name"
+        [attr.aria-invalid]="showError('title')"
+        [attr.aria-describedby]="showError('title') ? 'workGroupNameError' : null"
+      />
+      <small id="workGroupNameError" [class.visible]="showError('title')">
+        {{ titleError() || ' ' }}
+      </small>
+      <em>{{ titleLength() }}/100</em>
+    </label>
+
+    @if (isMilestone()) {
+      <div class="form-field">
+        <label for="milestoneGroup">Group <b>*</b></label>
+        @if (isParentLocked()) {
+          <div class="locked-parent" id="milestoneGroup">
+            {{ parentTitle() }}
+          </div>
+        } @else {
+          <p-select
+            inputId="milestoneGroup"
+            formControlName="parentWorkGroupId"
+            [options]="groups()"
+            optionLabel="title"
+            optionValue="id"
+            placeholder="Choose a group"
+            panelStyleClass="work-group-parent-select-panel"
+            [attr.aria-invalid]="showError('parentWorkGroupId')"
+          >
+            <ng-template #selectedItem let-group>
+              @if (group) {
+                <div class="parent-group-option parent-group-option--selected">
+                  <i class="pi pi-folder"></i>
+                  <span>{{ group.title }}</span>
+                </div>
+              }
+            </ng-template>
+            <ng-template #item let-group>
+              <div class="parent-group-option">
+                <i class="pi pi-folder"></i>
+                <span>{{ group.title }}</span>
+              </div>
+            </ng-template>
+          </p-select>
+        }
+        @if (showError('parentWorkGroupId')) {
+          <small class="visible">Group is required.</small>
+        }
+      </div>
+    }
+
+    <div class="dialog-actions">
+      <button
+        pButton
+        type="button"
+        severity="secondary"
+        outlined="true"
+        [disabled]="isSaving()"
+        (click)="close()"
+      >
+        Cancel
+      </button>
+      <button pButton type="submit" [loading]="isSaving()">
+        {{ submitLabel() }}
+      </button>
+    </div>
+  </form>
+</p-dialog>
