@@ -19,7 +19,9 @@ export class ProfileAvatarComponent {
 
   readonly previewVisible = signal(false);
   private readonly failedImageUrl = signal<string | null>(null);
-  readonly normalizedImageUrl = computed(() => this.imageUrlService.normalize(this.imageUrl()));
+  readonly normalizedImageUrl = computed(() =>
+    this.imageUrlService.normalizeAvatar(this.imageUrl()),
+  );
 
   readonly canShowImage = computed(() => {
     const imageUrl = this.normalizedImageUrl();

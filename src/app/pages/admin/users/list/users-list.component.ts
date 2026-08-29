@@ -180,7 +180,7 @@ export class UsersListComponent implements OnInit, OnDestroy {
   }
 
   avatarUrl(user: UserListItemModel): string | null {
-    return this.imageUrlService.normalize(user.avatarPath);
+    return this.imageUrlService.normalizeAvatar(user.avatarPath);
   }
 
   onAvatarError(user: UserListItemModel): void {
