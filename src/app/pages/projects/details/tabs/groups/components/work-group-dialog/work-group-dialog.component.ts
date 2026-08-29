@@ -2,10 +2,12 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  effect,
   inject,
   input,
   model,
   output,
+  signal,
 } from '@angular/core';
 import {
   AbstractControl,
@@ -53,6 +55,7 @@ export class WorkGroupDialogComponent {
   readonly parentSelectionLocked = input(false);
   readonly isSaving = input(false);
   readonly submitted = output<WorkGroupDialogSubmitEvent>();
+  readonly submitAttempted = signal(false);
 
   readonly title = computed(() => {
     const kindLabel = this.kind() === 'group' ? 'group' : 'milestone';
@@ -72,16 +75,21 @@ export class WorkGroupDialogComponent {
     parentWorkGroupId: this.fb.control<string | null>(null),
   });
 
-  initializeForm(): void {
-    const item = this.item();
-    const parentWorkGroupId =
-      this.mode() === 'edit' ? (item?.parentWorkGroupId ?? null) : this.initialParentWorkGroupId();
+  constructor() {
+    effect(() => {
+      if (!this.visible()) return;
 
-    this.form.reset({
-      title: item?.title ?? '',
-      parentWorkGroupId,
+      const item = this.item();
+      const parentWorkGroupId =
+        this.mode() === 'edit' ? (item?.parentWorkGroupId ?? null) : this.initialParentWorkGroupId();
+
+      this.form.reset({
+        title: item?.title ?? '',
+        parentWorkGroupId,
+      });
+      this.submitAttempted.set(false);
+      this.configureParentValidation();
     });
-    this.configureParentValidation();
   }
 
   titleLength(): number {
@@ -100,7 +108,7 @@ export class WorkGroupDialogComponent {
   showError(controlName: 'title' | 'parentWorkGroupId'): boolean {
     const control = this.form.controls[controlName];
 
-    return control.invalid && control.touched;
+    return control.invalid && this.submitAttempted();
   }
 
   titleError(): string {
@@ -123,7 +131,10 @@ export class WorkGroupDialogComponent {
   }
 
   submit(): void {
-    if (this.form.invalid || this.isSaving()) {
+    if (this.isSaving()) return;
+
+    this.submitAttempted.set(true);
+    if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }

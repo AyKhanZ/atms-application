@@ -32,7 +32,7 @@ export const createProjectFailure = createAction(`${key} Create Failure`);
 
 export const updateProject = createAction(`${key} Update`, props<{ command: UpdateWorkProjectCommand }>());
 
-export const updateProjectSuccess = createAction(`${key} Update Success`);
+export const updateProjectSuccess = createAction(`${key} Update Success`, props<{ id: string }>());
 
 export const updateProjectFailure = createAction(`${key} Update Failure`);
 
@@ -48,7 +48,7 @@ export const addProjectParticipant = createAction(
   props<{ id: string; userId: string; roleId: string }>(),
 );
 
-export const addProjectParticipantSuccess = createAction(`${key} Add Participant Success`);
+export const addProjectParticipantSuccess = createAction(`${key} Add Participant Success`, props<{ id: string }>());
 
 export const addProjectParticipantFailure = createAction(`${key} Add Participant Failure`);
 
@@ -57,7 +57,7 @@ export const updateProjectParticipant = createAction(
   props<{ id: string; participantId: string; roleId: string }>(),
 );
 
-export const updateProjectParticipantSuccess = createAction(`${key} Update Participant Success`);
+export const updateProjectParticipantSuccess = createAction(`${key} Update Participant Success`, props<{ id: string }>());
 
 export const updateProjectParticipantFailure = createAction(`${key} Update Participant Failure`);
 
@@ -66,7 +66,7 @@ export const deleteProjectParticipant = createAction(
   props<{ id: string; participantId: string }>(),
 );
 
-export const deleteProjectParticipantSuccess = createAction(`${key} Delete Participant Success`);
+export const deleteProjectParticipantSuccess = createAction(`${key} Delete Participant Success`, props<{ id: string }>());
 
 export const deleteProjectParticipantFailure = createAction(`${key} Delete Participant Failure`);
 

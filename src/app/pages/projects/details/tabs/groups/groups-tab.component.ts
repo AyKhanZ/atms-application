@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   OnDestroy,
   OnInit,
   computed,
@@ -16,7 +17,10 @@ import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { Menu, MenuModule } from 'primeng/menu';
 import { TooltipModule } from 'primeng/tooltip';
+import { HasProjectAccessDirective } from '../../../../../core/directives/has-project-access.directive';
+import { ProjectPermissions } from '../../../../../core/enums/project-permissions.enum';
 import { WorkGroupKind, WorkGroupModel } from '../../../../../core/models/work-groups';
+import { ProjectAccessService } from '../../../../../core/services/project-access.service';
 import { WorkGroupsStoreActions, WorkGroupsStoreSelectors } from '../../../../../store/work-groups';
 import {
   WorkGroupDialogComponent,
@@ -36,6 +40,7 @@ interface SelectedWorkGroup {
   imports: [
     ButtonModule,
     ConfirmDialogModule,
+    HasProjectAccessDirective,
     MenuModule,
     TooltipModule,
     WorkGroupDialogComponent,
@@ -50,12 +55,18 @@ export class GroupsTabComponent implements OnInit, OnDestroy {
   private readonly actions$ = inject(Actions);
   private readonly confirmation = inject(ConfirmationService);
   private readonly expansionState = inject(WorkGroupExpansionStateService);
+  private readonly projectAccess = inject(ProjectAccessService);
+  private readonly destroyRef = inject(DestroyRef);
   private knownGroupIds = new Set<string>();
   private hasLoadedGroups = false;
   private hasRestoredExpansionState = false;
 
   readonly projectId = input.required<string>();
-  readonly canManage = input(false);
+  readonly ProjectPermissions = ProjectPermissions;
+  readonly projectPermissions = signal<string[]>([]);
+  readonly canEdit = computed(() => this.projectPermissions().includes(ProjectPermissions.Group.Edit));
+  readonly canDelete = computed(() => this.projectPermissions().includes(ProjectPermissions.Group.Delete));
+  readonly canManage = computed(() => this.canEdit() || this.canDelete());
 
   readonly groups = this.store.selectSignal(WorkGroupsStoreSelectors.getItems);
   readonly loading = this.store.selectSignal(WorkGroupsStoreSelectors.isLoading);
@@ -107,7 +118,7 @@ export class GroupsTabComponent implements OnInit, OnDestroy {
     if (!selected) return [];
 
     const actions: MenuItem[] = [];
-    if (selected.kind === 'group') {
+    if (this.canEdit() && selected.kind === 'group') {
       actions.push({
         label: 'Add milestone',
         icon: 'pi pi-plus',
@@ -117,21 +128,24 @@ export class GroupsTabComponent implements OnInit, OnDestroy {
       actions.push({ separator: true });
     }
 
-    actions.push(
-      {
+    if (this.canEdit()) {
+      actions.push({
         label: 'Edit',
         icon: 'pi pi-pencil',
         disabled: this.saving(),
         command: () => this.openEditDialog(selected),
-      },
-      {
+      });
+    }
+
+    if (this.canDelete()) {
+      actions.push({
         label: 'Delete',
         icon: 'pi pi-trash',
         styleClass: 'work-groups-menu-danger',
         disabled: this.saving(),
         command: () => this.requestDelete(selected),
-      },
-    );
+      });
+    }
 
     return actions;
   });
@@ -174,6 +188,10 @@ export class GroupsTabComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.projectAccess.getPermissions(this.projectId())
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((permissions) => this.projectPermissions.set(permissions));
+
     const restoredExpansionState = this.expansionState.get(this.projectId());
     if (restoredExpansionState) {
       this.expandedGroupIds.set(restoredExpansionState);
@@ -216,7 +234,7 @@ export class GroupsTabComponent implements OnInit, OnDestroy {
   }
 
   openAddMenu(event: Event, menu: Menu): void {
-    if (!this.canManage() || this.saving()) return;
+    if (!this.canEdit() || this.saving()) return;
 
     const trigger = event.currentTarget as HTMLElement | null;
     if (trigger) {
@@ -240,7 +258,7 @@ export class GroupsTabComponent implements OnInit, OnDestroy {
     parentWorkGroupId: string | null = null,
     parentLocked = false,
   ): void {
-    if (!this.canManage() || this.saving()) return;
+    if (!this.canEdit() || this.saving()) return;
     if (kind === 'milestone' && this.groups().length === 0) return;
 
     this.dialogMode.set('create');

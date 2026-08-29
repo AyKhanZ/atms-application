@@ -26,7 +26,7 @@
           <span>{{ allGroupsExpanded() ? 'Collapse all' : 'Expand all' }}</span>
         </button>
       }
-      @if (canManage()) {
+      <ng-container *hasProjectAccess="ProjectPermissions.Group.Edit; projectId: projectId()">
         <button
           pButton
           type="button"
@@ -38,7 +38,7 @@
           <i class="pi pi-plus"></i>
           <span>Add</span>
         </button>
-      }
+      </ng-container>
     </div>
   </header>
 

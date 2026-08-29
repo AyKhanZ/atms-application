@@ -15,9 +15,9 @@
         [count]="activeFilterCount()"
         (clicked)="toggleFilters()"
       />
-      @if (canRegisterUser()) {
+      <ng-container *hasPermission="Permissions.User.Edit">
         <app-create-button label="Register user" (clicked)="openRegisterUser()" />
-      }
+      </ng-container>
     </div>
   </div>
 

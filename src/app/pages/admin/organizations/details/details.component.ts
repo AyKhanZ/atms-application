@@ -9,11 +9,11 @@ import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DialogModule } from 'primeng/dialog';
 import { TagModule } from 'primeng/tag';
+import { HasPermissionDirective } from '../../../../core/directives/has-permission.directive';
 import { Permissions } from '../../../../core/enums/permissions.enum';
 import { ImageUrlService } from '../../../../core/services/image-url.service';
 import { OrganizationModel, OrganizationUserModel } from '../../../../core/models/organizations/organizations.models';
 import { OrganizationsStoreActions, OrganizationsStoreSelectors } from '../../../../store/organizations';
-import { UserStoreSelectors } from '../../../../store/user';
 import { BackButtonComponent } from '../../../../shared/components/back-button/back-button.component';
 import { ProfileAvatarComponent } from '../../../../shared/components/profile-avatar/profile-avatar.component';
 import { OrganizationCreateDialogComponent } from '../components/organization-create-dialog/organization-create-dialog.component';
@@ -26,6 +26,7 @@ import { OrganizationCreateDialogComponent } from '../components/organization-cr
     ConfirmDialogModule,
     DatePipe,
     DialogModule,
+    HasPermissionDirective,
     OrganizationCreateDialogComponent,
     ProfileAvatarComponent,
     TagModule,
@@ -47,11 +48,9 @@ export class DetailsComponent implements OnInit, OnDestroy {
   readonly organization = this.store.selectSignal(OrganizationsStoreSelectors.getItem);
   readonly loading = this.store.selectSignal(OrganizationsStoreSelectors.isLoading);
   readonly isSubmitted = this.store.selectSignal(OrganizationsStoreSelectors.isSubmitted);
-  readonly permissions = this.store.selectSignal(UserStoreSelectors.getPermissions);
   readonly editDialogVisible = signal(false);
   readonly logoPreviewVisible = signal(false);
-  readonly canEdit = computed(() => this.permissions().includes(Permissions.Organization.Edit));
-  readonly canDelete = computed(() => this.permissions().includes(Permissions.Organization.Delete));
+  readonly Permissions = Permissions;
   readonly employees = computed(() => this.organization()?.users ?? []);
   readonly logoUrl = computed(() => this.imageUrlService.normalize(this.organization()?.logoPath));
   readonly createdAt = computed(() => {
@@ -96,16 +95,12 @@ export class DetailsComponent implements OnInit, OnDestroy {
   }
 
   openEdit(): void {
-    if (!this.canEdit()) {
-      return;
-    }
-
     this.editDialogVisible.set(true);
   }
 
   confirmDelete(): void {
     const organization = this.organization();
-    if (!organization || !this.canDelete()) {
+    if (!organization) {
       return;
     }
 

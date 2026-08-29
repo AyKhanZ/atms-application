@@ -14,6 +14,7 @@ import { debounceTime, distinctUntilChanged, forkJoin, Subject } from 'rxjs';
 import { ConfirmationService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { TableLazyLoadEvent, TableModule } from 'primeng/table';
+import { HasRoleDirective } from '../../../core/directives/has-role.directive';
 import { DictionaryModel } from '../../../core/models/dictionary.model';
 import {
   createDefaultWorkProjectListFilter,
@@ -23,6 +24,7 @@ import {
 import { Roles } from '../../../core/enums/roles.enum';
 import { DictionaryService } from '../../../core/services/dictionary.service';
 import { TableLazyLoadService } from '../../../core/services/table-lazy-load.service';
+import { VisiblePageRefreshService } from '../../../core/services/visible-page-refresh.service';
 import { CreateButtonComponent } from '../../../shared/components/create-button/create-button.component';
 import { DeleteActionButtonComponent } from '../../../shared/components/delete-action-button/delete-action-button.component';
 import { EditActionButtonComponent } from '../../../shared/components/edit-action-button/edit-action-button.component';
@@ -44,6 +46,7 @@ import { ProjectListQueryService } from './services/list-query.service';
     DeleteActionButtonComponent,
     EditActionButtonComponent,
     FilterToggleButtonComponent,
+    HasRoleDirective,
     ListSearchComponent,
     ProjectFilterComponent,
     ProjectStatusBadgeComponent,
@@ -61,6 +64,7 @@ export class ProjectListComponent implements OnDestroy {
   private readonly query = inject(ProjectListQueryService);
   private readonly tableLazyLoad = inject(TableLazyLoadService);
   private readonly dictionaryService = inject(DictionaryService);
+  private readonly visiblePageRefresh = inject(VisiblePageRefreshService);
   private readonly searchChanges = new Subject<string>();
   private readonly roles = this.store.selectSignal(UserStoreSelectors.getRoles);
 
@@ -75,7 +79,8 @@ export class ProjectListComponent implements OnDestroy {
   readonly types = signal<DictionaryModel[]>([]);
   readonly kinds = signal<DictionaryModel[]>([]);
   readonly statuses = signal<DictionaryModel[]>([]);
-  readonly canManage = computed(() => this.roles().some((role) => role.code === Roles.SuperAdmin));
+  readonly Roles = Roles;
+  readonly showActions = computed(() => this.roles().some((role) => role.code === Roles.SuperAdmin));
   readonly first = computed(() => (this.filter().page - 1) * this.filter().pageSize);
   readonly activeFilterCount = computed(() => this.query.activeFilterCount(this.filter()));
 
@@ -107,6 +112,10 @@ export class ProjectListComponent implements OnDestroy {
         this.kinds.set(kinds);
         this.statuses.set(statuses);
       });
+
+    this.visiblePageRefresh.every()
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => this.reload());
   }
 
   ngOnDestroy(): void {
@@ -172,6 +181,10 @@ export class ProjectListComponent implements OnDestroy {
     if (key === this.lastLoadKey) return;
     this.lastLoadKey = key;
     this.store.dispatch(WorkProjectsStoreActions.loadProjects({ filter }));
+  }
+  private reload(): void {
+    this.lastLoadKey = '';
+    this.load(this.filter());
   }
   private writeUrl(filter: WorkProjectListFilter): void {
     void this.router.navigate([], {

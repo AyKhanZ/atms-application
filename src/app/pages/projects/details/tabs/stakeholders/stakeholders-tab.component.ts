@@ -15,6 +15,9 @@ import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { Menu, MenuModule } from 'primeng/menu';
 import { forkJoin, of } from 'rxjs';
+import { HasProjectAccessDirective } from '../../../../../core/directives/has-project-access.directive';
+import { Permissions } from '../../../../../core/enums/permissions.enum';
+import { ProjectPermissions } from '../../../../../core/enums/project-permissions.enum';
 import {
   OrganizationModel,
   OrganizationUserModel,
@@ -41,6 +44,7 @@ import { ParticipantCandidate, ParticipantSide } from './participant-candidate.m
   imports: [
     ButtonModule,
     ConfirmDialogModule,
+    HasProjectAccessDirective,
     MenuModule,
     RouterLink,
     ProfileAvatarComponent,
@@ -62,8 +66,9 @@ export class StakeholdersTabComponent {
   private readonly router = inject(Router);
 
   readonly project = input.required<WorkProjectModel>();
-  readonly canManage = input(false);
   readonly isSaving = input(false);
+  readonly Permissions = Permissions;
+  readonly ProjectPermissions = ProjectPermissions;
   readonly projectReturnUrl = this.router.url;
 
   readonly roles = signal<WorkProjectRoleModel[]>([]);
@@ -132,7 +137,7 @@ export class StakeholdersTabComponent {
   }
 
   openAddDialog(): void {
-    if (!this.canManage() || this.participantsCount() >= 20) return;
+    if (this.participantsCount() >= 20) return;
 
     this.loadDialogData(() => this.addDialogVisible.set(true));
   }
@@ -143,8 +148,6 @@ export class StakeholdersTabComponent {
   }
 
   openRoleDialog(participant: WorkProjectParticipantModel): void {
-    if (!this.canManage()) return;
-
     this.loadDialogData(() => {
       this.selectedParticipant.set(participant);
       this.roleDialogVisible.set(true);

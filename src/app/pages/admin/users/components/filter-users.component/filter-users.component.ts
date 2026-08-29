@@ -63,6 +63,15 @@ export class UsersFilterComponent {
 
   constructor() {
     effect(() => {
+      const statusControl = this.form.controls.userStatusId;
+      if (this.statusesLoading()) {
+        statusControl.disable({ emitEvent: false });
+      } else {
+        statusControl.enable({ emitEvent: false });
+      }
+    });
+
+    effect(() => {
       const filter = this.filter();
       const filterKey = filterSyncKey(filter);
       if (filterKey === this.syncedFilterKey) {

@@ -9,25 +9,29 @@
 
     <div class="details-actions">
       <app-back-button (back)="back()" />
-      @if (canEdit() && organization()) {
-        <button pButton type="button" severity="secondary" outlined="true" (click)="openEdit()">
-          <i class="pi pi-pencil"></i>
-          <span>Edit</span>
-        </button>
-      }
-      @if (canDelete() && organization()) {
-        <button
-          pButton
-          type="button"
-          severity="danger"
-          outlined="true"
-          [loading]="isSubmitted()"
-          (click)="confirmDelete()"
-        >
-          <i class="pi pi-trash"></i>
-          <span>Delete</span>
-        </button>
-      }
+      <ng-container *hasPermission="Permissions.Organization.Edit">
+        @if (organization()) {
+          <button pButton type="button" severity="secondary" outlined="true" (click)="openEdit()">
+            <i class="pi pi-pencil"></i>
+            <span>Edit</span>
+          </button>
+        }
+      </ng-container>
+      <ng-container *hasPermission="Permissions.Organization.Delete">
+        @if (organization()) {
+          <button
+            pButton
+            type="button"
+            severity="danger"
+            outlined="true"
+            [loading]="isSubmitted()"
+            (click)="confirmDelete()"
+          >
+            <i class="pi pi-trash"></i>
+            <span>Delete</span>
+          </button>
+        }
+      </ng-container>
     </div>
   </div>
 

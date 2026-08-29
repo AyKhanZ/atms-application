@@ -17,9 +17,9 @@
         [count]="activeFilterCount()"
         (clicked)="toggleFilters()"
       />
-      @if (canEdit()) {
+      <ng-container *hasPermission="Permissions.Organization.Edit">
         <app-create-button label="Create" (clicked)="openCreateOrganization()" />
-      }
+      </ng-container>
     </div>
   </div>
 
@@ -94,12 +94,12 @@
           @if (showActions()) {
             <td class="actions-cell" (click)="$event.stopPropagation()">
               <div class="management-table-actions">
-                @if (canEdit()) {
+                <ng-container *hasPermission="Permissions.Organization.Edit">
                   <app-edit-action-button (clicked)="openEditOrganization(organization)" />
-                }
-                @if (canDelete()) {
+                </ng-container>
+                <ng-container *hasPermission="Permissions.Organization.Delete">
                   <app-delete-action-button (clicked)="confirmDeleteOrganization(organization)" />
-                }
+                </ng-container>
               </div>
             </td>
           }

@@ -8,21 +8,31 @@
     </div>
     <div class="details-actions">
       <app-back-button (back)="back()" />
-      @if (canManage() && project()) {
-        <button pButton type="button" severity="secondary" outlined="true" (click)="edit()">
-          <i class="pi pi-pencil"></i>
-          <span>Edit</span>
-        </button>
-        <button
-          pButton
-          type="button"
-          severity="danger"
-          outlined="true"
-          [loading]="isSaving()"
-          (click)="confirmDelete()">
-          <i class="pi pi-trash"></i><span>Delete</span>
-        </button>
-      }
+      <ng-container
+        *hasProjectAccess="ProjectPermissions.Project.Edit; system: Permissions.Project.Edit"
+      >
+        @if (project()) {
+          <button pButton type="button" severity="secondary" outlined="true" (click)="edit()">
+            <i class="pi pi-pencil"></i>
+            <span>Edit</span>
+          </button>
+        }
+      </ng-container>
+      <ng-container
+        *hasProjectAccess="ProjectPermissions.Project.Delete; system: Permissions.Project.Delete"
+      >
+        @if (project()) {
+          <button
+            pButton
+            type="button"
+            severity="danger"
+            outlined="true"
+            [loading]="isSaving()"
+            (click)="confirmDelete()">
+            <i class="pi pi-trash"></i><span>Delete</span>
+          </button>
+        }
+      </ng-container>
     </div>
   </div>
 
@@ -59,13 +69,15 @@
           <i class="pi pi-users"></i>
           <span>Stakeholders</span>
         </button>
-        <button
-          type="button"
-          [class.active]="activeTab() === 'groups'"
-          (click)="selectTab('groups')">
-          <i class="pi pi-list-check"></i>
-          <span>Plan</span>
-        </button>
+        <ng-container *hasProjectAccess="ProjectPermissions.Group.View">
+          <button
+            type="button"
+            [class.active]="activeTab() === 'groups'"
+            (click)="selectTab('groups')">
+            <i class="pi pi-list-check"></i>
+            <span>Plan</span>
+          </button>
+        </ng-container>
         <button
           type="button"
           [class.active]="activeTab() === 'attachments'"
@@ -132,9 +144,11 @@
           </aside>
         </div>
       } @else if (activeTab() === 'stakeholders') {
-        <app-stakeholders-tab [project]="item" [canManage]="canManage()" [isSaving]="isSaving()" />
+        <app-stakeholders-tab [project]="item" [isSaving]="isSaving()" />
       } @else if (activeTab() === 'groups') {
-        <app-groups-tab [projectId]="item.id" [canManage]="canManage()" />
+        <ng-container *hasProjectAccess="ProjectPermissions.Group.View; projectId: item.id">
+          <app-groups-tab [projectId]="item.id" />
+        </ng-container>
       } @else if (activeTab() === 'attachments') {
         <section class="project-tab-empty-state">
           <div class="project-tab-empty-state__icon">

@@ -1,7 +1,9 @@
 import { DatePipe } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   OnDestroy,
   computed,
   inject,
@@ -14,9 +16,11 @@ import { Store } from '@ngrx/store';
 import { ConfirmationService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { Roles } from '../../../core/enums/roles.enum';
+import { HasProjectAccessDirective } from '../../../core/directives/has-project-access.directive';
+import { Permissions } from '../../../core/enums/permissions.enum';
+import { ProjectPermissions } from '../../../core/enums/project-permissions.enum';
+import { ProjectPermissionsRefreshService } from '../../../core/services/project-permissions-refresh.service';
 import { BackButtonComponent } from '../../../shared/components/back-button/back-button.component';
-import { UserStoreSelectors } from '../../../store/user';
 import { WorkProjectsStoreActions, WorkProjectsStoreSelectors } from '../../../store/work-projects';
 import { ProjectStatusBadgeComponent } from '../components/status-badge/project-status-badge.component';
 import { GroupsTabComponent } from './tabs/groups/groups-tab.component';
@@ -31,6 +35,7 @@ type ProjectTab = 'details' | 'stakeholders' | 'groups' | 'attachments' | 'histo
     DatePipe,
     ButtonModule,
     ConfirmDialogModule,
+    HasProjectAccessDirective,
     BackButtonComponent,
     ProjectStatusBadgeComponent,
     GroupsTabComponent,
@@ -46,13 +51,16 @@ export class ProjectDetailsComponent implements OnDestroy {
   private readonly router = inject(Router);
   private readonly store = inject(Store);
   private readonly actions$ = inject(Actions);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly confirmation = inject(ConfirmationService);
-  private readonly roles = this.store.selectSignal(UserStoreSelectors.getRoles);
+  private readonly projectPermissionsRefresh = inject(ProjectPermissionsRefreshService);
 
   readonly project = this.store.selectSignal(WorkProjectsStoreSelectors.getItem);
   readonly loading = this.store.selectSignal(WorkProjectsStoreSelectors.isLoading);
   readonly isSaving = this.store.selectSignal(WorkProjectsStoreSelectors.isSubmitted);
-  readonly canManage = computed(() => this.roles().some((role) => role.code === Roles.SuperAdmin));
+  readonly projectPermissions = signal<string[]>([]);
+  readonly Permissions = Permissions;
+  readonly ProjectPermissions = ProjectPermissions;
   readonly activeTab = signal<ProjectTab>('details');
   readonly id = this.route.snapshot.paramMap.get('id')!;
 
@@ -60,7 +68,28 @@ export class ProjectDetailsComponent implements OnDestroy {
     this.route.queryParamMap.pipe(takeUntilDestroyed()).subscribe((params) => {
       this.activeTab.set(parseProjectTab(params.get('tab')));
     });
-    this.store.dispatch(WorkProjectsStoreActions.loadProject({ id: this.id }));
+    this.projectPermissionsRefresh.watch(this.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (permissions) => {
+          if (!permissions.includes(ProjectPermissions.Project.View)) {
+            void this.router.navigate(['/errors/403']);
+            return;
+          }
+
+          this.projectPermissions.set(permissions);
+          if (this.activeTab() === 'groups' && !permissions.includes(ProjectPermissions.Group.View)) {
+            this.selectTab('details');
+          }
+
+          this.store.dispatch(WorkProjectsStoreActions.loadProject({ id: this.id }));
+        },
+        error: (error: unknown) => {
+          if (error instanceof HttpErrorResponse && (error.status === 403 || error.status === 404)) {
+            void this.router.navigate(['/errors/403']);
+          }
+        },
+      });
     this.actions$
       .pipe(
         ofType(
