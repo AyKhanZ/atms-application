@@ -32,6 +32,22 @@ Treat this repository as a real production application. Follow the existing arch
 
 ---
 
+## Commit messages
+
+Never add trailers or attribution lines to a commit message, a pull request body, or any commit text you draft for a human to use.
+
+Specifically forbidden:
+
+- `Co-Authored-By: Claude ...` or any other `Co-Authored-By` trailer
+- `Generated with ...`, `Co-authored by an AI`, or similar attribution
+- Any footer naming an AI tool, model, or assistant
+
+A commit message ends with its last substantive line. Nothing follows it.
+
+This applies regardless of who wrote the code — including commits an agent authored end to end.
+
+---
+
 # Code layout and vertical readability
 
 - Optimize code for vertical scanning and readable diffs, not for minimizing the number of lines.
