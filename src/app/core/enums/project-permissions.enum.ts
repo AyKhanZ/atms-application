@@ -2,14 +2,21 @@ export const ProjectPermissions = {
   Project: {
     View: 'ProjectView',
     Edit: 'ProjectEdit',
-    Delete: 'ProjectDelete',
   },
-  Group: {
-    View: 'GroupView',
-    Edit: 'GroupEdit',
-    Delete: 'GroupDelete',
+  Ticket: {
+    Create: 'TicketCreate',
+    Edit: 'TicketEdit',
+    Delete: 'TicketDelete',
+  },
+  Participant: {
+    Edit: 'ParticipantEdit',
+    Delete: 'ParticipantDelete',
+    InviteClient: 'ParticipantInviteClient',
+    InviteEmployee: 'ParticipantInviteEmployee',
   },
 } as const;
 
-type ProjectPermissionGroup = (typeof ProjectPermissions)[keyof typeof ProjectPermissions];
-export type ProjectPermission = ProjectPermissionGroup[keyof ProjectPermissionGroup];
+type Values<T> = T[keyof T];
+export type ProjectPermission = Values<{
+  [Group in keyof typeof ProjectPermissions]: Values<(typeof ProjectPermissions)[Group]>;
+}>;

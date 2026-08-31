@@ -1,0 +1,91 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.ticket-location {
+  display: grid;
+  gap: 0.85rem;
+  min-width: 0;
+}
+
+.ticket-location h3 {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.location-tree {
+  display: grid;
+  gap: 0.55rem;
+  padding: 0.75rem;
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+  background: var(--app-surface-muted);
+}
+
+.location-group,
+.location-milestone {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 0.45rem;
+  min-width: 0;
+  color: var(--gray-text-strong);
+  font-size: 0.8rem;
+  line-height: 1.35;
+}
+
+.location-group i {
+  margin-top: 0.1rem;
+  color: var(--gray-icon);
+}
+
+.location-milestone {
+  color: var(--app-text);
+}
+
+.location-milestone i {
+  margin-top: 0.1rem;
+  color: var(--orange-text-hover);
+}
+
+.location-group span,
+.location-milestone strong {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.location-branch {
+  display: grid;
+  min-width: 0;
+  gap: 0.65rem;
+  margin-left: 0.45rem;
+  padding-left: 0.75rem;
+  border-left: 1px solid var(--orange-border);
+}
+
+.location-ticket-switcher {
+  min-width: 0;
+  margin-left: 0.4rem;
+}
+
+.view-in-plan-button {
+  width: 100%;
+  justify-content: center;
+}
+
+/* The container is `.page` on the host page, so these still resolve from inside the component. */
+@container (max-width: 34rem) {
+  .location-tree {
+    padding: 0.55rem;
+  }
+
+  .location-branch {
+    margin-left: 0;
+    padding-left: 0.35rem;
+  }
+
+  .location-ticket-switcher {
+    margin-left: 0;
+  }
+}

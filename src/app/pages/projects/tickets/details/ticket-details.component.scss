@@ -1,0 +1,215 @@
+:host {
+  display: block;
+}
+
+.ticket-page-header,
+.ticket-page-heading {
+  min-width: 0;
+}
+
+.ticket-page-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+}
+
+.ticket-page-heading {
+  max-width: 100%;
+}
+
+.ticket-page-heading .page-subtitle {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.page-actions {
+  display: flex;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.65rem;
+}
+
+.page-actions > button,
+:host ::ng-deep .page-actions app-back-button button {
+  min-width: 7.75rem;
+}
+
+.ticket-panel {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.ticket-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--app-border);
+  background: var(--white);
+}
+
+.ticket-identity {
+  min-width: 0;
+}
+
+.ticket-code {
+  color: var(--orange-text-hover);
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.ticket-identity h2 {
+  min-width: 0;
+  margin: 0.35rem 0 0;
+  overflow-wrap: anywhere;
+  color: var(--app-text);
+  font-size: clamp(1.55rem, 2.5cqi, 2rem);
+  line-height: 1.18;
+  text-wrap: pretty;
+}
+
+.ticket-state-area {
+  display: grid;
+  max-width: 24rem;
+  justify-items: end;
+  gap: 0.55rem;
+  text-align: right;
+}
+
+.updated-meta {
+  margin: 0;
+  color: var(--app-muted);
+  font-size: 0.75rem;
+  line-height: 1.35;
+}
+
+.ticket-details-content {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(27rem, 35cqi, 32rem);
+  min-height: clamp(26rem, 54vh, 38rem);
+  background: var(--white);
+}
+
+.description-card,
+.ticket-information {
+  min-width: 0;
+  padding: 1.5rem;
+}
+
+.description-card h3 {
+  margin: 0;
+  color: var(--app-text);
+  font-size: 1rem;
+}
+
+.description {
+  margin: 1rem 0 0;
+  overflow-wrap: anywhere;
+  color: var(--gray-text-strong);
+  line-height: 1.68;
+  text-wrap: pretty;
+  white-space: pre-wrap;
+}
+
+.inline-empty {
+  margin: 1rem 0 0;
+  color: var(--app-muted);
+}
+
+.ticket-information {
+  display: grid;
+  align-content: start;
+  gap: 1.5rem;
+  border-left: 1px solid var(--app-border);
+}
+
+
+.ticket-state {
+  display: grid;
+  min-height: 16rem;
+  place-items: center;
+  align-content: center;
+  gap: 0.75rem;
+  padding: 1.5rem;
+  color: var(--app-muted);
+  text-align: center;
+}
+
+.ticket-state strong {
+  color: var(--app-text);
+}
+
+.ticket-panel > .project-tab-empty-state--compact {
+  min-height: clamp(24rem, 50vh, 34rem);
+}
+
+@container (max-width: 50rem) {
+  .ticket-details-content {
+    grid-template-columns: minmax(0, 1fr);
+    min-height: 0;
+  }
+
+  .ticket-information {
+    order: -1;
+    border-top: 0;
+    border-bottom: 1px solid var(--app-border);
+    border-left: 0;
+  }
+
+  app-ticket-location {
+    order: -1;
+  }
+}
+
+@container (max-width: 42rem) {
+  .ticket-hero,
+  .description-card,
+  .ticket-information {
+    padding: 1rem;
+  }
+}
+
+@container (max-width: 36rem) {
+  .ticket-page-header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: stretch;
+  }
+
+  .ticket-page-heading {
+    max-width: 100%;
+  }
+
+  .page-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    width: 100%;
+  }
+
+  .page-actions button,
+  .page-actions app-back-button {
+    width: 100%;
+  }
+
+  :host ::ng-deep .page-actions app-back-button button {
+    width: 100%;
+  }
+}
+
+@container (max-width: 34rem) {
+  .ticket-hero {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1rem;
+  }
+
+  .ticket-state-area {
+    max-width: 100%;
+    justify-items: start;
+    text-align: left;
+  }
+
+}

@@ -26,7 +26,7 @@
           <span>{{ allGroupsExpanded() ? 'Collapse all' : 'Expand all' }}</span>
         </button>
       }
-      <ng-container *hasProjectAccess="ProjectPermissions.Group.Edit; projectId: projectId()">
+      @if (canAdd()) {
         <button
           pButton
           type="button"
@@ -38,7 +38,7 @@
           <i class="pi pi-plus"></i>
           <span>Add</span>
         </button>
-      </ng-container>
+      }
     </div>
   </header>
 
@@ -101,10 +101,11 @@
               </i>
               <i class="pi pi-folder structure-icon"> </i>
               <strong>{{ group.title }}</strong>
-              <span class="item-meta">
-                <app-work-group-status-badge [status]="group.status" />
-              </span>
             </button>
+
+            <span class="group-status">
+              <app-work-group-status-badge [status]="group.status" />
+            </span>
 
             @if (group.milestones.length > 0) {
               <span
@@ -128,7 +129,13 @@
                 <span>{{ completedMilestones }}/{{ group.milestones.length }}</span>
               </span>
             } @else {
-              <span class="item-count">No milestones</span>
+              <span
+                class="item-count"
+                aria-label="No milestones"
+                pTooltip="No milestones"
+                tooltipPosition="top"
+                >None</span
+              >
             }
 
             @if (canManage()) {
@@ -148,7 +155,10 @@
             <section class="milestone-list" [id]="'milestones-' + group.id">
               @if (group.milestones.length) {
                 @for (milestone of group.milestones; track milestone.id) {
-                  <div class="milestone-row">
+                  <div
+                    class="milestone-row"
+                    [class.milestone-row--focused]="focusedMilestoneId() === milestone.id"
+                  >
                     <div class="milestone-identity">
                       <i class="pi pi-flag structure-icon"></i>
                       <strong>{{ milestone.title }}</strong>
@@ -163,7 +173,7 @@
                       </span>
                     </div>
 
-                    @if (canManage()) {
+                    @if (canManage() || canCreateTickets()) {
                       <button
                         type="button"
                         class="item-menu-button"
@@ -175,6 +185,15 @@
                       </button>
                     }
                   </div>
+
+                  <app-milestone-ticket-list
+                    [milestoneTitle]="milestone.title"
+                    [page]="ticketPageFor(milestone.id)"
+                    [canEditTickets]="canEditTickets()"
+                    (viewTicket)="viewTicket($event)"
+                    (editTicket)="editTicket($event)"
+                    (loadMore)="loadTicketsFor(milestone.id)"
+                  />
                 }
               } @else {
                 <div class="milestones-empty">No milestones in this group yet</div>

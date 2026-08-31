@@ -1,0 +1,36 @@
+@use 'chip';
+
+:host {
+  display: inline-flex;
+}
+
+.ticket-priority {
+  @include chip.base;
+
+  background: var(--app-surface-muted);
+  color: var(--app-muted);
+}
+
+.ticket-priority[data-tone='low'] {
+  border-color: var(--app-border);
+  background: var(--app-surface-muted);
+  color: var(--app-muted);
+}
+
+.ticket-priority[data-tone='medium'] {
+  border-color: rgb(37 99 235 / 10%);
+  background: #e4f1fb;
+  color: #075f9f;
+}
+
+.ticket-priority[data-tone='high'] {
+  border-color: var(--orange-border);
+  background: var(--orange-light);
+  color: var(--orange-text-hover);
+}
+
+.ticket-priority[data-tone='critical'] {
+  border-color: rgb(185 28 28 / 12%);
+  background: #fde8e8;
+  color: #a83232;
+}

@@ -1,0 +1,99 @@
+<p-confirmDialog key="ticketDelete" styleClass="ticket-delete-dialog" />
+
+<section class="page ticket-details-page">
+  <div class="page-header ticket-page-header">
+    <div class="ticket-page-heading">
+      <h1 class="page-title">Ticket details</h1>
+      <p class="page-subtitle" [title]="ticket()?.title || ''">
+        {{ ticket()?.title || 'Ticket workspace' }}
+      </p>
+    </div>
+    <div class="page-actions">
+      <app-back-button (back)="back()" />
+      @if (canEdit()) {
+        <button pButton type="button" severity="secondary" outlined="true" (click)="edit()">
+          <i class="pi pi-pencil"></i>
+          <span>Edit</span>
+        </button>
+      }
+      @if (canDelete()) {
+        <button
+          pButton
+          type="button"
+          severity="danger"
+          outlined="true"
+          [loading]="deleting()"
+          (click)="confirmDelete()"
+        >
+          <i class="pi pi-trash"></i>
+          <span>Delete</span>
+        </button>
+      }
+    </div>
+  </div>
+
+  @if (loading()) {
+    <section class="panel ticket-state" role="status">
+      <i class="pi pi-spin pi-spinner"></i>
+      <span>Loading ticket...</span>
+    </section>
+  } @else if (loadError()) {
+    <section class="panel ticket-state" role="alert">
+      <i class="pi pi-exclamation-circle"></i>
+      <strong>Ticket is unavailable</strong>
+      <span>The ticket may have been removed or you may no longer have access.</span>
+      <button pButton type="button" outlined="true" (click)="back()">Back to plan</button>
+    </section>
+  } @else if (ticket(); as item) {
+    <article class="panel ticket-panel">
+      <header class="ticket-hero">
+        <div class="ticket-identity">
+          <span class="ticket-code">TICKET #{{ item.code }}</span>
+          <h2>{{ item.title }}</h2>
+        </div>
+        <div class="ticket-state-area">
+          @if (item.updatedAt; as updatedAt) {
+            <p class="updated-meta">
+              Updated {{ updatedAt | relativeTime }}
+              @if (item.updatedBy; as author) {
+                · {{ author | personName: '' }}
+              }
+            </p>
+          }
+          <app-ticket-status-badge [status]="item.workTicketStatus" [prominent]="true" />
+        </div>
+      </header>
+
+      <app-entity-tabs
+        [tabs]="tabs"
+        [active]="activeTab()"
+        ariaLabel="Ticket sections"
+        (select)="selectTab($event)"
+      />
+
+      @if (activeTab() === 'details') {
+        <div class="ticket-details-content">
+          <section class="description-card">
+            <h3>Description</h3>
+            @if (item.description) {
+              <p class="description">{{ item.description }}</p>
+            } @else {
+              <p class="inline-empty">No description has been added.</p>
+            }
+          </section>
+
+          <aside class="ticket-information">
+            <app-ticket-facts [ticket]="item" />
+            <app-ticket-location [ticket]="item" (viewInPlan)="viewInPlan()" />
+          </aside>
+        </div>
+      } @else if (activeTab() === 'tasks') {
+        <app-empty-state icon="pi-list-check" title="No tasks yet" [compact]="true" />
+      } @else if (activeTab() === 'attachments') {
+        <app-empty-state icon="pi-paperclip" title="No attachments yet" [compact]="true" />
+      } @else {
+        <app-empty-state icon="pi-history" title="No activity yet" [compact]="true" />
+      }
+    </article>
+  }
+</section>

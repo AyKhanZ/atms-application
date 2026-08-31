@@ -1,19 +1,26 @@
 <div class="breadcrumbs">
-  @for (crumb of breadcrumbs(); track crumb.path; let first = $first; let last = $last) {
+  @for (crumb of breadcrumbs(); track crumb.path; let last = $last) {
     <div class="crumb">
-      <a
-        [routerLink]="crumb.path"
-        class="crumb__link"
-        [class.crumb__link--first]="first"
-        [class.crumb__link--last]="last"
-        [pTooltip]="crumb.title"
-        [tooltipDisabled]="crumb.title.length < 20"
-      >
-        @if (crumb.icon) {
-          <i class="crumb__icon pi" [ngClass]="crumb.icon"></i>
-        }
-        <span class="crumb__title">{{ crumb.title }}</span>
-      </a>
+      @if (last) {
+        <span class="crumb__link crumb__link--current" aria-current="page">
+          @if (crumb.icon) {
+            <i class="crumb__icon pi" [ngClass]="crumb.icon"></i>
+          }
+          <span class="crumb__title">{{ crumb.title }}</span>
+        </span>
+      } @else {
+        <a
+          [routerLink]="crumb.path"
+          class="crumb__link"
+          [pTooltip]="crumb.title"
+          [tooltipDisabled]="crumb.title.length < 20"
+        >
+          @if (crumb.icon) {
+            <i class="crumb__icon pi" [ngClass]="crumb.icon"></i>
+          }
+          <span class="crumb__title">{{ crumb.title }}</span>
+        </a>
+      }
 
       @if (!last) {
         <i class="crumb__separator pi pi-chevron-right"></i>

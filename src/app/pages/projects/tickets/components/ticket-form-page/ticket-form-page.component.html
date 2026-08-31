@@ -1,0 +1,239 @@
+<section class="page project-form-page ticket-form-page">
+  <p-confirmDialog />
+
+  <div class="page-header create-header">
+    <div>
+      <h1 class="page-title">{{ pageTitle() }}</h1>
+    </div>
+
+    <div class="create-actions">
+      <app-back-button (back)="cancel()" />
+      <button
+        pButton
+        type="button"
+        class="cancel-button"
+        severity="secondary"
+        outlined="true"
+        [disabled]="saving()"
+        (click)="cancel()"
+      >
+        <i class="pi pi-times"></i>
+        <span>Cancel</span>
+      </button>
+      <button pButton type="submit" form="ticketForm" [loading]="saving()" [disabled]="loading()">
+        <i class="pi pi-check"></i>
+        <span>{{ submitLabel() }}</span>
+      </button>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <section class="panel ticket-form-state" role="status">
+      <i class="pi pi-spin pi-spinner"></i>
+      <span>Loading ticket form...</span>
+    </section>
+  } @else if (loadError()) {
+    <section class="panel ticket-form-state ticket-form-state--error" role="alert">
+      <i class="pi pi-exclamation-circle"></i>
+      <strong>Ticket form is unavailable</strong>
+      <span>{{ loadError() }}</span>
+      <button pButton type="button" outlined="true" (click)="cancel()">Back to plan</button>
+    </section>
+  } @else {
+    <section class="panel project-form-panel">
+      <form id="ticketForm" class="create-form" [formGroup]="form" (ngSubmit)="submit()">
+        <label class="field full-field title-field">
+          <span>Name <b>*</b></span>
+          <input pInputText formControlName="title" maxlength="100" placeholder="Enter ticket name" />
+          <div class="field-meta">
+            <small [class.visible]="error('title')">{{ error('title') || ' ' }}</small>
+            <em>{{ form.controls.title.value?.length || 0 }}/100</em>
+          </div>
+        </label>
+
+        <label class="field full-field description-field">
+          <span>Description</span>
+          <textarea
+            pTextarea
+            formControlName="description"
+            maxlength="2000"
+            placeholder="Describe the expected result, context and acceptance notes"
+          ></textarea>
+          <div class="field-meta">
+            <small></small>
+            <em>{{ form.controls.description.value?.length || 0 }}/2000</em>
+          </div>
+        </label>
+
+        <div class="classification-grid" [class.classification-grid--edit]="isEdit()">
+          <div class="field milestone-field">
+            <label for="ticketMilestone">Milestone <b>*</b></label>
+            <p-select
+              inputId="ticketMilestone"
+              formControlName="milestoneId"
+              [options]="milestoneGroups()"
+              [group]="true"
+              optionGroupLabel="label"
+              optionGroupChildren="items"
+              optionLabel="title"
+              optionValue="id"
+              placeholder="Select milestone"
+              [filter]="true"
+              filterBy="label,title,groupTitle"
+              [loading]="milestonesLoading()"
+              appendTo="body"
+              (onFilter)="searchMilestones($any($event).filter ?? '')"
+            >
+              <ng-template pTemplate="group" let-group>
+                <div class="milestone-group">
+                  <i class="pi pi-folder" aria-hidden="true"></i>
+                  <strong>{{ group.label }}</strong>
+                </div>
+              </ng-template>
+              <ng-template pTemplate="selectedItem" let-milestone>
+                <span class="milestone-selection">
+                  <i class="pi pi-folder" aria-hidden="true"></i>
+                  <span>{{ milestone.groupTitle }}</span>
+                  <i class="pi pi-angle-right" aria-hidden="true"></i>
+                  <i class="pi pi-flag" aria-hidden="true"></i>
+                  <strong>{{ milestone.title }}</strong>
+                </span>
+              </ng-template>
+              <ng-template pTemplate="item" let-milestone>
+                <span class="milestone-option">
+                  <i class="pi pi-flag" aria-hidden="true"></i>
+                  <span>{{ milestone.title }}</span>
+                </span>
+              </ng-template>
+              <ng-template #footer>
+                @if (milestonesHaveMore()) {
+                  <button
+                    pButton
+                    type="button"
+                    [text]="true"
+                    class="milestones-load-more"
+                    [loading]="milestonesLoading()"
+                    (click)="loadMoreMilestones($event)"
+                  >
+                    Load more
+                  </button>
+                }
+              </ng-template>
+            </p-select>
+            <small [class.visible]="error('milestoneId')">{{ error('milestoneId') || ' ' }}</small>
+          </div>
+
+          <div class="field">
+            <label for="ticketType">Type <b>*</b></label>
+            <p-select
+              inputId="ticketType"
+              formControlName="workTicketTypeId"
+              [options]="ticketTypes()"
+              optionLabel="name"
+              optionValue="id"
+              placeholder="Select type"
+              appendTo="body"
+            />
+            <small [class.visible]="error('workTicketTypeId')">{{ error('workTicketTypeId') || ' ' }}</small>
+          </div>
+
+          <div class="field">
+            <label for="ticketPriority">Priority <b>*</b></label>
+            <p-select
+              inputId="ticketPriority"
+              formControlName="priorityId"
+              [options]="priorities()"
+              optionLabel="name"
+              optionValue="id"
+              placeholder="Select priority"
+              appendTo="body"
+            />
+            <small [class.visible]="error('priorityId')">{{ error('priorityId') || ' ' }}</small>
+          </div>
+
+          @if (isEdit()) {
+            <div class="field">
+              <label for="ticketStatus">Status <b>*</b></label>
+              <p-select
+                inputId="ticketStatus"
+                formControlName="workTicketStatusId"
+                [options]="ticketStatuses()"
+                optionLabel="name"
+                optionValue="id"
+                placeholder="Select status"
+                appendTo="body"
+              />
+              <small [class.visible]="error('workTicketStatusId')">
+                {{ error('workTicketStatusId') || ' ' }}
+              </small>
+            </div>
+          }
+        </div>
+
+        <div class="ticket-ownership-grid">
+          <div class="field">
+            <label for="ticketAssignee">Assignee</label>
+            <p-select
+              class="ticket-assignee-select"
+              inputId="ticketAssignee"
+              formControlName="assigneeId"
+              [options]="project()?.participants ?? []"
+              optionValue="id"
+              placeholder="Unassigned"
+              [filter]="true"
+              filterBy="name,surname,email"
+              [showClear]="true"
+              panelStyleClass="ticket-assignee-select-panel"
+              appendTo="body"
+            >
+              <ng-template #selectedItem let-participant>
+                <span class="assignee-selection">
+                  <app-profile-avatar
+                    [imageUrl]="participant.avatarPath"
+                    [fullName]="participantName(participant)"
+                    [initials]="participantInitials(participant)"
+                    [previewEnabled]="false"
+                  />
+                  <span>{{ participantName(participant) }}</span>
+                </span>
+              </ng-template>
+              <ng-template #item let-participant>
+                <div class="assignee-option">
+                  <app-profile-avatar
+                    [imageUrl]="participant.avatarPath"
+                    [fullName]="participantName(participant)"
+                    [initials]="participantInitials(participant)"
+                    [previewEnabled]="false"
+                  />
+                  <span>
+                    <strong>{{ participantName(participant) }}</strong>
+                    <small>{{ participant.email }}</small>
+                  </span>
+                </div>
+              </ng-template>
+            </p-select>
+            <small></small>
+          </div>
+
+          <div class="field">
+            <label for="ticketDeadline">Deadline</label>
+            <p-datepicker
+              inputId="ticketDeadline"
+              formControlName="deadline"
+              dateFormat="dd.mm.yy"
+              placeholder="Select deadline"
+              iconDisplay="input"
+              [showIcon]="true"
+              [readonlyInput]="false"
+              [showClear]="true"
+              appendTo="body"
+              (onInput)="onDateInput($event)"
+              (onBlur)="onDateBlur($event)"
+            />
+            <small></small>
+          </div>
+        </div>
+      </form>
+    </section>
+  }
+</section>

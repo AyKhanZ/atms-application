@@ -15,8 +15,19 @@ interface AuthStub {
 async function runGuard(guard: CanActivateFn, projectId: string | null = 'project-1'): Promise<unknown> {
   const result = TestBed.runInInjectionContext(() =>
     guard(
-      { paramMap: convertToParamMap(projectId ? { id: projectId } : {}) } as never,
+      { paramMap: convertToParamMap(projectId ? { projectId } : {}) } as never,
       { url: projectId ? `/projects/${projectId}` : '/projects' } as never,
+    ),
+  );
+
+  return firstValueFrom(result as Observable<unknown>);
+}
+
+async function runTicketGuard(guard: CanActivateFn, projectId: string): Promise<unknown> {
+  const result = TestBed.runInInjectionContext(() =>
+    guard(
+      { paramMap: convertToParamMap({ projectId, ticketId: 'ticket-1' }) } as never,
+      { url: `/projects/${projectId}/tickets/ticket-1/edit` } as never,
     ),
   );
 
@@ -56,14 +67,19 @@ describe('projectPermissionGuard', () => {
     expect(hasPermission).toHaveBeenCalledWith('project-1', ProjectPermissions.Project.View);
   });
 
+  it('uses the consistent projectId route parameter for ticket routes', async () => {
+    expect(await runTicketGuard(projectPermissionGuard(ProjectPermissions.Ticket.Edit), 'project-2')).toBe(true);
+    expect(hasPermission).toHaveBeenCalledWith('project-2', ProjectPermissions.Ticket.Edit);
+  });
+
   it('denies a user without the required project permission', async () => {
     hasPermission.mockReturnValue(of(false));
 
     expect(await runGuard(projectPermissionGuard(ProjectPermissions.Project.Edit))).toBe('/errors/403');
   });
 
-  it('denies when the route has no project id', async () => {
-    expect(await runGuard(projectPermissionGuard(ProjectPermissions.Project.View), null)).toBe('/errors/403');
+  it('returns not found when a protected route is missing its required projectId parameter', async () => {
+    expect(await runGuard(projectPermissionGuard(ProjectPermissions.Project.View), null)).toBe('/errors/404');
   });
 
   it('redirects to server unavailable for unavailable project permission endpoint', async () => {

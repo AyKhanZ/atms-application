@@ -4,6 +4,7 @@ import {
   DestroyRef,
   HostListener,
   computed,
+  effect,
   inject,
   input,
   OnDestroy,
@@ -41,6 +42,7 @@ import {
   WorkProjectRoleModel,
 } from '../../../../core/models/work-projects';
 import { projectRoleIds } from '../../../../core/constants/project-role-ids.constants';
+import { BreadcrumbOverrideService } from '../../../../core/services/breadcrumb-override.service';
 import { DictionaryService } from '../../../../core/services/dictionary.service';
 import { OrganizationsService } from '../../../../core/services/organizations.service';
 import { WorkProjectsService } from '../../../../core/services/work-projects.service';
@@ -84,6 +86,7 @@ export class ProjectFormPageComponent implements OnDestroy {
   private readonly workProjectsService = inject(WorkProjectsService);
   private readonly confirmation = inject(ConfirmationService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly breadcrumbOverride = inject(BreadcrumbOverrideService);
   private readonly navigationState = history.state as ProjectFormNavigationState;
   private navigationComplete = false;
   private participantIntentHandled = false;
@@ -101,7 +104,7 @@ export class ProjectFormPageComponent implements OnDestroy {
   readonly requiresOrganization = signal(false);
   readonly isSaving = this.store.selectSignal(WorkProjectsStoreSelectors.isSubmitted);
   readonly project = this.store.selectSignal(WorkProjectsStoreSelectors.getItem);
-  readonly id = this.route.snapshot.paramMap.get('id');
+  readonly id = this.route.snapshot.paramMap.get('projectId');
   readonly cancelUrl =
     projectNavigationUrl(this.navigationState.cancelUrl) ??
     (this.id ? `/projects/${this.id}` : '/projects');
@@ -132,6 +135,14 @@ export class ProjectFormPageComponent implements OnDestroy {
 
   constructor() {
     if (this.id) this.store.dispatch(WorkProjectsStoreActions.loadProject({ id: this.id }));
+
+    const breadcrumbPath = this.id ? `/projects/${this.id}` : null;
+    effect(() => {
+      const project = this.project();
+      if (breadcrumbPath && project?.id === this.id) {
+        this.breadcrumbOverride.set(breadcrumbPath, `#${project.code} ${project.title}`);
+      }
+    });
 
     this.form.controls.projectKindId.valueChanges
       .pipe(takeUntilDestroyed())
@@ -190,6 +201,7 @@ export class ProjectFormPageComponent implements OnDestroy {
 
   ngOnDestroy(): void {
     this.store.dispatch(WorkProjectsStoreActions.clearItem());
+    if (this.id) this.breadcrumbOverride.clear(`/projects/${this.id}`);
   }
 
   addParticipant(userId: string | null = null, roleId: string | null = null): void {

@@ -21,8 +21,8 @@ export const projectPermissionGuard = (permission: ProjectPermission): CanActiva
           return of(router.createUrlTree(['/login'], { queryParams: { returnUrl: state.url } }));
         }
 
-        const projectId = route.paramMap.get('id');
-        if (!projectId) return of(router.createUrlTree(['/errors/403']));
+        const projectId = route.paramMap.get('projectId');
+        if (!projectId) return of(router.createUrlTree(['/errors/404']));
 
         return projectAccess.hasPermission(projectId, permission).pipe(
           map((hasPermission) => hasPermission ? true : router.createUrlTree(['/errors/403'])),

@@ -830,6 +830,22 @@ app-onboarding .confetti i:nth-child(5n) {
   color: var(--orange-text-hover);
 }
 
+.ticket-assignee-select-panel app-profile-avatar {
+  --avatar-size: 1.25rem;
+  --avatar-radius: 999px;
+  --avatar-font-size: 0.5rem;
+}
+
+.ticket-assignee-select-panel app-profile-avatar .avatar {
+  border-color: var(--app-border);
+  box-shadow: none;
+}
+
+.ticket-assignee-select-panel app-profile-avatar .avatar-button:not(:disabled):hover .avatar {
+  transform: none;
+  box-shadow: none;
+}
+
 .participant-danger-dialog .p-confirmdialog-icon {
   color: var(--red-hover);
 }

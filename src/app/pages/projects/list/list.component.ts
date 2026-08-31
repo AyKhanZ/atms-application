@@ -113,7 +113,7 @@ export class ProjectListComponent implements OnDestroy {
         this.statuses.set(statuses);
       });
 
-    this.visiblePageRefresh.every()
+    this.visiblePageRefresh.every(5 * 60_000)
       .pipe(takeUntilDestroyed())
       .subscribe(() => this.reload());
   }

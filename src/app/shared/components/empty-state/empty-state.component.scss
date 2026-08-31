@@ -1,0 +1,43 @@
+:host {
+  display: block;
+}
+
+.empty-state {
+  display: grid;
+  min-height: 30rem;
+  place-items: center;
+  align-content: center;
+  gap: 0.85rem;
+  padding: 2rem 1rem;
+  text-align: center;
+}
+
+.empty-state--compact {
+  min-height: 22rem;
+}
+
+.empty-state h3 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.empty-state p {
+  max-width: 32rem;
+  margin: 0;
+  color: var(--app-muted);
+  font-size: 0.88rem;
+}
+
+.empty-state__icon {
+  display: grid;
+  width: 5.5rem;
+  height: 5.5rem;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--orange-light);
+  color: var(--orange);
+}
+
+.empty-state__icon i {
+  font-size: 2.25rem;
+}

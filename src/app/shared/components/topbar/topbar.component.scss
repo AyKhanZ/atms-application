@@ -17,6 +17,21 @@
   gap: 4px;
 }
 
+.left {
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+
+.left app-breadcrumbs {
+  display: block;
+  min-width: 0;
+}
+
+.right {
+  flex: 0 0 auto;
+}
+
 .notification-btn {
   position: relative;
   color: var(--gray-icon);
@@ -27,7 +42,9 @@
   background: transparent;
   cursor: pointer;
 
-  &:hover { color: var(--orange); }
+  &:hover {
+    color: var(--orange);
+  }
 }
 
 .notification-dot {
@@ -37,7 +54,7 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--orange);;
+  background: var(--orange);
   border: 1.5px solid white;
 }
 

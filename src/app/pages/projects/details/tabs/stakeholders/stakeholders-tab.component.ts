@@ -3,6 +3,7 @@ import {
   Component,
   DestroyRef,
   computed,
+  effect,
   inject,
   input,
   signal,
@@ -15,8 +16,6 @@ import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { Menu, MenuModule } from 'primeng/menu';
 import { forkJoin, of } from 'rxjs';
-import { HasProjectAccessDirective } from '../../../../../core/directives/has-project-access.directive';
-import { Permissions } from '../../../../../core/enums/permissions.enum';
 import { ProjectPermissions } from '../../../../../core/enums/project-permissions.enum';
 import {
   OrganizationModel,
@@ -32,6 +31,7 @@ import {
 import { DictionaryService } from '../../../../../core/services/dictionary.service';
 import { ImageUrlService } from '../../../../../core/services/image-url.service';
 import { OrganizationsService } from '../../../../../core/services/organizations.service';
+import { ProjectAccessService } from '../../../../../core/services/project-access.service';
 import { WorkProjectsService } from '../../../../../core/services/work-projects.service';
 import { ProfileAvatarComponent } from '../../../../../shared/components/profile-avatar/profile-avatar.component';
 import { WorkProjectsStoreActions } from '../../../../../store/work-projects';
@@ -44,7 +44,6 @@ import { ParticipantCandidate, ParticipantSide } from './participant-candidate.m
   imports: [
     ButtonModule,
     ConfirmDialogModule,
-    HasProjectAccessDirective,
     MenuModule,
     RouterLink,
     ProfileAvatarComponent,
@@ -61,17 +60,18 @@ export class StakeholdersTabComponent {
   private readonly dictionaryService = inject(DictionaryService);
   private readonly imageUrlService = inject(ImageUrlService);
   private readonly organizationsService = inject(OrganizationsService);
+  private readonly projectAccess = inject(ProjectAccessService);
   private readonly workProjectsService = inject(WorkProjectsService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
 
   readonly project = input.required<WorkProjectModel>();
   readonly isSaving = input(false);
-  readonly Permissions = Permissions;
   readonly ProjectPermissions = ProjectPermissions;
   readonly projectReturnUrl = this.router.url;
 
   readonly roles = signal<WorkProjectRoleModel[]>([]);
+  readonly projectPermissions = signal<string[]>([]);
   readonly teamMembers = signal<ParticipantCandidate[]>([]);
   readonly clientUsers = signal<ParticipantCandidate[]>([]);
   readonly selectedParticipant = signal<WorkProjectParticipantModel | null>(null);
@@ -79,34 +79,69 @@ export class StakeholdersTabComponent {
   readonly roleDialogVisible = signal(false);
 
   readonly participantsCount = computed(() => this.project().participants.length);
+  readonly canInviteClient = computed(() =>
+    this.projectPermissions().includes(ProjectPermissions.Participant.InviteClient),
+  );
+  readonly canInviteEmployee = computed(() =>
+    this.projectPermissions().includes(ProjectPermissions.Participant.InviteEmployee),
+  );
+  readonly canInvite = computed(() => this.canInviteClient() || this.canInviteEmployee());
+  readonly canEditParticipants = computed(() =>
+    this.projectPermissions().includes(ProjectPermissions.Participant.Edit),
+  );
+  readonly canDeleteParticipants = computed(() =>
+    this.projectPermissions().includes(ProjectPermissions.Participant.Delete),
+  );
+  readonly canManageParticipants = computed(
+    () => this.canEditParticipants() || this.canDeleteParticipants(),
+  );
   readonly availableUsers = computed(() => {
     const selectedUserIds = new Set(
       this.project().participants.map((participant) => participant.userId),
     );
 
-    return [...this.clientUsers(), ...this.teamMembers()].filter(
+    const candidates = [
+      ...(this.canInviteClient() ? this.clientUsers() : []),
+      ...(this.canInviteEmployee() ? this.teamMembers() : []),
+    ];
+    return candidates.filter(
       (user) => !selectedUserIds.has(user.id),
     );
   });
-  readonly participantActions = computed<MenuItem[]>(() => [
-    {
-      label: 'Change role',
-      icon: 'pi pi-pencil',
-      command: () => {
-        const participant = this.selectedParticipant();
-        if (participant) this.openRoleDialog(participant);
-      },
-    },
-    {
-      label: 'Remove',
-      icon: 'pi pi-trash',
-      styleClass: 'participant-menu-danger',
-      command: () => {
-        const participant = this.selectedParticipant();
-        if (participant) this.confirmRemove(participant);
-      },
-    },
-  ]);
+  readonly participantActions = computed<MenuItem[]>(() => {
+    const actions: MenuItem[] = [];
+    if (this.canEditParticipants()) {
+      actions.push({
+        label: 'Change role',
+        icon: 'pi pi-pencil',
+        command: () => {
+          const participant = this.selectedParticipant();
+          if (participant) this.openRoleDialog(participant);
+        },
+      });
+    }
+    if (this.canDeleteParticipants()) {
+      actions.push({
+        label: 'Remove',
+        icon: 'pi pi-trash',
+        styleClass: 'participant-menu-danger',
+        command: () => {
+          const participant = this.selectedParticipant();
+          if (participant) this.confirmRemove(participant);
+        },
+      });
+    }
+    return actions;
+  });
+
+  constructor() {
+    effect((onCleanup) => {
+      const subscription = this.projectAccess
+        .getPermissions(this.project().id)
+        .subscribe((permissions) => this.projectPermissions.set(permissions));
+      onCleanup(() => subscription.unsubscribe());
+    });
+  }
 
   fullName(participant: WorkProjectParticipantModel): string {
     return `${participant.name} ${participant.surname}`.trim();
@@ -137,7 +172,7 @@ export class StakeholdersTabComponent {
   }
 
   openAddDialog(): void {
-    if (this.participantsCount() >= 20) return;
+    if (!this.canInvite() || this.participantsCount() >= 20) return;
 
     this.loadDialogData(() => this.addDialogVisible.set(true));
   }

@@ -18,9 +18,7 @@
           </button>
         }
       </ng-container>
-      <ng-container
-        *hasProjectAccess="ProjectPermissions.Project.Delete; system: Permissions.Project.Delete"
-      >
+      <ng-container *hasRole="Roles.SuperAdmin">
         @if (project()) {
           <button
             pButton
@@ -44,8 +42,7 @@
           <h2>{{ item.title }}</h2>
           @if (item.updatedAt && item.updatedBy) {
             <p class="updated-meta">
-              Updated by {{ item.updatedBy.name }} {{ item.updatedBy.surname }} ·
-              {{ updatedLabel(item.updatedAt) }}
+              Updated by {{ item.updatedBy | personName }} · {{ item.updatedAt | relativeTime }}
             </p>
           }
         </div>
@@ -54,45 +51,12 @@
         </div>
       </header>
 
-      <nav class="project-tabs" aria-label="Project sections">
-        <button
-          type="button"
-          [class.active]="activeTab() === 'details'"
-          (click)="selectTab('details')">
-          <i class="pi pi-align-left"></i>
-          <span>Details</span>
-        </button>
-        <button
-          type="button"
-          [class.active]="activeTab() === 'stakeholders'"
-          (click)="selectTab('stakeholders')">
-          <i class="pi pi-users"></i>
-          <span>Stakeholders</span>
-        </button>
-        <ng-container *hasProjectAccess="ProjectPermissions.Group.View">
-          <button
-            type="button"
-            [class.active]="activeTab() === 'groups'"
-            (click)="selectTab('groups')">
-            <i class="pi pi-list-check"></i>
-            <span>Plan</span>
-          </button>
-        </ng-container>
-        <button
-          type="button"
-          [class.active]="activeTab() === 'attachments'"
-          (click)="selectTab('attachments')">
-          <i class="pi pi-paperclip"></i>
-          <span>Attachments</span>
-        </button>
-        <button
-          type="button"
-          [class.active]="activeTab() === 'history'"
-          (click)="selectTab('history')">
-          <i class="pi pi-history"></i>
-          <span>History</span>
-        </button>
-      </nav>
+      <app-entity-tabs
+        [tabs]="tabs()"
+        [active]="activeTab()"
+        ariaLabel="Project sections"
+        (select)="selectTab($event)"
+      />
 
       @if (activeTab() === 'details') {
         <div class="details-content">
@@ -146,23 +110,16 @@
       } @else if (activeTab() === 'stakeholders') {
         <app-stakeholders-tab [project]="item" [isSaving]="isSaving()" />
       } @else if (activeTab() === 'groups') {
-        <ng-container *hasProjectAccess="ProjectPermissions.Group.View; projectId: item.id">
-          <app-groups-tab [projectId]="item.id" />
+        <ng-container *hasProjectAccess="ProjectPermissions.Project.View; projectId: item.id">
+          <app-groups-tab
+            [projectId]="item.id"
+            [focusedMilestoneId]="focusedMilestoneId()"
+          />
         </ng-container>
       } @else if (activeTab() === 'attachments') {
-        <section class="project-tab-empty-state">
-          <div class="project-tab-empty-state__icon">
-            <i class="pi pi-paperclip"></i>
-          </div>
-          <h3>No attachments yet</h3>
-        </section>
+        <app-empty-state icon="pi-paperclip" title="No attachments yet" />
       } @else {
-        <section class="project-tab-empty-state">
-          <div class="project-tab-empty-state__icon">
-            <i class="pi pi-history"></i>
-          </div>
-          <h3>No activity yet</h3>
-        </section>
+        <app-empty-state icon="pi-history" title="No activity yet" />
       }
     </article>
   } @else if (loading()) {

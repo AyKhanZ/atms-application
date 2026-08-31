@@ -6,6 +6,7 @@ import {
   DestroyRef,
   OnDestroy,
   computed,
+  effect,
   inject,
   signal,
 } from '@angular/core';
@@ -17,10 +18,20 @@ import { ConfirmationService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { HasProjectAccessDirective } from '../../../core/directives/has-project-access.directive';
+import { HasRoleDirective } from '../../../core/directives/has-role.directive';
 import { Permissions } from '../../../core/enums/permissions.enum';
 import { ProjectPermissions } from '../../../core/enums/project-permissions.enum';
+import { Roles } from '../../../core/enums/roles.enum';
+import { BreadcrumbOverrideService } from '../../../core/services/breadcrumb-override.service';
 import { ProjectPermissionsRefreshService } from '../../../core/services/project-permissions-refresh.service';
 import { BackButtonComponent } from '../../../shared/components/back-button/back-button.component';
+import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
+import {
+  EntityTab,
+  EntityTabsComponent,
+} from '../../../shared/components/entity-tabs/entity-tabs.component';
+import { PersonNamePipe } from '../../../shared/pipes/person-name.pipe';
+import { RelativeTimePipe } from '../../../shared/pipes/relative-time.pipe';
 import { WorkProjectsStoreActions, WorkProjectsStoreSelectors } from '../../../store/work-projects';
 import { ProjectStatusBadgeComponent } from '../components/status-badge/project-status-badge.component';
 import { GroupsTabComponent } from './tabs/groups/groups-tab.component';
@@ -36,10 +47,15 @@ type ProjectTab = 'details' | 'stakeholders' | 'groups' | 'attachments' | 'histo
     ButtonModule,
     ConfirmDialogModule,
     HasProjectAccessDirective,
+    HasRoleDirective,
     BackButtonComponent,
+    EmptyStateComponent,
+    EntityTabsComponent,
     ProjectStatusBadgeComponent,
     GroupsTabComponent,
     StakeholdersTabComponent,
+    PersonNamePipe,
+    RelativeTimePipe,
   ],
   providers: [ConfirmationService, WorkGroupExpansionStateService],
   templateUrl: './details.component.html',
@@ -53,7 +69,10 @@ export class ProjectDetailsComponent implements OnDestroy {
   private readonly actions$ = inject(Actions);
   private readonly destroyRef = inject(DestroyRef);
   private readonly confirmation = inject(ConfirmationService);
+  private readonly workGroupExpansionState = inject(WorkGroupExpansionStateService);
   private readonly projectPermissionsRefresh = inject(ProjectPermissionsRefreshService);
+  private readonly breadcrumbOverride = inject(BreadcrumbOverrideService);
+  private breadcrumbPath = '';
 
   readonly project = this.store.selectSignal(WorkProjectsStoreSelectors.getItem);
   readonly loading = this.store.selectSignal(WorkProjectsStoreSelectors.isLoading);
@@ -61,12 +80,34 @@ export class ProjectDetailsComponent implements OnDestroy {
   readonly projectPermissions = signal<string[]>([]);
   readonly Permissions = Permissions;
   readonly ProjectPermissions = ProjectPermissions;
+  readonly Roles = Roles;
   readonly activeTab = signal<ProjectTab>('details');
-  readonly id = this.route.snapshot.paramMap.get('id')!;
+  /** Plan is only offered to people who can see it, so the strip mirrors the old *hasProjectAccess. */
+  readonly tabs = computed<EntityTab<ProjectTab>[]>(() => [
+    { id: 'details', label: 'Details', icon: 'pi-align-left' },
+    { id: 'stakeholders', label: 'Stakeholders', icon: 'pi-users' },
+    ...(this.projectPermissions().includes(ProjectPermissions.Project.View)
+      ? ([{ id: 'groups', label: 'Plan', icon: 'pi-list-check' }] as EntityTab<ProjectTab>[])
+      : []),
+    { id: 'attachments', label: 'Attachments', icon: 'pi-paperclip' },
+    { id: 'history', label: 'History', icon: 'pi-history' },
+  ]);
+  readonly focusedMilestoneId = signal<string | null>(null);
+  readonly id = this.route.snapshot.paramMap.get('projectId') ?? '';
 
   constructor() {
+    this.breadcrumbPath = `/projects/${this.id}`;
+    // Placeholder so the trail does not visibly grow a segment once the project loads.
+    this.breadcrumbOverride.set(this.breadcrumbPath, 'Project');
+    effect(() => {
+      const project = this.project();
+      if (project) this.breadcrumbOverride.set(this.breadcrumbPath, `#${project.code} ${project.title}`);
+    });
     this.route.queryParamMap.pipe(takeUntilDestroyed()).subscribe((params) => {
       this.activeTab.set(parseProjectTab(params.get('tab')));
+      const groupId = params.get('groupId');
+      this.focusedMilestoneId.set(params.get('milestoneId'));
+      if (groupId) this.workGroupExpansionState.set(this.id, new Set([groupId]));
     });
     this.projectPermissionsRefresh.watch(this.id)
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -78,7 +119,10 @@ export class ProjectDetailsComponent implements OnDestroy {
           }
 
           this.projectPermissions.set(permissions);
-          if (this.activeTab() === 'groups' && !permissions.includes(ProjectPermissions.Group.View)) {
+          if (
+            this.activeTab() === 'groups' &&
+            !permissions.includes(ProjectPermissions.Project.View)
+          ) {
             this.selectTab('details');
           }
 
@@ -108,6 +152,7 @@ export class ProjectDetailsComponent implements OnDestroy {
 
   ngOnDestroy(): void {
     this.store.dispatch(WorkProjectsStoreActions.clearItem());
+    this.breadcrumbOverride.clear(this.breadcrumbPath);
   }
 
   selectTab(tab: ProjectTab): void {
@@ -146,20 +191,6 @@ export class ProjectDetailsComponent implements OnDestroy {
     });
   }
 
-  updatedLabel(updatedAt?: string | null): string {
-    if (!updatedAt) return '';
-    const updated = new Date(updatedAt);
-    const seconds = Math.round((updated.getTime() - Date.now()) / 1000);
-    const formatter = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
-    if (Math.abs(seconds) < 60) return formatter.format(seconds, 'second');
-    const minutes = Math.round(seconds / 60);
-    if (Math.abs(minutes) < 60) return formatter.format(minutes, 'minute');
-    const hours = Math.round(minutes / 60);
-    if (Math.abs(hours) < 24) return formatter.format(hours, 'hour');
-    const days = Math.round(hours / 24);
-    if (Math.abs(days) < 30) return formatter.format(days, 'day');
-    return updated.toLocaleDateString('en-GB');
-  }
 }
 
 export function parseProjectTab(value: string | null): ProjectTab {

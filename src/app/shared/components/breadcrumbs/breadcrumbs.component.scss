@@ -1,51 +1,68 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
 .breadcrumbs {
   display: flex;
+  min-width: 0;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 2px;
+  flex-wrap: nowrap;
+  gap: 0.125rem;
+  overflow: hidden;
 }
 
 .crumb {
   display: flex;
+  min-width: 0;
   align-items: center;
 
   &__link {
     display: flex;
+    max-width: 14rem;
+    min-width: 0;
     align-items: center;
-    gap: 4px;
-    padding: 2px 4px;
-    border-radius: 4px;
+    gap: 0.25rem;
+    padding: 0.125rem 0.25rem;
+    border-radius: 0.25rem;
+    color: var(--app-muted);
     text-decoration: none;
-    font-size: 13px;
+    font-size: 0.8125rem;
     font-weight: 500;
-    color: #9e9e9e;
-    transition: color 0.2s ease, opacity 0.2s ease;
-    max-width: 200px;
+    transition:
+      color 0.16s ease,
+      background 0.16s ease;
 
     &:hover {
-      color: #ff7a00;
-      opacity: 0.85;
+      background: var(--orange-light);
+      color: var(--orange-text-hover);
     }
 
-    // Первый крамб — акцентный цвет
-    &--first {
-      color: #ff7a00;
+    &:focus-visible {
+      outline: 2px solid var(--orange-focus-ring);
+      outline-offset: 1px;
     }
 
-    // Последний крамб — тёмный, не кликабельный визуально
-    &--last {
-      color: var(--muted);
-      font-weight: 600;
+    &--current {
+      max-width: 18rem;
+      color: var(--app-text);
+      cursor: default;
+      font-weight: 700;
       pointer-events: none;
+
+      &:hover {
+        background: transparent;
+        color: var(--app-text);
+      }
     }
   }
 
   &__icon {
-    font-size: 16px;
-    width: 16px;
-    height: 16px;
-    line-height: 16px;
+    width: 1rem;
+    height: 1rem;
     flex-shrink: 0;
+    font-size: 1rem;
+    line-height: 1rem;
   }
 
   &__title {
@@ -55,12 +72,37 @@
   }
 
   &__separator {
-    color: #bdbdbd;
-    font-size: 16px;
-    width: 16px;
-    height: 16px;
-    line-height: 16px;
-    margin: 0 2px;
+    width: 1rem;
+    height: 1rem;
     flex-shrink: 0;
+    margin: 0 0.125rem;
+    color: var(--gray-icon-muted);
+    font-size: 0.75rem;
+    line-height: 1rem;
+  }
+}
+
+@media (max-width: 48rem) {
+  .crumb:not(:last-child) .crumb__link {
+    max-width: 8.5rem;
+  }
+
+  .crumb:last-child {
+    flex: 1 1 auto;
+  }
+
+  .crumb__link--current {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 30rem) {
+  .crumb:not(:last-child) .crumb__link {
+    max-width: 5.5rem;
+  }
+
+  .crumb__link,
+  .crumb__link--current {
+    font-size: 0.75rem;
   }
 }

@@ -56,4 +56,16 @@ export class DictionaryService {
   getProjectRoleDictionaries(): Observable<WorkProjectRoleModel[]> {
     return this.http.get<WorkProjectRoleModel[]>(`${this.projectBaseUrl}/project-roles`);
   }
+
+  getWorkTicketTypeDictionaries(): Observable<DictionaryModel[]> {
+    return this.http.get<DictionaryModel[]>(`${this.projectBaseUrl}/work-ticket-types`);
+  }
+
+  getWorkTicketStatusDictionaries(): Observable<DictionaryModel[]> {
+    return this.http.get<DictionaryModel[]>(`${this.projectBaseUrl}/work-ticket-statuses`);
+  }
+
+  getWorkItemPriorityDictionaries(): Observable<DictionaryModel[]> {
+    return this.http.get<DictionaryModel[]>(`${this.projectBaseUrl}/work-item-priorities`);
+  }
 }

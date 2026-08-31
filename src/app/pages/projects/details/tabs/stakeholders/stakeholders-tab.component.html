@@ -24,13 +24,7 @@
   <section class="participants-panel">
     <div class="participants-header">
       <h3>Participants</h3>
-      <ng-container
-        *hasProjectAccess="
-          ProjectPermissions.Project.Edit;
-          system: Permissions.Project.Edit;
-          projectId: project().id
-        "
-      >
+      @if (canInvite()) {
         <button
           pButton
           type="button"
@@ -40,7 +34,7 @@
           <i class="pi pi-plus"></i>
           <span>Add</span>
         </button>
-      </ng-container>
+      }
     </div>
 
     @if (project().participants.length) {
@@ -48,15 +42,9 @@
         <div class="participants-row participants-row--head" role="row">
           <span role="columnheader">Participant</span>
           <span role="columnheader">Role</span>
-          <ng-container
-            *hasProjectAccess="
-              ProjectPermissions.Project.Edit;
-              system: Permissions.Project.Edit;
-              projectId: project().id
-            "
-          >
+          @if (canManageParticipants()) {
             <span role="columnheader" class="actions-head">Actions</span>
-          </ng-container>
+          }
         </div>
 
         @for (participant of project().participants; track participant.id) {
@@ -76,13 +64,7 @@
             <span class="role-cell" role="cell">
               {{ participant.role.name }}
             </span>
-            <ng-container
-              *hasProjectAccess="
-                ProjectPermissions.Project.Edit;
-                system: Permissions.Project.Edit;
-                projectId: project().id
-              "
-            >
+            @if (canManageParticipants()) {
               <div class="actions-cell" role="cell">
                 <button
                   type="button"
@@ -92,7 +74,7 @@
                   <i class="pi pi-ellipsis-v"></i>
                 </button>
               </div>
-            </ng-container>
+            }
           </div>
         }
       </div>

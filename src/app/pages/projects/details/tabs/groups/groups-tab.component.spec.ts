@@ -88,7 +88,11 @@ describe('GroupsTabComponent', () => {
         {
           provide: ProjectAccessService,
           useValue: {
-            getPermissions: () => of([ProjectPermissions.Group.Edit, ProjectPermissions.Group.Delete]),
+            getPermissions: () => of([
+              ProjectPermissions.Project.Edit,
+              ProjectPermissions.Ticket.Create,
+              ProjectPermissions.Ticket.Edit,
+            ]),
             hasPermission: () => of(true),
             version: () => 0,
           },
@@ -223,5 +227,16 @@ describe('GroupsTabComponent', () => {
     );
 
     expect(fixture.componentInstance.isExpanded('item-1')).toBe(true);
+  });
+
+  it('offers ticket creation from a milestone menu', () => {
+    fixture.componentInstance.selectedWorkGroup.set({
+      item: workGroup({ id: 'milestone-1', parentWorkGroupId: 'item-1' }),
+      kind: 'milestone',
+    });
+
+    expect(fixture.componentInstance.itemActions().map((item) => item.label)).toContain(
+      'Create ticket',
+    );
   });
 });

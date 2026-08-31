@@ -1,5 +1,14 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnDestroy,
+  OnInit,
+  computed,
+  effect,
+  inject,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
@@ -11,9 +20,16 @@ import { DialogModule } from 'primeng/dialog';
 import { TagModule } from 'primeng/tag';
 import { HasPermissionDirective } from '../../../../core/directives/has-permission.directive';
 import { Permissions } from '../../../../core/enums/permissions.enum';
+import { BreadcrumbOverrideService } from '../../../../core/services/breadcrumb-override.service';
 import { ImageUrlService } from '../../../../core/services/image-url.service';
-import { OrganizationModel, OrganizationUserModel } from '../../../../core/models/organizations/organizations.models';
-import { OrganizationsStoreActions, OrganizationsStoreSelectors } from '../../../../store/organizations';
+import {
+  OrganizationModel,
+  OrganizationUserModel,
+} from '../../../../core/models/organizations/organizations.models';
+import {
+  OrganizationsStoreActions,
+  OrganizationsStoreSelectors,
+} from '../../../../store/organizations';
 import { BackButtonComponent } from '../../../../shared/components/back-button/back-button.component';
 import { ProfileAvatarComponent } from '../../../../shared/components/profile-avatar/profile-avatar.component';
 import { OrganizationCreateDialogComponent } from '../components/organization-create-dialog/organization-create-dialog.component';
@@ -43,7 +59,9 @@ export class DetailsComponent implements OnInit, OnDestroy {
   private readonly actions$ = inject(Actions);
   private readonly confirmationService = inject(ConfirmationService);
   private readonly imageUrlService = inject(ImageUrlService);
+  private readonly breadcrumbOverride = inject(BreadcrumbOverrideService);
   private organizationId: string | null = null;
+  private breadcrumbPath = '';
 
   readonly organization = this.store.selectSignal(OrganizationsStoreSelectors.getItem);
   readonly loading = this.store.selectSignal(OrganizationsStoreSelectors.isLoading);
@@ -59,6 +77,11 @@ export class DetailsComponent implements OnInit, OnDestroy {
   });
 
   constructor() {
+    effect(() => {
+      const title = this.organization()?.title;
+      if (title && this.breadcrumbPath) this.breadcrumbOverride.set(this.breadcrumbPath, title);
+    });
+
     this.actions$
       .pipe(ofType(OrganizationsStoreActions.updateOrganizationSuccess), takeUntilDestroyed())
       .subscribe(() => this.reload());
@@ -75,12 +98,14 @@ export class DetailsComponent implements OnInit, OnDestroy {
       return;
     }
 
+    this.breadcrumbPath = `/organizations/${this.organizationId}`;
     this.store.dispatch(OrganizationsStoreActions.clearItem());
     this.reload();
   }
 
   ngOnDestroy(): void {
     this.store.dispatch(OrganizationsStoreActions.clearItem());
+    if (this.breadcrumbPath) this.breadcrumbOverride.clear(this.breadcrumbPath);
   }
 
   back(): void {
@@ -112,7 +137,8 @@ export class DetailsComponent implements OnInit, OnDestroy {
       rejectLabel: 'No',
       acceptButtonStyleClass: 'p-button-danger',
       rejectButtonStyleClass: 'p-button-outlined',
-      accept: () => this.store.dispatch(OrganizationsStoreActions.deleteOrganization({ id: organization.id })),
+      accept: () =>
+        this.store.dispatch(OrganizationsStoreActions.deleteOrganization({ id: organization.id })),
     });
   }
 
@@ -129,7 +155,16 @@ export class DetailsComponent implements OnInit, OnDestroy {
 
   initials(value: OrganizationModel | OrganizationUserModel): string {
     const parts = 'title' in value ? [value.title] : [value.name, value.surname];
-    return parts.join(' ').split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part[0]).join('').toUpperCase() || 'O';
+    return (
+      parts
+        .join(' ')
+        .split(/\s+/)
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((part) => part[0])
+        .join('')
+        .toUpperCase() || 'O'
+    );
   }
 
   fullName(user: OrganizationUserModel): string {

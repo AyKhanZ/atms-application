@@ -27,7 +27,7 @@ export class HasProjectAccessDirective {
 
   constructor() {
     effect((onCleanup) => {
-      const projectId = this.hasProjectAccessProjectId() ?? this.route?.snapshot.paramMap.get('id');
+      const projectId = this.hasProjectAccessProjectId() ?? this.route?.snapshot.paramMap.get('projectId');
       if (!projectId || !this.hasSystemAccess()) {
         this.render(false);
         return;
