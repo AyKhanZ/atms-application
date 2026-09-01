@@ -45,6 +45,7 @@ import { SnackBarService } from '../../../../../core/services/snack-bar.service'
 import { WorkGroupsService } from '../../../../../core/services/work-groups.service';
 import { WorkProjectsService } from '../../../../../core/services/work-projects.service';
 import { WorkTicketsService } from '../../../../../core/services/work-tickets.service';
+import { projectNavigationUrl } from '../../../../../core/utils/project-navigation.utils';
 import { BackButtonComponent } from '../../../../../shared/components/back-button/back-button.component';
 import { ProfileAvatarComponent } from '../../../../../shared/components/profile-avatar/profile-avatar.component';
 import {
@@ -56,6 +57,8 @@ import {
 
 interface TicketFormNavigationState {
   milestone?: MilestoneOptionModel;
+  /** Where the user was before opening this form, so Back and Save return them there. */
+  returnUrl?: unknown;
 }
 
 @Component({
@@ -119,9 +122,14 @@ export class TicketFormPageComponent implements OnDestroy {
   readonly isEdit = computed(() => this.mode() === 'edit');
   readonly pageTitle = computed(() => (this.isEdit() ? 'Edit ticket' : 'Create ticket'));
   readonly submitLabel = computed(() => (this.isEdit() ? 'Save' : 'Create'));
-  readonly cancelUrl = computed(() =>
-    this.projectId ? `/projects/${this.projectId}?tab=plan` : '/projects',
-  );
+  /**
+   * Where Back, Cancel and a successful Save land. Honours the caller's `returnUrl` so opening
+   * the form from a ticket returns to that ticket instead of dumping the user in the Plan tab;
+   * falls back to the Plan for direct hits on the URL, where there is nothing to return to.
+   */
+  readonly returnUrl =
+    projectNavigationUrl(this.navigationState.returnUrl) ??
+    (this.projectId ? `/projects/${this.projectId}?tab=plan` : '/projects');
 
   readonly form = this.fb.group({
     title: ['', [Validators.required, Validators.maxLength(100)]],
@@ -267,7 +275,7 @@ export class TicketFormPageComponent implements OnDestroy {
         next: () => {
           this.navigationComplete = true;
           this.snackBar.success(this.ticketId ? 'Ticket changes saved.' : 'Ticket created.');
-          void this.router.navigate(['/projects', this.projectId], { queryParams: { tab: 'plan' } });
+          this.navigateBack();
         },
         error: (error: HttpErrorResponse) => this.snackBar.error(ticketErrorMessage(error)),
       });
@@ -468,12 +476,7 @@ export class TicketFormPageComponent implements OnDestroy {
   }
 
   private navigateBack(): void {
-    if (!this.projectId) {
-      void this.router.navigate(['/projects']);
-      return;
-    }
-
-    void this.router.navigate(['/projects', this.projectId], { queryParams: { tab: 'plan' } });
+    void this.router.navigateByUrl(this.returnUrl);
   }
 }
 

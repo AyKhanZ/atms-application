@@ -24,6 +24,7 @@ import { ProjectPermissions } from '../../../core/enums/project-permissions.enum
 import { Roles } from '../../../core/enums/roles.enum';
 import { BreadcrumbOverrideService } from '../../../core/services/breadcrumb-override.service';
 import { ProjectPermissionsRefreshService } from '../../../core/services/project-permissions-refresh.service';
+import { projectNavigationUrl } from '../../../core/utils/project-navigation.utils';
 import { BackButtonComponent } from '../../../shared/components/back-button/back-button.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import {
@@ -207,9 +208,3 @@ export function projectTabQueryParam(tab: ProjectTab): string | null {
   return tab === 'groups' ? 'plan' : tab;
 }
 
-function projectNavigationUrl(value: unknown): string | null {
-  if (typeof value !== 'string') return null;
-  return value === '/projects' || value.startsWith('/projects?') || value.startsWith('/projects/')
-    ? value
-    : null;
-}

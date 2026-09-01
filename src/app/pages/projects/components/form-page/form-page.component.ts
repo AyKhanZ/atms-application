@@ -46,6 +46,7 @@ import { BreadcrumbOverrideService } from '../../../../core/services/breadcrumb-
 import { DictionaryService } from '../../../../core/services/dictionary.service';
 import { OrganizationsService } from '../../../../core/services/organizations.service';
 import { WorkProjectsService } from '../../../../core/services/work-projects.service';
+import { projectNavigationUrl } from '../../../../core/utils/project-navigation.utils';
 import { BackButtonComponent } from '../../../../shared/components/back-button/back-button.component';
 import {
   WorkProjectsStoreActions,
@@ -487,13 +488,6 @@ export class ProjectFormPageComponent implements OnDestroy {
 interface ProjectFormNavigationState {
   cancelUrl?: unknown;
   detailsReturnUrl?: unknown;
-}
-
-function projectNavigationUrl(value: unknown): string | null {
-  if (typeof value !== 'string') return null;
-  return value === '/projects' || value.startsWith('/projects?') || value.startsWith('/projects/')
-    ? value
-    : null;
 }
 
 function toDate(value: Date | null): string | null {

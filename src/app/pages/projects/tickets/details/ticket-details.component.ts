@@ -141,7 +141,9 @@ export class TicketDetailsComponent implements OnDestroy {
   edit(): void {
     const ticketId = this.ticketId();
     if (!this.projectId || !ticketId || !this.canEdit()) return;
-    void this.router.navigate(['/projects', this.projectId, 'tickets', ticketId, 'edit']);
+    void this.router.navigate(['/projects', this.projectId, 'tickets', ticketId, 'edit'], {
+      state: { returnUrl: this.router.url },
+    });
   }
 
   confirmDelete(): void {

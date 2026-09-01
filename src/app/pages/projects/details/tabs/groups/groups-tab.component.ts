@@ -298,7 +298,9 @@ export class GroupsTabComponent implements OnInit, OnDestroy {
   }
 
   editTicket(ticketId: string): void {
-    void this.router.navigate(['/projects', this.projectId(), 'tickets', ticketId, 'edit']);
+    void this.router.navigate(['/projects', this.projectId(), 'tickets', ticketId, 'edit'], {
+      state: { returnUrl: this.router.url },
+    });
   }
 
   viewTicket(ticketId: string): void {
