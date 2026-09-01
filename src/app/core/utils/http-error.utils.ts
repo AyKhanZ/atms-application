@@ -14,3 +14,7 @@ export function isServerUnavailable(error: unknown): boolean {
 
   return error.status === 0 || error.status === 503 || error.status === 504;
 }
+
+export function isTerminalRefreshError(error: unknown): boolean {
+  return error instanceof HttpErrorResponse && (error.status === 401 || error.status === 403);
+}

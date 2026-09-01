@@ -1,10 +1,22 @@
 import { DOCUMENT } from '@angular/common';
 import { inject, Injectable } from '@angular/core';
-import { filter, fromEvent, interval, map, merge, Observable } from 'rxjs';
+import { filter, fromEvent, interval, map, merge, Observable, throttleTime } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class VisiblePageRefreshService {
-  private static readonly defaultIntervalMs = 30_000;
+  /**
+   * Polling cadence while a page sits open. Callers use this to re-check data that can change
+   * from outside the current session, such as project permissions. Those change rarely, so the
+   * interval trades staleness for a much quieter network log.
+   */
+  private static readonly defaultIntervalMs = 180_000;
+
+  /**
+   * Collapses bursts. `visibilitychange` fires on every alt-tab, on opening or closing
+   * devtools, and on minimising the window, so without this a user switching between two tabs
+   * produces a request per switch.
+   */
+  private static readonly minGapMs = 15_000;
 
   private readonly document = inject(DOCUMENT);
 
@@ -12,7 +24,13 @@ export class VisiblePageRefreshService {
     return merge(
       interval(intervalMs).pipe(filter(() => this.isVisible())),
       fromEvent(this.document, 'visibilitychange').pipe(filter(() => this.isVisible())),
-    ).pipe(map(() => void 0));
+    ).pipe(
+      throttleTime(VisiblePageRefreshService.minGapMs, undefined, {
+        leading: true,
+        trailing: false,
+      }),
+      map(() => void 0),
+    );
   }
 
   private isVisible(): boolean {

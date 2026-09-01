@@ -2,8 +2,12 @@ import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, switchMap, throwError, timeout } from 'rxjs';
-import { API_TIMEOUT_MS, isServerUnavailable } from '../utils/http-error.utils';
-import { AuthSessionService } from '../services/auth-session.service';
+import {
+  API_TIMEOUT_MS,
+  isServerUnavailable,
+  isTerminalRefreshError,
+} from '../utils/http-error.utils';
+import { AuthSessionService, RefreshTokenMissingError } from '../services/auth-session.service';
 
 const PUBLIC_ENDPOINTS = [
   '/health',
@@ -62,7 +66,13 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
           return next(retry).pipe(timeout({ first: API_TIMEOUT_MS }));
         }),
         catchError((refreshError) => {
-          auth.logout();
+          if (
+            isTerminalRefreshError(refreshError) ||
+            refreshError instanceof RefreshTokenMissingError
+          ) {
+            auth.logout();
+          }
+
           return throwError(() => refreshError);
         }),
       );
