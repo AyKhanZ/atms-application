@@ -1,4 +1,3 @@
-import { HttpErrorResponse } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
@@ -17,7 +16,7 @@ import { AuthStoreActions, AuthStoreSelectors } from '../../store/auth';
 import { AccessModel } from '../models/auth/auth.models';
 import { AuthService } from './auth.service';
 import { TokenStorageService } from './token-storage.service';
-import { isServerUnavailable } from '../utils/http-error.utils';
+import { isServerUnavailable, isTerminalRefreshError } from '../utils/http-error.utils';
 import { hasCompletedOnboarding } from '../utils/jwt-claims.utils';
 
 @Injectable({ providedIn: 'root' })
@@ -56,14 +55,20 @@ export class AuthSessionService {
     return new Promise((resolve) => {
       this.refreshAccessToken()
         .pipe(
-          catchError((error: HttpErrorResponse) => {
+          catchError((error: unknown) => {
             if (isServerUnavailable(error)) {
               this.isServerUnavailable.set(true);
               void this.router.navigate(['/server-unavailable']);
               return of(null);
             }
 
-            this.tokenStorage.clear();
+            if (isTerminalRefreshError(error) || error instanceof RefreshTokenMissingError) {
+              this.tokenStorage.clear();
+              return of(null);
+            }
+
+            this.isServerUnavailable.set(true);
+            void this.router.navigate(['/server-unavailable']);
             return of(null);
           }),
           finalize(() => {
@@ -83,7 +88,7 @@ export class AuthSessionService {
 
     const saved = this.tokenStorage.getAccessModel();
     if (!saved?.refreshToken) {
-      return throwError(() => new Error('Refresh token is missing.'));
+      return throwError(() => new RefreshTokenMissingError());
     }
 
     this.refreshRequest = this.refreshAcrossTabs(saved.refreshToken).finally(() => {
@@ -97,7 +102,7 @@ export class AuthSessionService {
     const refresh = async (): Promise<AccessModel> => {
       const current = this.tokenStorage.getAccessModel();
       if (!current?.refreshToken) {
-        throw new Error('Refresh token is missing.');
+        throw new RefreshTokenMissingError();
       }
 
       if (current.refreshToken !== requestedRefreshToken) {
@@ -158,6 +163,12 @@ export class AuthSessionService {
   private clearSession(): void {
     this.tokenStorage.clear();
     this.store.dispatch(AuthStoreActions.logoutCompleted());
+  }
+}
+
+export class RefreshTokenMissingError extends Error {
+  constructor() {
+    super('Refresh token is missing.');
   }
 }
 

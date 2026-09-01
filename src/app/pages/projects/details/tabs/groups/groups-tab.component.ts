@@ -1,9 +1,11 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   OnDestroy,
   OnInit,
   computed,
+  effect,
   inject,
   input,
   signal,
@@ -11,12 +13,20 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Actions, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
+import { Router } from '@angular/router';
 import { ConfirmationService, MenuItem } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { Menu, MenuModule } from 'primeng/menu';
 import { TooltipModule } from 'primeng/tooltip';
-import { WorkGroupKind, WorkGroupModel } from '../../../../../core/models/work-groups';
+import { ProjectPermissions } from '../../../../../core/enums/project-permissions.enum';
+import {
+  MilestoneOptionModel,
+  WorkGroupKind,
+  WorkGroupModel,
+} from '../../../../../core/models/work-groups';
+import { ProjectAccessService } from '../../../../../core/services/project-access.service';
+import { WorkTicketsService } from '../../../../../core/services/work-tickets.service';
 import { WorkGroupsStoreActions, WorkGroupsStoreSelectors } from '../../../../../store/work-groups';
 import {
   WorkGroupDialogComponent,
@@ -25,6 +35,10 @@ import {
 } from './components/work-group-dialog/work-group-dialog.component';
 import { WorkGroupStatusBadgeComponent } from './components/work-group-status-badge/work-group-status-badge.component';
 import { WorkGroupExpansionStateService } from './work-group-expansion-state.service';
+import {
+  MilestoneTicketListComponent,
+  MilestoneTicketPageState,
+} from './components/milestone-ticket-list/milestone-ticket-list.component';
 
 interface SelectedWorkGroup {
   item: WorkGroupModel;
@@ -40,6 +54,7 @@ interface SelectedWorkGroup {
     TooltipModule,
     WorkGroupDialogComponent,
     WorkGroupStatusBadgeComponent,
+    MilestoneTicketListComponent,
   ],
   templateUrl: './groups-tab.component.html',
   styleUrl: './groups-tab.component.scss',
@@ -50,12 +65,30 @@ export class GroupsTabComponent implements OnInit, OnDestroy {
   private readonly actions$ = inject(Actions);
   private readonly confirmation = inject(ConfirmationService);
   private readonly expansionState = inject(WorkGroupExpansionStateService);
+  private readonly projectAccess = inject(ProjectAccessService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly router = inject(Router);
+  private readonly workTicketsService = inject(WorkTicketsService);
   private knownGroupIds = new Set<string>();
   private hasLoadedGroups = false;
   private hasRestoredExpansionState = false;
+  private readonly ticketPageSize = 10;
 
   readonly projectId = input.required<string>();
-  readonly canManage = input(false);
+  readonly focusedMilestoneId = input<string | null>(null);
+  readonly ProjectPermissions = ProjectPermissions;
+  readonly projectPermissions = signal<string[]>([]);
+  readonly canEdit = computed(() => this.projectPermissions().includes(ProjectPermissions.Project.Edit));
+  readonly canDelete = computed(() => this.projectPermissions().includes(ProjectPermissions.Project.Edit));
+  readonly canManage = computed(() => this.canEdit() || this.canDelete());
+  readonly canEditTickets = computed(() =>
+    this.projectPermissions().includes(ProjectPermissions.Ticket.Edit),
+  );
+  readonly canCreateTickets = computed(() =>
+    this.projectPermissions().includes(ProjectPermissions.Ticket.Create),
+  );
+  readonly canAdd = computed(() => this.canEdit() || this.canCreateTickets());
+  readonly ticketPages = signal<Record<string, MilestoneTicketPageState>>({});
 
   readonly groups = this.store.selectSignal(WorkGroupsStoreSelectors.getItems);
   readonly loading = this.store.selectSignal(WorkGroupsStoreSelectors.isLoading);
@@ -83,22 +116,23 @@ export class GroupsTabComponent implements OnInit, OnDestroy {
     {
       label: 'Group',
       icon: 'pi pi-folder',
-      disabled: this.saving(),
+      disabled: this.saving() || !this.canEdit(),
       command: () => this.openCreateDialog('group'),
     },
     {
       label: 'Milestone',
       icon: 'pi pi-flag',
-      disabled: this.saving() || this.groups().length === 0,
+      disabled: this.saving() || !this.canEdit() || this.groups().length === 0,
       command: () => this.openCreateDialog('milestone'),
     },
     {
       separator: true,
     },
     {
-      label: 'Ticket — coming soon',
+      label: 'Ticket',
       icon: 'pi pi-ticket',
-      disabled: true,
+      disabled: this.saving() || !this.canCreateTickets() || !this.hasMilestones(),
+      command: () => this.createTicket(),
     },
   ]);
 
@@ -107,7 +141,16 @@ export class GroupsTabComponent implements OnInit, OnDestroy {
     if (!selected) return [];
 
     const actions: MenuItem[] = [];
-    if (selected.kind === 'group') {
+    if (this.canCreateTickets() && selected.kind === 'milestone') {
+      actions.push({
+        label: 'Create ticket',
+        icon: 'pi pi-ticket',
+        command: () => this.createTicket(selected.item),
+      });
+      actions.push({ separator: true });
+    }
+
+    if (this.canEdit() && selected.kind === 'group') {
       actions.push({
         label: 'Add milestone',
         icon: 'pi pi-plus',
@@ -117,26 +160,41 @@ export class GroupsTabComponent implements OnInit, OnDestroy {
       actions.push({ separator: true });
     }
 
-    actions.push(
-      {
+    if (this.canEdit()) {
+      actions.push({
         label: 'Edit',
         icon: 'pi pi-pencil',
         disabled: this.saving(),
         command: () => this.openEditDialog(selected),
-      },
-      {
+      });
+    }
+
+    if (this.canDelete()) {
+      actions.push({
         label: 'Delete',
         icon: 'pi pi-trash',
         styleClass: 'work-groups-menu-danger',
         disabled: this.saving(),
         command: () => this.requestDelete(selected),
-      },
-    );
+      });
+    }
 
     return actions;
   });
 
   constructor() {
+    effect(() => {
+      if (!this.projectPermissions().includes(ProjectPermissions.Project.View)) return;
+
+      for (const group of this.groups()) {
+        if (!this.expandedGroupIds().has(group.id)) continue;
+
+        for (const milestone of group.milestones) {
+          if (!this.ticketPages()[milestone.id]) this.loadTicketsFor(milestone.id, true);
+        }
+      }
+    });
+
     this.actions$
       .pipe(ofType(WorkGroupsStoreActions.loadWorkGroupsSuccess), takeUntilDestroyed())
       .subscribe(({ projectId, items }) => {
@@ -174,6 +232,12 @@ export class GroupsTabComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.projectAccess.getPermissions(this.projectId())
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((permissions) => {
+        this.projectPermissions.set(permissions);
+      });
+
     const restoredExpansionState = this.expansionState.get(this.projectId());
     if (restoredExpansionState) {
       this.expandedGroupIds.set(restoredExpansionState);
@@ -216,7 +280,7 @@ export class GroupsTabComponent implements OnInit, OnDestroy {
   }
 
   openAddMenu(event: Event, menu: Menu): void {
-    if (!this.canManage() || this.saving()) return;
+    if (!this.canAdd() || this.saving()) return;
 
     const trigger = event.currentTarget as HTMLElement | null;
     if (trigger) {
@@ -229,8 +293,84 @@ export class GroupsTabComponent implements OnInit, OnDestroy {
     menu.toggle(event);
   }
 
+  ticketPageFor(milestoneId: string): MilestoneTicketPageState | null {
+    return this.ticketPages()[milestoneId] ?? null;
+  }
+
+  editTicket(ticketId: string): void {
+    void this.router.navigate(['/projects', this.projectId(), 'tickets', ticketId, 'edit'], {
+      state: { returnUrl: this.router.url },
+    });
+  }
+
+  viewTicket(ticketId: string): void {
+    void this.router.navigate(['/projects', this.projectId(), 'tickets', ticketId]);
+  }
+
+  private createTicket(milestone?: WorkGroupModel): void {
+    const parentGroup = milestone
+      ? this.groups().find((group) => group.id === milestone.parentWorkGroupId)
+      : undefined;
+    const initialMilestone: MilestoneOptionModel | undefined =
+      milestone && milestone.parentWorkGroupId && parentGroup
+        ? {
+            id: milestone.id,
+            title: milestone.title,
+            groupId: milestone.parentWorkGroupId,
+            groupTitle: parentGroup.title,
+          }
+        : undefined;
+
+    void this.router.navigate(['/projects', this.projectId(), 'tickets', 'create'], {
+      queryParams: milestone ? { milestoneId: milestone.id } : undefined,
+      state: initialMilestone ? { milestone: initialMilestone } : undefined,
+    });
+  }
+
+  private hasMilestones(): boolean {
+    return this.groups().some((group) => group.milestones.length > 0);
+  }
+
+  loadTicketsFor(milestoneId: string, reset = false): void {
+    const current = this.ticketPages()[milestoneId];
+    if (current?.loading || (!reset && current && !current.hasMore)) return;
+
+    const state: MilestoneTicketPageState = reset || !current
+      ? { items: [], nextCursor: null, hasMore: true, loading: true }
+      : { ...current, loading: true };
+
+    this.ticketPages.update((pages) => ({ ...pages, [milestoneId]: state }));
+    this.workTicketsService
+      .getWorkTickets(this.projectId(), {
+        milestoneId,
+        cursor: state.nextCursor,
+        pageSize: this.ticketPageSize,
+      })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (page) => {
+          this.ticketPages.update((pages) => ({
+            ...pages,
+            [milestoneId]: {
+              items: reset ? page.items : [...state.items, ...page.items],
+              nextCursor: page.nextCursor,
+              hasMore: page.hasMore,
+              loading: false,
+            },
+          }));
+        },
+        error: () => {
+          this.ticketPages.update((pages) => ({
+            ...pages,
+            [milestoneId]: { ...state, loading: false },
+          }));
+        },
+      });
+  }
+
   openItemMenu(event: Event, item: WorkGroupModel, kind: WorkGroupKind, menu: Menu): void {
-    if (!this.canManage() || this.saving()) return;
+    const canOpen = this.canManage() || (kind === 'milestone' && this.canCreateTickets());
+    if (!canOpen || this.saving()) return;
     this.selectedWorkGroup.set({ item, kind });
     menu.toggle(event);
   }
@@ -240,7 +380,7 @@ export class GroupsTabComponent implements OnInit, OnDestroy {
     parentWorkGroupId: string | null = null,
     parentLocked = false,
   ): void {
-    if (!this.canManage() || this.saving()) return;
+    if (!this.canEdit() || this.saving()) return;
     if (kind === 'milestone' && this.groups().length === 0) return;
 
     this.dialogMode.set('create');
@@ -330,9 +470,7 @@ export class GroupsTabComponent implements OnInit, OnDestroy {
       [...this.expandedGroupIds()].filter((groupId) => nextGroupIds.has(groupId)),
     );
 
-    if (!this.hasLoadedGroups && !this.hasRestoredExpansionState) {
-      items.forEach((item) => expanded.add(item.id));
-    } else if (this.hasLoadedGroups) {
+    if (this.hasLoadedGroups) {
       items.forEach((item) => {
         if (!this.knownGroupIds.has(item.id)) expanded.add(item.id);
       });

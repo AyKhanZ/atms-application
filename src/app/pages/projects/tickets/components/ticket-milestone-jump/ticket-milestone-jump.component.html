@@ -1,0 +1,80 @@
+@if (visible()) {
+  <div class="milestone-jump" [class.milestone-jump--open]="open()">
+    <span class="milestone-jump-label">Switch ticket</span>
+    <button
+      type="button"
+      class="milestone-jump-trigger"
+      aria-haspopup="listbox"
+      [attr.aria-expanded]="open()"
+      [title]="'#' + currentTicket().code + ' ' + currentTicket().title"
+      (click)="toggle()"
+    >
+      <i class="pi pi-ticket" aria-hidden="true"></i>
+      <span class="milestone-jump-trigger__code">#{{ currentTicket().code }}</span>
+      <strong class="milestone-jump-trigger__title">{{ currentTicket().title }}</strong>
+      <i class="pi pi-chevron-down milestone-jump-trigger__chevron" aria-hidden="true"></i>
+    </button>
+
+    @if (open()) {
+      <section class="milestone-jump-panel" aria-label="Tickets in this milestone">
+        <label class="milestone-jump-search">
+          <i class="pi pi-search" aria-hidden="true"></i>
+          <input
+            type="search"
+            placeholder="Search by code or title"
+            [value]="searchTerm()"
+            (input)="updateSearch($event)"
+          />
+        </label>
+
+        <header class="milestone-jump-location">
+          <span class="milestone-jump-location__group">
+            <i class="pi pi-folder" aria-hidden="true"></i>
+            <span>{{ groupTitle() }}</span>
+          </span>
+          <span class="milestone-jump-location__milestone">
+            <i class="pi pi-flag" aria-hidden="true"></i>
+            <strong>{{ milestoneTitle() }}</strong>
+            @if (!loading()) {
+              <small>
+                {{ allTickets().length }} ticket{{ allTickets().length === 1 ? '' : 's' }}
+              </small>
+            }
+          </span>
+        </header>
+
+        <div class="milestone-jump-list" role="listbox">
+          @if (loading()) {
+            <div class="milestone-jump-message" role="status">
+              <i class="pi pi-spin pi-spinner" aria-hidden="true"></i>
+              <span>Loading tickets...</span>
+            </div>
+          } @else if (loadError()) {
+            <div class="milestone-jump-message">Tickets could not be loaded.</div>
+          } @else if (filteredTickets().length > 0) {
+            @for (ticket of filteredTickets(); track ticket.id) {
+              <button
+                type="button"
+                class="milestone-jump-option"
+                role="option"
+                [class.milestone-jump-option--current]="ticket.id === currentTicket().id"
+                [attr.aria-selected]="ticket.id === currentTicket().id"
+                [attr.aria-current]="ticket.id === currentTicket().id ? 'page' : null"
+                (click)="viewTicket(ticket.id)"
+              >
+                <span class="milestone-jump-option__code">#{{ ticket.code }}</span>
+                <strong class="milestone-jump-option__title" [title]="ticket.title">
+                  {{ ticket.title }}
+                </strong>
+                <app-ticket-type-badge [type]="ticket.workTicketType" />
+                <app-ticket-status-badge [status]="ticket.workTicketStatus" />
+              </button>
+            }
+          } @else {
+            <div class="milestone-jump-message">No tickets match your search.</div>
+          }
+        </div>
+      </section>
+    }
+  </div>
+}

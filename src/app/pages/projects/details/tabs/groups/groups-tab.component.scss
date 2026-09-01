@@ -13,12 +13,24 @@
 }
 
 .groups-toolbar,
-.group-header,
 .milestone-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
+}
+
+.groups-tree {
+  /* Column widths for the group header. Every header is its own grid container, so
+     content-sized (`auto`) tracks would resolve independently per row and land at a
+     different x on each one — that is what made the status badge slide left on groups
+     with no milestones. Fixed tracks are what actually keeps the columns aligned.
+
+     The count track is sized for the widest counter ("12/34"), not for prose — the empty
+     state says "None" rather than "No milestones" precisely so this track can stay narrow.
+     A wide track here would push the badge away from the number it belongs with. */
+  --group-status-col: 6.25rem;
+  --group-count-col: 3.5rem;
 }
 
 .groups-toolbar h3 {
@@ -85,14 +97,33 @@
 }
 
 .group-header {
+  display: grid;
+  /* minmax keeps the tracks at their full width whenever there is room — which is what
+     aligns the rows — while still letting them shrink to their content instead of
+     squeezing the title when the container gets narrow. */
+  grid-template-columns:
+    minmax(0, 1fr)
+    minmax(min-content, var(--group-status-col))
+    minmax(min-content, var(--group-count-col))
+    auto;
+  align-items: center;
+  column-gap: 0.6rem;
   min-height: 3.75rem;
   padding: 0.55rem 0.75rem;
   background: var(--app-surface-muted);
 }
 
+/* Both meta cells hug the right of their track so the badge sits next to the number it
+   describes; the slack in the row collects between the title and the meta cluster. */
+.group-status,
+.group-progress,
+.group-header .item-count {
+  justify-self: end;
+}
+
 .group-toggle {
   display: grid;
-  grid-template-columns: 1rem 1.35rem minmax(0, auto) auto;
+  grid-template-columns: 1rem 1.35rem minmax(0, auto);
   align-items: center;
   justify-content: start;
   gap: 0.65rem;
@@ -185,6 +216,11 @@
   border-top: 1px solid var(--app-border);
 }
 
+.milestone-row--focused {
+  background: var(--orange-light);
+  box-shadow: inset 3px 0 0 var(--orange);
+}
+
 .milestone-identity {
   display: grid;
   grid-template-columns: 1.25rem minmax(0, auto) auto;
@@ -246,11 +282,6 @@
     grid-template-columns: 1rem 1.25rem minmax(0, 1fr);
   }
 
-  .group-toggle .item-meta {
-    grid-column: 3;
-    flex-wrap: wrap;
-  }
-
   .milestone-list {
     margin-left: 1rem;
   }
@@ -270,7 +301,15 @@
     padding: 1rem;
   }
 
-  .group-header,
+  .group-header {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) 2.4rem;
+  }
+
+  .group-toggle {
+    grid-column: 1 / -1;
+  }
+
   .milestone-row {
     gap: 0.5rem;
   }

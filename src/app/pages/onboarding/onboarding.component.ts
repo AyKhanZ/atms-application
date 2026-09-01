@@ -107,7 +107,7 @@ export class OnboardingComponent implements HasUnsavedChanges {
   readonly maxInvitations = computed(() => this.model()?.maxInvitations ?? 6);
   readonly existingAvatarUrl = computed(() =>
     this.model()?.personalInfo.avatarUploaded
-      ? this.imageUrlService.normalize(this.model()?.personalInfo.avatarPath)
+      ? this.imageUrlService.normalizeAvatar(this.model()?.personalInfo.avatarPath)
       : null,
   );
   readonly existingAvatarName = computed(() =>

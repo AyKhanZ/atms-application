@@ -20,7 +20,7 @@ export class TopbarComponent {
   private readonly imageUrlService = inject(ImageUrlService);
   isMenuOpen = signal(false);
   meModel = this.store.selectSignal(UserStoreSelectors.getMe);
-  avatarUrl = computed(() => this.imageUrlService.normalize(this.meModel()?.avatarPath));
+  avatarUrl = computed(() => this.imageUrlService.normalizeAvatar(this.meModel()?.avatarPath));
   readonly userMenuItems: MenuItem[] = [
     {
       label: 'Settings',

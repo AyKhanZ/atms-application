@@ -14,9 +14,9 @@
         [count]="activeFilterCount()"
         (clicked)="toggleFilters()"
       />
-      @if (canManage()) {
+      <ng-container *hasRole="Roles.SuperAdmin">
         <app-create-button label="Create" (clicked)="openCreate()" />
-      }
+      </ng-container>
     </div>
   </div>
   @if (filtersOpen()) {
@@ -43,7 +43,7 @@
       [sortField]="filter().sortBy"
       [sortOrder]="filter().sortDirection === 2 ? -1 : 1"
       dataKey="id"
-      [tableStyle]="{ 'min-width': canManage() ? '58rem' : '52rem' }"
+      [tableStyle]="{ 'min-width': showActions() ? '58rem' : '52rem' }"
       [paginatorDropdownAppendTo]="'body'"
       (onLazyLoad)="onLazyLoad($event)"
     >
@@ -55,7 +55,7 @@
           <th>Type</th>
           <th>Status</th>
           <th pSortableColumn="startDate">Timeline <p-sortIcon field="startDate" /></th>
-          @if (canManage()) {
+          @if (showActions()) {
             <th class="actions-column">Actions</th>
           }
         </tr></ng-template
@@ -81,9 +81,9 @@
             <span class="date-separator">-</span>
             {{ project.endDate ? (project.endDate | date: 'dd.MM.yyyy') : 'Open' }}
           </td>
-          @if (canManage()) {
+          @if (showActions()) {
             <td class="actions-cell" (click)="$event.stopPropagation()">
-              <div class="management-table-actions">
+              <div class="management-table-actions" *hasRole="Roles.SuperAdmin">
                 <app-edit-action-button (clicked)="openEdit(project)" /><app-delete-action-button
                   (clicked)="confirmDelete(project)"
                 />
@@ -93,7 +93,7 @@
       ></ng-template>
       <ng-template pTemplate="emptymessage"
         ><tr>
-          <td [attr.colspan]="canManage() ? 7 : 6">
+          <td [attr.colspan]="showActions() ? 7 : 6">
             <div class="empty-state">
               <i class="pi pi-briefcase"></i><strong>No projects found</strong
               ><span>Try changing the search or filters.</span>

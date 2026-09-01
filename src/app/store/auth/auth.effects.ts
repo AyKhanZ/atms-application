@@ -10,6 +10,7 @@ import { SnackBarService } from '../../core/services/snack-bar.service';
 import { Router } from '@angular/router';
 import { TokenStorageService } from '../../core/services/token-storage.service';
 import { AuthSessionService } from '../../core/services/auth-session.service';
+import { ProjectAccessService } from '../../core/services/project-access.service';
 
 @Injectable()
 export class AuthEffects {
@@ -18,6 +19,7 @@ export class AuthEffects {
   private readonly authService = inject(AuthService);
   private readonly authSession = inject(AuthSessionService);
   private readonly tokenStorage = inject(TokenStorageService);
+  private readonly projectAccess = inject(ProjectAccessService);
   private readonly snackBar = inject(SnackBarService);
 
   login$ = createEffect(() =>
@@ -150,6 +152,7 @@ export class AuthEffects {
         ofType(AuthStoreActions.logoutCompleted),
         tap(() => {
           this.tokenStorage.clear();
+          this.projectAccess.clearAll();
           if (this.router.url !== '/server-unavailable') {
             void this.router.navigate(['/login']);
           }

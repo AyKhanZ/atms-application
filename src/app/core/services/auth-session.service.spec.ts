@@ -1,7 +1,8 @@
 import { TestBed } from '@angular/core/testing';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { firstValueFrom, of } from 'rxjs';
+import { firstValueFrom, of, throwError } from 'rxjs';
 import { AccessModel } from '../models/auth/auth.models';
 import { AuthService } from './auth.service';
 import { AuthSessionService } from './auth-session.service';
@@ -26,6 +27,7 @@ describe('AuthSessionService', () => {
     clear: ReturnType<typeof vi.fn>;
   };
   let store: { selectSignal: ReturnType<typeof vi.fn>; dispatch: ReturnType<typeof vi.fn> };
+  let router: { navigate: ReturnType<typeof vi.fn> };
   let originalLocks: PropertyDescriptor | undefined;
 
   beforeEach(() => {
@@ -40,6 +42,7 @@ describe('AuthSessionService', () => {
       selectSignal: vi.fn(() => () => null),
       dispatch: vi.fn(),
     };
+    router = { navigate: vi.fn() };
 
     TestBed.configureTestingModule({
       providers: [
@@ -47,7 +50,7 @@ describe('AuthSessionService', () => {
         { provide: AuthService, useValue: api },
         { provide: TokenStorageService, useValue: tokenStorage },
         { provide: Store, useValue: store },
-        { provide: Router, useValue: { navigate: vi.fn() } },
+        { provide: Router, useValue: router },
       ],
     });
   });
@@ -98,5 +101,30 @@ describe('AuthSessionService', () => {
     expect(api.refresh).toHaveBeenCalledWith({ refreshToken: oldAccessModel.refreshToken });
     expect(tokenStorage.save).toHaveBeenCalledWith(newAccessModel);
     expect(result).toEqual(newAccessModel);
+  });
+
+  it('clears persisted tokens when startup refresh confirms they are invalid', async () => {
+    tokenStorage.getAccessModel.mockReturnValue(oldAccessModel);
+    api.refresh.mockReturnValue(
+      throwError(() => new HttpErrorResponse({ status: 401 })),
+    );
+
+    const service = TestBed.inject(AuthSessionService);
+    await service.init();
+
+    expect(tokenStorage.clear).toHaveBeenCalledOnce();
+  });
+
+  it('preserves persisted tokens when startup refresh fails temporarily', async () => {
+    tokenStorage.getAccessModel.mockReturnValue(oldAccessModel);
+    api.refresh.mockReturnValue(
+      throwError(() => new HttpErrorResponse({ status: 500 })),
+    );
+
+    const service = TestBed.inject(AuthSessionService);
+    await service.init();
+
+    expect(tokenStorage.clear).not.toHaveBeenCalled();
+    expect(router.navigate).toHaveBeenCalledWith(['/server-unavailable']);
   });
 });

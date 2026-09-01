@@ -1,0 +1,141 @@
+.ticket-ownership-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(14rem, 1fr);
+  gap: 1rem;
+}
+
+.classification-grid--edit {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.milestone-field {
+  grid-column: 1 / -1;
+}
+
+.milestone-field p-select {
+  width: 100%;
+}
+
+.milestone-group,
+.milestone-option,
+.milestone-selection {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.milestone-group {
+  color: var(--gray-text-strong);
+}
+
+.milestone-option {
+  padding-left: 1.75rem;
+}
+
+.milestone-group > i,
+.milestone-option > i,
+.milestone-selection > i:not(.pi-angle-right) {
+  color: var(--orange);
+}
+
+.milestone-selection > span {
+  overflow: hidden;
+  color: var(--app-muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.milestone-selection > strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.assignee-selection,
+.assignee-option {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.assignee-selection > span,
+.assignee-option > span {
+  display: grid;
+  min-width: 0;
+  gap: 0.15rem;
+}
+
+:host ::ng-deep .ticket-assignee-select .p-select-label.p-placeholder {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+:host ::ng-deep .ticket-assignee-select .p-select-label.p-placeholder::before {
+  content: '\e939';
+  display: grid;
+  width: 1.25rem;
+  height: 1.25rem;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--app-surface-muted);
+  color: var(--gray-icon);
+  font-family: 'primeicons';
+  font-size: 0.68rem;
+}
+
+.milestones-load-more {
+  width: 100%;
+  justify-content: center;
+}
+
+.assignee-option small {
+  overflow: hidden;
+  color: var(--app-muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+:host ::ng-deep .assignee-selection .avatar,
+:host ::ng-deep .assignee-option .avatar {
+  --avatar-size: 1.25rem;
+  --avatar-radius: 999px;
+  --avatar-font-size: 0.5rem;
+
+  border-color: var(--app-border);
+  box-shadow: none;
+}
+
+:host ::ng-deep .assignee-selection .avatar-button:not(:disabled):hover .avatar,
+:host ::ng-deep .assignee-option .avatar-button:not(:disabled):hover .avatar {
+  transform: none;
+  box-shadow: none;
+}
+
+.ticket-form-state {
+  display: grid;
+  justify-items: center;
+  gap: 0.65rem;
+  min-height: 14rem;
+  padding: 2rem;
+  text-align: center;
+}
+
+.ticket-form-state > i {
+  color: var(--orange);
+  font-size: 1.5rem;
+}
+
+.ticket-form-state--error > i {
+  color: var(--red);
+}
+
+@container (max-width: 48rem) {
+  .classification-grid--edit,
+  .ticket-ownership-grid {
+    grid-template-columns: 1fr;
+  }
+}

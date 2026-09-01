@@ -6,6 +6,14 @@ export class ImageUrlService {
   private readonly apiOrigin = new URL(adminApiUrl, window.location.origin).origin;
   private readonly imagesPath = '/app/images';
 
+  normalizeAvatar(value: string | null | undefined): string | null {
+    if (value && /(?:^|\/)default[-_]avatar\.png(?:[?#].*)?$/i.test(value)) {
+      return null;
+    }
+
+    return this.normalize(value);
+  }
+
   normalize(value: string | null | undefined): string | null {
     if (!value) {
       return null;

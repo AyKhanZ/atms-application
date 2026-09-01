@@ -1,0 +1,78 @@
+@if (tickets().length > 0) {
+  <div class="ticket-list" [attr.aria-label]="'Tickets in ' + milestoneTitle()">
+    @for (ticket of tickets(); track ticket.id) {
+      <div
+        class="ticket-row"
+        [class.ticket-row--with-menu]="canEditTickets()"
+        [class.ticket-row--current]="ticket.id === currentTicketId()"
+      >
+        <button
+          type="button"
+          class="ticket-main"
+          [attr.aria-label]="'View ticket ' + ticket.title"
+          (click)="viewTicket.emit(ticket.id)"
+        >
+          <i class="pi pi-ticket structure-icon"></i>
+          <span class="ticket-code">{{ ticketCode(ticket.code) }}</span>
+          <span class="ticket-title-group">
+            <strong>{{ ticket.title }}</strong>
+            @if (ticket.id === currentTicketId()) {
+              <span class="ticket-current-tag">CURRENT</span>
+            }
+          </span>
+        </button>
+
+        <div class="ticket-meta">
+          <app-ticket-type-badge [type]="ticket.workTicketType" />
+          @if (ticket.assignee; as assignee) {
+            <span class="ticket-assignee" [title]="assigneeName(ticket)">
+              <app-profile-avatar
+                [imageUrl]="assignee.avatarPath"
+                [fullName]="assigneeName(ticket)"
+                [initials]="assigneeInitials(ticket)"
+                [previewEnabled]="false"
+              />
+              <span>{{ assigneeName(ticket) }}</span>
+            </span>
+          } @else {
+            <span class="ticket-assignee ticket-assignee--unassigned" title="Unassigned">
+              <i class="pi pi-user" aria-hidden="true"></i>
+              <span>Unassigned</span>
+            </span>
+          }
+          <app-ticket-status-badge [status]="ticket.workTicketStatus" />
+        </div>
+
+        @if (canEditTickets()) {
+          <button
+            type="button"
+            class="item-menu-button"
+            [attr.aria-label]="'Options for ticket ' + ticket.title"
+            (click)="openTicketMenu($event, ticket, ticketMenu)"
+          >
+            <i class="pi pi-ellipsis-v"></i>
+          </button>
+        }
+      </div>
+    }
+  </div>
+}
+
+@if (page(); as ticketPage) {
+  @if (ticketPage.loading && ticketPage.items.length === 0) {
+    <div class="milestone-ticket-loading" role="status">Loading tickets...</div>
+  } @else if (ticketPage.hasMore) {
+    <button
+      pButton
+      type="button"
+      class="milestone-tickets-load-more"
+      [outlined]="true"
+      [loading]="ticketPage.loading"
+      (click)="loadMore.emit()"
+    >
+      Load more
+    </button>
+  }
+}
+
+<p-menu #ticketMenu [model]="ticketActions()" [popup]="true" appendTo="body" />

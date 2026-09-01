@@ -2,6 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { catchError, map, of, switchMap, tap } from 'rxjs';
 import { SnackBarService } from '../../core/services/snack-bar.service';
+import { ProjectAccessService } from '../../core/services/project-access.service';
 import { WorkProjectsService } from '../../core/services/work-projects.service';
 import * as WorkProjectsStoreActions from './work-projects.actions';
 
@@ -9,6 +10,7 @@ import * as WorkProjectsStoreActions from './work-projects.actions';
 export class WorkProjectsEffects {
   private readonly actions$ = inject(Actions);
   private readonly service = inject(WorkProjectsService);
+  private readonly projectAccess = inject(ProjectAccessService);
   private readonly snackBar = inject(SnackBarService);
 
   load$ = createEffect(() =>
@@ -49,7 +51,7 @@ export class WorkProjectsEffects {
       ofType(WorkProjectsStoreActions.updateProject),
       switchMap(({ command }) =>
         this.service.updateProject(command).pipe(
-          map(() => WorkProjectsStoreActions.updateProjectSuccess()),
+          map(() => WorkProjectsStoreActions.updateProjectSuccess({ id: command.id })),
           catchError(() => of(WorkProjectsStoreActions.updateProjectFailure())),
         ),
       ),
@@ -71,7 +73,7 @@ export class WorkProjectsEffects {
       ofType(WorkProjectsStoreActions.addProjectParticipant),
       switchMap(({ id, userId, roleId }) =>
         this.service.addParticipant(id, userId, roleId).pipe(
-          map(() => WorkProjectsStoreActions.addProjectParticipantSuccess()),
+          map(() => WorkProjectsStoreActions.addProjectParticipantSuccess({ id })),
           catchError(() => of(WorkProjectsStoreActions.addProjectParticipantFailure())),
         ),
       ),
@@ -82,7 +84,7 @@ export class WorkProjectsEffects {
       ofType(WorkProjectsStoreActions.updateProjectParticipant),
       switchMap(({ id, participantId, roleId }) =>
         this.service.updateParticipant(id, participantId, roleId).pipe(
-          map(() => WorkProjectsStoreActions.updateProjectParticipantSuccess()),
+          map(() => WorkProjectsStoreActions.updateProjectParticipantSuccess({ id })),
           catchError(() => of(WorkProjectsStoreActions.updateProjectParticipantFailure())),
         ),
       ),
@@ -93,7 +95,7 @@ export class WorkProjectsEffects {
       ofType(WorkProjectsStoreActions.deleteProjectParticipant),
       switchMap(({ id, participantId }) =>
         this.service.deleteParticipant(id, participantId).pipe(
-          map(() => WorkProjectsStoreActions.deleteProjectParticipantSuccess()),
+          map(() => WorkProjectsStoreActions.deleteProjectParticipantSuccess({ id })),
           catchError(() => of(WorkProjectsStoreActions.deleteProjectParticipantFailure())),
         ),
       ),
@@ -134,6 +136,22 @@ export class WorkProjectsEffects {
                 : 'Project successfully updated.',
           ),
         ),
+      ),
+    { dispatch: false },
+  );
+
+  clearProjectAccessCache$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(
+          WorkProjectsStoreActions.updateProjectSuccess,
+          WorkProjectsStoreActions.updateProjectStatusSuccess,
+          WorkProjectsStoreActions.addProjectParticipantSuccess,
+          WorkProjectsStoreActions.updateProjectParticipantSuccess,
+          WorkProjectsStoreActions.deleteProjectParticipantSuccess,
+          WorkProjectsStoreActions.deleteProjectSuccess,
+        ),
+        tap(({ id }) => this.projectAccess.clear(id)),
       ),
     { dispatch: false },
   );

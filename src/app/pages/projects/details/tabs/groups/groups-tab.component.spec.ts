@@ -2,8 +2,10 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideMockActions } from '@ngrx/effects/testing';
 import { MockStore, provideMockStore } from '@ngrx/store/testing';
 import { ConfirmationService } from 'primeng/api';
-import { Subject } from 'rxjs';
+import { of, Subject } from 'rxjs';
+import { ProjectPermissions } from '../../../../../core/enums/project-permissions.enum';
 import { WorkGroupModel } from '../../../../../core/models/work-groups';
+import { ProjectAccessService } from '../../../../../core/services/project-access.service';
 import { Features } from '../../../../../store/features.enum';
 import { initialWorkGroupsState } from '../../../../../store/work-groups/work-groups.state';
 import { WorkGroupsStoreActions } from '../../../../../store/work-groups';
@@ -83,6 +85,18 @@ describe('GroupsTabComponent', () => {
       providers: [
         ConfirmationService,
         WorkGroupExpansionStateService,
+        {
+          provide: ProjectAccessService,
+          useValue: {
+            getPermissions: () => of([
+              ProjectPermissions.Project.Edit,
+              ProjectPermissions.Ticket.Create,
+              ProjectPermissions.Ticket.Edit,
+            ]),
+            hasPermission: () => of(true),
+            version: () => 0,
+          },
+        },
         provideMockActions(() => actions$),
         provideMockStore({
           initialState: {
@@ -128,7 +142,6 @@ describe('GroupsTabComponent', () => {
         projectId: 'project-1',
       },
     });
-    fixture.componentRef.setInput('canManage', true);
     fixture.detectChanges();
 
     const element = fixture.nativeElement as HTMLElement;
@@ -214,5 +227,16 @@ describe('GroupsTabComponent', () => {
     );
 
     expect(fixture.componentInstance.isExpanded('item-1')).toBe(true);
+  });
+
+  it('offers ticket creation from a milestone menu', () => {
+    fixture.componentInstance.selectedWorkGroup.set({
+      item: workGroup({ id: 'milestone-1', parentWorkGroupId: 'item-1' }),
+      kind: 'milestone',
+    });
+
+    expect(fixture.componentInstance.itemActions().map((item) => item.label)).toContain(
+      'Create ticket',
+    );
   });
 });

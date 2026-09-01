@@ -17,7 +17,6 @@ export const Permissions = {
   Project: {
     View: 'ProjectView',
     Edit: 'ProjectEdit',
-    Delete: 'ProjectDelete',
   },
   Comment: {
     View: 'CommentView',

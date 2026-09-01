@@ -27,6 +27,22 @@ describe('WorkGroupsService', () => {
     request.flush([]);
   });
 
+  it('loads a cursor page of milestones using server-side search', () => {
+    service
+      .getMilestones('project-1', {
+        search: 'release',
+        cursor: 'next-page',
+        pageSize: 50,
+      })
+      .subscribe();
+
+    const request = http.expectOne(
+      `${collectionUrl}/milestones?pageSize=50&search=release&cursor=next-page`,
+    );
+    expect(request.request.method).toBe('GET');
+    request.flush({ items: [], nextCursor: null, hasMore: false, pageSize: 50 });
+  });
+
   it('creates a milestone under the selected group', () => {
     service
       .createWorkGroup('project-1', {

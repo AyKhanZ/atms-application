@@ -1,0 +1,51 @@
+@let item = ticket();
+
+<section class="ticket-facts">
+  <h3>Details</h3>
+  <dl>
+    <div>
+      <dt>Type</dt>
+      <dd><app-ticket-type-badge [type]="item.workTicketType" /></dd>
+    </div>
+    <div>
+      <dt>Priority</dt>
+      <dd><app-ticket-priority-badge [priority]="item.priority" /></dd>
+    </div>
+    <div>
+      <dt>Assignee</dt>
+      <dd>
+        @if (item.assignee; as assignee) {
+          <span class="assignee-chip" [title]="assignee | personName">
+            <app-profile-avatar
+              [imageUrl]="assignee.avatarPath"
+              [fullName]="assignee | personName"
+              [initials]="assignee | personInitials"
+              [previewEnabled]="false"
+            />
+            <span>{{ assignee | personName }}</span>
+          </span>
+        } @else {
+          <span class="assignee-chip assignee-chip--unassigned">
+            <i class="pi pi-user" aria-hidden="true"></i>
+            <span>Unassigned</span>
+          </span>
+        }
+      </dd>
+    </div>
+    <div>
+      <dt>Deadline</dt>
+      <dd>
+        @if (item.deadline; as deadline) {
+          <span class="deadline-value">
+            {{ deadline | date: 'dd.MM.yyyy' }}
+            <small [class.deadline-value--overdue]="deadline | isOverdue">
+              {{ deadline | deadlineLabel }}
+            </small>
+          </span>
+        } @else {
+          <span>Not set</span>
+        }
+      </dd>
+    </div>
+  </dl>
+</section>

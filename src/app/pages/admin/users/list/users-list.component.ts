@@ -27,8 +27,8 @@ import { ListSearchComponent } from '../../../../shared/components/list-search/l
 import { FilterToggleButtonComponent } from '../../../../shared/components/filter-toggle-button/filter-toggle-button.component';
 import { CreateButtonComponent } from '../../../../shared/components/create-button/create-button.component';
 import { UserRegisterDialogComponent } from '../components/user-register-dialog/user-register-dialog.component';
+import { HasPermissionDirective } from '../../../../core/directives/has-permission.directive';
 import { Permissions } from '../../../../core/enums/permissions.enum';
-import { Roles } from '../../../../core/enums/roles.enum';
 import { ImageUrlService } from '../../../../core/services/image-url.service';
 
 @Component({
@@ -37,6 +37,7 @@ import { ImageUrlService } from '../../../../core/services/image-url.service';
     CreateButtonComponent,
     DatePipe,
     FilterToggleButtonComponent,
+    HasPermissionDirective,
     ListSearchComponent,
     TableModule,
     TagModule,
@@ -62,8 +63,6 @@ export class UsersListComponent implements OnInit, OnDestroy {
   readonly hasLoaded = signal(false);
   readonly failedAvatarIds = signal<Set<string>>(new Set<string>());
   readonly users = this.store.selectSignal(UsersStoreSelectors.getItems);
-  readonly permissions = this.store.selectSignal(UserStoreSelectors.getPermissions);
-  readonly roles = this.store.selectSignal(UserStoreSelectors.getRoles);
   readonly totalCount = this.store.selectSignal(UsersStoreSelectors.getTotalCount);
   readonly loading = this.store.selectSignal(UsersStoreSelectors.isLoading);
   readonly userStatuses = this.store.selectSignal(DictionaryStoreSelectors.getUserStatusesDictionaries);
@@ -74,6 +73,7 @@ export class UsersListComponent implements OnInit, OnDestroy {
   readonly searchTerm = signal('');
   readonly filtersOpen = signal(false);
   readonly registerDialogVisible = signal(false);
+  readonly Permissions = Permissions;
   readonly first = computed(() => (this.filter().page - 1) * this.filter().pageSize);
   readonly activeFilterCount = computed(() => this.query.activeFilterCount(this.filter()));
   readonly tableRequestsBlocked = computed(() => {
@@ -85,10 +85,6 @@ export class UsersListComponent implements OnInit, OnDestroy {
   readonly tableSortOrder = computed(() =>
     this.filter().sortDirection === SortDirectionEnum.Desc ? -1 : 1,
   );
-  readonly canRegisterUser = computed(() =>
-    this.roles().some((role) => role.code === Roles.SuperAdmin) || this.permissions().includes(Permissions.User.Edit),
-  );
-
   constructor() {
     if (this.userStatuses().length === 0) {
       this.store.dispatch(DictionaryStoreActions.loadUserStatusDictionaries());
@@ -146,10 +142,6 @@ export class UsersListComponent implements OnInit, OnDestroy {
   }
 
   openRegisterUser(): void {
-    if (!this.canRegisterUser()) {
-      return;
-    }
-
     this.registerDialogVisible.set(true);
   }
 
@@ -188,7 +180,7 @@ export class UsersListComponent implements OnInit, OnDestroy {
   }
 
   avatarUrl(user: UserListItemModel): string | null {
-    return this.imageUrlService.normalize(user.avatarPath);
+    return this.imageUrlService.normalizeAvatar(user.avatarPath);
   }
 
   onAvatarError(user: UserListItemModel): void {

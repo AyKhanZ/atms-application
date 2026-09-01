@@ -26,18 +26,20 @@
       }
     </a>
 
-    <a
-      routerLink="/projects"
-      routerLinkActive="active">
+    <ng-container *hasPermission="Permissions.Project.View">
+      <a
+        routerLink="/projects"
+        routerLinkActive="active">
 
-      <i class="pi pi-briefcase"></i>
+        <i class="pi pi-briefcase"></i>
 
-      @if (!layout.collapsed()) {
-        <span>Projects</span>
-      }
-    </a>
+        @if (!layout.collapsed()) {
+          <span>Projects</span>
+        }
+      </a>
+    </ng-container>
 
-    @if (canManageAdministration()) {
+    <ng-container *hasPermission="Permissions.User.View">
       <a
         routerLink="/users"
         routerLinkActive="active">
@@ -48,6 +50,9 @@
           <span>Users</span>
         }
       </a>
+    </ng-container>
+
+    <ng-container *hasPermission="Permissions.Organization.View">
       <a
         routerLink="/organizations"
         routerLinkActive="active">
@@ -58,7 +63,7 @@
           <span>Organizations</span>
         }
       </a>
-    }
+    </ng-container>
   </nav>
 
   <button

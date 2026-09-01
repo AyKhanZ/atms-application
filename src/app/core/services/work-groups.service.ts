@@ -1,9 +1,11 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { projectApiUrl } from '../constants/api-url.constants';
 import {
   CreateWorkGroupCommand,
+  MilestoneFilter,
+  MilestonePageModel,
   UpdateWorkGroupCommand,
   WorkGroupModel,
 } from '../models/work-groups';
@@ -15,6 +17,19 @@ export class WorkGroupsService {
 
   getWorkGroups(projectId: string): Observable<WorkGroupModel[]> {
     return this.http.get<WorkGroupModel[]>(this.workGroupsUrl(projectId));
+  }
+
+  getMilestones(
+    projectId: string,
+    filter: MilestoneFilter = {},
+  ): Observable<MilestonePageModel> {
+    let params = new HttpParams().set('pageSize', filter.pageSize ?? 50);
+    if (filter.search) params = params.set('search', filter.search);
+    if (filter.cursor) params = params.set('cursor', filter.cursor);
+
+    return this.http.get<MilestonePageModel>(`${this.workGroupsUrl(projectId)}/milestones`, {
+      params,
+    });
   }
 
   createWorkGroup(projectId: string, command: CreateWorkGroupCommand): Observable<string> {

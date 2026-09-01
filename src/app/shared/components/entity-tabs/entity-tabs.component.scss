@@ -1,0 +1,55 @@
+:host {
+  display: block;
+}
+
+.entity-tabs {
+  display: flex;
+  min-width: 0;
+  gap: 0.2rem;
+  padding: 0 1.5rem;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--app-border);
+  scrollbar-width: thin;
+}
+
+.entity-tabs button {
+  display: inline-flex;
+  min-height: 3.1rem;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0 0.85rem;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--app-muted);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.entity-tabs button:not(.active):hover,
+.entity-tabs button:not(.active):focus-visible {
+  border-radius: 6px 6px 0 0;
+  background: var(--orange-light-hover);
+  color: var(--orange-text-hover);
+}
+
+.entity-tabs button.active {
+  border-bottom-color: var(--orange);
+  color: var(--orange-text-hover);
+}
+
+.entity-tabs button:focus-visible {
+  outline: 3px solid var(--orange-focus-outline);
+  outline-offset: -3px;
+}
+
+@container (max-width: 42rem) {
+  .entity-tabs {
+    padding-inline: 0.5rem;
+  }
+}

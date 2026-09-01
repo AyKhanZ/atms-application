@@ -7,7 +7,9 @@ import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 import { ConfirmationService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { TableLazyLoadEvent, TableModule } from 'primeng/table';
+import { HasPermissionDirective } from '../../../../core/directives/has-permission.directive';
 import { Permissions } from '../../../../core/enums/permissions.enum';
+import { Roles } from '../../../../core/enums/roles.enum';
 import { createDefaultOrganizationListFilter, OrganizationListFilter, OrganizationListItemModel } from '../../../../core/models/organizations/organizations.models';
 import { SortDirectionEnum } from '../../../../core/enums/sort-direction.enum';
 import { TableLazyLoadService } from '../../../../core/services/table-lazy-load.service';
@@ -32,6 +34,7 @@ import { OrganizationsListQueryService } from './services/organizations-list-que
     DeleteActionButtonComponent,
     EditActionButtonComponent,
     FilterToggleButtonComponent,
+    HasPermissionDirective,
     ListSearchComponent,
     OrganizationsFilterComponent,
     OrganizationCreateDialogComponent,
@@ -51,6 +54,7 @@ export class ListComponent implements OnInit, OnDestroy {
   private readonly tableLazyLoad = inject(TableLazyLoadService);
   private readonly imageUrlService = inject(ImageUrlService);
   private readonly searchChanges = new Subject<string>();
+  private readonly roles = this.store.selectSignal(UserStoreSelectors.getRoles);
   private readonly permissions = this.store.selectSignal(UserStoreSelectors.getPermissions);
   private lastLoadKey = '';
 
@@ -65,9 +69,13 @@ export class ListComponent implements OnInit, OnDestroy {
   readonly selectedOrganization = signal<OrganizationListItemModel | null>(null);
   readonly first = computed(() => (this.filter().page - 1) * this.filter().pageSize);
   readonly activeFilterCount = computed(() => this.query.activeFilterCount(this.filter()));
-  readonly canEdit = computed(() => this.permissions().includes(Permissions.Organization.Edit));
-  readonly canDelete = computed(() => this.permissions().includes(Permissions.Organization.Delete));
-  readonly showActions = computed(() => this.canEdit() || this.canDelete());
+  readonly isSuperAdmin = computed(() => this.roles().some((role) => role.code === Roles.SuperAdmin));
+  readonly Permissions = Permissions;
+  readonly showActions = computed(() =>
+    this.isSuperAdmin() ||
+    this.permissions().includes(Permissions.Organization.Edit) ||
+    this.permissions().includes(Permissions.Organization.Delete),
+  );
   readonly tableRequestsBlocked = computed(() => {
     const filter = this.filter();
     const hasUserInput = Boolean(filter.search) || this.query.hasAdvancedFilters(filter);

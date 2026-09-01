@@ -1,9 +1,18 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, OnDestroy, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  OnDestroy,
+  OnInit,
+} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { TagModule } from 'primeng/tag';
 import { UserModel } from '../../../../core/models/users/users.models';
+import { BreadcrumbOverrideService } from '../../../../core/services/breadcrumb-override.service';
 import { UserDisplayService } from '../../../../core/services/user-display.service';
 import { UsersStoreActions, UsersStoreSelectors } from '../../../../store/users';
 import { BackButtonComponent } from '../../../../shared/components/back-button/back-button.component';
@@ -21,6 +30,8 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly store = inject(Store);
   private readonly userDisplay = inject(UserDisplayService);
+  private readonly breadcrumbOverride = inject(BreadcrumbOverrideService);
+  private breadcrumbPath = '';
 
   readonly user = this.store.selectSignal(UsersStoreSelectors.getItem);
   readonly loading = this.store.selectSignal(UsersStoreSelectors.isLoading);
@@ -32,6 +43,13 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
         .filter(Boolean) ?? [],
   );
 
+  constructor() {
+    effect(() => {
+      const name = this.fullName();
+      if (name && this.breadcrumbPath) this.breadcrumbOverride.set(this.breadcrumbPath, name);
+    });
+  }
+
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) {
@@ -39,12 +57,15 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
       return;
     }
 
+    this.breadcrumbPath = `/users/${id}`;
+
     this.store.dispatch(UsersStoreActions.clearItem());
     this.store.dispatch(UsersStoreActions.loadUser({ id }));
   }
 
   ngOnDestroy(): void {
     this.store.dispatch(UsersStoreActions.clearItem());
+    if (this.breadcrumbPath) this.breadcrumbOverride.clear(this.breadcrumbPath);
   }
 
   back(): void {

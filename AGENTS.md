@@ -32,6 +32,22 @@ Treat this repository as a real production application. Follow the existing arch
 
 ---
 
+## Commit messages
+
+Never add trailers or attribution lines to a commit message, a pull request body, or any commit text you draft for a human to use.
+
+Specifically forbidden:
+
+- `Co-Authored-By: Claude ...` or any other `Co-Authored-By` trailer
+- `Generated with ...`, `Co-authored by an AI`, or similar attribution
+- Any footer naming an AI tool, model, or assistant
+
+A commit message ends with its last substantive line. Nothing follows it.
+
+This applies regardless of who wrote the code — including commits an agent authored end to end.
+
+---
+
 # Code layout and vertical readability
 
 - Optimize code for vertical scanning and readable diffs, not for minimizing the number of lines.
@@ -189,6 +205,16 @@ Treat this repository as a real production application. Follow the existing arch
 
 # Frontend testing and verification
 
+```bash
+npx ng build --configuration development   # compilation check, faster than a production build
+npx ng test --watch=false                  # full unit suite
+npm start                                  # dev server on :4200
+```
+
+A template that references a missing directive as a plain attribute (`pTooltip="..."` rather
+than `[pTooltip]="..."`) compiles without error and silently does nothing. A green build is not
+proof that a directive is wired up — check the component's `imports`.
+
 - Every new behavior and bug fix must have automated test coverage when technically practical.
 - Update existing tests when behavior changes.
 - Add a regression test for a bug fix.
@@ -229,6 +255,55 @@ After implementing or fixing UI functionality:
 - Before creating a new shared component, search the repository for an existing equivalent.
 - Do not leave repeated UI code in several feature folders when it can reasonably be implemented once in `common/shared`.
 - Do not create a generic shared component when the code is genuinely specific to one page.
+
+### What counts as repetition — not only components
+
+The list above is about markup. Three other kinds of duplication caused real drift in this
+repository and are covered by the same rule:
+
+- **CSS declaration blocks.** If the same set of declarations describes the same visual object
+  in more than one component, it becomes a Sass mixin in `src/styles/`, used via
+  `@use`. Status, type, priority and metadata chips silently diverged because each component
+  carried its own copy of the same ten declarations; they now share `styles/_chip.scss`.
+- **Formatting helpers.** A method that turns data into display text belongs in a shared pipe,
+  not copied into each component. See the pipe rule below.
+- **Pure functions.** Validators, parsers, mappers and guards go into a `core/utils/` module the
+  moment a second file needs them. `projectNavigationUrl` existed as two identical private
+  copies, and only one of them was later hardened.
+
+Before copying any block of code into a second place, extract it instead. Two copies are already
+the point at which they start to drift.
+
+### Format for display with a pipe, not a component method
+
+- A method called from a template re-runs on **every change detection pass**, which with
+  `OnPush` still means far more often than the data changes. `Intl.*` formatters are expensive
+  and must not be constructed this way.
+- Put display formatting in a pipe under `shared/pipes/`. Existing ones: `relativeTime`,
+  `personName`, `personInitials`, `deadlineLabel`, `isOverdue`.
+- Component methods are for event handlers and actions, not for rendering values.
+
+### File size
+
+Size is a symptom, not a rule in itself — but past these thresholds, assume the file is doing
+several jobs and split it, or state in the pull request why it should not be split:
+
+| File | Threshold |
+|---|---|
+| Component template | ~150 lines |
+| Component stylesheet | ~250 lines |
+| Component TypeScript | ~300 lines |
+
+Split along real seams: a self-contained region of a page becomes its own component, a
+repeated row becomes a list-item component, formatting moves to pipes, pure logic moves to
+`core/utils/`. Do not split a file merely to satisfy a number — a 400-line form that is
+genuinely one form is fine, and should say so.
+
+### Delete code that is no longer reachable
+
+When a refactor leaves a component, style block, helper or route unused, remove it in the same
+change. Check with a repository-wide search for the selector, class name or symbol first. Dead
+code that survives a refactor is indistinguishable from code that is merely hard to find.
 
 ## Separate TypeScript contracts into separate files
 

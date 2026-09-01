@@ -1,0 +1,302 @@
+:host {
+  position: relative;
+  display: block;
+  min-width: 0;
+}
+
+.milestone-jump {
+  /* Three nesting levels, each with its own rail offset from the panel edge: the group sits
+     flush at the panel padding, the milestone is indented under it, and the tickets are
+     indented again under the milestone so the containment reads at a glance. Kept as
+     variables because the milestone lives inside the padded location block while the list
+     has no padding of its own, so the two need different local maths for the same result. */
+  --jump-location-padding: 0.75rem;
+  --jump-milestone-inset: 1.35rem;
+  --jump-ticket-inset: 2.9rem;
+
+  position: relative;
+  display: grid;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.milestone-jump-label {
+  color: var(--app-muted);
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.milestone-jump-trigger {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr) auto;
+  width: 100%;
+  min-width: 0;
+  min-height: 4.15rem;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+  background: var(--white);
+  color: var(--app-text);
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.milestone-jump-trigger:hover {
+  border-color: var(--orange-border);
+}
+
+.milestone-jump-trigger:focus-visible {
+  border-color: var(--orange);
+  outline: 3px solid var(--orange-focus-outline);
+  outline-offset: 1px;
+}
+
+.milestone-jump-trigger > .pi-ticket {
+  color: var(--orange-text-hover);
+}
+
+.milestone-jump-trigger__code {
+  color: var(--app-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.milestone-jump-trigger__title {
+  display: -webkit-box;
+  min-width: 0;
+  overflow: hidden;
+  font-size: 0.84rem;
+  line-height: 1.3;
+  text-align: left;
+  white-space: normal;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+}
+
+.milestone-jump-trigger__chevron {
+  color: var(--app-muted);
+  font-size: 0.72rem;
+  transition: transform 0.15s ease;
+}
+
+.milestone-jump--open .milestone-jump-trigger__chevron {
+  transform: rotate(180deg);
+}
+
+.milestone-jump-panel {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 0.45rem);
+  right: 0;
+  display: grid;
+  width: min(46rem, calc(100vw - 2rem));
+  min-width: 100%;
+  max-height: min(32rem, 70vh);
+  overflow: hidden;
+  border: 1px solid var(--app-border);
+  border-radius: 10px;
+  background: var(--white);
+  box-shadow: 0 14px 36px rgb(15 23 42 / 16%);
+}
+
+.milestone-jump-search {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.55rem;
+  margin: 0.65rem;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+}
+
+.milestone-jump-search:focus-within {
+  border-color: var(--orange);
+  box-shadow: 0 0 0 3px var(--orange-focus-outline);
+}
+
+.milestone-jump-search i {
+  color: var(--app-muted);
+}
+
+.milestone-jump-search input {
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--app-text);
+  font: inherit;
+  font-size: 0.82rem;
+}
+
+.milestone-jump-location {
+  display: grid;
+  gap: 0.45rem;
+  padding: 0.65rem var(--jump-location-padding);
+  border-block: 1px solid var(--app-border);
+  background: var(--app-surface-muted);
+}
+
+.milestone-jump-location__group,
+.milestone-jump-location__milestone {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+  font-size: 0.77rem;
+}
+
+.milestone-jump-location__group {
+  color: var(--app-muted);
+}
+
+.milestone-jump-location__milestone {
+  margin-left: calc(var(--jump-milestone-inset) - var(--jump-location-padding));
+  padding-left: 0.65rem;
+  border-left: 1px solid var(--orange-border);
+}
+
+.milestone-jump-location__group i {
+  color: var(--gray-icon);
+}
+
+.milestone-jump-location__milestone i {
+  color: var(--orange-text-hover);
+}
+
+.milestone-jump-location strong,
+.milestone-jump-location span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.milestone-jump-location small {
+  color: var(--app-muted);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.milestone-jump-list {
+  overflow-y: auto;
+  min-height: 3.2rem;
+  max-height: 18rem;
+  margin-left: var(--jump-ticket-inset);
+  border-left: 1px solid var(--orange-border);
+}
+
+.milestone-jump-option {
+  display: grid;
+  grid-template-columns: 2.25rem minmax(5rem, 1fr) auto auto;
+  width: 100%;
+  min-width: 0;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.65rem 0.75rem;
+  border: 0;
+  border-bottom: 1px solid var(--app-border);
+  background: var(--white);
+  color: var(--app-text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.milestone-jump-option:hover,
+.milestone-jump-option:focus-visible {
+  background: var(--orange-light-hover);
+  outline: 0;
+}
+
+.milestone-jump-option--current {
+  background: var(--orange-light);
+  color: var(--orange-text-hover);
+  box-shadow: inset 3px 0 var(--orange);
+}
+
+.milestone-jump-option__code {
+  color: var(--app-muted);
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.milestone-jump-option__title {
+  display: -webkit-box;
+  min-width: 0;
+  overflow: hidden;
+  font-size: 0.8rem;
+  line-height: 1.3;
+  white-space: normal;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.milestone-jump-message {
+  display: flex;
+  min-height: 5rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  color: var(--app-muted);
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+@media (max-width: 30rem) {
+  .milestone-jump {
+    /* Narrow panels cannot afford the full nesting indent — the rows would run out of room
+       for the title before the badges. Keep the two levels distinguishable, just tighter. */
+    --jump-milestone-inset: 1.1rem;
+    --jump-ticket-inset: 1.8rem;
+  }
+
+  .milestone-jump-trigger {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+  }
+
+  .milestone-jump-trigger__code {
+    justify-self: start;
+  }
+
+  .milestone-jump-trigger__title {
+    grid-row: 2;
+    grid-column: 1 / -1;
+    -webkit-line-clamp: 5;
+  }
+
+  .milestone-jump-panel {
+    right: 0;
+    left: auto;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .milestone-jump-option {
+    grid-template-columns: 2.1rem minmax(0, 1fr) auto;
+    align-items: start;
+  }
+
+  .milestone-jump-option app-ticket-type-badge {
+    grid-row: 1;
+    grid-column: 2;
+    justify-self: start;
+  }
+
+  .milestone-jump-option app-ticket-status-badge {
+    grid-row: 1;
+    grid-column: 3;
+    align-self: center;
+  }
+
+  .milestone-jump-option__title {
+    grid-row: 2;
+    grid-column: 1 / -1;
+    -webkit-line-clamp: 5;
+  }
+}

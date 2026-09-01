@@ -1,3 +1,5 @@
+@use 'chip';
+
 .details-header {
   align-items: center;
 }
@@ -178,23 +180,17 @@
 }
 
 .project-metadata-tag {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 14px;
-  font-weight: 750;
-  line-height: normal;
-  white-space: nowrap;
+  @include chip.base;
 }
 
 .project-metadata-tag--type {
+  border-color: rgb(126 34 206 / 28%);
   background: #f3e8ff;
   color: #7e22ce;
 }
 
 .project-metadata-tag--kind {
+  border-color: rgb(3 105 161 / 28%);
   background: #e0f2fe;
   color: #0369a1;
 }
@@ -209,15 +205,6 @@
 }
 
 @container (max-width: 50rem) {
-  .project-hero {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 1.25rem;
-  }
-
-  .status-area {
-    justify-self: start;
-  }
-
   .details-content {
     grid-template-columns: minmax(0, 1fr);
     min-height: 0;
@@ -226,6 +213,17 @@
   .description-card {
     border-right: 0;
     border-bottom: 1px solid var(--app-border);
+  }
+}
+
+@container (max-width: 34rem) {
+  .project-hero {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1rem;
+  }
+
+  .status-area {
+    justify-self: start;
   }
 }
 

@@ -8,6 +8,7 @@ import {
   model,
   output,
   signal,
+  untracked,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -59,7 +60,9 @@ export class AddParticipantDialogComponent {
     });
 
     effect(() => {
-      if (this.visible()) this.resetForm();
+      const visible = this.visible();
+
+      if (visible) untracked(() => this.resetForm());
     });
   }
 

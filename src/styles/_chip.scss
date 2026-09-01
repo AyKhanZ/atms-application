@@ -1,0 +1,40 @@
+/// Shared geometry for every status/type/priority chip in the app.
+///
+/// The same pill appears on Project details, Ticket details, the Plan rows and the ticket
+/// switcher. Those used to each carry their own copy of these declarations, which is how they
+/// silently drifted apart (different border, radius and font size per surface). Keep the shape
+/// here and let each component contribute only its colours.
+///
+/// Usage:
+///   @use 'chip';
+///   .ticket-status { @include chip.base; }
+///   .ticket-status--prominent { @include chip.prominent; }
+
+@mixin base {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 4rem;
+  min-height: 1.5rem;
+  padding: 0.16rem 0.55rem;
+  border: 1px solid var(--app-border);
+  border-radius: 0.45rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/// Page-header size, for the single chip that states the entity's own status.
+@mixin prominent {
+  min-width: 4.75rem;
+  min-height: 2rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+/// Chips that carry an icon alongside the label (Type).
+@mixin with-icon {
+  gap: 0.3rem;
+}

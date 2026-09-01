@@ -28,7 +28,7 @@ describe('WorkGroupDialogComponent', () => {
 
   it('rejects a blank or overlong name', () => {
     component.form.controls.title.setValue('   ');
-    component.form.controls.title.markAsTouched();
+    component.submit();
     expect(component.form.controls.title.invalid).toBe(true);
     expect(component.titleError()).toBe('Name is required.');
 
@@ -58,12 +58,22 @@ describe('WorkGroupDialogComponent', () => {
     fixture.componentRef.setInput('groups', [group]);
     component.visible.set(true);
     fixture.detectChanges();
-    component.initializeForm();
     component.form.controls.title.setValue('Discovery');
 
     component.submit();
 
     expect(component.form.controls.parentWorkGroupId.hasError('required')).toBe(true);
+    expect(component.showError('parentWorkGroupId')).toBe(true);
+  });
+
+  it('does not show name validation before submit', () => {
+    component.visible.set(true);
+    fixture.detectChanges();
+    component.form.controls.title.markAsTouched();
+
+    expect(component.form.controls.title.invalid).toBe(true);
+    expect(component.showError('title')).toBe(false);
+    expect(component.titleError()).toBe('');
   });
 
   it('keeps the selected parent when creating a milestone', () => {
@@ -73,7 +83,6 @@ describe('WorkGroupDialogComponent', () => {
     fixture.componentRef.setInput('groups', [group]);
     component.visible.set(true);
     fixture.detectChanges();
-    component.initializeForm();
     component.form.setValue({
       title: 'Discovery',
       parentWorkGroupId: group.id,
@@ -89,5 +98,21 @@ describe('WorkGroupDialogComponent', () => {
       title: 'Discovery',
       parentWorkGroupId: group.id,
     });
+  });
+
+  it('clears validation state before reopening the dialog', () => {
+    component.visible.set(true);
+    fixture.detectChanges();
+    component.submit();
+
+    expect(component.showError('title')).toBe(true);
+
+    component.visible.set(false);
+    fixture.detectChanges();
+    component.visible.set(true);
+    fixture.detectChanges();
+
+    expect(component.submitAttempted()).toBe(false);
+    expect(component.showError('title')).toBe(false);
   });
 });

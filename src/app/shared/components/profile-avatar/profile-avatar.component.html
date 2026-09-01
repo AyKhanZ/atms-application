@@ -4,8 +4,8 @@
   [disabled]="!previewEnabled() || !canShowImage()"
   (click)="openPreview()">
   <div class="avatar">
-    @if (canShowImage()) {
-      <img [src]="normalizedImageUrl()!" [alt]="fullName()" (error)="onImageError()" />
+    @if (visibleImageUrl(); as imageUrl) {
+      <img [src]="imageUrl" [alt]="fullName()" (error)="onImageError()" />
     } @else {
       <span>{{ initials() }}</span>
     }
@@ -20,10 +20,10 @@
   [resizable]="false"
   [showHeader]="false"
   styleClass="avatar-preview-dialog">
-  @if (canShowImage()) {
+  @if (visibleImageUrl(); as imageUrl) {
     <img
       class="avatar-preview-image"
-      [src]="normalizedImageUrl()!"
+      [src]="imageUrl"
       [alt]="fullName()"
       (error)="onImageError()" />
   }

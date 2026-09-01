@@ -1,0 +1,239 @@
+:host {
+  display: block;
+}
+
+.ticket-list {
+  display: grid;
+  margin-left: 2.5rem;
+  border-left: 1px solid var(--app-border);
+}
+
+.ticket-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  min-width: 0;
+  min-height: 3.1rem;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.45rem 0.75rem 0.45rem 1rem;
+  border-top: 1px solid var(--app-border);
+  background: var(--white);
+}
+
+.ticket-row--with-menu {
+  grid-template-columns: minmax(0, 1fr) auto 2.4rem;
+}
+
+.ticket-row--current {
+  border-left: 3px solid var(--orange);
+  background: var(--orange-light);
+}
+
+.ticket-title-group {
+  display: inline-flex;
+  min-width: 0;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.ticket-title-group strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ticket-current-tag {
+  flex: 0 0 auto;
+  padding: 0.1rem 0.4rem;
+  border-radius: 0.35rem;
+  background: var(--orange);
+  color: var(--white);
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.ticket-main {
+  display: grid;
+  grid-template-columns: 1.15rem auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.55rem;
+  min-width: 0;
+  padding: 0.25rem;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--app-text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.ticket-main:hover strong {
+  color: var(--orange-text-hover);
+}
+
+.ticket-main:focus-visible,
+.item-menu-button:focus-visible {
+  outline: 3px solid var(--orange-focus-outline);
+  outline-offset: 1px;
+}
+
+.structure-icon {
+  color: var(--orange-text-hover);
+  font-size: 0.95rem;
+}
+
+.ticket-code {
+  color: var(--app-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.ticket-main strong {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--app-text);
+  font-size: 0.86rem;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ticket-meta {
+  display: grid;
+  grid-template-columns: 5rem 7.25rem 4rem;
+  min-width: 0;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.ticket-assignee {
+  display: inline-flex;
+  width: auto;
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  align-items: center;
+  justify-self: start;
+  gap: 0.35rem;
+  color: var(--app-muted);
+  font-size: 0.74rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ticket-assignee span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ticket-assignee--unassigned {
+  color: var(--gray-icon);
+}
+
+.ticket-assignee--unassigned i {
+  display: grid;
+  width: 1rem;
+  height: 1rem;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--app-surface-muted);
+  color: var(--gray-icon);
+  font-size: 0.58rem;
+}
+
+:host ::ng-deep .ticket-assignee .avatar {
+  --avatar-size: 1rem;
+  --avatar-radius: 999px;
+  --avatar-font-size: 0.42rem;
+
+  border-color: var(--app-border);
+  box-shadow: none;
+}
+
+:host ::ng-deep .ticket-assignee .avatar-button:not(:disabled):hover .avatar {
+  transform: none;
+  box-shadow: none;
+}
+
+.item-menu-button {
+  display: grid;
+  width: 2.4rem;
+  height: 2.4rem;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--app-muted);
+  cursor: pointer;
+}
+
+.item-menu-button:hover:not(:disabled) {
+  border-color: var(--app-border);
+  background: var(--white);
+  color: var(--app-text);
+}
+
+.milestone-ticket-loading,
+.milestone-tickets-load-more {
+  margin: 0.6rem 0.75rem 0.75rem 3.5rem;
+}
+
+.milestone-ticket-loading {
+  color: var(--app-muted);
+  font-size: 0.78rem;
+}
+
+.milestone-tickets-load-more {
+  width: max-content;
+  min-height: 2.1rem;
+  color: var(--gray-text-strong);
+  font-size: 0.78rem;
+}
+
+@container (max-width: 34rem) {
+  .ticket-list {
+    margin-left: 0.5rem;
+  }
+
+  .ticket-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.35rem 0.45rem;
+  }
+
+  .ticket-row--with-menu {
+    grid-template-columns: minmax(0, 1fr) 2.4rem;
+  }
+
+  .ticket-main {
+    grid-row: 1;
+    grid-column: 1;
+    width: 100%;
+  }
+
+  .ticket-meta {
+    grid-row: 2;
+    grid-column: 1 / -1;
+    grid-template-columns: 5rem minmax(0, 1fr) 4rem;
+    width: min(100%, 17rem);
+    max-width: 100%;
+    justify-self: start;
+    gap: 0.3rem;
+  }
+
+  .ticket-row > .item-menu-button {
+    grid-row: 1;
+    grid-column: 2;
+  }
+}
+
+@container (max-width: 30rem) {
+  .ticket-row {
+    padding-inline: 0.5rem;
+  }
+}
