@@ -65,6 +65,10 @@ export class DictionaryService {
     return this.http.get<DictionaryModel[]>(`${this.projectBaseUrl}/work-ticket-statuses`);
   }
 
+  getWorkTaskStatusDictionaries(): Observable<DictionaryModel[]> {
+    return this.http.get<DictionaryModel[]>(`${this.projectBaseUrl}/work-task-statuses`);
+  }
+
   getWorkItemPriorityDictionaries(): Observable<DictionaryModel[]> {
     return this.http.get<DictionaryModel[]>(`${this.projectBaseUrl}/work-item-priorities`);
   }

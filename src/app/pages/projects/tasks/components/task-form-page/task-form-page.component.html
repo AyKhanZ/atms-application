@@ -1,0 +1,57 @@
+<section class="page project-form-page task-form-page">
+  <p-confirmDialog />
+
+  <div class="page-header create-header">
+    <h1 class="page-title">{{ pageTitle() }}</h1>
+    <div class="create-actions">
+      <app-back-button (back)="cancel()" />
+      <button
+        pButton
+        type="button"
+        severity="secondary"
+        outlined="true"
+        [disabled]="saving()"
+        (click)="cancel()"
+      >
+        <i class="pi pi-times"></i><span>Cancel</span>
+      </button>
+      <button pButton type="submit" form="taskForm" [loading]="saving()" [disabled]="loading()">
+        <i class="pi pi-check"></i><span>{{ submitLabel() }}</span>
+      </button>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <section class="panel task-form-state" role="status">
+      <i class="pi pi-spin pi-spinner"></i> Loading task form...
+    </section>
+  } @else if (loadError()) {
+    <section class="panel task-form-state task-form-state--error" role="alert">
+      <i class="pi pi-exclamation-circle"></i><strong>Task form is unavailable</strong
+      ><span>{{ loadError() }}</span>
+      <button pButton type="button" outlined="true" (click)="cancel()">Back</button>
+    </section>
+  } @else {
+    <section class="panel project-form-panel">
+      <!-- Only on create, where the parent is a decision being made. On edit the breadcrumb
+           already carries the context, and Edit ticket shows no such block either. -->
+      @if (!isEdit() && contextTask(); as context) {
+        <div class="task-context" aria-label="Parent task">
+          <span>Parent task</span>
+          <strong>#{{ context.code }} {{ context.title }}</strong>
+          <small>#{{ context.workTicketCode }} {{ context.workTicketTitle }}</small>
+        </div>
+      }
+
+      <app-task-form-fields
+        [form]="form"
+        [submitted]="submitted()"
+        [priorities]="priorities()"
+        [statuses]="statuses()"
+        [assignees]="assignees()"
+        [isEdit]="isEdit()"
+        (submitForm)="submit()"
+      />
+    </section>
+  }
+</section>

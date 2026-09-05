@@ -1,6 +1,5 @@
-export interface WorkTicketAssigneeModel {
+export interface WorkItemAssigneeModel {
   id: string;
-  userId: string;
   name: string;
   surname: string;
   avatarPath?: string | null;

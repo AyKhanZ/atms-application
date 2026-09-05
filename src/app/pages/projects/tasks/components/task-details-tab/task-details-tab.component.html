@@ -1,0 +1,52 @@
+<div class="task-details-content">
+  <section class="description-card">
+    <h3>Description</h3>
+    <p [class.inline-empty]="!task().description">
+      {{ task().description || 'No description has been added.' }}
+    </p>
+  </section>
+  <aside class="task-information">
+    <section>
+      <h3>Information</h3>
+      <dl>
+        <div>
+          <dt>Status</dt>
+          <dd><app-task-status-badge [status]="task().status" /></dd>
+        </div>
+        <div>
+          <dt>Priority</dt>
+          <dd><app-ticket-priority-badge [priority]="task().priority" /></dd>
+        </div>
+        <div>
+          <dt>Assignee</dt>
+          <dd>{{ task().assignee | personName }}</dd>
+        </div>
+        <div>
+          <dt>Deadline</dt>
+          <dd>{{ task().deadline ? (task().deadline | date: 'dd.MM.yyyy') : 'Not set' }}</dd>
+        </div>
+      </dl>
+    </section>
+    <section>
+      <h3>Location</h3>
+      <p>#{{ task().workTicketCode }} {{ task().workTicketTitle }}</p>
+      <small>{{ task().groupTitle }} · {{ task().milestoneTitle }}</small>
+    </section>
+    @if (task().parentWorkTaskId) {
+      <section>
+        <h3>Parent task</h3>
+        <a
+          [routerLink]="[
+            '/projects',
+            task().workProjectId,
+            'tickets',
+            task().workTicketId,
+            'tasks',
+            task().parentWorkTaskId,
+          ]"
+          >#{{ task().parentWorkTaskCode }} {{ task().parentWorkTaskTitle }}</a
+        >
+      </section>
+    }
+  </aside>
+</div>

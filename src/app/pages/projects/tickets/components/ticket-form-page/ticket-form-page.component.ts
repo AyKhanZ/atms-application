@@ -46,6 +46,7 @@ import { WorkGroupsService } from '../../../../../core/services/work-groups.serv
 import { WorkProjectsService } from '../../../../../core/services/work-projects.service';
 import { WorkTicketsService } from '../../../../../core/services/work-tickets.service';
 import { projectNavigationUrl } from '../../../../../core/utils/project-navigation.utils';
+import { formatDateInput, parseDisplayDate } from '../../../../../core/utils/date-input.utils';
 import { BackButtonComponent } from '../../../../../shared/components/back-button/back-button.component';
 import { ProfileAvatarComponent } from '../../../../../shared/components/profile-avatar/profile-avatar.component';
 import {
@@ -257,9 +258,9 @@ export class TicketFormPageComponent implements OnDestroy {
       }
 
       request = this.workTicketsService.updateWorkTicket(this.projectId, this.ticketId, {
-          ...createCommand,
-          workTicketStatusId: statusId,
-        } satisfies UpdateWorkTicketCommand);
+        ...createCommand,
+        workTicketStatusId: statusId,
+      } satisfies UpdateWorkTicketCommand);
     } else {
       request = this.workTicketsService.createWorkTicket(this.projectId, createCommand);
     }
@@ -428,7 +429,10 @@ export class TicketFormPageComponent implements OnDestroy {
       this.ensureMilestoneOption(initialMilestone);
     }
 
-    if (requestedMilestoneId && this.milestones().some((item) => item.id === requestedMilestoneId)) {
+    if (
+      requestedMilestoneId &&
+      this.milestones().some((item) => item.id === requestedMilestoneId)
+    ) {
       this.form.controls.milestoneId.setValue(requestedMilestoneId);
       this.form.markAsPristine();
     }
@@ -443,7 +447,11 @@ export class TicketFormPageComponent implements OnDestroy {
     const selectedId = this.form.controls.milestoneId.value;
     const selected = this.milestones().find((item) => item.id === selectedId);
     const options = items.map(toMilestoneOption);
-    const merged = append ? [...this.milestones(), ...options] : selected ? [selected, ...options] : options;
+    const merged = append
+      ? [...this.milestones(), ...options]
+      : selected
+        ? [selected, ...options]
+        : options;
 
     this.milestones.set(uniqueMilestones(merged));
     this.milestonesNextCursor.set(nextCursor);
@@ -499,26 +507,7 @@ function ticketErrorMessage(error: HttpErrorResponse): string {
     if (message) return message;
   }
   if (error.status === 403) return 'You no longer have permission to edit tickets in this project.';
-  if (error.status === 404) return 'The ticket or selected milestone is no longer available. Refresh the plan.';
+  if (error.status === 404)
+    return 'The ticket or selected milestone is no longer available. Refresh the plan.';
   return "We couldn't save the ticket. Please try again.";
-}
-
-function formatDateInput(value: string): string {
-  const digits = value.replace(/\D/g, '').slice(0, 8);
-  if (digits.length <= 2) return digits;
-  if (digits.length <= 4) return `${digits.slice(0, 2)}.${digits.slice(2)}`;
-  return `${digits.slice(0, 2)}.${digits.slice(2, 4)}.${digits.slice(4)}`;
-}
-
-function parseDisplayDate(value: string): Date | null {
-  const match = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(value);
-  if (!match) return null;
-
-  const day = Number(match[1]);
-  const month = Number(match[2]);
-  const year = Number(match[3]);
-  const date = new Date(year, month - 1, day);
-  return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day
-    ? date
-    : null;
 }

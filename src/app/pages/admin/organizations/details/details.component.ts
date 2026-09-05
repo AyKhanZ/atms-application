@@ -130,11 +130,11 @@ export class DetailsComponent implements OnInit, OnDestroy {
     }
 
     this.confirmationService.confirm({
-      header: 'Delete organization',
-      message: `Are you sure you want to delete ${organization.title}?`,
+      header: 'Delete organization?',
+      message: `“${organization.title}” will be deleted. This action cannot be undone.`,
       icon: 'pi pi-exclamation-triangle',
-      acceptLabel: 'Yes',
-      rejectLabel: 'No',
+      acceptLabel: 'Delete',
+      rejectLabel: 'Cancel',
       acceptButtonStyleClass: 'p-button-danger',
       rejectButtonStyleClass: 'p-button-outlined',
       accept: () =>

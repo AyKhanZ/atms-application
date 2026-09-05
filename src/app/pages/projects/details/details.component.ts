@@ -24,6 +24,7 @@ import { ProjectPermissions } from '../../../core/enums/project-permissions.enum
 import { Roles } from '../../../core/enums/roles.enum';
 import { BreadcrumbOverrideService } from '../../../core/services/breadcrumb-override.service';
 import { ProjectPermissionsRefreshService } from '../../../core/services/project-permissions-refresh.service';
+import { VisiblePageRefreshService } from '../../../core/services/visible-page-refresh.service';
 import { projectNavigationUrl } from '../../../core/utils/project-navigation.utils';
 import { BackButtonComponent } from '../../../shared/components/back-button/back-button.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
@@ -72,6 +73,7 @@ export class ProjectDetailsComponent implements OnDestroy {
   private readonly confirmation = inject(ConfirmationService);
   private readonly workGroupExpansionState = inject(WorkGroupExpansionStateService);
   private readonly projectPermissionsRefresh = inject(ProjectPermissionsRefreshService);
+  private readonly visiblePageRefresh = inject(VisiblePageRefreshService);
   private readonly breadcrumbOverride = inject(BreadcrumbOverrideService);
   private breadcrumbPath = '';
 
@@ -110,6 +112,15 @@ export class ProjectDetailsComponent implements OnDestroy {
       this.focusedMilestoneId.set(params.get('milestoneId'));
       if (groupId) this.workGroupExpansionState.set(this.id, new Set([groupId]));
     });
+    // The project is loaded on its own schedule: once on open, again when the user comes back to
+    // the tab after a long absence, and after their own changes. It is deliberately not tied to
+    // the permissions stream — those are unrelated concerns with different refresh reasons.
+    this.store.dispatch(WorkProjectsStoreActions.loadProject({ id: this.id }));
+    this.visiblePageRefresh
+      .onReturn(`project:${this.id}`)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.store.dispatch(WorkProjectsStoreActions.loadProject({ id: this.id })));
+
     this.projectPermissionsRefresh.watch(this.id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
@@ -126,8 +137,6 @@ export class ProjectDetailsComponent implements OnDestroy {
           ) {
             this.selectTab('details');
           }
-
-          this.store.dispatch(WorkProjectsStoreActions.loadProject({ id: this.id }));
         },
         error: (error: unknown) => {
           if (error instanceof HttpErrorResponse && (error.status === 403 || error.status === 404)) {
@@ -181,11 +190,11 @@ export class ProjectDetailsComponent implements OnDestroy {
     const project = this.project();
     if (!project) return;
     this.confirmation.confirm({
-      header: 'Delete project',
-      message: `Are you sure you want to delete ${project.title}?`,
+      header: 'Delete project?',
+      message: `“${project.title}” will be deleted. This action cannot be undone.`,
       icon: 'pi pi-exclamation-triangle',
-      acceptLabel: 'Yes',
-      rejectLabel: 'No',
+      acceptLabel: 'Delete',
+      rejectLabel: 'Cancel',
       acceptButtonStyleClass: 'p-button-danger',
       rejectButtonStyleClass: 'p-button-outlined',
       accept: () => this.store.dispatch(WorkProjectsStoreActions.deleteProject({ id: project.id })),

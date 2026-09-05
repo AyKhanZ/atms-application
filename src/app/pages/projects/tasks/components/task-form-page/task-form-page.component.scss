@@ -1,0 +1,32 @@
+:host {
+  display: block;
+}
+
+.task-form-state {
+  display: grid;
+  min-height: 16rem;
+  place-items: center;
+  align-content: center;
+  gap: 0.75rem;
+  color: var(--app-muted);
+  text-align: center;
+}
+
+.task-form-state--error strong {
+  color: var(--app-text);
+}
+
+.task-context {
+  display: grid;
+  gap: 0.2rem;
+  margin-bottom: 1.25rem;
+  padding: 1rem;
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+  background: var(--orange-light);
+}
+
+.task-context span,
+.task-context small {
+  color: var(--app-muted);
+}

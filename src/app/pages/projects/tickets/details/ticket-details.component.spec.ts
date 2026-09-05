@@ -1,4 +1,4 @@
-import { parseTicketTab, ticketTabQueryParam } from './ticket-details.component';
+import { parseTicketTab, ticketHasTasks, ticketTabQueryParam } from './ticket-details.component';
 
 describe('TicketDetailsComponent navigation helpers', () => {
   it.each([
@@ -16,4 +16,15 @@ describe('TicketDetailsComponent navigation helpers', () => {
     expect(ticketTabQueryParam('details')).toBeNull();
     expect(ticketTabQueryParam('tasks')).toBe('tasks');
   });
+
+  it.each([
+    [undefined, false],
+    [0, false],
+    [1, true],
+  ] as const)(
+    'reports whether a ticket contains tasks for count %s',
+    (totalTaskCount, expected) => {
+      expect(ticketHasTasks({ totalTaskCount })).toBe(expected);
+    },
+  );
 });

@@ -1,0 +1,89 @@
+:host {
+  display: block;
+}
+
+/* Four tracks like the ticket form, even though a task fills only one or two of them: the
+   selects then get the same width as Type / Priority / Status on a ticket instead of stretching
+   across half the form. */
+.task-classification-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+/* Same split as the ticket form: classification on one row, ownership on the next. */
+.task-ownership-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(14rem, 1fr);
+  gap: 1rem;
+}
+
+.assignee-selection,
+.assignee-option {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.assignee-selection > span,
+.assignee-option > span {
+  display: grid;
+  min-width: 0;
+  gap: 0.15rem;
+}
+
+:host ::ng-deep .task-assignee-select .p-select-label.p-placeholder {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+:host ::ng-deep .task-assignee-select .p-select-label.p-placeholder::before {
+  content: '\e939';
+  display: grid;
+  width: 1.25rem;
+  height: 1.25rem;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--app-surface-muted);
+  color: var(--gray-icon);
+  font-family: 'primeicons';
+  font-size: 0.68rem;
+}
+
+.assignee-option small {
+  overflow: hidden;
+  color: var(--app-muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+:host ::ng-deep .assignee-selection .avatar,
+:host ::ng-deep .assignee-option .avatar {
+  --avatar-size: 1.25rem;
+  --avatar-radius: 999px;
+  --avatar-font-size: 0.5rem;
+
+  border-color: var(--app-border);
+  box-shadow: none;
+}
+
+:host ::ng-deep .assignee-selection .avatar-button:not(:disabled):hover .avatar,
+:host ::ng-deep .assignee-option .avatar-button:not(:disabled):hover .avatar {
+  transform: none;
+  box-shadow: none;
+}
+
+@container (max-width: 54rem) {
+  .task-ownership-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@container (max-width: 34rem) {
+  .task-classification-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

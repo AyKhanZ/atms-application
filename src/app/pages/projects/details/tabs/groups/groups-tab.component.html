@@ -159,19 +159,37 @@
                     class="milestone-row"
                     [class.milestone-row--focused]="focusedMilestoneId() === milestone.id"
                   >
-                    <div class="milestone-identity">
-                      <i class="pi pi-flag structure-icon"></i>
+                    <button
+                      type="button"
+                      class="milestone-identity"
+                      [attr.aria-expanded]="isMilestoneExpanded(milestone.id)"
+                      [attr.aria-controls]="'tickets-' + milestone.id"
+                      (click)="toggleMilestone(milestone.id)"
+                    >
+                      <i
+                        class="pi expand-icon"
+                        [class.pi-chevron-down]="isMilestoneExpanded(milestone.id)"
+                        [class.pi-chevron-right]="!isMilestoneExpanded(milestone.id)"
+                        aria-hidden="true"
+                      ></i>
+                      <i class="pi pi-flag structure-icon" aria-hidden="true"></i>
                       <strong>{{ milestone.title }}</strong>
                       <span class="item-meta">
                         <app-work-group-status-badge [status]="milestone.status" />
-                        @if (milestone.ticketCount > 0) {
-                          <span class="item-count">
-                            {{ milestone.ticketCount }}
-                            {{ milestone.ticketCount === 1 ? 'ticket' : 'tickets' }}
-                          </span>
-                        }
+                        <span
+                          class="item-count"
+                          [attr.aria-label]="
+                            milestone.ticketCount +
+                            (milestone.ticketCount === 1 ? ' ticket' : ' tickets')
+                          "
+                        >
+                          {{ milestone.ticketCount }}
+                          <span class="item-count__unit">{{
+                            milestone.ticketCount === 1 ? 'ticket' : 'tickets'
+                          }}</span>
+                        </span>
                       </span>
-                    </div>
+                    </button>
 
                     @if (canManage() || canCreateTickets()) {
                       <button
@@ -186,14 +204,25 @@
                     }
                   </div>
 
-                  <app-milestone-ticket-list
-                    [milestoneTitle]="milestone.title"
-                    [page]="ticketPageFor(milestone.id)"
-                    [canEditTickets]="canEditTickets()"
-                    (viewTicket)="viewTicket($event)"
-                    (editTicket)="editTicket($event)"
-                    (loadMore)="loadTicketsFor(milestone.id)"
-                  />
+                  @if (isMilestoneExpanded(milestone.id)) {
+                    <div [id]="'tickets-' + milestone.id">
+                      @if (milestone.ticketCount === 0) {
+                        <p class="milestone-empty">
+                          <i class="pi pi-ticket" aria-hidden="true"></i>
+                          <span>No tickets yet</span>
+                        </p>
+                      } @else {
+                        <app-milestone-ticket-list
+                          [milestoneTitle]="milestone.title"
+                          [page]="ticketPageFor(milestone.id)"
+                          [canEditTickets]="canEditTickets()"
+                          (viewTicket)="viewTicket($event)"
+                          (editTicket)="editTicket($event)"
+                          (loadMore)="loadTicketsFor(milestone.id)"
+                        />
+                      }
+                    </div>
+                  }
                 }
               } @else {
                 <div class="milestones-empty">No milestones in this group yet</div>

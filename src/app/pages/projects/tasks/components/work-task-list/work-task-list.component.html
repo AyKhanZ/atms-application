@@ -1,0 +1,91 @@
+<p-confirmDialog key="taskListDelete" />
+<section class="tasks-tab">
+  @if (canCreate()) {
+    <header class="tasks-toolbar">
+      <button pButton type="button" (click)="create()">
+        <i class="pi pi-plus"></i>
+        <span>Add</span>
+      </button>
+    </header>
+  }
+
+  @if (loading()) {
+    <div class="tasks-state" role="status">
+      <i class="pi pi-spin pi-spinner"></i> Loading tasks...
+    </div>
+  } @else if (items().length === 0 && !loadError()) {
+    <app-empty-state icon="pi-list-check" title="No tasks yet" [compact]="true" />
+  } @else {
+    <div class="task-list">
+      @for (task of items(); track task.id) {
+        <article class="task-row" tabindex="0" (click)="open(task)" (keydown.enter)="open(task)">
+          <i class="pi pi-check-square task-icon"></i
+          ><span class="task-code">#{{ task.code }}</span>
+          <strong class="task-title" [title]="task.title">{{ task.title }}</strong>
+          @if (task.subtaskCount > 0) {
+            <span class="progress">{{ task.doneSubtaskCount }}/{{ task.subtaskCount }}</span>
+          }
+          <app-ticket-priority-badge [priority]="task.priority" />
+          <span class="assignee">{{
+            task.assignee ? task.assignee.name + ' ' + task.assignee.surname : 'Unassigned'
+          }}</span>
+          <app-task-status-badge [status]="task.status" />
+          @if (canDelete()) {
+            <div class="task-actions">
+              @if (canEdit()) {
+                <button
+                  pButton
+                  type="button"
+                  text
+                  rounded
+                  icon="pi pi-pencil"
+                  aria-label="Edit task"
+                  (click)="edit(task, $event)"
+                ></button>
+              }
+              <button
+                pButton
+                type="button"
+                text
+                rounded
+                severity="danger"
+                icon="pi pi-trash"
+                aria-label="Delete task"
+                (click)="confirmDelete(task, $event)"
+              ></button>
+            </div>
+          } @else if (canEdit()) {
+            <div class="task-actions">
+              <button
+                pButton
+                type="button"
+                text
+                rounded
+                icon="pi pi-pencil"
+                aria-label="Edit task"
+                (click)="edit(task, $event)"
+              ></button>
+            </div>
+          }
+        </article>
+      }
+    </div>
+  }
+  @if (loadError()) {
+    <div class="tasks-error" role="alert">
+      Tasks could not be loaded. <button pButton type="button" text (click)="retry()">Retry</button>
+    </div>
+  }
+  @if (hasMore()) {
+    <button
+      class="load-more"
+      pButton
+      type="button"
+      outlined
+      [loading]="loadingMore()"
+      (click)="loadMore()"
+    >
+      Load more
+    </button>
+  }
+</section>

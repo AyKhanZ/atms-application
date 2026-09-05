@@ -96,6 +96,11 @@ export class GroupsTabComponent implements OnInit, OnDestroy {
   readonly loadError = this.store.selectSignal(WorkGroupsStoreSelectors.getLoadError);
 
   readonly expandedGroupIds = signal<Set<string>>(new Set<string>());
+  /**
+   * Milestones start collapsed. A group with five filled milestones would otherwise render fifty
+   * ticket rows at once, and every one of those milestones would fire its own request on expand.
+   */
+  readonly expandedMilestoneIds = signal<Set<string>>(new Set<string>());
   readonly initialLoadComplete = signal(this.groups().length > 0 || this.loadError() !== null);
   readonly showExpansionControls = computed(() => this.groups().length > 3);
   readonly allGroupsExpanded = computed(
@@ -190,6 +195,9 @@ export class GroupsTabComponent implements OnInit, OnDestroy {
         if (!this.expandedGroupIds().has(group.id)) continue;
 
         for (const milestone of group.milestones) {
+          if (!this.expandedMilestoneIds().has(milestone.id)) continue;
+          // The count comes with the group payload, so an empty milestone needs no request.
+          if (milestone.ticketCount === 0) continue;
           if (!this.ticketPages()[milestone.id]) this.loadTicketsFor(milestone.id, true);
         }
       }
@@ -244,6 +252,13 @@ export class GroupsTabComponent implements OnInit, OnDestroy {
       this.hasRestoredExpansionState = true;
     }
 
+    const restoredMilestones = this.expansionState.getMilestones(this.projectId());
+    if (restoredMilestones) this.expandedMilestoneIds.set(restoredMilestones);
+
+    // "View in Plan" points at one milestone: it has to open, not just be highlighted.
+    const focused = this.focusedMilestoneId();
+    if (focused) this.setExpandedMilestones(new Set(this.expandedMilestoneIds()).add(focused));
+
     this.loadGroups();
   }
 
@@ -261,6 +276,18 @@ export class GroupsTabComponent implements OnInit, OnDestroy {
     else next.add(groupId);
 
     this.setExpandedGroups(next);
+  }
+
+  toggleMilestone(milestoneId: string): void {
+    const next = new Set(this.expandedMilestoneIds());
+    if (next.has(milestoneId)) next.delete(milestoneId);
+    else next.add(milestoneId);
+
+    this.setExpandedMilestones(next);
+  }
+
+  isMilestoneExpanded(milestoneId: string): boolean {
+    return this.expandedMilestoneIds().has(milestoneId);
   }
 
   toggleAllGroups(): void {
@@ -484,6 +511,11 @@ export class GroupsTabComponent implements OnInit, OnDestroy {
   private setExpandedGroups(expandedGroupIds: Set<string>): void {
     this.expandedGroupIds.set(expandedGroupIds);
     this.expansionState.set(this.projectId(), expandedGroupIds);
+  }
+
+  private setExpandedMilestones(expandedMilestoneIds: Set<string>): void {
+    this.expandedMilestoneIds.set(expandedMilestoneIds);
+    this.expansionState.setMilestones(this.projectId(), expandedMilestoneIds);
   }
 }
 

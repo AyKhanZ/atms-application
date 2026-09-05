@@ -4,8 +4,10 @@ import {
   DestroyRef,
   OnDestroy,
   inject,
+  computed,
   signal,
 } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ConfirmationService } from 'primeng/api';
@@ -31,15 +33,9 @@ import { RelativeTimePipe } from '../../../../shared/pipes/relative-time.pipe';
 import { TicketFactsComponent } from '../components/ticket-facts/ticket-facts.component';
 import { TicketLocationComponent } from '../components/ticket-location/ticket-location.component';
 import { TicketStatusBadgeComponent } from '../components/ticket-status-badge/ticket-status-badge.component';
+import { WorkTaskListComponent } from '../../tasks/components/work-task-list/work-task-list.component';
 
 export type TicketTab = 'details' | 'tasks' | 'attachments' | 'history';
-
-const TICKET_TABS: readonly EntityTab<TicketTab>[] = [
-  { id: 'details', label: 'Details', icon: 'pi-align-left' },
-  { id: 'tasks', label: 'Tasks', icon: 'pi-list-check' },
-  { id: 'attachments', label: 'Attachments', icon: 'pi-paperclip' },
-  { id: 'history', label: 'History', icon: 'pi-history' },
-];
 
 @Component({
   selector: 'app-ticket-details',
@@ -52,6 +48,7 @@ const TICKET_TABS: readonly EntityTab<TicketTab>[] = [
     TicketFactsComponent,
     TicketLocationComponent,
     TicketStatusBadgeComponent,
+    WorkTaskListComponent,
     PersonNamePipe,
     RelativeTimePipe,
   ],
@@ -83,8 +80,24 @@ export class TicketDetailsComponent implements OnDestroy {
   readonly deleting = signal(false);
   readonly canEdit = signal(false);
   readonly canDelete = signal(false);
+  readonly canDeleteTask = signal(false);
+  readonly canCreateTask = signal(false);
+  readonly canEditTask = signal(false);
   readonly activeTab = signal<TicketTab>('details');
-  readonly tabs = TICKET_TABS;
+  readonly tabs = computed<readonly EntityTab<TicketTab>[]>(() => {
+    const ticket = this.ticket();
+    return [
+      { id: 'details', label: 'Details', icon: 'pi-align-left' },
+      {
+        id: 'tasks',
+        label: 'Tasks',
+        icon: 'pi-list-check',
+        badge: `${ticket?.doneTaskCount ?? 0}/${ticket?.totalTaskCount ?? 0}`,
+      },
+      { id: 'attachments', label: 'Attachments', icon: 'pi-paperclip' },
+      { id: 'history', label: 'History', icon: 'pi-history' },
+    ];
+  });
 
   constructor() {
     // Claim both crumb slots up front. Without this the trail is a segment shorter until the
@@ -109,6 +122,9 @@ export class TicketDetailsComponent implements OnDestroy {
         this.ticket.set(result.ticket);
         this.canEdit.set(result.permissions.includes(ProjectPermissions.Ticket.Edit));
         this.canDelete.set(result.permissions.includes(ProjectPermissions.Ticket.Delete));
+        this.canDeleteTask.set(result.permissions.includes(ProjectPermissions.Task.Delete));
+        this.canCreateTask.set(result.permissions.includes(ProjectPermissions.Task.Create));
+        this.canEditTask.set(result.permissions.includes(ProjectPermissions.Task.Edit));
         this.breadcrumbOverride.set(
           this.projectBreadcrumbPath,
           `#${result.project.code} ${result.project.title}`,
@@ -149,6 +165,12 @@ export class TicketDetailsComponent implements OnDestroy {
   confirmDelete(): void {
     const ticket = this.ticket();
     if (!ticket || !this.canDelete() || this.deleting()) return;
+    if (ticketHasTasks(ticket)) {
+      this.snackBar.error(
+        'This ticket cannot be deleted because it still has tasks. Delete the tasks first.',
+      );
+      return;
+    }
 
     this.confirmation.confirm({
       key: 'ticketDelete',
@@ -191,6 +213,9 @@ export class TicketDetailsComponent implements OnDestroy {
     this.ticket.set(null);
     this.canEdit.set(false);
     this.canDelete.set(false);
+    this.canDeleteTask.set(false);
+    this.canCreateTask.set(false);
+    this.canEditTask.set(false);
     this.loading.set(true);
     this.loadError.set(false);
 
@@ -229,9 +254,18 @@ export class TicketDetailsComponent implements OnDestroy {
           this.snackBar.success('Ticket deleted successfully.');
           this.viewInPlan();
         },
-        error: () => this.snackBar.error('The ticket could not be deleted. Please try again.'),
+        error: (error: HttpErrorResponse) => this.snackBar.error(ticketDeleteErrorMessage(error)),
       });
   }
+}
+
+function ticketDeleteErrorMessage(error: HttpErrorResponse): string {
+  if (error.status === 400) {
+    const errors = error.error?.errors as { error?: string }[] | undefined;
+    const message = errors?.find((item) => item.error)?.error;
+    if (message) return message;
+  }
+  return 'The ticket could not be deleted. Please try again.';
 }
 
 export function parseTicketTab(value: string | null): TicketTab {
@@ -240,4 +274,8 @@ export function parseTicketTab(value: string | null): TicketTab {
 
 export function ticketTabQueryParam(tab: TicketTab): string | null {
   return tab === 'details' ? null : tab;
+}
+
+export function ticketHasTasks(ticket: Pick<WorkTicketModel, 'totalTaskCount'>): boolean {
+  return (ticket.totalTaskCount ?? 0) > 0;
 }

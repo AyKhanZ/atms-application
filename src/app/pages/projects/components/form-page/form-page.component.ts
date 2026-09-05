@@ -47,6 +47,7 @@ import { DictionaryService } from '../../../../core/services/dictionary.service'
 import { OrganizationsService } from '../../../../core/services/organizations.service';
 import { WorkProjectsService } from '../../../../core/services/work-projects.service';
 import { projectNavigationUrl } from '../../../../core/utils/project-navigation.utils';
+import { formatDateInput, parseDisplayDate } from '../../../../core/utils/date-input.utils';
 import { BackButtonComponent } from '../../../../shared/components/back-button/back-button.component';
 import {
   WorkProjectsStoreActions,
@@ -374,7 +375,10 @@ export class ProjectFormPageComponent implements OnDestroy {
   }
 
   private applyParticipantIntent(project: WorkProjectModel): void {
-    if (this.participantIntentHandled || this.route.snapshot.queryParamMap.get('section') !== 'participants') {
+    if (
+      this.participantIntentHandled ||
+      this.route.snapshot.queryParamMap.get('section') !== 'participants'
+    ) {
       return;
     }
     this.participantIntentHandled = true;
@@ -388,7 +392,9 @@ export class ProjectFormPageComponent implements OnDestroy {
       return;
     }
 
-    const index = project.participants.findIndex((participant) => participant.userId === participantId);
+    const index = project.participants.findIndex(
+      (participant) => participant.userId === participantId,
+    );
     if (index < 0) return;
     this.highlightedParticipantIndex.set(index);
     this.scrollToParticipant(index);
@@ -496,26 +502,6 @@ function toDate(value: Date | null): string | null {
 
 function toNullableDate(value?: string | null): Date | null {
   return value ? new Date(value) : null;
-}
-
-function formatDateInput(value: string): string {
-  const digits = value.replace(/\D/g, '').slice(0, 8);
-  if (digits.length <= 2) return digits;
-  if (digits.length <= 4) return `${digits.slice(0, 2)}.${digits.slice(2)}`;
-  return `${digits.slice(0, 2)}.${digits.slice(2, 4)}.${digits.slice(4)}`;
-}
-
-function parseDisplayDate(value: string): Date | null {
-  const match = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(value);
-  if (!match) return null;
-
-  const day = Number(match[1]);
-  const month = Number(match[2]);
-  const year = Number(match[3]);
-  const date = new Date(year, month - 1, day);
-  return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day
-    ? date
-    : null;
 }
 
 function label(name: string): string {
