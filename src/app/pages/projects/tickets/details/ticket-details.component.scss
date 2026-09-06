@@ -39,10 +39,12 @@
 
 .ticket-panel {
   min-width: 0;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .ticket-hero {
+  border-top-left-radius: inherit;
+  border-top-right-radius: inherit;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: start;
@@ -88,6 +90,8 @@
 }
 
 .ticket-details-content {
+  border-bottom-left-radius: inherit;
+  border-bottom-right-radius: inherit;
   display: grid;
   grid-template-columns: minmax(0, 1fr) clamp(27rem, 35cqi, 32rem);
   min-height: clamp(26rem, 54vh, 38rem);
