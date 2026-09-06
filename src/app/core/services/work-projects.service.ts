@@ -27,7 +27,8 @@ export class WorkProjectsService {
     if (filter.projectKindId) params = params.set('ProjectKindId', filter.projectKindId);
     if (filter.projectStatusId) params = params.set('ProjectStatusId', filter.projectStatusId);
     if (filter.sortBy) params = params.set('SortBy', filter.sortBy);
-    if (filter.sortDirection !== undefined) params = params.set('SortDirection', filter.sortDirection);
+    if (filter.sortDirection !== undefined)
+      params = params.set('SortDirection', filter.sortDirection);
     return this.http.get<PaginatedResponse<WorkProjectItemModel>>(this.baseUrl, { params });
   }
 

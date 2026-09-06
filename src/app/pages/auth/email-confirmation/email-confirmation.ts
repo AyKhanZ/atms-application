@@ -25,7 +25,7 @@ export class EmailConfirmationComponent {
   readonly isSuccess = computed(() => this.status() === 'success');
   readonly isAlreadyConfirmed = computed(() => this.status() === 'already-confirmed');
   readonly isFailed = computed(() => !this.isSuccess() && !this.isAlreadyConfirmed());
-  readonly iconClass = computed(() => this.isFailed() ? 'pi pi-times' : 'pi pi-check');
+  readonly iconClass = computed(() => (this.isFailed() ? 'pi pi-times' : 'pi pi-check'));
   readonly title = computed(() => {
     if (this.isSuccess()) {
       return 'Email confirmed';
@@ -72,7 +72,8 @@ export class EmailConfirmationComponent {
     this.isResending.set(true);
     this.resendSent.set(false);
 
-    this.authService.resendEmailConfirmation(this.resendForm.getRawValue())
+    this.authService
+      .resendEmailConfirmation(this.resendForm.getRawValue())
       .pipe(finalize(() => this.isResending.set(false)))
       .subscribe({
         next: () => {

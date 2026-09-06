@@ -10,13 +10,7 @@ import { SnackBarService } from '../../../core/services/snack-bar.service';
   selector: 'app-forgot-password',
   templateUrl: './forgot-password.html',
   styleUrls: ['./forgot-password.scss'],
-  imports: [
-    ButtonModule,
-    FloatLabelModule,
-    InputTextModule,
-    ReactiveFormsModule,
-    RouterLink,
-  ],
+  imports: [ButtonModule, FloatLabelModule, InputTextModule, ReactiveFormsModule, RouterLink],
 })
 export class ForgotPasswordComponent {
   // private readonly store = inject(Store);

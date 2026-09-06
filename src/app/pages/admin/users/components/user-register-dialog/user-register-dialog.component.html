@@ -8,7 +8,8 @@
   [closable]="!isSaving()"
   [focusOnShow]="false"
   appendTo="body"
-  styleClass="user-register-dialog">
+  styleClass="user-register-dialog"
+>
   <form class="register-form" [formGroup]="form" (ngSubmit)="submit()">
     <section class="details-panel">
       <div class="fields-grid">
@@ -28,14 +29,22 @@
 
         <label>
           <span>Email <b>*</b></span>
-          <input pInputText type="email" formControlName="email" autocomplete="email" maxlength="100" />
+          <input
+            pInputText
+            type="email"
+            formControlName="email"
+            autocomplete="email"
+            maxlength="100"
+          />
           <small [class.visible]="hasError('email')">{{ errorMessage('email') || ' ' }}</small>
           <em>{{ emailLength() }}/100</em>
         </label>
 
-        <label>
-          <span>Role <b>*</b></span>
+        <label appLabelFor="registerRole">
+          <span id="registerRoleLabel">Role <b>*</b></span>
           <p-select
+            inputId="registerRole"
+            ariaLabelledBy="registerRoleLabel"
             styleClass="register-select"
             formControlName="roleId"
             [options]="roleOptions()"
@@ -43,15 +52,18 @@
             optionValue="value"
             appendTo="body"
             placeholder="Select role"
-            [loading]="rolesLoading()" />
+            [loading]="rolesLoading()"
+          />
           <small [class.visible]="hasError('roleId')">{{ errorMessage('roleId') || ' ' }}</small>
         </label>
       </div>
 
       @if (requiresOrganization()) {
-        <label class="organization-field">
-          <span>Organization <b>*</b></span>
+        <label class="organization-field" appLabelFor="registerOrganization">
+          <span id="registerOrganizationLabel">Organization <b>*</b></span>
           <p-select
+            inputId="registerOrganization"
+            ariaLabelledBy="registerOrganizationLabel"
             styleClass="organization-select"
             formControlName="organizationId"
             [options]="organizations()"
@@ -63,13 +75,18 @@
             filterBy="title,voen"
             [loading]="organizationsLoading()"
             [showClear]="true"
-            (onFilter)="searchOrganizations($any($event).filter ?? '')">
+            (onFilter)="searchOrganizations($any($event).filter ?? '')"
+          >
             <ng-template #selectedItem let-organization>
               @if (organization) {
                 <div class="organization-option organization-option--selected">
                   <div class="organization-logo">
                     @if (logoUrl(organization)) {
-                      <img [src]="logoUrl(organization)" [alt]="organization.title" (error)="onLogoError(organization)" />
+                      <img
+                        [src]="logoUrl(organization)"
+                        [alt]="organization.title"
+                        (error)="onLogoError(organization)"
+                      />
                     } @else {
                       <span>{{ organizationInitials(organization) }}</span>
                     }
@@ -83,7 +100,11 @@
               <div class="organization-option">
                 <div class="organization-logo">
                   @if (logoUrl(organization)) {
-                    <img [src]="logoUrl(organization)" [alt]="organization.title" (error)="onLogoError(organization)" />
+                    <img
+                      [src]="logoUrl(organization)"
+                      [alt]="organization.title"
+                      (error)="onLogoError(organization)"
+                    />
                   } @else {
                     <span>{{ organizationInitials(organization) }}</span>
                   }
@@ -95,13 +116,22 @@
               </div>
             </ng-template>
           </p-select>
-          <small [class.visible]="hasError('organizationId')">{{ errorMessage('organizationId') || ' ' }}</small>
+          <small [class.visible]="hasError('organizationId')">{{
+            errorMessage('organizationId') || ' '
+          }}</small>
         </label>
       }
     </section>
 
     <div class="dialog-actions">
-      <button pButton type="button" severity="secondary" outlined (click)="cancel()" [disabled]="isSaving()">
+      <button
+        pButton
+        type="button"
+        severity="secondary"
+        outlined
+        (click)="cancel()"
+        [disabled]="isSaving()"
+      >
         <i class="pi pi-times"></i>
         <span>Cancel</span>
       </button>

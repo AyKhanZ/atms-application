@@ -55,8 +55,6 @@ function ticket(id: string, name?: string, surname?: string): WorkTicketModel {
     workTicketType: { id: 1, code: 'Feature', name: 'Feature' },
     workTicketStatus: { id: 1, code: 'New', name: 'New' },
     priority: { id: 1, code: 'Medium', name: 'Medium' },
-    assignee: name && surname
-      ? { id: 'participant', name, surname, avatarPath: null }
-      : null,
+    assignee: name && surname ? { id: 'participant', name, surname, avatarPath: null } : null,
   };
 }

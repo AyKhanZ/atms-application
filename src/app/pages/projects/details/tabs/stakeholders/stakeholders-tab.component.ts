@@ -104,9 +104,7 @@ export class StakeholdersTabComponent {
       ...(this.canInviteClient() ? this.clientUsers() : []),
       ...(this.canInviteEmployee() ? this.teamMembers() : []),
     ];
-    return candidates.filter(
-      (user) => !selectedUserIds.has(user.id),
-    );
+    return candidates.filter((user) => !selectedUserIds.has(user.id));
   });
   readonly participantActions = computed<MenuItem[]>(() => {
     const actions: MenuItem[] = [];

@@ -1,3 +1,4 @@
+import { LabelForDirective } from '../../../../../../../core/directives/label-for.directive';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -24,7 +25,7 @@ import { availableParticipantRoles } from '../../participant-role.utils';
 
 @Component({
   selector: 'app-add-participant-dialog',
-  imports: [ReactiveFormsModule, ButtonModule, DialogModule, SelectModule],
+  imports: [ReactiveFormsModule, ButtonModule, DialogModule, SelectModule, LabelForDirective],
   templateUrl: './add-participant-dialog.component.html',
   styleUrl: './add-participant-dialog.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -32,13 +32,14 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const isPublic = PUBLIC_ENDPOINTS.some((url) => req.url.includes(url));
   const isLogout = req.url.includes('/auth/logout');
 
-  const request = !isPublic && accessToken
-    ? req.clone({
-        setHeaders: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      })
-    : req;
+  const request =
+    !isPublic && accessToken
+      ? req.clone({
+          setHeaders: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        })
+      : req;
 
   return next(request).pipe(
     timeout({ first: API_TIMEOUT_MS }),

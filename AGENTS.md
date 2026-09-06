@@ -177,6 +177,30 @@ This applies regardless of who wrote the code — including commits an agent aut
 - Preserve keyboard navigation and visible focus states.
 - Add accessible labels and ARIA attributes where native semantics are insufficient.
 
+### Labelling a field: `for` works only on real form elements
+
+Every field needs a name. Two correct ways:
+
+- wrap the control in `<label>` (used by the create dialogs) — no `for` needed;
+- `<label for="x">` pointing at an element that is genuinely `input`, `textarea`, `select`,
+  `button`, or a PrimeNG component that renders one. `p-datepicker` and `pInputText` qualify.
+
+**`p-select` does not.** It puts `inputId` on a `<span role="combobox">`, and `<label for>` may
+only reference a labelable form element. Pointing at it silently breaks three things: clicking
+the label does not focus the control, the browser cannot autofill it, and a screen reader
+announces "combobox" with no name — PrimeNG only sets `aria-labelledby` if you pass it.
+
+For every `p-select`, give the label an `id` and pass it back:
+
+```html
+<label id="taskPriorityLabel">Priority <b>*</b></label>
+<p-select inputId="taskPriority" ariaLabelledBy="taskPriorityLabel" ... />
+```
+
+Chrome's DevTools **Issues** panel reports both symptoms ("Incorrect use of
+`<label for=FORM_ELEMENT>`" and "A form field element should have an id or name attribute").
+Check that panel after touching a form — a clean Console does not mean a clean Issues tab.
+
 ---
 
 # Theme and visual consistency

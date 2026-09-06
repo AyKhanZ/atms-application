@@ -9,7 +9,7 @@ import { LayoutService } from '../../../core/services/layout.service';
   selector: 'app-main-layout',
   imports: [RouterOutlet, SidenavComponent, TopbarComponent],
   templateUrl: './main-layout.html',
-  styleUrl: './main-layout.scss'
+  styleUrl: './main-layout.scss',
 })
 export class MainLayoutComponent {
   layout = inject(LayoutService);

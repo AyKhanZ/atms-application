@@ -58,9 +58,7 @@ describe('authInterceptor', () => {
 
   function runProtectedRequest(): Promise<unknown> {
     const request = new HttpRequest('GET', '/api/v1/protected');
-    const next = vi.fn(() =>
-      throwError(() => new HttpErrorResponse({ status: 401 })),
-    );
+    const next = vi.fn(() => throwError(() => new HttpErrorResponse({ status: 401 })));
 
     const response = TestBed.runInInjectionContext(() => authInterceptor(request, next));
     return firstValueFrom(response);

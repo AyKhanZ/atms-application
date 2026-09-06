@@ -10,7 +10,8 @@
         appendTo="body"
         iconDisplay="input"
         [showIcon]="true"
-        [maxDate]="createdFromMaxDate()" />
+        [maxDate]="createdFromMaxDate()"
+      />
     </div>
 
     <div class="field date-field">
@@ -24,7 +25,8 @@
         iconDisplay="input"
         [showIcon]="true"
         [minDate]="createdToMinDate()"
-        [maxDate]="today" />
+        [maxDate]="today"
+      />
     </div>
   </div>
 
@@ -33,7 +35,9 @@
   }
 
   <div class="toolbar">
-    <button type="submit" class="apply-button" [disabled]="form.invalid"><i class="pi pi-filter"></i><span>Apply</span></button>
+    <button type="submit" class="apply-button" [disabled]="form.invalid">
+      <i class="pi pi-filter"></i><span>Apply</span>
+    </button>
     <app-clear-button (clicked)="clearForm()" />
   </div>
 </form>

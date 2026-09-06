@@ -130,10 +130,10 @@ export class WorkProjectsEffects {
             action.type.includes('Participant')
               ? 'Participants successfully updated.'
               : action.type.includes('Delete')
-              ? 'Project successfully deleted.'
-              : action.type.includes('Create')
-                ? 'Project successfully created.'
-                : 'Project successfully updated.',
+                ? 'Project successfully deleted.'
+                : action.type.includes('Create')
+                  ? 'Project successfully created.'
+                  : 'Project successfully updated.',
           ),
         ),
       ),

@@ -44,7 +44,12 @@
       <form id="ticketForm" class="create-form" [formGroup]="form" (ngSubmit)="submit()">
         <label class="field full-field title-field">
           <span>Name <b>*</b></span>
-          <input pInputText formControlName="title" maxlength="100" placeholder="Enter ticket name" />
+          <input
+            pInputText
+            formControlName="title"
+            maxlength="100"
+            placeholder="Enter ticket name"
+          />
           <div class="field-meta">
             <small [class.visible]="error('title')">{{ error('title') || ' ' }}</small>
             <em>{{ form.controls.title.value?.length || 0 }}/100</em>
@@ -67,9 +72,12 @@
 
         <div class="classification-grid" [class.classification-grid--edit]="isEdit()">
           <div class="field milestone-field">
-            <label for="ticketMilestone">Milestone <b>*</b></label>
+            <label id="ticketMilestoneLabel" appLabelFor="ticketMilestone"
+              >Milestone <b>*</b></label
+            >
             <p-select
               inputId="ticketMilestone"
+              ariaLabelledBy="ticketMilestoneLabel"
               formControlName="milestoneId"
               [options]="milestoneGroups()"
               [group]="true"
@@ -124,9 +132,10 @@
           </div>
 
           <div class="field">
-            <label for="ticketType">Type <b>*</b></label>
+            <label id="ticketTypeLabel" appLabelFor="ticketType">Type <b>*</b></label>
             <p-select
               inputId="ticketType"
+              ariaLabelledBy="ticketTypeLabel"
               formControlName="workTicketTypeId"
               [options]="ticketTypes()"
               optionLabel="name"
@@ -134,13 +143,16 @@
               placeholder="Select type"
               appendTo="body"
             />
-            <small [class.visible]="error('workTicketTypeId')">{{ error('workTicketTypeId') || ' ' }}</small>
+            <small [class.visible]="error('workTicketTypeId')">{{
+              error('workTicketTypeId') || ' '
+            }}</small>
           </div>
 
           <div class="field">
-            <label for="ticketPriority">Priority <b>*</b></label>
+            <label id="ticketPriorityLabel" appLabelFor="ticketPriority">Priority <b>*</b></label>
             <p-select
               inputId="ticketPriority"
+              ariaLabelledBy="ticketPriorityLabel"
               formControlName="priorityId"
               [options]="priorities()"
               optionLabel="name"
@@ -153,9 +165,10 @@
 
           @if (isEdit()) {
             <div class="field">
-              <label for="ticketStatus">Status <b>*</b></label>
+              <label id="ticketStatusLabel" appLabelFor="ticketStatus">Status <b>*</b></label>
               <p-select
                 inputId="ticketStatus"
+                ariaLabelledBy="ticketStatusLabel"
                 formControlName="workTicketStatusId"
                 [options]="ticketStatuses()"
                 optionLabel="name"
@@ -172,10 +185,11 @@
 
         <div class="ticket-ownership-grid">
           <div class="field">
-            <label for="ticketAssignee">Assignee</label>
+            <label id="ticketAssigneeLabel" appLabelFor="ticketAssignee">Assignee</label>
             <p-select
               class="ticket-assignee-select"
               inputId="ticketAssignee"
+              ariaLabelledBy="ticketAssigneeLabel"
               formControlName="assigneeId"
               [options]="project()?.participants ?? []"
               optionValue="id"

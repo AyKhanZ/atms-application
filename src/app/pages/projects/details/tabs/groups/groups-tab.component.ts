@@ -78,8 +78,12 @@ export class GroupsTabComponent implements OnInit, OnDestroy {
   readonly focusedMilestoneId = input<string | null>(null);
   readonly ProjectPermissions = ProjectPermissions;
   readonly projectPermissions = signal<string[]>([]);
-  readonly canEdit = computed(() => this.projectPermissions().includes(ProjectPermissions.Project.Edit));
-  readonly canDelete = computed(() => this.projectPermissions().includes(ProjectPermissions.Project.Edit));
+  readonly canEdit = computed(() =>
+    this.projectPermissions().includes(ProjectPermissions.Project.Edit),
+  );
+  readonly canDelete = computed(() =>
+    this.projectPermissions().includes(ProjectPermissions.Project.Edit),
+  );
   readonly canManage = computed(() => this.canEdit() || this.canDelete());
   readonly canEditTickets = computed(() =>
     this.projectPermissions().includes(ProjectPermissions.Ticket.Edit),
@@ -240,7 +244,8 @@ export class GroupsTabComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.projectAccess.getPermissions(this.projectId())
+    this.projectAccess
+      .getPermissions(this.projectId())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((permissions) => {
         this.projectPermissions.set(permissions);
@@ -362,9 +367,10 @@ export class GroupsTabComponent implements OnInit, OnDestroy {
     const current = this.ticketPages()[milestoneId];
     if (current?.loading || (!reset && current && !current.hasMore)) return;
 
-    const state: MilestoneTicketPageState = reset || !current
-      ? { items: [], nextCursor: null, hasMore: true, loading: true }
-      : { ...current, loading: true };
+    const state: MilestoneTicketPageState =
+      reset || !current
+        ? { items: [], nextCursor: null, hasMore: true, loading: true }
+        : { ...current, loading: true };
 
     this.ticketPages.update((pages) => ({ ...pages, [milestoneId]: state }));
     this.workTicketsService

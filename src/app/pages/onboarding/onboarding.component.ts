@@ -1,3 +1,4 @@
+import { LabelForDirective } from '../../core/directives/label-for.directive';
 import { HttpErrorResponse } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
@@ -69,6 +70,7 @@ const DEFAULT_INVITATION_ROWS = 3;
     TooltipModule,
     FileUploadComponent,
     PasswordRules,
+    LabelForDirective,
   ],
   templateUrl: './onboarding.component.html',
   styleUrl: './onboarding.component.scss',
@@ -322,10 +324,12 @@ export class OnboardingComponent implements HasUnsavedChanges {
     this.actionLoading.set(true);
     this.onboardingApi
       .saveInvitations(users, model.version)
-      .pipe(finalize(() => {
-        this.savingInvitations = false;
-        this.actionLoading.set(false);
-      }))
+      .pipe(
+        finalize(() => {
+          this.savingInvitations = false;
+          this.actionLoading.set(false);
+        }),
+      )
       .subscribe({
         next: (response) => {
           this.invitationRows.markAsPristine();
@@ -343,10 +347,12 @@ export class OnboardingComponent implements HasUnsavedChanges {
     this.actionLoading.set(true);
     this.onboardingApi
       .skipInvitations(model.version)
-      .pipe(finalize(() => {
-        this.savingInvitations = false;
-        this.actionLoading.set(false);
-      }))
+      .pipe(
+        finalize(() => {
+          this.savingInvitations = false;
+          this.actionLoading.set(false);
+        }),
+      )
       .subscribe({
         next: (response) => {
           this.invitationRows.markAsPristine();
@@ -443,7 +449,11 @@ export class OnboardingComponent implements HasUnsavedChanges {
     this.invitationRows.clear();
     const users: InvitedUserCommand[] = model.invitedUsers.length
       ? model.invitedUsers
-      : Array.from({ length: DEFAULT_INVITATION_ROWS }, () => ({ name: '', surname: '', email: '' }));
+      : Array.from({ length: DEFAULT_INVITATION_ROWS }, () => ({
+          name: '',
+          surname: '',
+          email: '',
+        }));
     users.forEach((user) => this.invitationRows.push(this.createInvitationGroup(user)));
     this.invitationRows.markAsPristine();
     this.setActiveView(model.currentStep === 'complete' ? 'review' : model.currentStep);

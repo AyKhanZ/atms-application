@@ -1,3 +1,4 @@
+import { LabelForDirective } from '../../../../core/directives/label-for.directive';
 import { ChangeDetectionStrategy, Component, effect, inject, input, output } from '@angular/core';
 import {
   AbstractControl,
@@ -13,7 +14,13 @@ import { ClearButtonComponent } from '../../../../shared/components/clear-button
 
 @Component({
   selector: 'app-project-filter',
-  imports: [ReactiveFormsModule, DatePickerModule, SelectModule, ClearButtonComponent],
+  imports: [
+    ReactiveFormsModule,
+    DatePickerModule,
+    SelectModule,
+    ClearButtonComponent,
+    LabelForDirective,
+  ],
   templateUrl: './filter.component.html',
   styleUrl: './filter.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

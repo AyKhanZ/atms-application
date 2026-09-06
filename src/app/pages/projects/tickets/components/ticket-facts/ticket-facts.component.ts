@@ -3,10 +3,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { WorkTicketModel } from '../../../../../core/models/work-tickets';
 import { ProfileAvatarComponent } from '../../../../../shared/components/profile-avatar/profile-avatar.component';
 import { DeadlineLabelPipe, IsOverduePipe } from '../../../../../shared/pipes/deadline.pipe';
-import {
-  PersonInitialsPipe,
-  PersonNamePipe,
-} from '../../../../../shared/pipes/person-name.pipe';
+import { PersonInitialsPipe, PersonNamePipe } from '../../../../../shared/pipes/person-name.pipe';
 import { TicketPriorityBadgeComponent } from '../ticket-priority-badge/ticket-priority-badge.component';
 import { TicketTypeBadgeComponent } from '../ticket-type-badge/ticket-type-badge.component';
 

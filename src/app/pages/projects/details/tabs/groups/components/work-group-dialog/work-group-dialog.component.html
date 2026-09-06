@@ -31,7 +31,7 @@
 
     @if (isMilestone()) {
       <div class="form-field">
-        <label for="milestoneGroup">Group <b>*</b></label>
+        <label id="milestoneGroupLabel" appLabelFor="milestoneGroup">Group <b>*</b></label>
         @if (isParentLocked()) {
           <div class="locked-parent" id="milestoneGroup">
             {{ parentTitle() }}
@@ -39,6 +39,7 @@
         } @else {
           <p-select
             inputId="milestoneGroup"
+            ariaLabelledBy="milestoneGroupLabel"
             formControlName="parentWorkGroupId"
             [options]="groups()"
             optionLabel="title"

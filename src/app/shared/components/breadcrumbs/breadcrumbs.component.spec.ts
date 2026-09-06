@@ -40,7 +40,9 @@ async function renderAt(url: string) {
 }
 
 function titles(element: HTMLElement): string[] {
-  return [...element.querySelectorAll('.crumb__title')].map((node) => node.textContent?.trim() ?? '');
+  return [...element.querySelectorAll('.crumb__title')].map(
+    (node) => node.textContent?.trim() ?? '',
+  );
 }
 
 describe('BreadcrumbsComponent', () => {

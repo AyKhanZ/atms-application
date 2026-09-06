@@ -12,9 +12,7 @@
     <div class="server-copy">
       <p class="eyebrow">Service unavailable</p>
       <h1>Technical maintenance is in progress</h1>
-      <p>
-        The API is not responding right now. Please wait a little and try again.
-      </p>
+      <p>The API is not responding right now. Please wait a little and try again.</p>
     </div>
 
     <button pButton type="button" [disabled]="isChecking()" (click)="tryAgain()">
@@ -22,7 +20,8 @@
         class="pi"
         [class.pi-refresh]="!isChecking()"
         [class.pi-spin]="isChecking()"
-        [class.pi-spinner]="isChecking()"></i>
+        [class.pi-spinner]="isChecking()"
+      ></i>
       <span>{{ isChecking() ? 'Checking...' : 'Try again' }}</span>
     </button>
   </section>

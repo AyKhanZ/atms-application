@@ -18,24 +18,42 @@
         <form class="resend-form" [formGroup]="resendForm" (ngSubmit)="resendConfirmation()">
           <div class="field">
             <p-floatlabel variant="on">
-              <input id="confirmationEmail" pInputText type="email" maxlength="100" formControlName="email" autocomplete="email" />
+              <input
+                id="confirmationEmail"
+                pInputText
+                type="email"
+                maxlength="100"
+                formControlName="email"
+                autocomplete="email"
+              />
               <label for="confirmationEmail">Email</label>
             </p-floatlabel>
             <div class="field-error">
-              @if (resendForm.controls.email.hasError('email') && resendForm.controls.email.touched) {
+              @if (
+                resendForm.controls.email.hasError('email') && resendForm.controls.email.touched
+              ) {
                 <small>Please enter a valid email address</small>
               }
-              @if (resendForm.controls.email.hasError('required') && resendForm.controls.email.touched) {
+              @if (
+                resendForm.controls.email.hasError('required') && resendForm.controls.email.touched
+              ) {
                 <small>Email is required</small>
               }
             </div>
           </div>
 
           @if (resendSent()) {
-            <p class="resend-success">A new confirmation link has been sent. Please check your inbox.</p>
+            <p class="resend-success">
+              A new confirmation link has been sent. Please check your inbox.
+            </p>
           }
 
-          <button pButton type="submit" class="primary-action" [disabled]="resendForm.invalid || isResending()">
+          <button
+            pButton
+            type="submit"
+            class="primary-action"
+            [disabled]="resendForm.invalid || isResending()"
+          >
             {{ isResending() ? 'Sending...' : 'Request new link' }}
           </button>
         </form>

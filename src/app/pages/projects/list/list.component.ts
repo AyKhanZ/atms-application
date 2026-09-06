@@ -80,7 +80,9 @@ export class ProjectListComponent implements OnDestroy {
   readonly kinds = signal<DictionaryModel[]>([]);
   readonly statuses = signal<DictionaryModel[]>([]);
   readonly Roles = Roles;
-  readonly showActions = computed(() => this.roles().some((role) => role.code === Roles.SuperAdmin));
+  readonly showActions = computed(() =>
+    this.roles().some((role) => role.code === Roles.SuperAdmin),
+  );
   readonly first = computed(() => (this.filter().page - 1) * this.filter().pageSize);
   readonly activeFilterCount = computed(() => this.query.activeFilterCount(this.filter()));
 

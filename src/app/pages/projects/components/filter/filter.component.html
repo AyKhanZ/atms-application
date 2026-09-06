@@ -1,9 +1,10 @@
 <form class="panel panel-padding project-filters" [formGroup]="form" (ngSubmit)="submit()">
   <div class="filter-grid">
     <div class="field">
-      <label for="projectType">Type</label
+      <label id="projectTypeLabel" appLabelFor="projectType">Type</label
       ><p-select
         inputId="projectType"
+        ariaLabelledBy="projectTypeLabel"
         formControlName="projectTypeId"
         [options]="types()"
         optionLabel="name"
@@ -14,9 +15,10 @@
       />
     </div>
     <div class="field">
-      <label for="projectKind">Kind</label
+      <label id="projectKindLabel" appLabelFor="projectKind">Kind</label
       ><p-select
         inputId="projectKind"
+        ariaLabelledBy="projectKindLabel"
         formControlName="projectKindId"
         [options]="kinds()"
         optionLabel="name"
@@ -27,9 +29,10 @@
       />
     </div>
     <div class="field">
-      <label for="projectStatus">Status</label
+      <label id="projectStatusLabel" appLabelFor="projectStatus">Status</label
       ><p-select
         inputId="projectStatus"
+        ariaLabelledBy="projectStatusLabel"
         formControlName="projectStatusId"
         [options]="statuses()"
         optionLabel="name"

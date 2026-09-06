@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnDestroy,
+  OnInit,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -10,11 +18,18 @@ import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { HasPermissionDirective } from '../../../../core/directives/has-permission.directive';
 import { Permissions } from '../../../../core/enums/permissions.enum';
 import { Roles } from '../../../../core/enums/roles.enum';
-import { createDefaultOrganizationListFilter, OrganizationListFilter, OrganizationListItemModel } from '../../../../core/models/organizations/organizations.models';
+import {
+  createDefaultOrganizationListFilter,
+  OrganizationListFilter,
+  OrganizationListItemModel,
+} from '../../../../core/models/organizations/organizations.models';
 import { SortDirectionEnum } from '../../../../core/enums/sort-direction.enum';
 import { TableLazyLoadService } from '../../../../core/services/table-lazy-load.service';
 import { ImageUrlService } from '../../../../core/services/image-url.service';
-import { OrganizationsStoreActions, OrganizationsStoreSelectors } from '../../../../store/organizations';
+import {
+  OrganizationsStoreActions,
+  OrganizationsStoreSelectors,
+} from '../../../../store/organizations';
 import { UserStoreSelectors } from '../../../../store/user';
 import { ListSearchComponent } from '../../../../shared/components/list-search/list-search.component';
 import { FilterToggleButtonComponent } from '../../../../shared/components/filter-toggle-button/filter-toggle-button.component';
@@ -69,24 +84,31 @@ export class ListComponent implements OnInit, OnDestroy {
   readonly selectedOrganization = signal<OrganizationListItemModel | null>(null);
   readonly first = computed(() => (this.filter().page - 1) * this.filter().pageSize);
   readonly activeFilterCount = computed(() => this.query.activeFilterCount(this.filter()));
-  readonly isSuperAdmin = computed(() => this.roles().some((role) => role.code === Roles.SuperAdmin));
+  readonly isSuperAdmin = computed(() =>
+    this.roles().some((role) => role.code === Roles.SuperAdmin),
+  );
   readonly Permissions = Permissions;
-  readonly showActions = computed(() =>
-    this.isSuperAdmin() ||
-    this.permissions().includes(Permissions.Organization.Edit) ||
-    this.permissions().includes(Permissions.Organization.Delete),
+  readonly showActions = computed(
+    () =>
+      this.isSuperAdmin() ||
+      this.permissions().includes(Permissions.Organization.Edit) ||
+      this.permissions().includes(Permissions.Organization.Delete),
   );
   readonly tableRequestsBlocked = computed(() => {
     const filter = this.filter();
     const hasUserInput = Boolean(filter.search) || this.query.hasAdvancedFilters(filter);
     return this.hasLoaded() && !this.loading() && this.totalCount() === 0 && !hasUserInput;
   });
-  readonly tableSortOrder = computed(() => this.filter().sortDirection === SortDirectionEnum.Desc ? -1 : 1);
+  readonly tableSortOrder = computed(() =>
+    this.filter().sortDirection === SortDirectionEnum.Desc ? -1 : 1,
+  );
 
   constructor() {
-    this.searchChanges.pipe(debounceTime(350), distinctUntilChanged(), takeUntilDestroyed()).subscribe((search) => {
-      this.writeUrl({ ...this.filter(), search: this.query.clean(search), page: 1 });
-    });
+    this.searchChanges
+      .pipe(debounceTime(350), distinctUntilChanged(), takeUntilDestroyed())
+      .subscribe((search) => {
+        this.writeUrl({ ...this.filter(), search: this.query.clean(search), page: 1 });
+      });
 
     this.route.queryParams.pipe(takeUntilDestroyed()).subscribe((params) => {
       const filter = this.query.fromParams(params);
@@ -98,7 +120,8 @@ export class ListComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    if (Object.keys(this.route.snapshot.queryParams).length === 0) this.writeUrl(createDefaultOrganizationListFilter());
+    if (Object.keys(this.route.snapshot.queryParams).length === 0)
+      this.writeUrl(createDefaultOrganizationListFilter());
   }
 
   ngOnDestroy(): void {
@@ -136,7 +159,8 @@ export class ListComponent implements OnInit, OnDestroy {
       rejectLabel: 'Cancel',
       acceptButtonStyleClass: 'p-button-danger',
       rejectButtonStyleClass: 'p-button-outlined',
-      accept: () => this.store.dispatch(OrganizationsStoreActions.deleteOrganization({ id: organization.id })),
+      accept: () =>
+        this.store.dispatch(OrganizationsStoreActions.deleteOrganization({ id: organization.id })),
     });
   }
 
@@ -157,7 +181,15 @@ export class ListComponent implements OnInit, OnDestroy {
   }
 
   initials(organization: OrganizationListItemModel): string {
-    return organization.title.split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part[0]).join('').toUpperCase() || 'O';
+    return (
+      organization.title
+        .split(/\s+/)
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((part) => part[0])
+        .join('')
+        .toUpperCase() || 'O'
+    );
   }
 
   logoUrl(organization: OrganizationListItemModel): string | null {
@@ -165,11 +197,16 @@ export class ListComponent implements OnInit, OnDestroy {
   }
 
   displayCreatedAt(organization: OrganizationListItemModel): string | null {
-    return organization.createdAt && !organization.createdAt.startsWith('0001-') ? organization.createdAt : null;
+    return organization.createdAt && !organization.createdAt.startsWith('0001-')
+      ? organization.createdAt
+      : null;
   }
 
   openDetails(organization: OrganizationListItemModel): void {
-    void this.router.navigate([organization.id], { relativeTo: this.route, state: { returnUrl: this.router.url } });
+    void this.router.navigate([organization.id], {
+      relativeTo: this.route,
+      state: { returnUrl: this.router.url },
+    });
   }
 
   private loadOrganizations(filter: OrganizationListFilter): void {
@@ -181,6 +218,10 @@ export class ListComponent implements OnInit, OnDestroy {
   }
 
   private writeUrl(filter: OrganizationListFilter): void {
-    void this.router.navigate([], { relativeTo: this.route, queryParams: this.query.toParams(filter), replaceUrl: true });
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: this.query.toParams(filter),
+      replaceUrl: true,
+    });
   }
 }

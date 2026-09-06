@@ -31,7 +31,11 @@ export class WorkTasksService {
     return this.http.post<string>(this.url(projectId), command);
   }
 
-  updateWorkTask(projectId: string, workTaskId: string, command: UpdateWorkTaskCommand): Observable<void> {
+  updateWorkTask(
+    projectId: string,
+    workTaskId: string,
+    command: UpdateWorkTaskCommand,
+  ): Observable<void> {
     return this.http.put<void>(`${this.url(projectId)}/${workTaskId}`, command);
   }
 

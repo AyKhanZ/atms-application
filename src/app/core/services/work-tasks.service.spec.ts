@@ -10,7 +10,9 @@ describe('WorkTasksService', () => {
   const url = `${projectApiUrl}/project/project-1/work-tasks`;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({ providers: [provideHttpClient(), provideHttpClientTesting()] });
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting()],
+    });
     service = TestBed.inject(WorkTasksService);
     http = TestBed.inject(HttpTestingController);
   });
@@ -18,15 +20,29 @@ describe('WorkTasksService', () => {
   afterEach(() => http.verify());
 
   it('loads top-level ticket tasks with cursor pagination', () => {
-    service.getWorkTasks('project-1', { workTicketId: 'ticket-1', rootTasksOnly: true, cursor: 'next', pageSize: 10 }).subscribe();
+    service
+      .getWorkTasks('project-1', {
+        workTicketId: 'ticket-1',
+        rootTasksOnly: true,
+        cursor: 'next',
+        pageSize: 10,
+      })
+      .subscribe();
 
-    const request = http.expectOne(`${url}?pageSize=10&cursor=next&workTicketId=ticket-1&rootTasksOnly=true`);
+    const request = http.expectOne(
+      `${url}?pageSize=10&cursor=next&workTicketId=ticket-1&rootTasksOnly=true`,
+    );
     expect(request.request.method).toBe('GET');
     request.flush({ items: [], nextCursor: null, hasMore: false, pageSize: 10 });
   });
 
   it('creates a subtask without a client-provided level or status', () => {
-    const command = { workTicketId: 'ticket-1', parentWorkTaskId: 'task-1', title: 'Subtask', priorityId: 2 };
+    const command = {
+      workTicketId: 'ticket-1',
+      parentWorkTaskId: 'task-1',
+      title: 'Subtask',
+      priorityId: 2,
+    };
     service.createWorkTask('project-1', command).subscribe();
 
     const request = http.expectOne(url);

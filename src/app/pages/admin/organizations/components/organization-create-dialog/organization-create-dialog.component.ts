@@ -1,5 +1,15 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, model, output, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  model,
+  output,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Store } from '@ngrx/store';
@@ -9,13 +19,26 @@ import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { OrganizationListItemModel } from '../../../../../core/models/organizations/organizations.models';
 import { ImageUrlService } from '../../../../../core/services/image-url.service';
-import { FileUploadComponent, FileUploadValue } from '../../../../../shared/components/file-upload/file-upload.component';
+import {
+  FileUploadComponent,
+  FileUploadValue,
+} from '../../../../../shared/components/file-upload/file-upload.component';
 import { ImageFileValidator } from '../../../../../shared/validators/image-file.validator';
-import { OrganizationsStoreActions, OrganizationsStoreSelectors } from '../../../../../store/organizations';
+import {
+  OrganizationsStoreActions,
+  OrganizationsStoreSelectors,
+} from '../../../../../store/organizations';
 
 @Component({
   selector: 'app-organization-create-dialog',
-  imports: [CommonModule, ReactiveFormsModule, ButtonModule, DialogModule, InputTextModule, FileUploadComponent],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    ButtonModule,
+    DialogModule,
+    InputTextModule,
+    FileUploadComponent,
+  ],
   templateUrl: './organization-create-dialog.component.html',
   styleUrl: './organization-create-dialog.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -34,9 +57,11 @@ export class OrganizationCreateDialogComponent {
   readonly imageTouched = signal(false);
   readonly isSaving = this.store.selectSignal(OrganizationsStoreSelectors.isSubmitted);
   readonly isEditMode = computed(() => Boolean(this.organization()?.id));
-  readonly dialogTitle = computed(() => this.isEditMode() ? 'Edit' : 'Create');
-  readonly submitLabel = computed(() => this.isEditMode() ? 'Save' : 'Create');
-  readonly existingImageUrl = computed(() => this.imageUrlService.normalize(this.organization()?.logoPath));
+  readonly dialogTitle = computed(() => (this.isEditMode() ? 'Edit' : 'Create'));
+  readonly submitLabel = computed(() => (this.isEditMode() ? 'Save' : 'Create'));
+  readonly existingImageUrl = computed(() =>
+    this.imageUrlService.normalize(this.organization()?.logoPath),
+  );
   readonly existingImageFileName = computed(() => {
     const logoPath = this.organization()?.logoPath;
     return logoPath?.split('/').pop() ?? '';
@@ -48,7 +73,10 @@ export class OrganizationCreateDialogComponent {
     logo: [null as File | null],
   });
 
-  private readonly requiredMessages: Record<keyof OrganizationCreateDialogComponent['form']['controls'], string> = {
+  private readonly requiredMessages: Record<
+    keyof OrganizationCreateDialogComponent['form']['controls'],
+    string
+  > = {
     title: 'Title is required.',
     voen: 'VOEN is required.',
     logo: '',
@@ -62,7 +90,13 @@ export class OrganizationCreateDialogComponent {
     });
 
     this.actions$
-      .pipe(ofType(OrganizationsStoreActions.createOrganizationSuccess, OrganizationsStoreActions.updateOrganizationSuccess), takeUntilDestroyed())
+      .pipe(
+        ofType(
+          OrganizationsStoreActions.createOrganizationSuccess,
+          OrganizationsStoreActions.updateOrganizationSuccess,
+        ),
+        takeUntilDestroyed(),
+      )
       .subscribe(() => {
         this.resetForm();
         this.saved.emit();
@@ -101,24 +135,28 @@ export class OrganizationCreateDialogComponent {
     const voen = (value.voen ?? '').trim();
 
     if (this.isEditMode()) {
-      this.store.dispatch(OrganizationsStoreActions.updateOrganization({
+      this.store.dispatch(
+        OrganizationsStoreActions.updateOrganization({
+          command: {
+            id: this.organization()!.id,
+            title,
+            voen,
+            logo: value.logo,
+          },
+        }),
+      );
+      return;
+    }
+
+    this.store.dispatch(
+      OrganizationsStoreActions.createOrganization({
         command: {
-          id: this.organization()!.id,
           title,
           voen,
           logo: value.logo,
         },
-      }));
-      return;
-    }
-
-    this.store.dispatch(OrganizationsStoreActions.createOrganization({
-      command: {
-        title,
-        voen,
-        logo: value.logo,
-      },
-    }));
+      }),
+    );
   }
 
   titleLength(): number {

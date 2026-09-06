@@ -27,7 +27,9 @@ export class ProfileAvatarComponent {
     const imageUrl = this.normalizedImageUrl();
     return Boolean(imageUrl && imageUrl !== this.failedImageUrl());
   });
-  readonly visibleImageUrl = computed(() => this.canShowImage() ? this.normalizedImageUrl() : null);
+  readonly visibleImageUrl = computed(() =>
+    this.canShowImage() ? this.normalizedImageUrl() : null,
+  );
 
   openPreview(): void {
     if (!this.previewEnabled() || !this.canShowImage()) {

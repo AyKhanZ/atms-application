@@ -23,7 +23,10 @@ export class UsersListQueryService {
       page: this.readNumber(params['page'], this.defaultFilter.page),
       pageSize: this.readNumber(params['pageSize'], this.defaultFilter.pageSize),
       sortBy: this.readSortBy(params['sortBy']),
-      sortDirection: this.readSortDirection(params['sortDirection'], this.defaultFilter.sortDirection),
+      sortDirection: this.readSortDirection(
+        params['sortDirection'],
+        this.defaultFilter.sortDirection,
+      ),
       search: this.readString(params['search']),
       userStatusId: this.readOptionalNumber(params['userStatusId']),
       createdFrom: this.readString(params['createdFrom']),
@@ -70,7 +73,9 @@ export class UsersListQueryService {
 
   private readSortDirection(value: unknown, fallback: SortDirectionEnum): SortDirectionEnum {
     const parsed = Number(value);
-    return parsed === SortDirectionEnum.Asc || parsed === SortDirectionEnum.Desc ? parsed : fallback;
+    return parsed === SortDirectionEnum.Asc || parsed === SortDirectionEnum.Desc
+      ? parsed
+      : fallback;
   }
 
   private readOptionalNumber(value: unknown): number | undefined {

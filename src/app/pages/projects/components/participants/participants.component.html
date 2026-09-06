@@ -24,13 +24,18 @@
           >
             <div class="field user-field">
               <div class="participant-field-label">
-                <label [for]="'participantUser' + index">User <b>*</b></label>
+                <label
+                  [id]="'participantUserLabel' + index"
+                  [appLabelFor]="'participantUser' + index"
+                  >User <b>*</b></label
+                >
                 @if (participantSource(index); as source) {
                   <span class="participant-source">{{ source }}</span>
                 }
               </div>
               <p-select
                 [inputId]="'participantUser' + index"
+                [ariaLabelledBy]="'participantUserLabel' + index"
                 formControlName="userId"
                 [options]="availableUserGroups(index)"
                 [group]="true"
@@ -60,9 +65,12 @@
             </div>
 
             <div class="field role-field">
-              <label [for]="'participantRole' + index">Role <b>*</b></label>
+              <label [id]="'participantRoleLabel' + index" [appLabelFor]="'participantRole' + index"
+                >Role <b>*</b></label
+              >
               <p-select
                 [inputId]="'participantRole' + index"
+                [ariaLabelledBy]="'participantRoleLabel' + index"
                 formControlName="roleId"
                 [options]="availableRoles(index)"
                 optionLabel="name"

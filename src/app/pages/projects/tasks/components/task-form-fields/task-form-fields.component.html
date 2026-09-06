@@ -23,9 +23,10 @@
 
   <div class="task-classification-grid">
     <div class="field">
-      <label for="taskPriority">Priority <b>*</b></label>
+      <label id="taskPriorityLabel" appLabelFor="taskPriority">Priority <b>*</b></label>
       <p-select
         inputId="taskPriority"
+        ariaLabelledBy="taskPriorityLabel"
         formControlName="priorityId"
         [options]="priorities()"
         optionLabel="name"
@@ -38,9 +39,10 @@
 
     @if (isEdit()) {
       <div class="field">
-        <label for="taskStatus">Status <b>*</b></label>
+        <label id="taskStatusLabel" appLabelFor="taskStatus">Status <b>*</b></label>
         <p-select
           inputId="taskStatus"
+          ariaLabelledBy="taskStatusLabel"
           formControlName="statusId"
           [options]="statuses()"
           optionLabel="name"
@@ -55,10 +57,11 @@
 
   <div class="task-ownership-grid">
     <div class="field">
-      <label for="taskAssignee">Assignee</label>
+      <label id="taskAssigneeLabel" appLabelFor="taskAssignee">Assignee</label>
       <p-select
         class="task-assignee-select"
         inputId="taskAssignee"
+        ariaLabelledBy="taskAssigneeLabel"
         formControlName="assigneeId"
         [options]="assignees()"
         [filter]="true"

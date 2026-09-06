@@ -54,6 +54,7 @@ import {
   WorkProjectsStoreSelectors,
 } from '../../../../store/work-projects';
 import { ProjectParticipantsComponent } from '../participants/participants.component';
+import { LabelForDirective } from '../../../../core/directives/label-for.directive';
 
 @Component({
   selector: 'app-project-form-page',
@@ -67,6 +68,7 @@ import { ProjectParticipantsComponent } from '../participants/participants.compo
     TextareaModule,
     BackButtonComponent,
     ProjectParticipantsComponent,
+    LabelForDirective,
   ],
   providers: [ConfirmationService],
   templateUrl: './form-page.component.html',

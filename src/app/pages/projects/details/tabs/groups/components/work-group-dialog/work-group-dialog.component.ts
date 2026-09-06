@@ -1,3 +1,4 @@
+import { LabelForDirective } from '../../../../../../../core/directives/label-for.directive';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -38,7 +39,14 @@ const nonWhitespaceValidator: ValidatorFn = (control: AbstractControl): Validati
 
 @Component({
   selector: 'app-work-group-dialog',
-  imports: [ReactiveFormsModule, ButtonModule, DialogModule, InputTextModule, SelectModule],
+  imports: [
+    ReactiveFormsModule,
+    ButtonModule,
+    DialogModule,
+    InputTextModule,
+    SelectModule,
+    LabelForDirective,
+  ],
   templateUrl: './work-group-dialog.component.html',
   styleUrl: './work-group-dialog.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -81,7 +89,9 @@ export class WorkGroupDialogComponent {
 
       const item = this.item();
       const parentWorkGroupId =
-        this.mode() === 'edit' ? (item?.parentWorkGroupId ?? null) : this.initialParentWorkGroupId();
+        this.mode() === 'edit'
+          ? (item?.parentWorkGroupId ?? null)
+          : this.initialParentWorkGroupId();
 
       this.form.reset({
         title: item?.title ?? '',

@@ -40,8 +40,9 @@ describe('permissionGuard', () => {
       select: vi.fn((selector: unknown) =>
         selector === UserStoreSelectors.getMe ? me$ : of(undefined),
       ),
-      selectSignal: vi.fn((selector: unknown) => () =>
-        selector === UserStoreSelectors.getPermissions ? permissions : roles,
+      selectSignal: vi.fn(
+        (selector: unknown) => () =>
+          selector === UserStoreSelectors.getPermissions ? permissions : roles,
       ),
     };
 

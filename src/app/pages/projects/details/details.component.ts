@@ -104,7 +104,8 @@ export class ProjectDetailsComponent implements OnDestroy {
     this.breadcrumbOverride.set(this.breadcrumbPath, 'Project');
     effect(() => {
       const project = this.project();
-      if (project) this.breadcrumbOverride.set(this.breadcrumbPath, `#${project.code} ${project.title}`);
+      if (project)
+        this.breadcrumbOverride.set(this.breadcrumbPath, `#${project.code} ${project.title}`);
     });
     this.route.queryParamMap.pipe(takeUntilDestroyed()).subscribe((params) => {
       this.activeTab.set(parseProjectTab(params.get('tab')));
@@ -121,7 +122,8 @@ export class ProjectDetailsComponent implements OnDestroy {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.store.dispatch(WorkProjectsStoreActions.loadProject({ id: this.id })));
 
-    this.projectPermissionsRefresh.watch(this.id)
+    this.projectPermissionsRefresh
+      .watch(this.id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (permissions) => {
@@ -139,7 +141,10 @@ export class ProjectDetailsComponent implements OnDestroy {
           }
         },
         error: (error: unknown) => {
-          if (error instanceof HttpErrorResponse && (error.status === 403 || error.status === 404)) {
+          if (
+            error instanceof HttpErrorResponse &&
+            (error.status === 403 || error.status === 404)
+          ) {
             void this.router.navigate(['/errors/403']);
           }
         },
@@ -200,7 +205,6 @@ export class ProjectDetailsComponent implements OnDestroy {
       accept: () => this.store.dispatch(WorkProjectsStoreActions.deleteProject({ id: project.id })),
     });
   }
-
 }
 
 export function parseProjectTab(value: string | null): ProjectTab {
@@ -216,4 +220,3 @@ export function projectTabQueryParam(tab: ProjectTab): string | null {
 
   return tab === 'groups' ? 'plan' : tab;
 }
-

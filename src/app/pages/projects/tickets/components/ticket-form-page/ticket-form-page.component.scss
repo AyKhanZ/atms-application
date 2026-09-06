@@ -115,9 +115,13 @@
   box-shadow: none;
 }
 
+/* place-items, not justify-items: with horizontal centring alone the grid items stretch to the
+   row height, so the spinner sat in a 24x77 box and its rotation swung the glyph around a wide
+   arc instead of turning it in place. Matches .ticket-state and the other loading panels. */
 .ticket-form-state {
   display: grid;
-  justify-items: center;
+  place-items: center;
+  align-content: center;
   gap: 0.65rem;
   min-height: 14rem;
   padding: 2rem;

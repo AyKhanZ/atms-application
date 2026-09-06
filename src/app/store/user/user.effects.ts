@@ -32,7 +32,11 @@ export class UserEffects {
             UserStoreActions.loadUserDataSuccess({ me, roles, permissions }),
           ),
           catchError((error) =>
-            of(UserStoreActions.loadUserDataFailure({ isServerUnavailable: isServerUnavailable(error) })),
+            of(
+              UserStoreActions.loadUserDataFailure({
+                isServerUnavailable: isServerUnavailable(error),
+              }),
+            ),
           ),
         ),
       ),

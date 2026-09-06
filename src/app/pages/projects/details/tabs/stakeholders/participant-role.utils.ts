@@ -9,7 +9,11 @@ export function availableParticipantRoles(
   const roleIds =
     side === 'client'
       ? [projectRoleIds.clientOrganizationManager, projectRoleIds.clientOrganizationViewer]
-      : [projectRoleIds.projectManager, projectRoleIds.businessConsultant, projectRoleIds.developer];
+      : [
+          projectRoleIds.projectManager,
+          projectRoleIds.businessConsultant,
+          projectRoleIds.developer,
+        ];
   const allowed = new Set<string>(roleIds);
 
   return roles.filter((role) => allowed.has(role.id));

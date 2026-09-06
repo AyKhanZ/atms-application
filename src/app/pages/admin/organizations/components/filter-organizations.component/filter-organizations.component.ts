@@ -1,5 +1,10 @@
 import { ChangeDetectionStrategy, Component, effect, inject, input, output } from '@angular/core';
-import { AbstractControl, NonNullableFormBuilder, ReactiveFormsModule, ValidationErrors } from '@angular/forms';
+import {
+  AbstractControl,
+  NonNullableFormBuilder,
+  ReactiveFormsModule,
+  ValidationErrors,
+} from '@angular/forms';
 import { DatePickerModule } from 'primeng/datepicker';
 import { OrganizationListFilter } from '../../../../../core/models/organizations/organizations.models';
 import { ClearButtonComponent } from '../../../../../shared/components/clear-button/clear-button.component';
@@ -85,7 +90,10 @@ function toDateOnly(value: Date | null): string | undefined {
 }
 
 function filterSyncKey(filter: OrganizationListFilter): string {
-  return JSON.stringify({ createdFrom: filter.createdFrom ?? null, createdTo: filter.createdTo ?? null });
+  return JSON.stringify({
+    createdFrom: filter.createdFrom ?? null,
+    createdTo: filter.createdTo ?? null,
+  });
 }
 
 function createdDateRangeValidator(control: AbstractControl): ValidationErrors | null {
@@ -99,4 +107,3 @@ function endOfToday(): Date {
   today.setHours(23, 59, 59, 999);
   return today;
 }
-

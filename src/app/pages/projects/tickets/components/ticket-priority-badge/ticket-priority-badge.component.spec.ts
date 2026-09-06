@@ -8,7 +8,9 @@ describe('TicketPriorityBadgeComponent', () => {
   let fixture: ComponentFixture<TicketPriorityBadgeComponent>;
 
   beforeEach(async () => {
-    await TestBed.configureTestingModule({ imports: [TicketPriorityBadgeComponent] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [TicketPriorityBadgeComponent],
+    }).compileComponents();
     fixture = TestBed.createComponent(TicketPriorityBadgeComponent);
   });
 

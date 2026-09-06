@@ -10,9 +10,7 @@ export const onboardingCompletedGuard: CanActivateFn = () => {
   return auth.ready$.pipe(
     filter(Boolean),
     take(1),
-    map(() =>
-      auth.isOnboardingCompleted() ? true : router.createUrlTree(['/onboarding']),
-    ),
+    map(() => (auth.isOnboardingCompleted() ? true : router.createUrlTree(['/onboarding']))),
   );
 };
 
@@ -23,8 +21,6 @@ export const onboardingPageGuard: CanActivateFn = () => {
   return auth.ready$.pipe(
     filter(Boolean),
     take(1),
-    map(() =>
-      auth.isOnboardingCompleted() ? router.createUrlTree(['/dashboard']) : true,
-    ),
+    map(() => (auth.isOnboardingCompleted() ? router.createUrlTree(['/dashboard']) : true)),
   );
 };

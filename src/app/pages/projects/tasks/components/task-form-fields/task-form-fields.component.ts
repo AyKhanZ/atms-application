@@ -9,6 +9,7 @@ import { WorkProjectParticipantModel } from '../../../../../core/models/work-pro
 import { formatDateInput, parseDisplayDate } from '../../../../../core/utils/date-input.utils';
 import { ProfileAvatarComponent } from '../../../../../shared/components/profile-avatar/profile-avatar.component';
 import { PersonInitialsPipe, PersonNamePipe } from '../../../../../shared/pipes/person-name.pipe';
+import { LabelForDirective } from '../../../../../core/directives/label-for.directive';
 
 export type TaskFormGroup = FormGroup<{
   title: FormControl<string | null>;
@@ -30,6 +31,7 @@ export type TaskFormGroup = FormGroup<{
     ProfileAvatarComponent,
     PersonInitialsPipe,
     PersonNamePipe,
+    LabelForDirective,
   ],
   templateUrl: './task-form-fields.component.html',
   styleUrls: [

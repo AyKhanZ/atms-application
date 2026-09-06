@@ -246,7 +246,9 @@
                           }
                         </div>
                         @if (personalForm.controls.name.value.length) {
-                          <small class="counter">{{ personalForm.controls.name.value.length }}/50</small>
+                          <small class="counter"
+                            >{{ personalForm.controls.name.value.length }}/50</small
+                          >
                         }
                       </div>
                     </div>
@@ -272,7 +274,9 @@
                           }
                         </div>
                         @if (personalForm.controls.surname.value.length) {
-                          <small class="counter">{{ personalForm.controls.surname.value.length }}/100</small>
+                          <small class="counter"
+                            >{{ personalForm.controls.surname.value.length }}/100</small
+                          >
                         }
                       </div>
                     </div>
@@ -306,7 +310,9 @@
                           }
                         </div>
                         @if (personalForm.controls.phoneNumber.value.length) {
-                          <small class="counter">{{ personalForm.controls.phoneNumber.value.length }}/20</small>
+                          <small class="counter"
+                            >{{ personalForm.controls.phoneNumber.value.length }}/20</small
+                          >
                         }
                       </div>
                     </div>
@@ -332,13 +338,15 @@
                           }
                         </div>
                         @if (personalForm.controls.position.value.length) {
-                          <small class="counter">{{ personalForm.controls.position.value.length }}/100</small>
+                          <small class="counter"
+                            >{{ personalForm.controls.position.value.length }}/100</small
+                          >
                         }
                       </div>
                     </div>
 
                     <div class="field" style="grid-column: span 8">
-                      <label for="language"
+                      <label id="languageLabel" appLabelFor="language"
                         >Language
                         <i
                           class="pi pi-info-circle"
@@ -348,6 +356,7 @@
                       ></label>
                       <p-select
                         inputId="language"
+                        ariaLabelledBy="languageLabel"
                         [options]="languageOptions()"
                         appendTo="body"
                         optionLabel="label"
@@ -395,9 +404,10 @@
                     </div>
 
                     <div class="field" style="grid-column: span 6">
-                      <label for="gender">Gender</label>
+                      <label id="genderLabel" appLabelFor="gender">Gender</label>
                       <p-select
                         inputId="gender"
+                        ariaLabelledBy="genderLabel"
                         [options]="genders()"
                         appendTo="body"
                         optionLabel="name"
@@ -416,9 +426,12 @@
                     </div>
 
                     <div class="field" style="grid-column: span 6">
-                      <label for="maritalStatus">Marital status</label>
+                      <label id="maritalStatusLabel" appLabelFor="maritalStatus"
+                        >Marital status</label
+                      >
                       <p-select
                         inputId="maritalStatus"
+                        ariaLabelledBy="maritalStatusLabel"
                         [options]="maritalStatuses()"
                         appendTo="body"
                         optionLabel="name"
@@ -566,7 +579,9 @@
                         />
                         <div class="field-line">
                           <small>
-                            @if (row.controls.name.touched && row.controls.name.hasError('required')) {
+                            @if (
+                              row.controls.name.touched && row.controls.name.hasError('required')
+                            ) {
                               Name is required.
                             }
                           </small>
@@ -585,7 +600,10 @@
                         />
                         <div class="field-line">
                           <small>
-                            @if (row.controls.surname.touched && row.controls.surname.hasError('required')) {
+                            @if (
+                              row.controls.surname.touched &&
+                              row.controls.surname.hasError('required')
+                            ) {
                               Surname is required.
                             }
                           </small>
@@ -605,9 +623,13 @@
                         />
                         <div class="field-line">
                           <small>
-                            @if (row.controls.email.touched && row.controls.email.hasError('required')) {
+                            @if (
+                              row.controls.email.touched && row.controls.email.hasError('required')
+                            ) {
                               Email is required.
-                            } @else if (row.controls.email.touched && row.controls.email.hasError('email')) {
+                            } @else if (
+                              row.controls.email.touched && row.controls.email.hasError('email')
+                            ) {
                               Enter a valid email.
                             }
                           </small>

@@ -58,9 +58,10 @@
 
       <div class="classification-grid">
         <div class="field">
-          <label for="projectType">Type <b>*</b></label>
+          <label id="projectTypeLabel" appLabelFor="projectType">Type <b>*</b></label>
           <p-select
             inputId="projectType"
+            ariaLabelledBy="projectTypeLabel"
             formControlName="projectTypeId"
             [options]="types()"
             optionLabel="name"
@@ -74,9 +75,10 @@
         </div>
 
         <div class="field">
-          <label for="projectKind">Kind <b>*</b></label>
+          <label id="projectKindLabel" appLabelFor="projectKind">Kind <b>*</b></label>
           <p-select
             inputId="projectKind"
+            ariaLabelledBy="projectKindLabel"
             formControlName="projectKindId"
             [options]="kinds()"
             optionLabel="name"
@@ -90,9 +92,10 @@
         </div>
 
         <div class="field">
-          <label for="projectStatus">Status <b>*</b></label>
+          <label id="projectStatusLabel" appLabelFor="projectStatus">Status <b>*</b></label>
           <p-select
             inputId="projectStatus"
+            ariaLabelledBy="projectStatusLabel"
             formControlName="projectStatusId"
             [options]="statuses()"
             optionLabel="name"
@@ -146,7 +149,7 @@
 
       @if (!isInternalProject()) {
         <div class="field organization-field">
-          <label for="projectOrganization"
+          <label id="projectOrganizationLabel" appLabelFor="projectOrganization"
             >Organization
             @if (requiresOrganization()) {
               <b>*</b>
@@ -154,6 +157,7 @@
           </label>
           <p-select
             inputId="projectOrganization"
+            ariaLabelledBy="projectOrganizationLabel"
             formControlName="organizationId"
             [options]="organizations()"
             optionLabel="title"

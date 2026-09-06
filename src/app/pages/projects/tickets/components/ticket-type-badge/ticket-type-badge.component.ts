@@ -19,7 +19,11 @@ import { DictionaryModel } from '../../../../../core/models/dictionary.model';
           <path d="M3.25 3.25 5.4 4.8m7.35-1.55L10.6 4.8M8 5.4v8.35" />
         </svg>
       } @else {
-        <i class="pi ticket-type__icon" [class]="'pi ticket-type__icon ' + icon()" aria-hidden="true"></i>
+        <i
+          class="pi ticket-type__icon"
+          [class]="'pi ticket-type__icon ' + icon()"
+          aria-hidden="true"
+        ></i>
       }
       <span>{{ type().name }}</span>
     </span>

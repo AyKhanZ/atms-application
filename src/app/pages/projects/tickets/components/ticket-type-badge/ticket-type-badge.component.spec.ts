@@ -5,7 +5,9 @@ describe('TicketTypeBadgeComponent', () => {
   let fixture: ComponentFixture<TicketTypeBadgeComponent>;
 
   beforeEach(async () => {
-    await TestBed.configureTestingModule({ imports: [TicketTypeBadgeComponent] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [TicketTypeBadgeComponent],
+    }).compileComponents();
     fixture = TestBed.createComponent(TicketTypeBadgeComponent);
   });
 

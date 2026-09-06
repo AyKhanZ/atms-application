@@ -314,6 +314,10 @@ disabled states, semantic HTML.
 
 Never rely on colour alone.
 
+Every field carries a name, and clicking its label must focus it. `<label for>` only binds to a
+real form element — a `p-select` renders a `<span role="combobox">`, so it needs an `id` on the
+label and `ariaLabelledBy` on the select instead. See `AGENTS.md` for the exact pattern.
+
 ---
 
 ## 22. History UX
