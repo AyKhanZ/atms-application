@@ -16,14 +16,17 @@ export class OrganizationsService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${projectApiUrl}/organization`;
 
-  getOrganizations(filter: OrganizationListFilter): Observable<PaginatedResponse<OrganizationListItemModel>> {
+  getOrganizations(
+    filter: OrganizationListFilter,
+  ): Observable<PaginatedResponse<OrganizationListItemModel>> {
     let params = new HttpParams().set('Page', filter.page).set('PageSize', filter.pageSize);
 
     if (filter.search) params = params.set('Search', filter.search);
     if (filter.createdFrom) params = params.set('CreatedFrom', filter.createdFrom);
     if (filter.createdTo) params = params.set('CreatedTo', filter.createdTo);
     if (filter.sortBy) params = params.set('SortBy', filter.sortBy);
-    if (filter.sortDirection !== undefined) params = params.set('SortDirection', filter.sortDirection);
+    if (filter.sortDirection !== undefined)
+      params = params.set('SortDirection', filter.sortDirection);
 
     return this.http.get<PaginatedResponse<OrganizationListItemModel>>(this.baseUrl, { params });
   }

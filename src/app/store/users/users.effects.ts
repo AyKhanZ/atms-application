@@ -28,7 +28,6 @@ export class UsersEffects {
     ),
   );
 
-
   // POST /account/register
   registerUser$ = createEffect(() =>
     this.actions$.pipe(
@@ -75,7 +74,6 @@ export class UsersEffects {
       ),
     ),
   );
-
 
   registerUserSuccess$ = createEffect(
     () =>

@@ -1,7 +1,7 @@
 <div class="breadcrumbs">
   @for (crumb of breadcrumbs(); track crumb.path; let last = $last) {
     <div class="crumb">
-      @if (last) {
+      @if (last && crumb.path === currentPath()) {
         <span class="crumb__link crumb__link--current" aria-current="page">
           @if (crumb.icon) {
             <i class="crumb__icon pi" [ngClass]="crumb.icon"></i>

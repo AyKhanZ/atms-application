@@ -1,0 +1,87 @@
+<app-confirm-dialog key="taskDelete" />
+
+<section class="page task-details-page">
+  <div class="page-header task-page-header">
+    <div class="task-page-heading">
+      <h1 class="page-title">{{ task()?.isSubtask ? 'Subtask details' : 'Task details' }}</h1>
+      <p class="page-subtitle" [title]="task()?.title || ''">
+        {{ task()?.title || 'Task workspace' }}
+      </p>
+    </div>
+    <div class="page-actions">
+      <app-back-button (back)="back()" />
+      @if (canEdit()) {
+        <button pButton type="button" severity="secondary" outlined="true" (click)="edit()">
+          <i class="pi pi-pencil"></i><span>Edit</span>
+        </button>
+      }
+      @if (canDelete()) {
+        <button
+          pButton
+          type="button"
+          severity="danger"
+          outlined="true"
+          [loading]="deleting()"
+          (click)="confirmDelete()"
+        >
+          <i class="pi pi-trash"></i><span>Delete</span>
+        </button>
+      }
+    </div>
+  </div>
+
+  @if (loading()) {
+    <section class="panel task-state" role="status">
+      <i class="pi pi-spin pi-spinner"></i><span>Loading task...</span>
+    </section>
+  } @else if (loadError()) {
+    <section class="panel task-state" role="alert">
+      <i class="pi pi-exclamation-circle"></i><strong>Task is unavailable</strong
+      ><span>The task may have been removed or you may no longer have access.</span
+      ><button pButton type="button" outlined="true" (click)="back()">Back</button>
+    </section>
+  } @else if (task(); as item) {
+    <article class="panel task-panel">
+      <header class="task-hero">
+        <div class="task-identity">
+          <span class="task-code">{{ item.isSubtask ? 'SUBTASK' : 'TASK' }} #{{ item.code }}</span>
+          <h2>{{ item.title }}</h2>
+        </div>
+        <div class="task-state-area">
+          @if (item.updatedAt; as updatedAt) {
+            <p>
+              Updated {{ updatedAt | relativeTime }}
+              @if (item.updatedBy; as author) {
+                · {{ author | personName: '' }}
+              }
+            </p>
+          }
+          <app-task-status-badge [status]="item.status" [prominent]="true" />
+        </div>
+      </header>
+
+      <app-entity-tabs
+        [tabs]="tabs()"
+        [active]="activeTab()"
+        ariaLabel="Task sections"
+        (select)="selectTab($event)"
+      />
+
+      @if (activeTab() === 'details') {
+        <app-task-details-tab [task]="item" />
+      } @else if (activeTab() === 'subtasks' && !item.isSubtask) {
+        <app-work-task-list
+          [projectId]="item.workProjectId"
+          [ticketId]="item.workTicketId"
+          [parentTaskId]="item.id"
+          [canCreate]="canCreate()"
+          [canEdit]="canEdit()"
+        />
+      } @else if (activeTab() === 'attachments') {
+        <app-empty-state icon="pi-paperclip" title="No attachments yet" [compact]="true" />
+      } @else {
+        <app-empty-state icon="pi-history" title="No activity yet" [compact]="true" />
+      }
+    </article>
+  }
+</section>

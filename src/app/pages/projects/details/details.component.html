@@ -26,7 +26,8 @@
             severity="danger"
             outlined="true"
             [loading]="isSaving()"
-            (click)="confirmDelete()">
+            (click)="confirmDelete()"
+          >
             <i class="pi pi-trash"></i><span>Delete</span>
           </button>
         }
@@ -111,10 +112,7 @@
         <app-stakeholders-tab [project]="item" [isSaving]="isSaving()" />
       } @else if (activeTab() === 'groups') {
         <ng-container *hasProjectAccess="ProjectPermissions.Project.View; projectId: item.id">
-          <app-groups-tab
-            [projectId]="item.id"
-            [focusedMilestoneId]="focusedMilestoneId()"
-          />
+          <app-groups-tab [projectId]="item.id" [focusedMilestoneId]="focusedMilestoneId()" />
         </ng-container>
       } @else if (activeTab() === 'attachments') {
         <app-empty-state icon="pi-paperclip" title="No attachments yet" />

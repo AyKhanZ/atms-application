@@ -105,9 +105,7 @@ describe('AuthSessionService', () => {
 
   it('clears persisted tokens when startup refresh confirms they are invalid', async () => {
     tokenStorage.getAccessModel.mockReturnValue(oldAccessModel);
-    api.refresh.mockReturnValue(
-      throwError(() => new HttpErrorResponse({ status: 401 })),
-    );
+    api.refresh.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 401 })));
 
     const service = TestBed.inject(AuthSessionService);
     await service.init();
@@ -117,9 +115,7 @@ describe('AuthSessionService', () => {
 
   it('preserves persisted tokens when startup refresh fails temporarily', async () => {
     tokenStorage.getAccessModel.mockReturnValue(oldAccessModel);
-    api.refresh.mockReturnValue(
-      throwError(() => new HttpErrorResponse({ status: 500 })),
-    );
+    api.refresh.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
 
     const service = TestBed.inject(AuthSessionService);
     await service.init();

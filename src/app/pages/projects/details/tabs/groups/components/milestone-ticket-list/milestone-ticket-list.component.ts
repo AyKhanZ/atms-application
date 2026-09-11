@@ -3,9 +3,9 @@ import { Menu, MenuModule } from 'primeng/menu';
 import { ButtonModule } from 'primeng/button';
 import { MenuItem } from 'primeng/api';
 import { WorkTicketModel } from '../../../../../../../core/models/work-tickets';
-import { ProfileAvatarComponent } from '../../../../../../../shared/components/profile-avatar/profile-avatar.component';
+import { WorkItemAssigneeComponent } from '../../../../../../../shared/components/work-item-assignee/work-item-assignee.component';
 import { TicketStatusBadgeComponent } from '../../../../../tickets/components/ticket-status-badge/ticket-status-badge.component';
-import { TicketTypeBadgeComponent } from '../../../../../tickets/components/ticket-type-badge/ticket-type-badge.component';
+import { WorkItemTypeComponent } from '../../../../../../../shared/components/work-item-type/work-item-type.component';
 
 export interface MilestoneTicketPageState {
   items: WorkTicketModel[];
@@ -19,9 +19,9 @@ export interface MilestoneTicketPageState {
   imports: [
     ButtonModule,
     MenuModule,
-    ProfileAvatarComponent,
+    WorkItemAssigneeComponent,
     TicketStatusBadgeComponent,
-    TicketTypeBadgeComponent,
+    WorkItemTypeComponent,
   ],
   templateUrl: './milestone-ticket-list.component.html',
   styleUrl: './milestone-ticket-list.component.scss',
@@ -61,19 +61,5 @@ export class MilestoneTicketListComponent {
 
   ticketCode(code: string): string {
     return `#${code}`;
-  }
-
-  assigneeName(ticket: WorkTicketModel): string {
-    return ticket.assignee
-      ? `${ticket.assignee.name} ${ticket.assignee.surname}`.trim()
-      : 'Unassigned';
-  }
-
-  assigneeInitials(ticket: WorkTicketModel): string {
-    const assignee = ticket.assignee;
-    if (!assignee) return '';
-
-    const initials = `${assignee.name?.[0] ?? ''}${assignee.surname?.[0] ?? ''}`;
-    return initials.toUpperCase() || 'U';
   }
 }

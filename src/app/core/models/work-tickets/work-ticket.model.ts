@@ -1,6 +1,6 @@
 import { AuditUserModel } from '../audit-user.model';
 import { DictionaryModel } from '../dictionary.model';
-import { WorkTicketAssigneeModel } from './work-ticket-assignee.model';
+import { WorkItemAssigneeModel } from '../work-items';
 
 export interface WorkTicketModel {
   id: string;
@@ -16,7 +16,9 @@ export interface WorkTicketModel {
   workTicketStatus: DictionaryModel;
   priority: DictionaryModel;
   deadline?: string | null;
-  assignee?: WorkTicketAssigneeModel | null;
+  assignee?: WorkItemAssigneeModel | null;
   updatedAt?: string | null;
   updatedBy?: AuditUserModel | null;
+  totalTaskCount?: number;
+  doneTaskCount?: number;
 }

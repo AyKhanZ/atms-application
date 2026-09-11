@@ -1,0 +1,126 @@
+<form id="taskForm" class="create-form" [formGroup]="form()" (ngSubmit)="submitForm.emit()">
+  <label class="field full-field title-field">
+    <span>Name <b>*</b></span>
+    <input pInputText formControlName="title" maxlength="100" placeholder="Enter task name" />
+    <div class="field-meta">
+      <small [class.visible]="error('title')">{{ error('title') || ' ' }}</small>
+      <em>{{ form().controls.title.value?.length || 0 }}/100</em>
+    </div>
+  </label>
+
+  <label class="field full-field description-field">
+    <span>Description</span>
+    <textarea
+      pTextarea
+      formControlName="description"
+      maxlength="2000"
+      placeholder="Describe the expected result and acceptance notes"
+    ></textarea>
+    <div class="field-meta">
+      <small></small><em>{{ form().controls.description.value?.length || 0 }}/2000</em>
+    </div>
+  </label>
+
+  <ng-content select="[task-parent]" />
+
+  <div class="task-classification-grid">
+    <div class="field">
+      <label id="taskPriorityLabel" appLabelFor="taskPriority">Priority <b>*</b></label>
+      <p-select
+        inputId="taskPriority"
+        ariaLabelledBy="taskPriorityLabel"
+        formControlName="priorityId"
+        [options]="priorities()"
+        optionLabel="name"
+        optionValue="id"
+        placeholder="Select priority"
+        appendTo="body"
+      />
+      <small [class.visible]="error('priorityId')">{{ error('priorityId') || ' ' }}</small>
+    </div>
+
+    @if (isEdit()) {
+      <div class="field">
+        <label id="taskStatusLabel" appLabelFor="taskStatus">Status <b>*</b></label>
+        <p-select
+          inputId="taskStatus"
+          ariaLabelledBy="taskStatusLabel"
+          formControlName="statusId"
+          [options]="statuses()"
+          optionLabel="name"
+          optionValue="id"
+          placeholder="Select status"
+          appendTo="body"
+        />
+        <small [class.visible]="error('statusId')">{{ error('statusId') || ' ' }}</small>
+      </div>
+    }
+  </div>
+
+  <div class="task-ownership-grid">
+    <div class="field">
+      <label id="taskAssigneeLabel" appLabelFor="taskAssignee">Assignee</label>
+      <p-select
+        class="task-assignee-select"
+        inputId="taskAssignee"
+        ariaLabelledBy="taskAssigneeLabel"
+        formControlName="assigneeId"
+        [options]="assignees()"
+        [filter]="true"
+        filterBy="name,surname,email"
+        optionValue="id"
+        placeholder="Unassigned"
+        [showClear]="true"
+        panelStyleClass="assignee-select-panel"
+        appendTo="body"
+        emptyMessage="No employees available"
+        emptyFilterMessage="No employees found"
+      >
+        <ng-template #selectedItem let-participant>
+          <span class="assignee-selection">
+            <app-profile-avatar
+              [imageUrl]="participant.avatarPath"
+              [fullName]="participant | personName"
+              [initials]="participant | personInitials"
+              [previewEnabled]="false"
+            />
+            <span>{{ participant | personName }}</span>
+          </span>
+        </ng-template>
+        <ng-template #item let-participant>
+          <div class="assignee-option">
+            <app-profile-avatar
+              [imageUrl]="participant.avatarPath"
+              [fullName]="participant | personName"
+              [initials]="participant | personInitials"
+              [previewEnabled]="false"
+            />
+            <span
+              ><strong>{{ participant | personName }}</strong
+              ><small>{{ participant.email }}</small></span
+            >
+          </div>
+        </ng-template>
+      </p-select>
+      <small></small>
+    </div>
+
+    <div class="field">
+      <label for="taskDeadline">Deadline</label>
+      <p-datepicker
+        inputId="taskDeadline"
+        formControlName="deadline"
+        dateFormat="dd.mm.yy"
+        placeholder="Select deadline"
+        iconDisplay="input"
+        [showIcon]="true"
+        [readonlyInput]="false"
+        [showClear]="true"
+        appendTo="body"
+        (onInput)="onDateInput($event)"
+        (onBlur)="onDateBlur($event)"
+      />
+      <small></small>
+    </div>
+  </div>
+</form>

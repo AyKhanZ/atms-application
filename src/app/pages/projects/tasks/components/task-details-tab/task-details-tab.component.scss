@@ -1,0 +1,9 @@
+@use 'work-item-details';
+
+:host {
+  display: block;
+}
+
+/* Description, facts column and every breakpoint come from the shared body, which the ticket
+   page includes as well. */
+@include work-item-details.body;

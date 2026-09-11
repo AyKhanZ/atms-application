@@ -5,7 +5,10 @@ import { RoleModel } from '../../core/models/users/user.models';
 const key = '[User]';
 
 export const loadUserData = createAction(`${key} Load User Data`);
-export const loadUserDataSuccess = createAction(`${key} Load User Data Success`, props<{ me: MeModel; roles: RoleModel[]; permissions: string[] }>());
+export const loadUserDataSuccess = createAction(
+  `${key} Load User Data Success`,
+  props<{ me: MeModel; roles: RoleModel[]; permissions: string[] }>(),
+);
 export const loadUserDataFailure = createAction(
   `${key} Load User Data Failure`,
   props<{ isServerUnavailable: boolean }>(),

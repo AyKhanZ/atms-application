@@ -74,10 +74,7 @@
           <td>
             <div class="user-cell">
               <div class="user-photo">
-                @if (
-                  avatarUrl(user) &&
-                  !avatarLoadFailed(user)
-                ) {
+                @if (avatarUrl(user) && !avatarLoadFailed(user)) {
                   <img
                     [src]="avatarUrl(user)"
                     [alt]="fullName(user)"

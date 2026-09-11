@@ -1,3 +1,5 @@
+@use 'work-item-details';
+
 :host {
   display: block;
 }
@@ -39,10 +41,12 @@
 
 .ticket-panel {
   min-width: 0;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .ticket-hero {
+  border-top-left-radius: inherit;
+  border-top-right-radius: inherit;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: start;
@@ -87,47 +91,6 @@
   line-height: 1.35;
 }
 
-.ticket-details-content {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) clamp(27rem, 35cqi, 32rem);
-  min-height: clamp(26rem, 54vh, 38rem);
-  background: var(--white);
-}
-
-.description-card,
-.ticket-information {
-  min-width: 0;
-  padding: 1.5rem;
-}
-
-.description-card h3 {
-  margin: 0;
-  color: var(--app-text);
-  font-size: 1rem;
-}
-
-.description {
-  margin: 1rem 0 0;
-  overflow-wrap: anywhere;
-  color: var(--gray-text-strong);
-  line-height: 1.68;
-  text-wrap: pretty;
-  white-space: pre-wrap;
-}
-
-.inline-empty {
-  margin: 1rem 0 0;
-  color: var(--app-muted);
-}
-
-.ticket-information {
-  display: grid;
-  align-content: start;
-  gap: 1.5rem;
-  border-left: 1px solid var(--app-border);
-}
-
-
 .ticket-state {
   display: grid;
   min-height: 16rem;
@@ -143,32 +106,8 @@
   color: var(--app-text);
 }
 
-.ticket-panel > .project-tab-empty-state--compact {
-  min-height: clamp(24rem, 50vh, 34rem);
-}
-
-@container (max-width: 50rem) {
-  .ticket-details-content {
-    grid-template-columns: minmax(0, 1fr);
-    min-height: 0;
-  }
-
-  .ticket-information {
-    order: -1;
-    border-top: 0;
-    border-bottom: 1px solid var(--app-border);
-    border-left: 0;
-  }
-
-  app-ticket-location {
-    order: -1;
-  }
-}
-
 @container (max-width: 42rem) {
-  .ticket-hero,
-  .description-card,
-  .ticket-information {
+  .ticket-hero {
     padding: 1rem;
   }
 }
@@ -211,5 +150,7 @@
     justify-items: start;
     text-align: left;
   }
-
 }
+
+/* Description, facts column and every breakpoint are shared with the task details tab. */
+@include work-item-details.body;

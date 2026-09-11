@@ -27,7 +27,8 @@ export class HasProjectAccessDirective {
 
   constructor() {
     effect((onCleanup) => {
-      const projectId = this.hasProjectAccessProjectId() ?? this.route?.snapshot.paramMap.get('projectId');
+      const projectId =
+        this.hasProjectAccessProjectId() ?? this.route?.snapshot.paramMap.get('projectId');
       if (!projectId || !this.hasSystemAccess()) {
         this.render(false);
         return;
@@ -46,8 +47,10 @@ export class HasProjectAccessDirective {
     const systemPermission = this.hasProjectAccessSystem();
     if (!systemPermission) return true;
 
-    return this.roles().some((role) => role.code === Roles.SuperAdmin) ||
-      this.permissions().includes(systemPermission);
+    return (
+      this.roles().some((role) => role.code === Roles.SuperAdmin) ||
+      this.permissions().includes(systemPermission)
+    );
   }
 
   private render(canRender: boolean): void {

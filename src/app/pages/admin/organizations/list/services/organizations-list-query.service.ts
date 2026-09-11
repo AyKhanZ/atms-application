@@ -16,7 +16,10 @@ export class OrganizationsListQueryService {
       page: this.readNumber(params['page'], this.defaultFilter.page),
       pageSize: this.readNumber(params['pageSize'], this.defaultFilter.pageSize),
       sortBy: this.readSortBy(params['sortBy']),
-      sortDirection: this.readSortDirection(params['sortDirection'], this.defaultFilter.sortDirection),
+      sortDirection: this.readSortDirection(
+        params['sortDirection'],
+        this.defaultFilter.sortDirection,
+      ),
       search: this.readString(params['search']),
       createdFrom: this.readString(params['createdFrom']),
       createdTo: this.readString(params['createdTo']),
@@ -24,15 +27,17 @@ export class OrganizationsListQueryService {
   }
 
   toParams(filter: OrganizationListFilter): Params {
-    return Object.fromEntries(Object.entries({
-      page: filter.page,
-      pageSize: filter.pageSize,
-      sortBy: filter.sortBy,
-      sortDirection: filter.sortDirection,
-      search: filter.search,
-      createdFrom: filter.createdFrom,
-      createdTo: filter.createdTo,
-    }).filter(([, value]) => value !== undefined && value !== null && value !== ''));
+    return Object.fromEntries(
+      Object.entries({
+        page: filter.page,
+        pageSize: filter.pageSize,
+        sortBy: filter.sortBy,
+        sortDirection: filter.sortDirection,
+        search: filter.search,
+        createdFrom: filter.createdFrom,
+        createdTo: filter.createdTo,
+      }).filter(([, value]) => value !== undefined && value !== null && value !== ''),
+    );
   }
 
   hasAdvancedFilters(filter: OrganizationListFilter): boolean {
@@ -59,7 +64,9 @@ export class OrganizationsListQueryService {
 
   private readSortDirection(value: unknown, fallback: SortDirectionEnum): SortDirectionEnum {
     const parsed = Number(value);
-    return parsed === SortDirectionEnum.Asc || parsed === SortDirectionEnum.Desc ? parsed : fallback;
+    return parsed === SortDirectionEnum.Asc || parsed === SortDirectionEnum.Desc
+      ? parsed
+      : fallback;
   }
 
   private readString(value: unknown): string | undefined {

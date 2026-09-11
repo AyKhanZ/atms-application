@@ -19,10 +19,7 @@ export class WorkGroupsService {
     return this.http.get<WorkGroupModel[]>(this.workGroupsUrl(projectId));
   }
 
-  getMilestones(
-    projectId: string,
-    filter: MilestoneFilter = {},
-  ): Observable<MilestonePageModel> {
+  getMilestones(projectId: string, filter: MilestoneFilter = {}): Observable<MilestonePageModel> {
     let params = new HttpParams().set('pageSize', filter.pageSize ?? 50);
     if (filter.search) params = params.set('search', filter.search);
     if (filter.cursor) params = params.set('cursor', filter.cursor);

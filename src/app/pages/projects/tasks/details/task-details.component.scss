@@ -1,0 +1,86 @@
+:host {
+  display: block;
+}
+.task-page-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+}
+.task-page-heading {
+  min-width: 0;
+}
+.task-page-heading .page-subtitle {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.page-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.65rem;
+}
+.page-actions > button,
+:host ::ng-deep .page-actions app-back-button button {
+  min-width: 7.75rem;
+}
+.task-panel {
+  min-width: 0;
+  overflow: hidden;
+}
+.task-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--app-border);
+}
+.task-code {
+  color: var(--orange-text-hover);
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+.task-identity h2 {
+  margin: 0.35rem 0 0;
+  overflow-wrap: anywhere;
+  font-size: clamp(1.55rem, 2.5cqi, 2rem);
+}
+.task-state-area {
+  display: grid;
+  justify-items: end;
+  gap: 0.55rem;
+  text-align: right;
+}
+.task-state-area p {
+  margin: 0;
+  color: var(--app-muted);
+  font-size: 0.75rem;
+}
+.task-state {
+  display: grid;
+  min-height: 16rem;
+  place-items: center;
+  align-content: center;
+  gap: 0.75rem;
+  color: var(--app-muted);
+  text-align: center;
+}
+@container (max-width: 36rem) {
+  .task-page-header,
+  .task-hero {
+    grid-template-columns: 1fr;
+  }
+  .page-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+  .page-actions button,
+  .page-actions app-back-button,
+  :host ::ng-deep .page-actions app-back-button button {
+    width: 100%;
+  }
+  .task-state-area {
+    justify-items: start;
+    text-align: left;
+  }
+}

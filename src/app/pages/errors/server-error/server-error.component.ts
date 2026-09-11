@@ -26,13 +26,16 @@ export class ServerErrorComponent {
     }
 
     this.isChecking.set(true);
-    this.health.check().pipe(
-      switchMap(() => from(this.auth.init())),
-      finalize(() => this.isChecking.set(false)),
-      catchError(() => EMPTY),
-    ).subscribe(() => {
-      void this.router.navigateByUrl(this.getReturnUrl());
-    });
+    this.health
+      .check()
+      .pipe(
+        switchMap(() => from(this.auth.init())),
+        finalize(() => this.isChecking.set(false)),
+        catchError(() => EMPTY),
+      )
+      .subscribe(() => {
+        void this.router.navigateByUrl(this.getReturnUrl());
+      });
   }
 
   private getReturnUrl(): string {

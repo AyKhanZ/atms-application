@@ -7,7 +7,8 @@
     <div
       class="file-upload__preview"
       [class.file-upload__preview--empty]="!previewUrl()"
-      [class.file-upload__preview--round]="roundPreview()">
+      [class.file-upload__preview--round]="roundPreview()"
+    >
       @if (previewUrl()) {
         <img [src]="previewUrl()" [alt]="previewAlt()" />
       } @else {
@@ -26,11 +27,18 @@
           [maxFileSize]="imageValidator.maxSizeBytes"
           [auto]="false"
           [customUpload]="true"
-          (onSelect)="onFileSelected($event, upload)">
+          (onSelect)="onFileSelected($event, upload)"
+        >
           <ng-template #filelabel></ng-template>
         </p-fileUpload>
         @if (fileLabel()) {
-          <button type="button" class="file-upload__remove" title="Delete photo" aria-label="Delete photo" (click)="remove(upload)">
+          <button
+            type="button"
+            class="file-upload__remove"
+            title="Delete photo"
+            aria-label="Delete photo"
+            (click)="remove(upload)"
+          >
             <i class="pi pi-times"></i>
           </button>
         }

@@ -1,4 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
+import { Select } from 'primeng/select';
 import { projectRoleIds } from '../../../../../../../core/constants/project-role-ids.constants';
 import { WorkProjectRoleModel } from '../../../../../../../core/models/work-projects';
 import { AddParticipantDialogComponent } from './add-participant-dialog.component';
@@ -6,6 +8,7 @@ import { AddParticipantDialogComponent } from './add-participant-dialog.componen
 describe('AddParticipantDialogComponent', () => {
   let fixture: ComponentFixture<AddParticipantDialogComponent>;
   let component: AddParticipantDialogComponent;
+  const originalMatchMedia = window.matchMedia;
 
   const roles: WorkProjectRoleModel[] = [
     {
@@ -19,6 +22,29 @@ describe('AddParticipantDialogComponent', () => {
       code: 'developer',
     },
   ];
+
+  beforeAll(() => {
+    Object.defineProperty(window, 'matchMedia', {
+      configurable: true,
+      value: vi.fn().mockReturnValue({
+        matches: false,
+        media: '',
+        onchange: null,
+        addListener: vi.fn(),
+        removeListener: vi.fn(),
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        dispatchEvent: vi.fn(),
+      } satisfies MediaQueryList),
+    });
+  });
+
+  afterAll(() => {
+    Object.defineProperty(window, 'matchMedia', {
+      configurable: true,
+      value: originalMatchMedia,
+    });
+  });
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -48,6 +74,22 @@ describe('AddParticipantDialogComponent', () => {
     ]);
   });
 
+  it('renders participant options with an avatar, name, and email', async () => {
+    fixture.componentRef.setInput('visible', true);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const userSelect = fixture.debugElement.query(By.directive(Select)).componentInstance as Select;
+    userSelect.show();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const option = document.body.querySelector('.participant-user-select-panel .user-option');
+    expect(option?.querySelector('app-profile-avatar')).not.toBeNull();
+    expect(option?.querySelector('strong')?.textContent?.trim()).toBe('Client User');
+    expect(option?.querySelector('small')?.textContent?.trim()).toBe('client@example.com');
+  });
+
   it('keeps the selected user while the dialog remains open', async () => {
     fixture.componentRef.setInput('visible', true);
     fixture.detectChanges();
@@ -60,6 +102,23 @@ describe('AddParticipantDialogComponent', () => {
     expect(component.form.controls.userId.value).toBe('client-user');
     expect(component.form.controls.roleId.enabled).toBe(true);
     expect(component.showError('userId')).toBe(false);
+  });
+
+  it('shows validation only after an add attempt', () => {
+    component.form.controls.userId.markAsTouched();
+    component.form.controls.roleId.markAsTouched();
+
+    expect(component.showError('userId')).toBe(false);
+    expect(component.showError('roleId')).toBe(false);
+
+    component.submit();
+
+    expect(component.showError('userId')).toBe(true);
+    expect(component.showError('roleId')).toBe(false);
+
+    component.form.controls.userId.setValue('client-user');
+
+    expect(component.showError('roleId')).toBe(true);
   });
 
   it('resets the form each time the dialog is reopened', async () => {

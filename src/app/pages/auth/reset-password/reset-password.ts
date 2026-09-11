@@ -12,13 +12,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
   selector: 'app-reset-password',
   templateUrl: './reset-password.html',
   styleUrls: ['./reset-password.scss'],
-  imports: [
-    ButtonModule,
-    FloatLabelModule,
-    PasswordModule,
-    ReactiveFormsModule,
-    PasswordRules,
-  ],
+  imports: [ButtonModule, FloatLabelModule, PasswordModule, ReactiveFormsModule, PasswordRules],
 })
 export class ResetPasswordComponent {
   // private readonly store = inject(Store);
@@ -47,7 +41,9 @@ export class ResetPasswordComponent {
   );
   readonly passwordRulesPulse = signal(false);
   readonly passwordValue = toSignal(this.form.controls.password.valueChanges, { initialValue: '' });
-  readonly confirmValue = toSignal(this.form.controls.confirmPassword.valueChanges, { initialValue: '' });
+  readonly confirmValue = toSignal(this.form.controls.confirmPassword.valueChanges, {
+    initialValue: '',
+  });
   private passwordRulesPulseTimeout?: ReturnType<typeof setTimeout>;
 
   onSubmit(): void {

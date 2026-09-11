@@ -37,10 +37,7 @@ export const getPermissionDictionariesIsLoading = createSelector(
   (s) => s.permissionDictionariesIsLoading,
 );
 
-export const getRoleDictionaries = createSelector(
-  featureSelector,
-  (s) => s.roleDictionaries,
-);
+export const getRoleDictionaries = createSelector(featureSelector, (s) => s.roleDictionaries);
 export const getRoleDictionariesIsLoading = createSelector(
   featureSelector,
   (s) => s.roleDictionariesIsLoading,

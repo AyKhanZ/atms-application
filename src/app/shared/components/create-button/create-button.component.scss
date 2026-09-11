@@ -21,7 +21,10 @@
   white-space: nowrap;
   cursor: pointer;
   box-shadow: none;
-  transition: border-color 0.16s ease, background 0.16s ease, color 0.16s ease;
+  transition:
+    border-color 0.16s ease,
+    background 0.16s ease,
+    color 0.16s ease;
 }
 
 .create-button:hover {

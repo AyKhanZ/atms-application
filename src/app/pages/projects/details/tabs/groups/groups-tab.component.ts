@@ -16,7 +16,10 @@ import { Store } from '@ngrx/store';
 import { Router } from '@angular/router';
 import { ConfirmationService, MenuItem } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import {
+  ConfirmDialogComponent,
+  confirmTone,
+} from '../../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { Menu, MenuModule } from 'primeng/menu';
 import { TooltipModule } from 'primeng/tooltip';
 import { ProjectPermissions } from '../../../../../core/enums/project-permissions.enum';
@@ -49,7 +52,7 @@ interface SelectedWorkGroup {
   selector: 'app-groups-tab',
   imports: [
     ButtonModule,
-    ConfirmDialogModule,
+    ConfirmDialogComponent,
     MenuModule,
     TooltipModule,
     WorkGroupDialogComponent,
@@ -78,8 +81,12 @@ export class GroupsTabComponent implements OnInit, OnDestroy {
   readonly focusedMilestoneId = input<string | null>(null);
   readonly ProjectPermissions = ProjectPermissions;
   readonly projectPermissions = signal<string[]>([]);
-  readonly canEdit = computed(() => this.projectPermissions().includes(ProjectPermissions.Project.Edit));
-  readonly canDelete = computed(() => this.projectPermissions().includes(ProjectPermissions.Project.Edit));
+  readonly canEdit = computed(() =>
+    this.projectPermissions().includes(ProjectPermissions.Project.Edit),
+  );
+  readonly canDelete = computed(() =>
+    this.projectPermissions().includes(ProjectPermissions.Project.Edit),
+  );
   readonly canManage = computed(() => this.canEdit() || this.canDelete());
   readonly canEditTickets = computed(() =>
     this.projectPermissions().includes(ProjectPermissions.Ticket.Edit),
@@ -96,6 +103,11 @@ export class GroupsTabComponent implements OnInit, OnDestroy {
   readonly loadError = this.store.selectSignal(WorkGroupsStoreSelectors.getLoadError);
 
   readonly expandedGroupIds = signal<Set<string>>(new Set<string>());
+  /**
+   * Milestones start collapsed. A group with five filled milestones would otherwise render fifty
+   * ticket rows at once, and every one of those milestones would fire its own request on expand.
+   */
+  readonly expandedMilestoneIds = signal<Set<string>>(new Set<string>());
   readonly initialLoadComplete = signal(this.groups().length > 0 || this.loadError() !== null);
   readonly showExpansionControls = computed(() => this.groups().length > 3);
   readonly allGroupsExpanded = computed(
@@ -190,6 +202,9 @@ export class GroupsTabComponent implements OnInit, OnDestroy {
         if (!this.expandedGroupIds().has(group.id)) continue;
 
         for (const milestone of group.milestones) {
+          if (!this.expandedMilestoneIds().has(milestone.id)) continue;
+          // The count comes with the group payload, so an empty milestone needs no request.
+          if (milestone.ticketCount === 0) continue;
           if (!this.ticketPages()[milestone.id]) this.loadTicketsFor(milestone.id, true);
         }
       }
@@ -232,7 +247,8 @@ export class GroupsTabComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.projectAccess.getPermissions(this.projectId())
+    this.projectAccess
+      .getPermissions(this.projectId())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((permissions) => {
         this.projectPermissions.set(permissions);
@@ -243,6 +259,13 @@ export class GroupsTabComponent implements OnInit, OnDestroy {
       this.expandedGroupIds.set(restoredExpansionState);
       this.hasRestoredExpansionState = true;
     }
+
+    const restoredMilestones = this.expansionState.getMilestones(this.projectId());
+    if (restoredMilestones) this.expandedMilestoneIds.set(restoredMilestones);
+
+    // "View in Plan" points at one milestone: it has to open, not just be highlighted.
+    const focused = this.focusedMilestoneId();
+    if (focused) this.setExpandedMilestones(new Set(this.expandedMilestoneIds()).add(focused));
 
     this.loadGroups();
   }
@@ -261,6 +284,18 @@ export class GroupsTabComponent implements OnInit, OnDestroy {
     else next.add(groupId);
 
     this.setExpandedGroups(next);
+  }
+
+  toggleMilestone(milestoneId: string): void {
+    const next = new Set(this.expandedMilestoneIds());
+    if (next.has(milestoneId)) next.delete(milestoneId);
+    else next.add(milestoneId);
+
+    this.setExpandedMilestones(next);
+  }
+
+  isMilestoneExpanded(milestoneId: string): boolean {
+    return this.expandedMilestoneIds().has(milestoneId);
   }
 
   toggleAllGroups(): void {
@@ -335,9 +370,10 @@ export class GroupsTabComponent implements OnInit, OnDestroy {
     const current = this.ticketPages()[milestoneId];
     if (current?.loading || (!reset && current && !current.hasMore)) return;
 
-    const state: MilestoneTicketPageState = reset || !current
-      ? { items: [], nextCursor: null, hasMore: true, loading: true }
-      : { ...current, loading: true };
+    const state: MilestoneTicketPageState =
+      reset || !current
+        ? { items: [], nextCursor: null, hasMore: true, loading: true }
+        : { ...current, loading: true };
 
     this.ticketPages.update((pages) => ({ ...pages, [milestoneId]: state }));
     this.workTicketsService
@@ -435,10 +471,11 @@ export class GroupsTabComponent implements OnInit, OnDestroy {
       this.confirmation.confirm({
         key: 'workGroupsDanger',
         header: `This ${selected.kind} can't be deleted yet`,
-        message: blockedReason,
-        icon: 'pi pi-exclamation-triangle',
+        message: `${selected.item.title}
+${blockedReason}`,
         acceptLabel: 'Got it',
         rejectVisible: false,
+        acceptButtonProps: confirmTone('warning'),
       });
       return;
     }
@@ -446,12 +483,11 @@ export class GroupsTabComponent implements OnInit, OnDestroy {
     this.confirmation.confirm({
       key: 'workGroupsDanger',
       header: `Delete ${selected.kind}?`,
-      message: `The ${selected.kind} "${selected.item.title}" will be removed from the plan. This action cannot be undone.`,
-      icon: 'pi pi-exclamation-triangle',
+      message: `${selected.item.title}
+The ${selected.kind} will be removed from the plan. This action cannot be undone.`,
       acceptLabel: 'Delete',
       rejectLabel: 'Cancel',
-      acceptButtonStyleClass: 'p-button-danger work-groups-danger-confirm-button',
-      rejectButtonStyleClass: 'p-button-outlined',
+      acceptButtonProps: confirmTone('danger'),
       accept: () => {
         this.store.dispatch(
           WorkGroupsStoreActions.deleteWorkGroup({
@@ -485,6 +521,11 @@ export class GroupsTabComponent implements OnInit, OnDestroy {
     this.expandedGroupIds.set(expandedGroupIds);
     this.expansionState.set(this.projectId(), expandedGroupIds);
   }
+
+  private setExpandedMilestones(expandedMilestoneIds: Set<string>): void {
+    this.expandedMilestoneIds.set(expandedMilestoneIds);
+    this.expansionState.setMilestones(this.projectId(), expandedMilestoneIds);
+  }
 }
 
 export function completedMilestoneCount(group: WorkGroupModel): number {
@@ -499,7 +540,7 @@ export function workGroupDeleteBlockReason(
 ): string | null {
   if (kind === 'milestone') {
     return item.ticketCount > 0
-      ? `Before deleting "${item.title}", remove ${formatCount(item.ticketCount, 'ticket')} from this milestone.`
+      ? `Remove its ${formatCount(item.ticketCount, 'ticket')} first, then delete the milestone.`
       : null;
   }
 
@@ -514,7 +555,7 @@ export function workGroupDeleteBlockReason(
     ticketCount > 0 ? formatCount(ticketCount, 'ticket') : null,
   ].filter((value): value is string => Boolean(value));
 
-  return `Before deleting "${item.title}", remove its ${contents.join(' and ')}.`;
+  return `Remove its ${contents.join(' and ')} first, then delete the group.`;
 }
 
 function formatCount(count: number, label: string): string {

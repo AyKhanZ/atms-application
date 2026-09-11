@@ -5,5 +5,6 @@ export interface ParticipantCandidate {
   name: string;
   surname: string;
   email: string;
+  avatarPath?: string | null;
   side: ParticipantSide;
 }

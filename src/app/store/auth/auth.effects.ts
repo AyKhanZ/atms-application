@@ -64,10 +64,6 @@ export class AuthEffects {
     { dispatch: false },
   );
 
-  /**
-   * Планирует обновление токена за 60 секунд до истечения.
-   * Срабатывает на loginSuccess, restoreSession (F5!) и refreshTokenSuccess.
-   */
   scheduleTokenRefresh$ = createEffect(() =>
     this.actions$.pipe(
       ofType(

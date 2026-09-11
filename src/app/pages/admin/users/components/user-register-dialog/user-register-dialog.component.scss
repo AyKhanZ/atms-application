@@ -181,11 +181,11 @@ em {
 }
 
 @media (max-width: 760px) {
-:host ::ng-deep .user-register-dialog {
+  :host ::ng-deep .user-register-dialog {
     width: 96vw;
   }
 
-.dialog-actions {
+  .dialog-actions {
     display: grid;
     grid-template-columns: 1fr 1fr;
   }

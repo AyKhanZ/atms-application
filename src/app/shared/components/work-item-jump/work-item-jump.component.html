@@ -1,0 +1,89 @@
+<div class="work-item-jump" [class.work-item-jump--open]="open()">
+  <button
+    #trigger
+    type="button"
+    class="work-item-jump-trigger"
+    aria-haspopup="listbox"
+    [attr.aria-label]="label()"
+    [attr.aria-controls]="'work-switcher-' + current().id"
+    [attr.aria-expanded]="open()"
+    [title]="label() + ': #' + current().code + ' ' + current().title"
+    (click)="toggle()"
+  >
+    <i class="pi" [class]="'pi ' + icon()" aria-hidden="true"></i>
+    <span class="work-item-jump-trigger__code">#{{ current().code }}</span>
+    <strong class="work-item-jump-trigger__title">{{ current().title }}</strong>
+    <i class="pi pi-chevron-down work-item-jump-trigger__chevron" aria-hidden="true"></i>
+  </button>
+  <section
+    #panel
+    popover="manual"
+    class="work-item-jump-panel"
+    [attr.aria-label]="groupLabel()"
+    [id]="'work-switcher-' + current().id"
+    (keydown)="navigateOptions($event)"
+  >
+    <label class="work-item-jump-search">
+      <i class="pi pi-search" aria-hidden="true"></i>
+      <input
+        #search
+        type="search"
+        aria-label="Search by code or title"
+        placeholder="Search by code or title"
+        [value]="searchTerm()"
+        [disabled]="!initialized()"
+        (input)="updateSearch($event)"
+      />
+    </label>
+    <!-- The ancestors, stepped like the Location tree, so the list is visibly scoped to them. -->
+    <header class="work-item-jump-context">
+      @for (level of context(); track level.title; let index = $index) {
+        <span
+          class="work-item-jump-context__level work-item-jump-tree-row"
+          [style.--tree-depth]="index"
+          [style.padding-left.rem]="0.75 + index * 1.2"
+          [title]="level.title"
+        >
+          <i class="pi" [class]="'pi ' + level.icon" aria-hidden="true"></i>
+          <span>{{ level.title }}</span>
+        </span>
+      }
+    </header>
+    <div
+      class="work-item-jump-list"
+      role="listbox"
+      [attr.aria-label]="groupLabel()"
+      [attr.aria-busy]="loading()"
+    >
+      @for (item of items(); track item.id) {
+        <button
+          type="button"
+          class="work-item-jump-option work-item-jump-tree-row"
+          role="option"
+          [style.--tree-depth]="context().length"
+          [class.work-item-jump-option--current]="item.id === current().id"
+          [attr.aria-selected]="item.id === current().id"
+          [attr.aria-current]="item.id === current().id ? 'page' : null"
+          (click)="choose(item.id)"
+        >
+          <i class="pi" [class]="'pi ' + icon()" aria-hidden="true"></i>
+          <span class="work-item-jump-option__code">#{{ item.code }}</span>
+          <span class="work-item-jump-option__title" [title]="item.title">{{ item.title }}</span>
+        </button>
+      }
+      @if (!loading() && !loadError() && items().length === 0) {
+        <div class="work-item-jump-message">No matching items.</div>
+      }
+    </div>
+    <footer class="work-item-jump-footer">
+      @if (loading()) {
+        <span role="status">Loading...</span>
+      } @else if (loadError()) {
+        <span role="alert">Items could not be loaded.</span>
+        <button type="button" (click)="retry.emit()">Retry</button>
+      } @else if (hasMore()) {
+        <button type="button" (click)="more.emit()">Load more</button>
+      }
+    </footer>
+  </section>
+</div>

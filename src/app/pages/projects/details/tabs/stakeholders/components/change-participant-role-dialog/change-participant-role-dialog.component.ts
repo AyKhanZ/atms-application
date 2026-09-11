@@ -1,3 +1,4 @@
+import { LabelForDirective } from '../../../../../../../core/directives/label-for.directive';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -11,6 +12,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { SelectModule } from 'primeng/select';
+import { ProfileAvatarComponent } from '../../../../../../../shared/components/profile-avatar/profile-avatar.component';
 import {
   WorkProjectParticipantModel,
   WorkProjectRoleModel,
@@ -19,7 +21,14 @@ import { availableParticipantRoles } from '../../participant-role.utils';
 
 @Component({
   selector: 'app-change-participant-role-dialog',
-  imports: [ReactiveFormsModule, ButtonModule, DialogModule, SelectModule],
+  imports: [
+    ReactiveFormsModule,
+    ButtonModule,
+    DialogModule,
+    SelectModule,
+    LabelForDirective,
+    ProfileAvatarComponent,
+  ],
   templateUrl: './change-participant-role-dialog.component.html',
   styleUrl: './change-participant-role-dialog.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -46,6 +55,12 @@ export class ChangeParticipantRoleDialogComponent {
 
   fullName(participant: WorkProjectParticipantModel): string {
     return `${participant.name} ${participant.surname}`.trim();
+  }
+
+  initials(participant: WorkProjectParticipantModel): string {
+    const initials = `${participant.name?.[0] ?? ''}${participant.surname?.[0] ?? ''}`;
+
+    return initials.toUpperCase() || 'U';
   }
 
   showError(): boolean {

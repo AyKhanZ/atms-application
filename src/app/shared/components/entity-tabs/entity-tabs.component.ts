@@ -5,6 +5,7 @@ export interface EntityTab<TId extends string = string> {
   label: string;
   /** PrimeIcons class name, e.g. "pi-align-left". */
   icon: string;
+  badge?: string;
 }
 
 /**
@@ -27,6 +28,9 @@ export interface EntityTab<TId extends string = string> {
         >
           <i class="pi" [class]="'pi ' + tab.icon" aria-hidden="true"></i>
           <span>{{ tab.label }}</span>
+          @if (tab.badge; as badge) {
+            <span class="entity-tab-badge">{{ badge }}</span>
+          }
         </button>
       }
     </nav>

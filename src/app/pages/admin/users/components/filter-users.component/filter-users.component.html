@@ -1,9 +1,10 @@
 <form class="panel panel-padding filters" [formGroup]="form" (ngSubmit)="submit()">
   <div class="form-grid">
     <div class="field">
-      <label for="status">Status</label>
+      <label id="statusLabel" appLabelFor="status">Status</label>
       <p-select
         inputId="status"
+        ariaLabelledBy="statusLabel"
         styleClass="filter-select"
         formControlName="userStatusId"
         [options]="statusOptions()"

@@ -1,3 +1,4 @@
+import { LabelForDirective } from '../../../../core/directives/label-for.directive';
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { AbstractControl, FormArray, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
@@ -16,7 +17,7 @@ interface ParticipantUserGroup {
 
 @Component({
   selector: 'app-project-participants',
-  imports: [ReactiveFormsModule, ButtonModule, SelectModule],
+  imports: [ReactiveFormsModule, ButtonModule, SelectModule, LabelForDirective],
   templateUrl: './participants.component.html',
   styleUrl: './participants.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

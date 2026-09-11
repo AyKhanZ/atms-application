@@ -14,7 +14,11 @@ import { Store } from '@ngrx/store';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
-import { UserListFilter, UserListItemModel, createDefaultUserListFilter } from '../../../../core/models/users/users.models';
+import {
+  UserListFilter,
+  UserListItemModel,
+  createDefaultUserListFilter,
+} from '../../../../core/models/users/users.models';
 import { UsersStoreActions, UsersStoreSelectors } from '../../../../store/users';
 import { UserStoreSelectors } from '../../../../store/user';
 import { DictionaryStoreActions, DictionaryStoreSelectors } from '../../../../store/dictionary';
@@ -65,7 +69,9 @@ export class UsersListComponent implements OnInit, OnDestroy {
   readonly users = this.store.selectSignal(UsersStoreSelectors.getItems);
   readonly totalCount = this.store.selectSignal(UsersStoreSelectors.getTotalCount);
   readonly loading = this.store.selectSignal(UsersStoreSelectors.isLoading);
-  readonly userStatuses = this.store.selectSignal(DictionaryStoreSelectors.getUserStatusesDictionaries);
+  readonly userStatuses = this.store.selectSignal(
+    DictionaryStoreSelectors.getUserStatusesDictionaries,
+  );
   readonly userStatusesLoading = this.store.selectSignal(
     DictionaryStoreSelectors.getUserStatusesDictionariesIsLoading,
   );
@@ -213,4 +219,3 @@ export class UsersListComponent implements OnInit, OnDestroy {
     });
   }
 }
-

@@ -54,10 +54,13 @@ const reducer = createReducer<AuthState>(
     }),
   ),
 
-  on(AuthStoreActions.logoutCompleted, (): AuthState => ({
-    ...initialAuthState,
-    isReady: true,
-  })),
+  on(
+    AuthStoreActions.logoutCompleted,
+    (): AuthState => ({
+      ...initialAuthState,
+      isReady: true,
+    }),
+  ),
 );
 
 export function authReducer(state: AuthState | undefined, action: Action): AuthState {

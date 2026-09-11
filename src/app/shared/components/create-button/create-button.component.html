@@ -4,7 +4,8 @@
   [attr.aria-label]="title()"
   [attr.title]="title()"
   [disabled]="disabled()"
-  (click)="clicked.emit()">
+  (click)="clicked.emit()"
+>
   <i class="pi pi-plus"></i>
   <span>{{ label() }}</span>
 </button>

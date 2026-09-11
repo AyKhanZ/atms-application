@@ -28,6 +28,7 @@ Defined in `src/styles.scss` under `:root`. Always reference the token, never th
 | `--orange-light-hover` | Hover background on interactive rows |
 | `--orange-border` | Border of an accented element |
 | `--orange-focus-outline` | `outline` colour for `:focus-visible` |
+| `--app-guide-line` | Guide line of a nesting tree (structure, so grey — not the accent) |
 | `--app-success` / `--green-text` | Success, Closed |
 | `--app-danger` / `--red-hover` | Destructive actions, errors |
 | `--red-hover-bg` | Background of a danger chip or row |
@@ -65,7 +66,7 @@ their own width, not the viewport:
 New code uses these. Existing code migrates when it is touched anyway — do not open a separate
 crusade.
 
-### Chips (status, type, priority, metadata)
+### Chips (status, type, metadata)
 
 All chips share one geometry — height, padding, radius, border, font size — enforced by the
 `chip` Sass mixin in `src/styles/_chip.scss`:
@@ -82,8 +83,13 @@ apart before the mixin existed.
 
 Two rules that are easy to get wrong:
 
-- **Priority carries no icon.** The icon slot belongs to Type. Directional arrows were tried and
-  read as noise rather than as severity.
+- **Priority is not a chip at all.** It is an ordinal scale, while status is a set of categories,
+  and drawing both as chips made High and In Progress look like the same kind of thing — they even
+  shared the orange. Priority is a level meter instead: three bars filled one, two or three, with
+  the name beside them (`app-work-item-priority`). The bars say "two of three" where the word alone
+  says nothing about the scale. This is not the directional arrow that was tried and rejected —
+  nobody could rank ⇊ against ↓, but nobody misreads three filled bars.
+- **Priority colours:** Low uses muted grey (--app-muted), Medium warm amber (#b45309), and High alert red (--red-hover). Filled bars and the label share the colour; there is no chip background or border.
 - **The priority scale contains no green.** Green already means success and Closed in the status
   scale.
 
@@ -147,6 +153,23 @@ Not everything can have the same visual weight. Decide consciously, per screen:
 
 A page should answer, roughly in this order: Where am I? What is this? What state is it in?
 What matters most? What can I do? What else is available?
+
+### Nesting is drawn, not spaced
+
+Wherever the plan hierarchy is shown — the Location block, the parent selects on the ticket and
+task forms — a level is one row of "icon + text", indented one step (`1.2rem`) from its parent and
+carrying a guide line (`--app-guide-line`) down the left of everything it contains. Indent alone is
+read as loose spacing; the line is what makes "inside" unambiguous.
+
+Everything above the current item is context: muted text, normal weight, `--gray-icon` icons, same
+font size as the item itself. Colouring an ancestor like a selectable row makes the header compete
+with the thing the user is actually choosing.
+
+In a list you navigate rather than merely read, hover is warm too — but hover tints the background
+only (`--orange-light-hover`). The selected row is the one that carries orange text and the deeper
+`--orange-light`. Grey hover next to an orange selection reads as two unrelated systems; hover that
+also takes the orange text reads as a second selection, and after picking an item the list comes
+back showing two chosen rows — the real one and the one the pointer left behind.
 
 ---
 
@@ -314,6 +337,10 @@ disabled states, semantic HTML.
 
 Never rely on colour alone.
 
+Every field carries a name, and clicking its label must focus it. `<label for>` only binds to a
+real form element — a `p-select` renders a `<span role="combobox">`, so it needs an `id` on the
+label and `ariaLabelledBy` on the select instead. See `AGENTS.md` for the exact pattern.
+
 ---
 
 ## 22. History UX
@@ -347,7 +374,7 @@ ticket, so the control offered to show the user what they were already looking a
 
 **Decoration mistaken for information.** Priority chips originally carried ↑ / ⇊ arrows. They
 looked meaningful and communicated nothing — nobody could say whether ⇊ was lower than ↓.
-Removed; priority is colour and text.
+Removed; priority now uses filled level bars and text. Bars encode quantity, not direction.
 
 **Repeating the obvious.** Adding an "Edit" breadcrumb under a heading that already says "Edit
 ticket".

@@ -66,6 +66,16 @@ const BaimTheme = definePreset(Aura, {
           900: '#111827',
           950: '#030712',
         },
+        list: {
+          option: {
+            focusBackground: '#fff7ed',
+            focusColor: '{text.color}',
+            selectedBackground: '#fff1e1',
+            selectedColor: '{primary.600}',
+            selectedFocusBackground: '#fff1e1',
+            selectedFocusColor: '{primary.700}',
+          },
+        },
       },
     },
   },

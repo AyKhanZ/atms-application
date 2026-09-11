@@ -9,9 +9,7 @@
       <span class="notification-dot"></span>
     </button>
 
-    <button class="avatar-button"
-            type="button"
-            (click)="userMenu.toggle($event)">
+    <button class="avatar-button" type="button" (click)="userMenu.toggle($event)">
       <div class="avatar">
         @if (avatarUrl()) {
           <img [src]="avatarUrl()" [alt]="meModel()?.name" />
@@ -25,7 +23,11 @@
       <div class="avatar-button__info">
         <span class="avatar-button__name">{{ meModel()?.name }} {{ meModel()?.surname }}</span>
       </div>
-      <i class="avatar-button__chevron pi" [class.pi-chevron-up]="isMenuOpen()" [class.pi-chevron-down]="!isMenuOpen()"></i>
+      <i
+        class="avatar-button__chevron pi"
+        [class.pi-chevron-up]="isMenuOpen()"
+        [class.pi-chevron-down]="!isMenuOpen()"
+      ></i>
     </button>
 
     <p-menu

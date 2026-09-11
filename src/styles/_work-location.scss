@@ -1,0 +1,94 @@
+/// Location tree shared by Ticket and Task details.
+///
+/// Every level is one row of "icon + text", and each level nests inside the previous one through
+/// `.location-branch`, which supplies the indent and the guide line. That indent is the whole
+/// point of the block: it is what shows that a milestone sits inside a group and a task inside a
+/// ticket. Flattening the chain into one line with separators loses exactly that.
+@mixin guide-lines($base-offset: 0rem) {
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0 auto 0 0;
+    /* Include the consumer's initial gutter in the paint area. Without it the last repeated
+       stripe sits just outside the pseudo-element and the deepest parent's guide disappears. */
+    width: calc($base-offset + var(--tree-depth, 0) * 1.2rem);
+    background-image: repeating-linear-gradient(
+      to right,
+      var(--app-guide-line) 0 1px,
+      transparent 1px 1.2rem
+    );
+    /* Each guide passes through the centre of its ancestor's 1rem icon. Some consumers place
+       the whole tree behind an initial content gutter, which must be included in that origin. */
+    background-position-x: calc($base-offset + 0.5rem);
+    background-repeat: no-repeat;
+    pointer-events: none;
+  }
+}
+
+@mixin tree {
+  .location-tree {
+    display: grid;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    border: 1px solid var(--app-border);
+    border-radius: 8px;
+    background: var(--app-surface-muted);
+  }
+
+  .location-level {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+    gap: 0.45rem;
+    min-width: 0;
+    font-size: 0.8rem;
+    line-height: 1.35;
+  }
+
+  .location-level > i {
+    margin-top: 0.1rem;
+    flex-shrink: 0;
+  }
+
+  .location-level > span,
+  .location-level > strong {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  /* Everything above the current item is context and reads as one, the way a breadcrumb trail
+     leaves emphasis to the last crumb. Bold orange on every ancestor made four levels compete
+     with each other and with the switcher, which is the only thing here you can act on. */
+  .location-level {
+    color: var(--app-muted);
+    font-weight: 400;
+  }
+
+  .location-level > i {
+    color: var(--gray-icon);
+  }
+
+  .location-branch {
+    display: grid;
+    gap: 0.5rem;
+    min-width: 0;
+    margin-left: 0.4rem;
+    padding-left: 0.7rem;
+    border-left: 1px solid var(--app-guide-line);
+  }
+
+  @container (max-width: 34rem) {
+    .location-tree {
+      padding: 0.55rem;
+    }
+
+    /* Five levels of indent would eat a narrow column, so the guide line stays and the
+       offset shrinks rather than the chain being cut short. */
+    .location-branch {
+      margin-left: 0.2rem;
+      padding-left: 0.45rem;
+    }
+  }
+}

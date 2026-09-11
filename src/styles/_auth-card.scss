@@ -1,0 +1,208 @@
+/// The card every auth screen is built from: login, forgot password, reset password and email
+/// confirmation.
+///
+/// These rules used to be pasted into each page. Three copies drifted (different card widths and
+/// title sizes) and the fourth — email confirmation — never got the field rules at all, which is
+/// why its email input was a head shorter than the same input one screen earlier. One mixin now
+/// owns the shape; a page keeps only what is genuinely its own.
+///
+/// Order matters: include the mixins first, page-specific rules after, so a page can still
+/// override what it needs to.
+
+/// Centres the card in the viewport below the auth layout's logo bar.
+@mixin page {
+  .container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 76px);
+    padding: 32px 16px;
+  }
+
+  @media (max-width: 480px) {
+    .container {
+      align-items: flex-start;
+      padding: 24px 16px;
+    }
+  }
+}
+
+/// The card itself and its orange header band. `$width` is the only thing that varies: a form
+/// with the password rules panel needs more room than a single email field.
+@mixin card($width: 520px) {
+  .auth-card {
+    width: min($width, calc(100vw - 32px));
+    overflow: hidden;
+    border: 1.5px solid var(--gray-border);
+    border-radius: 8px;
+    background-color: var(--white-color);
+    box-shadow: var(--shadow-card);
+
+    &__header {
+      margin-bottom: 2rem;
+      padding: 2rem 2rem 1.75rem;
+      background: var(--auth-header-bg);
+      color: var(--white-color);
+
+      h1 {
+        margin: 0;
+        font-size: clamp(1.65rem, 4vw, 2rem);
+        font-weight: 800;
+        line-height: 1.1;
+      }
+
+      p {
+        margin: 0.35rem 0 0;
+        font-size: 1rem;
+        font-weight: 400;
+        opacity: 0.92;
+      }
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      padding: 0 2rem 2rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .auth-card__header {
+      padding: 1.6rem 1.5rem 1.35rem;
+    }
+
+    .auth-card form {
+      padding: 0 1.5rem 1.5rem;
+    }
+  }
+}
+
+/// One labelled input with its error slot. The error slot keeps its height whether or not a
+/// message is showing, so the button below does not jump when validation fires.
+///
+/// The password selectors stay here even though only two pages have a password field: they are
+/// inert elsewhere, and splitting them out is how the copies started drifting in the first place.
+@mixin field {
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+
+    small {
+      color: var(--red);
+      font-size: 0.82rem;
+    }
+  }
+
+  .field-error {
+    display: flex;
+    min-height: 1.1rem;
+    align-items: center;
+  }
+
+  :host ::ng-deep .field .p-floatlabel,
+  :host ::ng-deep .field .p-password,
+  :host ::ng-deep .field .p-password-input {
+    width: 100%;
+  }
+
+  :host ::ng-deep .field .p-inputtext {
+    width: 100%;
+    height: 52px;
+    border-radius: 8px;
+    background: var(--white-color);
+    color: var(--text);
+    font-size: 1rem;
+    font-weight: 400;
+    letter-spacing: 0;
+    box-shadow: var(--shadow-inset-soft);
+    transition:
+      border-color 0.16s ease,
+      box-shadow 0.16s ease,
+      background-color 0.16s ease;
+  }
+
+  :host ::ng-deep .field .p-inputtext::placeholder {
+    color: var(--app-muted);
+    font-weight: 400;
+    opacity: 0.75;
+  }
+
+  :host ::ng-deep .field .p-inputtext:-webkit-autofill,
+  :host ::ng-deep .field .p-inputtext:-webkit-autofill:hover,
+  :host ::ng-deep .field .p-inputtext:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--text);
+    box-shadow:
+      0 0 0 1000px var(--white-color) inset,
+      var(--shadow-inset-soft);
+    caret-color: var(--text);
+    font-weight: 400;
+    transition: background-color 9999s ease-out;
+  }
+
+  :host ::ng-deep .field .p-inputtext:enabled:hover {
+    border-color: var(--orange-border);
+  }
+
+  :host ::ng-deep .field .p-inputtext:enabled:focus,
+  :host ::ng-deep .field .p-inputtext:enabled:focus-visible {
+    border-color: var(--orange);
+    background: var(--white-color);
+    box-shadow: 0 0 0 3px var(--orange-focus-ring);
+  }
+
+  :host ::ng-deep .field .p-floatlabel label {
+    color: var(--app-muted);
+    font-weight: 500;
+  }
+
+  :host ::ng-deep .field .p-floatlabel:has(.p-inputtext:enabled:focus) label,
+  :host ::ng-deep .field .p-floatlabel:has(.p-inputtext:enabled:focus-visible) label {
+    color: var(--orange-text-hover);
+  }
+
+  :host ::ng-deep .field .p-password .p-inputtext {
+    padding-right: 3rem;
+  }
+
+  :host ::ng-deep .field .p-password-toggle-mask-icon {
+    color: var(--orange);
+    transition:
+      color 0.15s ease,
+      transform 0.15s ease;
+  }
+
+  :host ::ng-deep .field .p-password-toggle-mask-icon:hover {
+    color: var(--orange-hover);
+    transform: translateY(-50%) scale(1.05);
+  }
+}
+
+/// The submit button spans the form, and the secondary link sits on its own line above it,
+/// pushed to the right. Keeping them here is what makes "Back to login" land in the same place
+/// on every screen that has one.
+@mixin actions {
+  .submit-btn {
+    width: 100%;
+    min-height: 46px;
+    font-size: 0.98rem;
+  }
+
+  .navigation-wrapper {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .back-link {
+    color: var(--primary-color);
+    font-size: 0.94rem;
+    font-weight: 700;
+    text-decoration: none;
+    text-underline-offset: 4px;
+  }
+
+  .back-link:hover {
+    text-decoration: underline;
+  }
+}

@@ -1,5 +1,16 @@
+import { LabelForDirective } from '../../../../../core/directives/label-for.directive';
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, model, output, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  computed,
+  effect,
+  inject,
+  model,
+  output,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Store } from '@ngrx/store';
@@ -27,7 +38,15 @@ const clientManagerRoleCode = 'clientmanager';
 
 @Component({
   selector: 'app-user-register-dialog',
-  imports: [CommonModule, ReactiveFormsModule, ButtonModule, DialogModule, InputTextModule, SelectModule],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    ButtonModule,
+    DialogModule,
+    InputTextModule,
+    SelectModule,
+    LabelForDirective,
+  ],
   templateUrl: './user-register-dialog.component.html',
   styleUrl: './user-register-dialog.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -49,17 +68,28 @@ export class UserRegisterDialogComponent {
   readonly failedLogoIds = signal<Set<string>>(new Set<string>());
   readonly isSaving = this.store.selectSignal(UsersStoreSelectors.isSubmitted);
   readonly roleDictionaries = this.store.selectSignal(DictionaryStoreSelectors.getRoleDictionaries);
-  readonly rolesLoading = this.store.selectSignal(DictionaryStoreSelectors.getRoleDictionariesIsLoading);
+  readonly rolesLoading = this.store.selectSignal(
+    DictionaryStoreSelectors.getRoleDictionariesIsLoading,
+  );
   readonly selectedRoleId = signal<string | null>(null);
   readonly submitted = signal(false);
-  readonly selectedRole = computed(() => this.roleDictionaries().find((role) => role.id === this.selectedRoleId()) ?? null);
-  readonly roleOptions = computed<RegisterRoleOption[]>(() => this.roleDictionaries()
-    .filter((role) => this.roleCode(role) === employeeRoleCode || this.roleCode(role) === clientManagerRoleCode)
-    .map((role) => ({
-      label: this.roleCode(role) === clientManagerRoleCode ? 'Client' : role.name,
-      value: role.id,
-    })));
-  readonly requiresOrganization = computed(() => this.roleCode(this.selectedRole()) === clientManagerRoleCode);
+  readonly selectedRole = computed(
+    () => this.roleDictionaries().find((role) => role.id === this.selectedRoleId()) ?? null,
+  );
+  readonly roleOptions = computed<RegisterRoleOption[]>(() =>
+    this.roleDictionaries()
+      .filter(
+        (role) =>
+          this.roleCode(role) === employeeRoleCode || this.roleCode(role) === clientManagerRoleCode,
+      )
+      .map((role) => ({
+        label: this.roleCode(role) === clientManagerRoleCode ? 'Client' : role.name,
+        value: role.id,
+      })),
+  );
+  readonly requiresOrganization = computed(
+    () => this.roleCode(this.selectedRole()) === clientManagerRoleCode,
+  );
 
   readonly form = this.fb.group({
     name: ['', [Validators.required, Validators.maxLength(100)]],
@@ -69,7 +99,10 @@ export class UserRegisterDialogComponent {
     organizationId: [null as string | null],
   });
 
-  private readonly requiredMessages: Record<keyof UserRegisterDialogComponent['form']['controls'], string> = {
+  private readonly requiredMessages: Record<
+    keyof UserRegisterDialogComponent['form']['controls'],
+    string
+  > = {
     name: 'Name is required.',
     surname: 'Surname is required.',
     email: 'Email is required.',
@@ -157,15 +190,17 @@ export class UserRegisterDialogComponent {
     }
 
     const value = this.form.getRawValue();
-    this.store.dispatch(UsersStoreActions.registerUser({
-      command: {
-        name: (value.name ?? '').trim(),
-        surname: (value.surname ?? '').trim(),
-        email: (value.email ?? '').trim(),
-        roleId: value.roleId ?? '',
-        organizationId: this.requiresOrganization() ? value.organizationId : null,
-      },
-    }));
+    this.store.dispatch(
+      UsersStoreActions.registerUser({
+        command: {
+          name: (value.name ?? '').trim(),
+          surname: (value.surname ?? '').trim(),
+          email: (value.email ?? '').trim(),
+          roleId: value.roleId ?? '',
+          organizationId: this.requiresOrganization() ? value.organizationId : null,
+        },
+      }),
+    );
   }
 
   cancel(): void {
@@ -202,12 +237,14 @@ export class UserRegisterDialogComponent {
   }
 
   organizationInitials(organization: OrganizationListItemModel): string {
-    return organization.title
-      .split(' ')
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((part) => part[0]?.toUpperCase())
-      .join('') || 'O';
+    return (
+      organization.title
+        .split(' ')
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((part) => part[0]?.toUpperCase())
+        .join('') || 'O'
+    );
   }
 
   hasError(controlName: keyof typeof this.form.controls): boolean {
@@ -238,7 +275,10 @@ export class UserRegisterDialogComponent {
     return (role?.code || role?.name || '').replace(/\s+/g, '').toLowerCase();
   }
 
-  private getErrorMessage(controlName: keyof UserRegisterDialogComponent['form']['controls'], control: AbstractControl): string {
+  private getErrorMessage(
+    controlName: keyof UserRegisterDialogComponent['form']['controls'],
+    control: AbstractControl,
+  ): string {
     const errors = control.errors ?? {};
 
     if (errors['required']) {

@@ -104,9 +104,7 @@ export class StakeholdersTabComponent {
       ...(this.canInviteClient() ? this.clientUsers() : []),
       ...(this.canInviteEmployee() ? this.teamMembers() : []),
     ];
-    return candidates.filter(
-      (user) => !selectedUserIds.has(user.id),
-    );
+    return candidates.filter((user) => !selectedUserIds.has(user.id));
   });
   readonly participantActions = computed<MenuItem[]>(() => {
     const actions: MenuItem[] = [];
@@ -267,6 +265,7 @@ function toParticipantCandidate(
     name: user.name,
     surname: user.surname,
     email: user.email,
+    avatarPath: 'avatarPath' in user ? user.avatarPath : null,
     side,
   };
 }

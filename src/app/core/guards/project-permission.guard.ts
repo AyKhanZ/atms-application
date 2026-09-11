@@ -25,7 +25,7 @@ export const projectPermissionGuard = (permission: ProjectPermission): CanActiva
         if (!projectId) return of(router.createUrlTree(['/errors/404']));
 
         return projectAccess.hasPermission(projectId, permission).pipe(
-          map((hasPermission) => hasPermission ? true : router.createUrlTree(['/errors/403'])),
+          map((hasPermission) => (hasPermission ? true : router.createUrlTree(['/errors/403']))),
           catchError((error: unknown) => {
             if (error instanceof HttpErrorResponse && isServerUnavailable(error)) {
               return of(router.createUrlTree(['/server-unavailable']));

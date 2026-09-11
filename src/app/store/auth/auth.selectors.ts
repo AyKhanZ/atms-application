@@ -8,11 +8,8 @@ export const getAccessModel = createSelector(featureSelector, (state) => state.a
 export const isLoading = createSelector(featureSelector, (state) => state.isLoading);
 export const isReady = createSelector(featureSelector, (state) => state.isReady);
 
-export const isLoggedIn = createSelector(
-  featureSelector,
-  (s) => {
-    if (!s.accessModel?.accessToken) return false;
-    const expireTime = new Date(s.accessModel.accessTokenExpireTime).getTime();
-    return expireTime > Date.now();
-  },
-);
+export const isLoggedIn = createSelector(featureSelector, (s) => {
+  if (!s.accessModel?.accessToken) return false;
+  const expireTime = new Date(s.accessModel.accessTokenExpireTime).getTime();
+  return expireTime > Date.now();
+});

@@ -2,11 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { PaginatedResponse } from '../models/paginated.model';
-import {
-  UserListFilter,
-  UserListItemModel,
-  UserModel,
-} from '../models/users/users.models';
+import { UserListFilter, UserListItemModel, UserModel } from '../models/users/users.models';
 import { UpdateUserStatusCommand } from '../models/users/update-user-status.command';
 import { RegisterUserCommand } from '../models/users/register-user.command';
 import { adminApiUrl } from '../constants/api-url.constants';

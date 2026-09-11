@@ -7,7 +7,8 @@
   [draggable]="false"
   [resizable]="false"
   [header]="dialogTitle()"
-  styleClass="organization-create-dialog">
+  styleClass="organization-create-dialog"
+>
   <form class="organization-form" [formGroup]="form" (ngSubmit)="submit()">
     <section class="details-panel">
       <div class="fields-row">
@@ -35,11 +36,19 @@
         [resetKey]="visible() + ':' + (organization()?.id ?? 'new')"
         [errorMessage]="errorMessage('logo')"
         (fileChange)="onImageChange($event)"
-        (fileRemove)="onImageRemoved()" />
+        (fileRemove)="onImageRemoved()"
+      />
     </section>
 
     <div class="dialog-actions">
-      <button pButton type="button" severity="secondary" outlined="true" [disabled]="isSaving()" (click)="cancel()">
+      <button
+        pButton
+        type="button"
+        severity="secondary"
+        outlined="true"
+        [disabled]="isSaving()"
+        (click)="cancel()"
+      >
         <i class="pi pi-times"></i>
         <span>Cancel</span>
       </button>

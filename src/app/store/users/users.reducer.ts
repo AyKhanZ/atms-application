@@ -36,7 +36,6 @@ const reducer = createReducer<UsersState>(
     }),
   ),
 
-
   on(
     UsersStoreActions.registerUser,
     (state): UsersState => ({

@@ -1,4 +1,13 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output } from '@angular/core';
+import { LabelForDirective } from '../../../../../core/directives/label-for.directive';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  output,
+} from '@angular/core';
 import {
   AbstractControl,
   NonNullableFormBuilder,
@@ -28,6 +37,7 @@ type StatusOption = Pick<DictionaryModel, 'name' | 'code'> & { id: number | null
     DatePickerModule,
     InputTextModule,
     SelectModule,
+    LabelForDirective,
   ],
   templateUrl: './filter-users.component.html',
   styleUrl: './filter-users.component.scss',

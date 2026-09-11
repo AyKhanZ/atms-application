@@ -43,6 +43,18 @@
   color: var(--orange-text-hover);
 }
 
+.entity-tab-badge {
+  min-width: 1.7rem;
+  padding: 0.12rem 0.4rem;
+  border: 1px solid var(--app-border);
+  border-radius: 7px;
+  background: var(--gray-50);
+  color: var(--gray-text-strong);
+  font-size: 0.68rem;
+  line-height: 1.2;
+  text-align: center;
+}
+
 .entity-tabs button:focus-visible {
   outline: 3px solid var(--orange-focus-outline);
   outline-offset: -3px;

@@ -80,7 +80,9 @@ export class ProjectListComponent implements OnDestroy {
   readonly kinds = signal<DictionaryModel[]>([]);
   readonly statuses = signal<DictionaryModel[]>([]);
   readonly Roles = Roles;
-  readonly showActions = computed(() => this.roles().some((role) => role.code === Roles.SuperAdmin));
+  readonly showActions = computed(() =>
+    this.roles().some((role) => role.code === Roles.SuperAdmin),
+  );
   readonly first = computed(() => (this.filter().page - 1) * this.filter().pageSize);
   readonly activeFilterCount = computed(() => this.query.activeFilterCount(this.filter()));
 
@@ -113,7 +115,8 @@ export class ProjectListComponent implements OnDestroy {
         this.statuses.set(statuses);
       });
 
-    this.visiblePageRefresh.every(5 * 60_000)
+    this.visiblePageRefresh
+      .onReturn('project-list')
       .pipe(takeUntilDestroyed())
       .subscribe(() => this.reload());
   }
@@ -166,11 +169,11 @@ export class ProjectListComponent implements OnDestroy {
   }
   confirmDelete(project: WorkProjectItemModel): void {
     this.confirmation.confirm({
-      header: 'Delete project',
-      message: `Are you sure you want to delete ${project.title}?`,
+      header: 'Delete project?',
+      message: `“${project.title}” will be deleted. This action cannot be undone.`,
       icon: 'pi pi-exclamation-triangle',
-      acceptLabel: 'Yes',
-      rejectLabel: 'No',
+      acceptLabel: 'Delete',
+      rejectLabel: 'Cancel',
       acceptButtonStyleClass: 'p-button-danger',
       rejectButtonStyleClass: 'p-button-outlined',
       accept: () => this.store.dispatch(WorkProjectsStoreActions.deleteProject({ id: project.id })),

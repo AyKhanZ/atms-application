@@ -27,6 +27,16 @@
 }
 
 .selected-person {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-width: 0;
+  --avatar-size: 2.25rem;
+  --avatar-radius: 50%;
+  --avatar-font-size: 0.8rem;
+}
+
+.selected-person__copy {
   display: grid;
   gap: 0.15rem;
   min-width: 0;

@@ -25,15 +25,21 @@
   min-width: 0;
 }
 
+/* Context, not a heading: the group only says where the milestones below it live. */
 .milestone-group {
-  color: var(--gray-text-strong);
+  color: var(--app-muted);
+  font-size: 0.76rem;
+  font-weight: 500;
+}
+
+.milestone-group > i {
+  color: var(--gray-icon);
 }
 
 .milestone-option {
   padding-left: 1.75rem;
 }
 
-.milestone-group > i,
 .milestone-option > i,
 .milestone-selection > i:not(.pi-angle-right) {
   color: var(--orange);
@@ -115,9 +121,13 @@
   box-shadow: none;
 }
 
+/* place-items, not justify-items: with horizontal centring alone the grid items stretch to the
+   row height, so the spinner sat in a 24x77 box and its rotation swung the glyph around a wide
+   arc instead of turning it in place. Matches .ticket-state and the other loading panels. */
 .ticket-form-state {
   display: grid;
-  justify-items: center;
+  place-items: center;
+  align-content: center;
   gap: 0.65rem;
   min-height: 14rem;
   padding: 2rem;

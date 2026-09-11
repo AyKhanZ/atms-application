@@ -6,25 +6,37 @@
   [draggable]="false"
   [resizable]="false"
   (onShow)="initializeForm()"
-  styleClass="participant-dialog participant-dialog--narrow">
+  styleClass="participant-dialog participant-dialog--narrow"
+>
   @if (participant(); as selectedParticipant) {
     <form class="participant-dialog-form" [formGroup]="form" (ngSubmit)="submit()">
+      <!-- Same avatar as the row the dialog was opened from, so it is obvious whose role changes. -->
       <div class="selected-person">
-        <strong>{{ fullName(selectedParticipant) }}</strong>
-        <span>{{ selectedParticipant.email }}</span>
+        <app-profile-avatar
+          [imageUrl]="selectedParticipant.avatarPath"
+          [fullName]="fullName(selectedParticipant)"
+          [initials]="initials(selectedParticipant)"
+          [previewEnabled]="false"
+        />
+        <div class="selected-person__copy">
+          <strong>{{ fullName(selectedParticipant) }}</strong>
+          <span>{{ selectedParticipant.email }}</span>
+        </div>
       </div>
 
       <div class="field">
-        <label for="participantNewRole">Role</label>
+        <label id="participantNewRoleLabel" appLabelFor="participantNewRole">Role</label>
         <p-select
           inputId="participantNewRole"
+          ariaLabelledBy="participantNewRoleLabel"
           [class.control-invalid]="showError()"
           formControlName="roleId"
           [options]="availableRoles()"
           optionLabel="name"
           optionValue="id"
           placeholder="Select role"
-          appendTo="body"/>
+          appendTo="body"
+        />
         @if (showError()) {
           <small>Role is required.</small>
         }

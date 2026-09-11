@@ -5,12 +5,14 @@
   [modal]="true"
   [draggable]="false"
   [resizable]="false"
-  styleClass="participant-dialog">
+  styleClass="participant-dialog"
+>
   <form class="participant-dialog-form" [formGroup]="form" (ngSubmit)="submit()">
     <div class="field">
-      <label for="participantUser">User</label>
+      <label id="participantUserLabel" appLabelFor="participantUser">User</label>
       <p-select
         inputId="participantUser"
+        ariaLabelledBy="participantUserLabel"
         [class.control-invalid]="showError('userId')"
         formControlName="userId"
         [options]="users()"
@@ -18,36 +20,63 @@
         optionValue="id"
         placeholder="Select user"
         [filter]="true"
-        appendTo="body">
-        <ng-template pTemplate="selectedItem" let-user>
-          {{ candidateName(user) }}
+        filterBy="name,surname,email"
+        panelStyleClass="participant-user-select-panel"
+        appendTo="body"
+      >
+        <ng-template #selectedItem let-user>
+          <span class="user-selection">
+            <app-profile-avatar
+              [imageUrl]="user.avatarPath"
+              [fullName]="user | personName"
+              [initials]="user | personInitials"
+              [previewEnabled]="false"
+            />
+            <span>{{ user | personName }}</span>
+          </span>
         </ng-template>
-        <ng-template pTemplate="item" let-user>
+        <ng-template #item let-user>
           <div class="user-option">
-            <strong>{{ candidateName(user) }}</strong>
-            <span>{{ user.email }}</span>
+            <app-profile-avatar
+              [imageUrl]="user.avatarPath"
+              [fullName]="user | personName"
+              [initials]="user | personInitials"
+              [previewEnabled]="false"
+            />
+            <span
+              ><strong>{{ user | personName }}</strong
+              ><small>{{ user.email }}</small></span
+            >
           </div>
         </ng-template>
       </p-select>
-      @if (showError('userId')) {
-        <small>User is required.</small>
-      }
+      <small
+        class="field-error"
+        [class.field-error--visible]="showError('userId')"
+        aria-live="polite"
+        >{{ showError('userId') ? 'Select a user.' : '' }}</small
+      >
     </div>
 
     <div class="field">
-      <label for="participantRole">Role</label>
+      <label id="participantRoleLabel" appLabelFor="participantRole">Role</label>
       <p-select
         inputId="participantRole"
+        ariaLabelledBy="participantRoleLabel"
         [class.control-invalid]="showError('roleId')"
         formControlName="roleId"
         [options]="availableRoles()"
         optionLabel="name"
         optionValue="id"
         placeholder="Select role"
-        appendTo="body"/>
-      @if (showError('roleId')) {
-        <small>Role is required.</small>
-      }
+        appendTo="body"
+      />
+      <small
+        class="field-error"
+        [class.field-error--visible]="showError('roleId')"
+        aria-live="polite"
+        >{{ showError('roleId') ? 'Select a role.' : '' }}</small
+      >
     </div>
 
     <div class="dialog-actions">

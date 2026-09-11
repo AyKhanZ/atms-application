@@ -1,5 +1,15 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnDestroy, computed, effect, inject, input, output, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnDestroy,
+  computed,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
+} from '@angular/core';
 import { ValidationErrors } from '@angular/forms';
 import { FileSelectEvent, FileUpload } from 'primeng/fileupload';
 import { ImageFileValidator } from '../../validators/image-file.validator';

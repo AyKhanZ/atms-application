@@ -7,7 +7,6 @@ export interface PaginationRequest {
   sortDirection: SortDirectionEnum;
 }
 
-
 export interface PaginatedResponse<T> {
   items: T[];
   totalCount: number;
@@ -18,6 +17,9 @@ export interface PaginatedResponse<T> {
   hasPrevious: boolean;
 }
 
-export function createPaginationRequest(sortBy = 'createdAt', sortDirection = SortDirectionEnum.Desc): PaginationRequest {
+export function createPaginationRequest(
+  sortBy = 'createdAt',
+  sortDirection = SortDirectionEnum.Desc,
+): PaginationRequest {
   return { page: 1, pageSize: 10, sortBy, sortDirection };
 }

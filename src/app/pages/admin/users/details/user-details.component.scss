@@ -13,9 +13,7 @@
   min-height: 12rem;
   padding: 1.5rem;
   overflow: hidden;
-  background:
-    linear-gradient(135deg, rgb(254 147 18 / 8%), transparent 55%),
-    var(--white);
+  background: linear-gradient(135deg, rgb(254 147 18 / 8%), transparent 55%), var(--white);
 }
 
 .profile-hero__content {
@@ -107,7 +105,6 @@ dd {
   :host ::ng-deep .page-header app-back-button button {
     width: 100%;
   }
-
 }
 
 @container (max-width: 28rem) {

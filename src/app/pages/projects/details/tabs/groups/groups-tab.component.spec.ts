@@ -88,11 +88,12 @@ describe('GroupsTabComponent', () => {
         {
           provide: ProjectAccessService,
           useValue: {
-            getPermissions: () => of([
-              ProjectPermissions.Project.Edit,
-              ProjectPermissions.Ticket.Create,
-              ProjectPermissions.Ticket.Edit,
-            ]),
+            getPermissions: () =>
+              of([
+                ProjectPermissions.Project.Edit,
+                ProjectPermissions.Ticket.Create,
+                ProjectPermissions.Ticket.Edit,
+              ]),
             hasPermission: () => of(true),
             version: () => 0,
           },

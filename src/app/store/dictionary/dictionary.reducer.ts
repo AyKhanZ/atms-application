@@ -87,6 +87,9 @@ const reducer = createReducer<DictionaryState>(
   on(DictionaryStoreActions.clearAll, (): DictionaryState => initialDictionaryState),
 );
 
-export function dictionaryReducer(state: DictionaryState | undefined, action: Action): DictionaryState {
+export function dictionaryReducer(
+  state: DictionaryState | undefined,
+  action: Action,
+): DictionaryState {
   return reducer(state, action);
 }

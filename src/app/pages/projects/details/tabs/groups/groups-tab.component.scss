@@ -223,12 +223,46 @@
 
 .milestone-identity {
   display: grid;
-  grid-template-columns: 1.25rem minmax(0, auto) auto;
+  grid-template-columns: 1rem 1.25rem minmax(0, auto) auto;
   align-items: center;
   justify-content: start;
   gap: 0.65rem;
   flex: 1 1 auto;
   min-width: 0;
+  padding: 0.35rem;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--app-text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.milestone-identity:hover {
+  color: var(--orange-text-hover);
+}
+
+.milestone-identity:focus-visible {
+  outline: 3px solid var(--orange-focus-outline);
+  outline-offset: 1px;
+}
+
+/* Sized like .milestones-empty one level up, not like app-empty-state: that component fills a
+   tab body (22rem tall with a 5.5rem icon) and dwarfs a single milestone row. */
+.milestone-empty {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0.7rem 1rem 0.7rem 2.75rem;
+  border-top: 1px solid var(--app-border);
+  color: var(--app-muted);
+  font-size: 0.82rem;
+}
+
+.milestone-empty i {
+  color: var(--gray-icon);
+  font-size: 0.85rem;
 }
 
 .milestones-empty {
@@ -287,11 +321,11 @@
   }
 
   .milestone-identity {
-    grid-template-columns: 1.25rem minmax(0, 1fr);
+    grid-template-columns: 1rem 1.25rem minmax(0, 1fr);
   }
 
   .milestone-identity .item-meta {
-    grid-column: 2;
+    grid-column: 3;
     flex-wrap: wrap;
   }
 }
@@ -316,6 +350,12 @@
 
   .milestone-list {
     margin-left: 0.5rem;
+  }
+
+  // The count stays visible on a phone — it is the "how much work is here" signal — but the
+  // word is dropped so the number keeps its place next to the status chip.
+  .item-count__unit {
+    display: none;
   }
 
   .groups-refresh-error {

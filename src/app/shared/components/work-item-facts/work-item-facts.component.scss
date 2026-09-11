@@ -1,0 +1,68 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.work-item-facts h3 {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+dl {
+  display: grid;
+  margin: 0.9rem 0 0;
+}
+
+dl div {
+  display: grid;
+  grid-template-columns: minmax(5.5rem, 1fr) minmax(0, auto);
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.72rem 0;
+  border-bottom: 1px solid var(--app-border);
+}
+
+dl div:last-child {
+  border-bottom: 0;
+}
+
+dt {
+  color: var(--app-muted);
+  font-size: 0.84rem;
+}
+
+/* Plain-text values (the deadline) had no size of their own and fell back to 16px, while every
+   badge in this column sits at 0.78-0.86rem. One band for the whole panel: the label and the
+   value share a size and differ by weight and colour. */
+dd {
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  font-size: 0.84rem;
+  font-weight: 700;
+  text-align: right;
+}
+
+/* A missing value is not a value: it keeps the row's position but drops the weight and colour,
+   the same way the assignee shows "Unassigned". Bold dark text here read as the loudest thing in
+   the panel while saying that nothing is set. */
+.fact-empty {
+  color: var(--app-muted);
+  font-weight: 400;
+}
+
+.deadline-value {
+  display: grid;
+  justify-items: end;
+  gap: 0.15rem;
+}
+
+.deadline-value small {
+  color: var(--app-muted);
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.deadline-value small.deadline-value--overdue {
+  color: var(--red-hover);
+}

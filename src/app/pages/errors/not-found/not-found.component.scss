@@ -129,7 +129,10 @@ button {
   border-radius: 6px;
   font-weight: 800;
   cursor: pointer;
-  transition: border-color 0.16s ease, background 0.16s ease, color 0.16s ease;
+  transition:
+    border-color 0.16s ease,
+    background 0.16s ease,
+    color 0.16s ease;
 }
 
 .primary {
@@ -160,8 +163,13 @@ button:focus-visible {
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-0.55rem); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-0.55rem);
+  }
 }
 
 @media (max-width: 760px) {
@@ -188,4 +196,3 @@ button:focus-visible {
     justify-self: center;
   }
 }
-

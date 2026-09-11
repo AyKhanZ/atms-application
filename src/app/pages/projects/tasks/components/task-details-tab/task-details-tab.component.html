@@ -1,0 +1,14 @@
+<div class="work-item-details-content">
+  <section class="description-card">
+    <h3>Description</h3>
+    @if (task().description; as description) {
+      <p class="description">{{ description }}</p>
+    } @else {
+      <p class="inline-empty">No description has been added.</p>
+    }
+  </section>
+  <aside class="work-item-information">
+    <app-work-item-facts [facts]="facts()" />
+    <app-task-location [task]="task()" />
+  </aside>
+</div>

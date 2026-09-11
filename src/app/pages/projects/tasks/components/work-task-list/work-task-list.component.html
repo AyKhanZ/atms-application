@@ -1,0 +1,80 @@
+<section class="tasks-tab">
+  @if (canCreate()) {
+    <header class="tasks-toolbar">
+      <button pButton type="button" (click)="create()">
+        <i class="pi pi-plus"></i><span>Add</span>
+      </button>
+    </header>
+  }
+  @if (loading()) {
+    <div class="tasks-state" role="status">
+      <i class="pi pi-spin pi-spinner"></i> Loading tasks...
+    </div>
+  } @else if (items().length === 0 && !loadError()) {
+    <!-- The same panel Attachments, History and the Plan tab show: this is a tab body, and a thin
+         line in it reads as a broken list rather than an empty one. -->
+    <app-empty-state
+      [icon]="parentTaskId() ? 'pi-sitemap' : 'pi-list-check'"
+      [title]="parentTaskId() ? 'No subtasks yet' : 'No tasks yet'"
+      [compact]="true"
+    />
+  } @else {
+    <div class="task-list">
+      @for (task of items(); track task.id) {
+        <article class="task-row" [class.task-row--with-menu]="canEdit()">
+          <button
+            type="button"
+            class="task-main"
+            (click)="open(task)"
+            [attr.aria-label]="'View task ' + task.title"
+          >
+            <!-- A subtask carries the tree icon, a task the checklist one — the same split as the
+                 tabs, so a row says which of the two it is. -->
+            <i
+              class="pi task-icon"
+              [class]="parentTaskId() ? 'pi pi-sitemap task-icon' : 'pi pi-check-square task-icon'"
+              aria-hidden="true"
+            ></i>
+            <span class="task-code">#{{ task.code }}</span>
+            <strong class="task-title" [title]="task.title">{{ task.title }}</strong>
+          </button>
+          <div class="task-meta">
+            @if (task.subtaskCount > 0) {
+              <span class="progress">{{ task.doneSubtaskCount }}/{{ task.subtaskCount }}</span>
+            }
+            <app-work-item-assignee [assignee]="task.assignee" [compact]="true" />
+            <app-task-status-badge [status]="task.status" />
+          </div>
+          @if (canEdit()) {
+            <button
+              type="button"
+              class="item-menu-button"
+              [attr.aria-label]="'Options for task ' + task.title"
+              (click)="openMenu($event, task, taskMenu)"
+            >
+              <i class="pi pi-ellipsis-v"></i>
+            </button>
+          }
+        </article>
+      }
+    </div>
+  }
+  @if (loadError()) {
+    <div class="tasks-error" role="alert">
+      Tasks could not be loaded. <button pButton type="button" text (click)="retry()">Retry</button>
+    </div>
+  }
+  @if (hasMore()) {
+    <button
+      class="load-more"
+      pButton
+      type="button"
+      outlined
+      [loading]="loadingMore()"
+      (click)="loadMore()"
+    >
+      Load more
+    </button>
+  }
+</section>
+<p-menu #taskMenu [model]="taskActions()" [popup]="true" appendTo="body" />

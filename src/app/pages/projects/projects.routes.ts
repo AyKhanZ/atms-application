@@ -40,7 +40,9 @@ export const PROJECTS_ROUTES: Routes = [
     ],
     canDeactivate: [unsavedChangesGuard],
     loadComponent: () =>
-      import('./tickets/create/ticket-create.component').then((component) => component.TicketCreateComponent),
+      import('./tickets/create/ticket-create.component').then(
+        (component) => component.TicketCreateComponent,
+      ),
   },
   {
     // No breadcrumb entry — see the project edit route above.
@@ -51,7 +53,43 @@ export const PROJECTS_ROUTES: Routes = [
     ],
     canDeactivate: [unsavedChangesGuard],
     loadComponent: () =>
-      import('./tickets/edit/ticket-edit.component').then((component) => component.TicketEditComponent),
+      import('./tickets/edit/ticket-edit.component').then(
+        (component) => component.TicketEditComponent,
+      ),
+  },
+  {
+    path: ':projectId/tickets/:ticketId/tasks/create',
+    data: { breadcrumb: { title: 'New task' } },
+    canActivate: [
+      permissionGuard(Permissions.Project.View),
+      projectPermissionGuard(ProjectPermissions.Task.Create),
+    ],
+    canDeactivate: [unsavedChangesGuard],
+    loadComponent: () =>
+      import('./tasks/create/task-create.component').then(
+        (component) => component.TaskCreateComponent,
+      ),
+  },
+  {
+    path: ':projectId/tickets/:ticketId/tasks/:taskId/edit',
+    canActivate: [
+      permissionGuard(Permissions.Project.Edit),
+      projectPermissionGuard(ProjectPermissions.Task.Edit),
+    ],
+    canDeactivate: [unsavedChangesGuard],
+    loadComponent: () =>
+      import('./tasks/edit/task-edit.component').then((component) => component.TaskEditComponent),
+  },
+  {
+    path: ':projectId/tickets/:ticketId/tasks/:taskId',
+    canActivate: [
+      permissionGuard(Permissions.Project.View),
+      projectPermissionGuard(ProjectPermissions.Project.View),
+    ],
+    loadComponent: () =>
+      import('./tasks/details/task-details.component').then(
+        (component) => component.TaskDetailsComponent,
+      ),
   },
   {
     path: ':projectId/tickets/:ticketId',

@@ -1,3 +1,4 @@
+import { LabelForDirective } from '../../../../../../../core/directives/label-for.directive';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -21,10 +22,24 @@ import {
 } from '../../../../../../../core/models/work-projects';
 import { ParticipantCandidate } from '../../participant-candidate.model';
 import { availableParticipantRoles } from '../../participant-role.utils';
+import { ProfileAvatarComponent } from '../../../../../../../shared/components/profile-avatar/profile-avatar.component';
+import {
+  PersonInitialsPipe,
+  PersonNamePipe,
+} from '../../../../../../../shared/pipes/person-name.pipe';
 
 @Component({
   selector: 'app-add-participant-dialog',
-  imports: [ReactiveFormsModule, ButtonModule, DialogModule, SelectModule],
+  imports: [
+    ReactiveFormsModule,
+    ButtonModule,
+    DialogModule,
+    SelectModule,
+    LabelForDirective,
+    ProfileAvatarComponent,
+    PersonNamePipe,
+    PersonInitialsPipe,
+  ],
   templateUrl: './add-participant-dialog.component.html',
   styleUrl: './add-participant-dialog.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -38,6 +53,7 @@ export class AddParticipantDialogComponent {
   readonly isSaving = input(false);
   readonly submitted = output<WorkProjectParticipantCommand>();
   readonly selectedUserId = signal('');
+  readonly submitAttempted = signal(false);
 
   readonly form = this.fb.nonNullable.group({
     userId: ['', Validators.required],
@@ -66,14 +82,10 @@ export class AddParticipantDialogComponent {
     });
   }
 
-  candidateName(user: ParticipantCandidate): string {
-    return `${user.name} ${user.surname}`.trim();
-  }
-
   showError(controlName: 'userId' | 'roleId'): boolean {
     const control = this.form.controls[controlName];
 
-    return control.invalid && control.touched;
+    return this.submitAttempted() && control.invalid;
   }
 
   updateVisible(visible: boolean): void {
@@ -85,7 +97,10 @@ export class AddParticipantDialogComponent {
   }
 
   submit(): void {
-    if (this.form.invalid || this.isSaving()) {
+    if (this.isSaving()) return;
+
+    if (this.form.invalid) {
+      this.submitAttempted.set(true);
       this.form.markAllAsTouched();
       return;
     }
@@ -96,6 +111,7 @@ export class AddParticipantDialogComponent {
   private resetForm(): void {
     this.form.reset({ userId: '', roleId: '' });
     this.selectedUserId.set('');
+    this.submitAttempted.set(false);
     this.form.controls.roleId.disable();
   }
 }

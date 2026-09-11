@@ -19,7 +19,7 @@
   display: flex;
   flex-direction: column;
 
-  transition: width .2s ease;
+  transition: width 0.2s ease;
 
   overflow: hidden;
 
@@ -69,7 +69,7 @@
 
     color: var(--muted);
 
-    transition: .18s ease;
+    transition: 0.18s ease;
 
     font-weight: 500;
 
@@ -104,7 +104,10 @@
   border: 0;
   border-radius: 50%;
   cursor: pointer;
-  transition: background 0.16s ease, color 0.16s ease, transform 0.16s ease;
+  transition:
+    background 0.16s ease,
+    color 0.16s ease,
+    transform 0.16s ease;
 
   .pi {
     font-size: 1rem;

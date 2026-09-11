@@ -3,4 +3,5 @@ export interface WorkProjectParticipantCandidateModel {
   name: string;
   surname: string;
   email: string;
+  avatarPath?: string | null;
 }
