@@ -1,4 +1,5 @@
 export interface WorkTaskFilter {
+  search?: string;
   cursor?: string | null;
   pageSize?: number;
   workTicketId?: string | null;

@@ -1,4 +1,4 @@
-<p-confirmDialog key="taskDelete" />
+<app-confirm-dialog key="taskDelete" />
 
 <section class="page task-details-page">
   <div class="page-header task-page-header">
@@ -69,36 +69,18 @@
 
       @if (activeTab() === 'details') {
         <app-task-details-tab [task]="item" />
-      } @else if (activeTab() === 'subtasks') {
-        @if (item.isSubtask) {
-          <app-empty-state
-            icon="pi-sitemap"
-            title="A subtask cannot contain subtasks"
-            description="Return to the parent task to add another subtask."
-            [compact]="true"
-          />
-        } @else {
-          <app-work-task-list
-            [projectId]="item.workProjectId"
-            [ticketId]="item.workTicketId"
-            [parentTaskId]="item.id"
-            [canCreate]="canCreate()"
-            [canEdit]="canEdit()"
-            [canDelete]="canDelete()"
-          />
-        }
+      } @else if (activeTab() === 'subtasks' && !item.isSubtask) {
+        <app-work-task-list
+          [projectId]="item.workProjectId"
+          [ticketId]="item.workTicketId"
+          [parentTaskId]="item.id"
+          [canCreate]="canCreate()"
+          [canEdit]="canEdit()"
+        />
       } @else if (activeTab() === 'attachments') {
-        <app-empty-state
-          icon="pi-paperclip"
-          title="No attachments yet"
-          [compact]="true"
-        />
+        <app-empty-state icon="pi-paperclip" title="No attachments yet" [compact]="true" />
       } @else {
-        <app-empty-state
-          icon="pi-history"
-          title="No activity yet"
-          [compact]="true"
-        />
+        <app-empty-state icon="pi-history" title="No activity yet" [compact]="true" />
       }
     </article>
   }

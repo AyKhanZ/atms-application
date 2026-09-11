@@ -1,0 +1,61 @@
+:host {
+  display: inline-flex;
+  min-width: 0;
+}
+
+.work-item-priority {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+  color: var(--app-muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.work-item-priority__meter {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 0.12rem;
+  height: 0.72rem;
+}
+
+/* Bars grow with the level, so the shape reads as a scale even before the colour registers. */
+.work-item-priority__bar {
+  width: 0.2rem;
+  border-radius: 1px;
+  background: var(--app-border);
+}
+
+.work-item-priority__bar:nth-child(1) {
+  height: 40%;
+}
+
+.work-item-priority__bar:nth-child(2) {
+  height: 70%;
+}
+
+.work-item-priority__bar:nth-child(3) {
+  height: 100%;
+}
+
+.work-item-priority__bar.is-filled {
+  background: currentcolor;
+}
+
+/* Warm ramp: grey, amber, orange, red. The temperature rises with the level, so the scale reads
+   even before the bars are counted. Red is reserved for Critical — giving it to High as well
+   would flatten the top of the scale. */
+.work-item-priority[data-tone='medium'] {
+  color: #b45309;
+}
+
+.work-item-priority[data-tone='high'] {
+  color: var(--orange-text-hover);
+}
+
+.work-item-priority[data-tone='critical'] {
+  color: var(--red-hover);
+}

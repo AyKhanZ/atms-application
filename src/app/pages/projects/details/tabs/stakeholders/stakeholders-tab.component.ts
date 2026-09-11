@@ -265,6 +265,7 @@ function toParticipantCandidate(
     name: user.name,
     surname: user.surname,
     email: user.email,
+    avatarPath: 'avatarPath' in user ? user.avatarPath : null,
     side,
   };
 }

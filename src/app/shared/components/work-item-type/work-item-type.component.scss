@@ -4,7 +4,7 @@
   display: inline-flex;
 }
 
-.ticket-type {
+.work-item-type {
   @include chip.base;
   @include chip.with-icon;
 
@@ -12,7 +12,7 @@
   border-color: transparent;
 }
 
-.ticket-type__icon {
+.work-item-type__icon {
   display: inline-block;
   width: 0.9rem;
   height: 0.9rem;
@@ -22,7 +22,7 @@
   text-align: center;
 }
 
-.ticket-type__bug {
+.work-item-type__bug {
   fill: none;
   stroke: currentColor;
   stroke-linecap: round;
@@ -30,25 +30,25 @@
   stroke-width: 1.25;
 }
 
-.ticket-type--bug {
+.work-item-type--bug {
   border-color: rgb(185 28 28 / 10%);
   background: #fde8e8;
   color: #a83232;
 }
 
-.ticket-type--feature {
+.work-item-type--feature {
   border-color: rgb(109 40 217 / 10%);
   background: #eee9ff;
   color: #5141b8;
 }
 
-.ticket-type--project {
+.work-item-type--project {
   border-color: rgb(37 99 235 / 10%);
   background: #e4f1fb;
   color: #075f9f;
 }
 
-.ticket-type--default {
+.work-item-type--default {
   border-color: var(--app-border);
   background: var(--app-surface-muted);
   color: var(--app-muted);

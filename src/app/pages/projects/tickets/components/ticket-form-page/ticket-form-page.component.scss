@@ -25,15 +25,21 @@
   min-width: 0;
 }
 
+/* Context, not a heading: the group only says where the milestones below it live. */
 .milestone-group {
-  color: var(--gray-text-strong);
+  color: var(--app-muted);
+  font-size: 0.76rem;
+  font-weight: 500;
+}
+
+.milestone-group > i {
+  color: var(--gray-icon);
 }
 
 .milestone-option {
   padding-left: 1.75rem;
 }
 
-.milestone-group > i,
 .milestone-option > i,
 .milestone-selection > i:not(.pi-angle-right) {
   color: var(--orange);

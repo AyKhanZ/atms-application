@@ -20,6 +20,7 @@ export class WorkTasksService {
 
   getWorkTasks(projectId: string, filter: WorkTaskFilter = {}): Observable<WorkTaskPageModel> {
     let params = new HttpParams().set('pageSize', filter.pageSize ?? 10);
+    if (filter.search?.trim()) params = params.set('search', filter.search.trim());
     if (filter.cursor) params = params.set('cursor', filter.cursor);
     if (filter.workTicketId) params = params.set('workTicketId', filter.workTicketId);
     if (filter.parentWorkTaskId) params = params.set('parentWorkTaskId', filter.parentWorkTaskId);

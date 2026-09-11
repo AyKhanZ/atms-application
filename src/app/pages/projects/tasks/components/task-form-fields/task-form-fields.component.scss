@@ -82,8 +82,14 @@
   }
 }
 
-@container (max-width: 34rem) {
+@container (max-width: 54rem) {
   .task-classification-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@container (max-width: 30rem) {
+  .task-classification-grid {
+    grid-template-columns: minmax(0, 1fr);
   }
 }

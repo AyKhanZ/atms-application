@@ -1,4 +1,4 @@
-<p-confirmDialog key="ticketDelete" styleClass="ticket-delete-dialog" />
+<app-confirm-dialog key="ticketDelete" />
 
 <section class="page ticket-details-page">
   <div class="page-header ticket-page-header">
@@ -72,7 +72,7 @@
       />
 
       @if (activeTab() === 'details') {
-        <div class="ticket-details-content">
+        <div class="work-item-details-content">
           <section class="description-card">
             <h3>Description</h3>
             @if (item.description) {
@@ -82,8 +82,10 @@
             }
           </section>
 
-          <aside class="ticket-information">
-            <app-ticket-facts [ticket]="item" />
+          <aside class="work-item-information">
+            @if (facts(); as ticketFacts) {
+              <app-work-item-facts [facts]="ticketFacts" />
+            }
             <app-ticket-location [ticket]="item" (viewInPlan)="viewInPlan()" />
           </aside>
         </div>
@@ -93,7 +95,6 @@
           [ticketId]="item.id"
           [canCreate]="canCreateTask()"
           [canEdit]="canEditTask()"
-          [canDelete]="canDeleteTask()"
         />
       } @else if (activeTab() === 'attachments') {
         <app-empty-state icon="pi-paperclip" title="No attachments yet" [compact]="true" />

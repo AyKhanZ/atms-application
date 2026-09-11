@@ -16,7 +16,10 @@ import { Store } from '@ngrx/store';
 import { Router } from '@angular/router';
 import { ConfirmationService, MenuItem } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import {
+  ConfirmDialogComponent,
+  confirmTone,
+} from '../../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { Menu, MenuModule } from 'primeng/menu';
 import { TooltipModule } from 'primeng/tooltip';
 import { ProjectPermissions } from '../../../../../core/enums/project-permissions.enum';
@@ -49,7 +52,7 @@ interface SelectedWorkGroup {
   selector: 'app-groups-tab',
   imports: [
     ButtonModule,
-    ConfirmDialogModule,
+    ConfirmDialogComponent,
     MenuModule,
     TooltipModule,
     WorkGroupDialogComponent,
@@ -468,10 +471,11 @@ export class GroupsTabComponent implements OnInit, OnDestroy {
       this.confirmation.confirm({
         key: 'workGroupsDanger',
         header: `This ${selected.kind} can't be deleted yet`,
-        message: blockedReason,
-        icon: 'pi pi-exclamation-triangle',
+        message: `${selected.item.title}
+${blockedReason}`,
         acceptLabel: 'Got it',
         rejectVisible: false,
+        acceptButtonProps: confirmTone('warning'),
       });
       return;
     }
@@ -479,12 +483,11 @@ export class GroupsTabComponent implements OnInit, OnDestroy {
     this.confirmation.confirm({
       key: 'workGroupsDanger',
       header: `Delete ${selected.kind}?`,
-      message: `The ${selected.kind} "${selected.item.title}" will be removed from the plan. This action cannot be undone.`,
-      icon: 'pi pi-exclamation-triangle',
+      message: `${selected.item.title}
+The ${selected.kind} will be removed from the plan. This action cannot be undone.`,
       acceptLabel: 'Delete',
       rejectLabel: 'Cancel',
-      acceptButtonStyleClass: 'p-button-danger work-groups-danger-confirm-button',
-      rejectButtonStyleClass: 'p-button-outlined',
+      acceptButtonProps: confirmTone('danger'),
       accept: () => {
         this.store.dispatch(
           WorkGroupsStoreActions.deleteWorkGroup({
@@ -537,7 +540,7 @@ export function workGroupDeleteBlockReason(
 ): string | null {
   if (kind === 'milestone') {
     return item.ticketCount > 0
-      ? `Before deleting "${item.title}", remove ${formatCount(item.ticketCount, 'ticket')} from this milestone.`
+      ? `Remove its ${formatCount(item.ticketCount, 'ticket')} first, then delete the milestone.`
       : null;
   }
 
@@ -552,7 +555,7 @@ export function workGroupDeleteBlockReason(
     ticketCount > 0 ? formatCount(ticketCount, 'ticket') : null,
   ].filter((value): value is string => Boolean(value));
 
-  return `Before deleting "${item.title}", remove its ${contents.join(' and ')}.`;
+  return `Remove its ${contents.join(' and ')} first, then delete the group.`;
 }
 
 function formatCount(count: number, label: string): string {

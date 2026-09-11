@@ -21,6 +21,8 @@
     </div>
   </label>
 
+  <ng-content select="[task-parent]" />
+
   <div class="task-classification-grid">
     <div class="field">
       <label id="taskPriorityLabel" appLabelFor="taskPriority">Priority <b>*</b></label>
@@ -69,7 +71,7 @@
         optionValue="id"
         placeholder="Unassigned"
         [showClear]="true"
-        panelStyleClass="task-assignee-select-panel"
+        panelStyleClass="assignee-select-panel"
         appendTo="body"
         emptyMessage="No employees available"
         emptyFilterMessage="No employees found"

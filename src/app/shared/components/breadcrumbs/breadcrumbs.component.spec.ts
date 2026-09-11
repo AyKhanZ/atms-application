@@ -108,3 +108,26 @@ describe('BreadcrumbsComponent', () => {
     expect(titles(element)).toEqual(['Projects', '#7 Payment Gateway Integration', 'Edit']);
   });
 });
+
+describe('BreadcrumbsComponent form context', () => {
+  it('uses selected parent links and clears the temporary trail', async () => {
+    const { fixture, overrides, element } = await renderAt('/projects/p7/edit');
+    overrides.setTrail('/projects/p7/edit', [
+      { title: 'Projects', path: '/projects' },
+      { title: 'Selected ticket', path: '/projects/p7/tickets/other' },
+    ]);
+    fixture.detectChanges();
+    expect(titles(element)).toEqual(['Projects', 'Selected ticket']);
+    expect(element.querySelector('a[href="/projects/p7/tickets/other"]')).not.toBeNull();
+    overrides.clearTrail('/projects/p7/edit');
+    fixture.detectChanges();
+    expect(titles(element)).toEqual(['Projects', 'Edit']);
+  });
+
+  it('ignores a temporary trail owned by another route', async () => {
+    const { fixture, overrides, element } = await renderAt('/projects');
+    overrides.setTrail('/projects/p7/edit', [{ title: 'Other page', path: '/projects/p7' }]);
+    fixture.detectChanges();
+    expect(titles(element)).toEqual(['Projects']);
+  });
+});

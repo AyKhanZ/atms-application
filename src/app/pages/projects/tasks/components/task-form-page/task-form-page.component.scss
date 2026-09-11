@@ -15,18 +15,3 @@
 .task-form-state--error strong {
   color: var(--app-text);
 }
-
-.task-context {
-  display: grid;
-  gap: 0.2rem;
-  margin-bottom: 1.25rem;
-  padding: 1rem;
-  border: 1px solid var(--app-border);
-  border-radius: 8px;
-  background: var(--orange-light);
-}
-
-.task-context span,
-.task-context small {
-  color: var(--app-muted);
-}

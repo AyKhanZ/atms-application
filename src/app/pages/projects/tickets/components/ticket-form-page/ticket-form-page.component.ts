@@ -41,6 +41,7 @@ import {
 } from '../../../../../core/models/work-tickets';
 import { BreadcrumbOverrideService } from '../../../../../core/services/breadcrumb-override.service';
 import { DictionaryService } from '../../../../../core/services/dictionary.service';
+import { ProjectPermissionsRefreshService } from '../../../../../core/services/project-permissions-refresh.service';
 import { SnackBarService } from '../../../../../core/services/snack-bar.service';
 import { WorkGroupsService } from '../../../../../core/services/work-groups.service';
 import { WorkProjectsService } from '../../../../../core/services/work-projects.service';
@@ -96,6 +97,7 @@ export class TicketFormPageComponent implements OnDestroy {
   private readonly workGroupsService = inject(WorkGroupsService);
   private readonly dictionaryService = inject(DictionaryService);
   private readonly snackBar = inject(SnackBarService);
+  private readonly permissionsRefresh = inject(ProjectPermissionsRefreshService);
   private readonly confirmation = inject(ConfirmationService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly breadcrumbOverride = inject(BreadcrumbOverrideService);
@@ -280,7 +282,16 @@ export class TicketFormPageComponent implements OnDestroy {
           this.snackBar.success(this.ticketId ? 'Ticket changes saved.' : 'Ticket created.');
           this.navigateBack();
         },
-        error: (error: HttpErrorResponse) => this.snackBar.error(ticketErrorMessage(error)),
+        error: (error: HttpErrorResponse) => {
+          this.snackBar.error(ticketErrorMessage(error));
+          // The cached permissions said this was allowed; drop them so the next page is right.
+          if (error.status === 403 && this.projectId) {
+            this.permissionsRefresh
+              .refreshAfterForbidden(this.projectId)
+              .pipe(takeUntilDestroyed(this.destroyRef))
+              .subscribe({ error: () => undefined });
+          }
+        },
       });
   }
 

@@ -33,8 +33,7 @@
   border: 1px solid var(--orange-border);
   border-radius: 999px;
   background:
-    radial-gradient(circle, rgb(254 147 18 / 10%) 0 48%, transparent 49%),
-    var(--orange-light-hover);
+    radial-gradient(circle, rgb(254 147 18 / 10%) 0 48%, transparent 49%), var(--orange-light-hover);
   color: var(--orange);
 }
 
@@ -94,7 +93,10 @@ button {
   border-radius: 6px;
   font-weight: 800;
   cursor: pointer;
-  transition: border-color 0.16s ease, background 0.16s ease, color 0.16s ease;
+  transition:
+    border-color 0.16s ease,
+    background 0.16s ease,
+    color 0.16s ease;
 }
 
 .primary {
@@ -140,5 +142,3 @@ button:focus-visible {
     justify-self: center;
   }
 }
-
-

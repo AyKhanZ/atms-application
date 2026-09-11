@@ -18,6 +18,12 @@ describe('WorkTasksService', () => {
   });
 
   afterEach(() => http.verify());
+  it.each(['  payment  ', 'оплата', '51', ''])('forwards trimmed search %s', (search) => {
+    service.getWorkTasks('project-1', { search }).subscribe();
+    const request = http.expectOne((req) => req.url.endsWith('/work-tasks'));
+    expect(request.request.params.get('search')).toBe(search.trim() || null);
+    request.flush({ items: [], hasMore: false });
+  });
 
   it('loads top-level ticket tasks with cursor pagination', () => {
     service
@@ -54,10 +60,18 @@ describe('WorkTasksService', () => {
   });
 
   it('updates and deletes a task by project-scoped id', () => {
-    const command = { title: 'Task', priorityId: 1, statusId: 2 };
+    const command = {
+      title: 'Task',
+      priorityId: 1,
+      statusId: 2,
+      workTicketId: 'ticket-1',
+      parentWorkTaskId: null,
+    };
     service.updateWorkTask('project-1', 'task-1', command).subscribe();
     const update = http.expectOne(`${url}/task-1`);
     expect(update.request.method).toBe('PUT');
+    // Moving a task between tickets goes through the same update call.
+    expect(update.request.body).toEqual(command);
     update.flush(null);
 
     service.deleteWorkTask('project-1', 'task-1').subscribe();

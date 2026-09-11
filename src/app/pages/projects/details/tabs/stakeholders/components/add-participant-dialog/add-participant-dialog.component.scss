@@ -12,8 +12,16 @@
   gap: 0.4rem;
 }
 
-.field small {
+.field-error {
+  min-height: 1rem;
   color: var(--red);
+  font-size: 0.75rem;
+  line-height: 1rem;
+  visibility: hidden;
+}
+
+.field-error--visible {
+  visibility: visible;
 }
 
 :host ::ng-deep .control-invalid .p-select {
@@ -26,12 +34,48 @@
   box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.12);
 }
 
-.user-option span {
+.user-selection,
+.user-option {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.user-selection > span,
+.user-option > span {
+  display: grid;
+  min-width: 0;
+  gap: 0.15rem;
+}
+
+.user-selection > span {
   overflow: hidden;
-  color: var(--app-muted);
-  font-size: 0.8rem;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.user-option small {
+  overflow: hidden;
+  color: var(--app-muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-selection app-profile-avatar {
+  --avatar-size: 1.25rem;
+  --avatar-radius: 999px;
+  --avatar-font-size: 0.5rem;
+
+  flex: 0 0 auto;
+}
+
+.user-option app-profile-avatar {
+  --avatar-size: 2rem;
+  --avatar-radius: 999px;
+  --avatar-font-size: 0.65rem;
+
+  flex: 0 0 auto;
 }
 
 .dialog-actions {

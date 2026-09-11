@@ -4,7 +4,6 @@ import {
   Component,
   DestroyRef,
   HostListener,
-  OnDestroy,
   computed,
   inject,
   input,
@@ -20,7 +19,15 @@ import { Observable, catchError, finalize, of } from 'rxjs';
 import { DictionaryModel } from '../../../../../core/models/dictionary.model';
 import { WorkProjectModel } from '../../../../../core/models/work-projects';
 import { WorkTaskModel } from '../../../../../core/models/work-tasks';
-import { BreadcrumbOverrideService } from '../../../../../core/services/breadcrumb-override.service';
+import { TaskFormBreadcrumbsService } from './task-form-breadcrumbs.service';
+import { TaskParentSelectComponent } from '../task-parent-select/task-parent-select.component';
+import {
+  TaskParentOption,
+  editedTaskParentOption,
+  taskParentOption,
+  ticketParentOption,
+} from '../task-parent-select/task-parent-option';
+import { ProjectPermissionsRefreshService } from '../../../../../core/services/project-permissions-refresh.service';
 import { SnackBarService } from '../../../../../core/services/snack-bar.service';
 import { WorkTasksService } from '../../../../../core/services/work-tasks.service';
 import { projectNavigationUrl } from '../../../../../core/utils/project-navigation.utils';
@@ -35,8 +42,14 @@ interface TaskFormNavigationState {
 
 @Component({
   selector: 'app-task-form-page',
-  imports: [ButtonModule, ConfirmDialogModule, BackButtonComponent, TaskFormFieldsComponent],
-  providers: [ConfirmationService, TaskFormContextService],
+  imports: [
+    ButtonModule,
+    ConfirmDialogModule,
+    BackButtonComponent,
+    TaskFormFieldsComponent,
+    TaskParentSelectComponent,
+  ],
+  providers: [ConfirmationService, TaskFormContextService, TaskFormBreadcrumbsService],
   templateUrl: './task-form-page.component.html',
   styleUrls: [
     '../../../components/form-page/form-page.component.scss',
@@ -44,7 +57,7 @@ interface TaskFormNavigationState {
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TaskFormPageComponent implements OnDestroy {
+export class TaskFormPageComponent {
   readonly mode = input.required<'create' | 'edit'>();
 
   private readonly fb = inject(FormBuilder);
@@ -53,9 +66,10 @@ export class TaskFormPageComponent implements OnDestroy {
   private readonly tasks = inject(WorkTasksService);
   private readonly formContext = inject(TaskFormContextService);
   private readonly snackBar = inject(SnackBarService);
+  private readonly permissionsRefresh = inject(ProjectPermissionsRefreshService);
   private readonly confirmation = inject(ConfirmationService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly breadcrumbOverride = inject(BreadcrumbOverrideService);
+  private readonly formBreadcrumbs = inject(TaskFormBreadcrumbsService);
   private readonly navigationState = history.state as TaskFormNavigationState;
   private navigationComplete = false;
 
@@ -77,6 +91,7 @@ export class TaskFormPageComponent implements OnDestroy {
   readonly loadError = signal<string | null>(null);
   readonly project = signal<WorkProjectModel | null>(null);
   readonly contextTask = signal<WorkTaskModel | null>(null);
+  readonly selectedParent = signal<TaskParentOption | null>(null);
   readonly priorities = signal<DictionaryModel[]>([]);
   readonly statuses = signal<DictionaryModel[]>([]);
   readonly assignees = computed(() => eligibleTaskAssignees(this.project()?.participants ?? []));
@@ -91,10 +106,15 @@ export class TaskFormPageComponent implements OnDestroy {
     statusId: [null as number | null],
     deadline: [null as Date | null],
     assigneeId: [null as string | null],
+    workTicketId: [this.ticketId, Validators.required],
+    parentWorkTaskId: [this.parentTaskId],
   });
 
   constructor() {
     const editing = Boolean(this.taskId);
+    if (!editing) this.formBreadcrumbs.placeholder(Boolean(this.parentTaskId));
+    if (!editing && this.parentTaskId)
+      this.form.controls.parentWorkTaskId.addValidators(Validators.required);
     if (!this.projectId || !this.ticketId) {
       this.loading.set(false);
       this.loadError.set('The task route is invalid. Return to the ticket and try again.');
@@ -113,8 +133,15 @@ export class TaskFormPageComponent implements OnDestroy {
       )
       .subscribe((result) => {
         if (!result) return;
+        // A task can be moved to another ticket, so a link kept from before the move points at
+        // the wrong one. The details page quietly sends the user to the real ticket; this form
+        // used to stop with an error instead, for the same situation.
         if (result.task && result.task.workTicketId !== this.ticketId) {
-          this.loadError.set('The selected task does not belong to this ticket.');
+          this.redirectToOwningTicket(result.task.workTicketId);
+          return;
+        }
+        if (!editing && this.parentTaskId && result.task?.isSubtask) {
+          this.loadError.set('A subtask cannot be used as a parent. Choose a top-level task.');
           return;
         }
         this.project.set(result.project);
@@ -122,41 +149,54 @@ export class TaskFormPageComponent implements OnDestroy {
         this.statuses.set(result.statuses);
         this.contextTask.set(result.task);
         this.isSubtask.set(Boolean(this.parentTaskId || result.task?.isSubtask));
-        this.breadcrumbOverride.set(
-          `/projects/${this.projectId}`,
-          `#${result.project.code} ${result.project.title}`,
-        );
-        const ticketCode = result.task?.workTicketCode ?? result.ticket?.code;
-        const ticketTitle = result.task?.workTicketTitle ?? result.ticket?.title;
-        if (ticketCode && ticketTitle) {
-          this.breadcrumbOverride.set(
-            `/projects/${this.projectId}/tickets/${this.ticketId}`,
-            `#${ticketCode} ${ticketTitle}`,
-          );
-        }
-        if (editing && result.task && this.taskId) {
-          this.breadcrumbOverride.set(
-            `/projects/${this.projectId}/tickets/${this.ticketId}/tasks/${this.taskId}`,
-            `#${result.task.code} ${result.task.title}`,
-          );
-        }
+        // On create the loaded task is the chosen parent; on edit it is the item itself, so its
+        // parent is either the task above it or, for a top-level task, its ticket.
+        const parent = editing
+          ? editedTaskParentOption(result.task, result.ticket)
+          : result.task
+            ? taskParentOption(result.task)
+            : result.ticket
+              ? ticketParentOption(result.ticket)
+              : null;
+        this.selectedParent.set(parent);
+        // The form submits what these controls hold, and the edit route carries no parentTaskId,
+        // so the parent has to be taken from the loaded item. Without this a subtask saved with an
+        // untouched select went up as parentWorkTaskId: null and was silently turned into a task.
+        this.form.patchValue({
+          workTicketId: parent?.ticketId ?? this.ticketId,
+          parentWorkTaskId: parent?.kind === 'task' ? parent.id : null,
+        });
+        this.formBreadcrumbs.show(result.project, parent, editing ? result.task : null);
         if (editing && result.task) this.patchForm(result.task);
       });
   }
 
-  ngOnDestroy(): void {
-    if (!this.projectId) return;
-    this.breadcrumbOverride.clear(`/projects/${this.projectId}`);
-    if (!this.ticketId) return;
-    this.breadcrumbOverride.clear(`/projects/${this.projectId}/tickets/${this.ticketId}`);
-    if (this.taskId) {
-      this.breadcrumbOverride.clear(
-        `/projects/${this.projectId}/tickets/${this.ticketId}/tasks/${this.taskId}`,
-      );
-    }
+  /** Same route, the ticket the item actually lives under; the history entry is replaced so Back
+   *  does not lead straight into the stale link again. */
+  private redirectToOwningTicket(ticketId: string): void {
+    const path = ['/projects', this.projectId, 'tickets', ticketId, 'tasks'];
+    void this.router.navigate(this.taskId ? [...path, this.taskId, 'edit'] : [...path, 'create'], {
+      queryParamsHandling: 'preserve',
+      replaceUrl: true,
+      state: { returnUrl: this.returnUrl },
+    });
   }
 
+  selectParent(parent: TaskParentOption): void {
+    if (this.saving()) return;
+    // A task is parented by a ticket, a subtask by a task — anything else is a wrong list.
+    if (this.isSubtask() !== (parent.kind === 'task')) return;
+    this.selectedParent.set(parent);
+    this.form.patchValue({
+      workTicketId: parent.ticketId,
+      parentWorkTaskId: parent.kind === 'task' ? parent.id : null,
+    });
+    this.form.markAsDirty();
+    const project = this.project();
+    if (project) this.formBreadcrumbs.show(project, parent, null);
+  }
   submit(): void {
+    if (this.loading() || this.loadError() || this.saving()) return;
     this.submitted.set(true);
     if (this.form.invalid || !this.projectId) {
       this.form.markAllAsTouched();
@@ -164,7 +204,7 @@ export class TaskFormPageComponent implements OnDestroy {
     }
 
     const value = this.form.getRawValue();
-    if (value.priorityId === null) return;
+    if (value.priorityId === null || !value.workTicketId) return;
     this.saving.set(true);
 
     const common = {
@@ -179,11 +219,13 @@ export class TaskFormPageComponent implements OnDestroy {
         ? this.tasks.updateWorkTask(this.projectId, this.taskId, {
             ...common,
             statusId: value.statusId,
+            workTicketId: value.workTicketId,
+            parentWorkTaskId: value.parentWorkTaskId,
           })
         : this.tasks.createWorkTask(this.projectId, {
             ...common,
-            workTicketId: this.contextTask()?.workTicketId ?? this.ticketId ?? '',
-            parentWorkTaskId: this.parentTaskId,
+            workTicketId: value.workTicketId,
+            parentWorkTaskId: value.parentWorkTaskId,
           });
 
     request
@@ -194,15 +236,15 @@ export class TaskFormPageComponent implements OnDestroy {
       .subscribe({
         next: (createdId) => {
           this.navigationComplete = true;
-          this.snackBar.success(
-            `${this.isSubtask() ? 'Subtask' : 'Task'} ${this.isEdit() ? 'updated' : 'created'} successfully.`,
-          );
-          if (!this.isEdit() && typeof createdId === 'string' && !this.navigationState.returnUrl) {
+          // Same two sentences a ticket uses, so one action does not get three different wordings.
+          const label = this.isSubtask() ? 'Subtask' : 'Task';
+          this.snackBar.success(this.isEdit() ? `${label} changes saved.` : `${label} created.`);
+          if (!this.isEdit() && typeof createdId === 'string') {
             void this.router.navigate([
               '/projects',
               this.projectId,
               'tickets',
-              this.ticketId,
+              value.workTicketId,
               'tasks',
               createdId,
             ]);
@@ -210,7 +252,16 @@ export class TaskFormPageComponent implements OnDestroy {
           }
           void this.router.navigateByUrl(this.returnUrl);
         },
-        error: (error: HttpErrorResponse) => this.snackBar.error(taskErrorMessage(error)),
+        error: (error: HttpErrorResponse) => {
+          this.snackBar.error(taskErrorMessage(error));
+          // The cached permissions said this was allowed; drop them so the next page is right.
+          if (error.status === 403 && this.projectId) {
+            this.permissionsRefresh
+              .refreshAfterForbidden(this.projectId)
+              .pipe(takeUntilDestroyed(this.destroyRef))
+              .subscribe({ error: () => undefined });
+          }
+        },
       });
   }
 

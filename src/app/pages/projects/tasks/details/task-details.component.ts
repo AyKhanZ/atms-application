@@ -1,3 +1,4 @@
+import { workItemProgressBadge } from '../../../../core/utils/work-item-progress.utils';
 import { HttpErrorResponse } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
@@ -12,13 +13,17 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ConfirmationService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import {
+  ConfirmDialogComponent,
+  confirmTone,
+} from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { catchError, finalize, forkJoin, of, switchMap } from 'rxjs';
 import { ProjectPermissions } from '../../../../core/enums/project-permissions.enum';
 import { WorkTaskModel } from '../../../../core/models/work-tasks';
 import { WorkProjectModel } from '../../../../core/models/work-projects/work-project.model';
 import { BreadcrumbOverrideService } from '../../../../core/services/breadcrumb-override.service';
 import { ProjectAccessService } from '../../../../core/services/project-access.service';
+import { ProjectPermissionsRefreshService } from '../../../../core/services/project-permissions-refresh.service';
 import { SnackBarService } from '../../../../core/services/snack-bar.service';
 import { WorkProjectsService } from '../../../../core/services/work-projects.service';
 import { WorkTasksService } from '../../../../core/services/work-tasks.service';
@@ -46,7 +51,7 @@ interface TaskPageData {
   selector: 'app-task-details',
   imports: [
     ButtonModule,
-    ConfirmDialogModule,
+    ConfirmDialogComponent,
     BackButtonComponent,
     EmptyStateComponent,
     EntityTabsComponent,
@@ -67,6 +72,7 @@ export class TaskDetailsComponent implements OnDestroy {
   private readonly tasks = inject(WorkTasksService);
   private readonly projects = inject(WorkProjectsService);
   private readonly projectAccess = inject(ProjectAccessService);
+  private readonly permissionsRefresh = inject(ProjectPermissionsRefreshService);
   private readonly snackBar = inject(SnackBarService);
   private readonly confirmation = inject(ConfirmationService);
   private readonly destroyRef = inject(DestroyRef);
@@ -88,14 +94,24 @@ export class TaskDetailsComponent implements OnDestroy {
   readonly activeTab = signal<TaskTab>(parseTaskTab(this.route.snapshot.queryParamMap.get('tab')));
   readonly tabs = computed<readonly EntityTab<TaskTab>[]>(() => {
     const task = this.task();
+    // A subtask has no subtasks of its own, so the tab is not shown at all — an empty tab that
+    // exists only to say it can never hold anything is worse than no tab.
+    const subtasks: EntityTab<TaskTab>[] = task?.isSubtask
+      ? []
+      : [
+          {
+            id: 'subtasks',
+            label: 'Subtasks',
+            // Not the same icon as the ticket's Tasks tab: the two tabs sit one click apart and
+            // have to be told apart at a glance.
+            icon: 'pi-sitemap',
+            badge: workItemProgressBadge(task?.doneSubtaskCount, task?.subtaskCount),
+          },
+        ];
+
     return [
       { id: 'details', label: 'Details', icon: 'pi-align-left' },
-      {
-        id: 'subtasks',
-        label: 'Subtasks',
-        icon: 'pi-list-check',
-        badge: `${task?.doneSubtaskCount ?? 0}/${task?.subtaskCount ?? 0}`,
-      },
+      ...subtasks,
       { id: 'attachments', label: 'Attachments', icon: 'pi-paperclip' },
       { id: 'history', label: 'History', icon: 'pi-history' },
     ];
@@ -169,22 +185,22 @@ export class TaskDetailsComponent implements OnDestroy {
       this.confirmation.confirm({
         key: 'taskDelete',
         header: "This task can't be deleted yet",
-        message: `“#${task.code} ${task.title}” still has ${task.subtaskCount} ${task.subtaskCount === 1 ? 'subtask' : 'subtasks'}. Delete them first, then delete the task.`,
-        icon: 'pi pi-exclamation-triangle',
+        message: `#${task.code} ${task.title}
+It still has ${task.subtaskCount} ${task.subtaskCount === 1 ? 'subtask' : 'subtasks'}. Delete them first, then delete the task.`,
         acceptLabel: 'Got it',
         rejectVisible: false,
+        acceptButtonProps: confirmTone('warning'),
       });
       return;
     }
     this.confirmation.confirm({
       key: 'taskDelete',
       header: `Delete ${task.isSubtask ? 'subtask' : 'task'}?`,
-      message: `“#${task.code} ${task.title}” will be deleted. This action cannot be undone.`,
-      icon: 'pi pi-exclamation-triangle',
+      message: `#${task.code} ${task.title}
+This ${task.isSubtask ? 'subtask' : 'task'} will be deleted. This action cannot be undone.`,
       acceptLabel: 'Delete',
       rejectLabel: 'Cancel',
-      acceptButtonStyleClass: 'p-button-danger',
-      rejectButtonStyleClass: 'p-button-outlined',
+      acceptButtonProps: confirmTone('danger'),
       accept: () => this.delete(task),
     });
   }
@@ -234,9 +250,10 @@ export class TaskDetailsComponent implements OnDestroy {
     }
 
     this.task.set(result.task);
-    this.canCreate.set(result.permissions.includes(ProjectPermissions.Task.Create));
-    this.canEdit.set(result.permissions.includes(ProjectPermissions.Task.Edit));
-    this.canDelete.set(result.permissions.includes(ProjectPermissions.Task.Delete));
+    // ?tab=subtasks can arrive from a bookmark or from the parent's tab state, and a subtask has
+    // no such tab — fall back to Details instead of rendering an empty body.
+    if (result.task.isSubtask && this.activeTab() === 'subtasks') this.selectTab('details');
+    this.applyPermissions(result.permissions);
     this.breadcrumbs.set(
       `/projects/${this.projectId}`,
       `#${result.project.code} ${result.project.title}`,
@@ -249,6 +266,25 @@ export class TaskDetailsComponent implements OnDestroy {
       `/projects/${this.projectId}/tickets/${this.ticketId}/tasks/${this.taskId}`,
       `#${result.task.code} ${result.task.title}`,
     );
+  }
+
+  private applyPermissions(permissions: string[]): void {
+    this.canCreate.set(permissions.includes(ProjectPermissions.Task.Create));
+    this.canEdit.set(permissions.includes(ProjectPermissions.Task.Edit));
+    this.canDelete.set(permissions.includes(ProjectPermissions.Task.Delete));
+  }
+
+  /** A 403 means the cached permissions are already wrong; re-read them so the page stops
+   *  offering an action the server refuses. */
+  private refreshPermissionsAfterForbidden(error: HttpErrorResponse): void {
+    if (error.status !== 403 || !this.projectId) return;
+    this.permissionsRefresh
+      .refreshAfterForbidden(this.projectId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (permissions) => this.applyPermissions(permissions),
+        error: () => undefined,
+      });
   }
 
   private delete(task: WorkTaskModel): void {
@@ -265,7 +301,10 @@ export class TaskDetailsComponent implements OnDestroy {
           this.snackBar.success(`${task.isSubtask ? 'Subtask' : 'Task'} deleted.`);
           this.back();
         },
-        error: (error: HttpErrorResponse) => this.snackBar.error(taskDeleteErrorMessage(error)),
+        error: (error: HttpErrorResponse) => {
+          this.snackBar.error(taskDeleteErrorMessage(error));
+          this.refreshPermissionsAfterForbidden(error);
+        },
       });
   }
 }

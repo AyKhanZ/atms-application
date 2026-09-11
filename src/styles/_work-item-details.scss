@@ -1,0 +1,74 @@
+/// Details body shared by Ticket and Task: description on the left, facts and location on the
+/// right. The two pages had their own copies and drifted — different description colour, a
+/// different collapse breakpoint, and only one of them lifted Location above the description on a
+/// narrow screen. Both now include this mixin, so a change lands on both or on neither.
+@mixin body {
+  .work-item-details-content {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) clamp(27rem, 35cqi, 32rem);
+    min-height: clamp(26rem, 54vh, 38rem);
+    border-bottom-right-radius: inherit;
+    border-bottom-left-radius: inherit;
+    background: var(--white);
+  }
+
+  .description-card,
+  .work-item-information {
+    min-width: 0;
+    padding: 1.5rem;
+  }
+
+  .description-card h3 {
+    margin: 0;
+    color: var(--app-text);
+    font-size: 1rem;
+  }
+
+  .description {
+    margin: 1rem 0 0;
+    overflow-wrap: anywhere;
+    color: var(--gray-text-strong);
+    line-height: 1.68;
+    text-wrap: pretty;
+    white-space: pre-wrap;
+  }
+
+  .inline-empty {
+    margin: 1rem 0 0;
+    color: var(--app-muted);
+  }
+
+  .work-item-information {
+    display: grid;
+    align-content: start;
+    gap: 1.5rem;
+    border-left: 1px solid var(--app-border);
+  }
+
+  @container (max-width: 50rem) {
+    .work-item-details-content {
+      grid-template-columns: minmax(0, 1fr);
+      min-height: 0;
+    }
+
+    .work-item-information {
+      order: -1;
+      border-top: 0;
+      border-bottom: 1px solid var(--app-border);
+      border-left: 0;
+    }
+
+    /* Location last in the source, first on a narrow screen: "where am I" comes before the
+       facts once the columns stack. It is the last child in both pages. */
+    .work-item-information > :last-child {
+      order: -1;
+    }
+  }
+
+  @container (max-width: 42rem) {
+    .description-card,
+    .work-item-information {
+      padding: 1rem;
+    }
+  }
+}

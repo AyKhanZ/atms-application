@@ -38,7 +38,7 @@ describe('MilestoneTicketListComponent', () => {
     expect(rows[0].querySelector(':scope > .item-menu-button')).toBeTruthy();
     expect(rows[1].querySelector(':scope > .item-menu-button')).toBeTruthy();
     expect(metadata[0].querySelector('app-profile-avatar')).toBeTruthy();
-    expect(metadata[1].querySelector('.ticket-assignee--unassigned .pi-user')).toBeTruthy();
+    expect(metadata[1].querySelector('.assignee-chip--unassigned .pi-user')).toBeTruthy();
   });
 });
 

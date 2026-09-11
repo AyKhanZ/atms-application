@@ -39,7 +39,9 @@ export class EmailConfirmationComponent {
   });
   readonly subtitle = computed(() => {
     if (this.isSuccess()) {
-      return 'Your account is active. You can now sign in and continue working.';
+      // The note panel that used to carry this is gone, and the temporary password is the one
+      // thing on this screen the user actually needs, so it moves into the subtitle.
+      return 'Your account is active. Sign in with the login and temporary password from your email.';
     }
 
     if (this.isAlreadyConfirmed()) {
@@ -47,13 +49,6 @@ export class EmailConfirmationComponent {
     }
 
     return 'The confirmation link is invalid or expired. Enter your email and we will send a new link.';
-  });
-  readonly note = computed(() => {
-    if (this.isFailed()) {
-      return 'For security, confirmation links work for a limited time only.';
-    }
-
-    return 'Use the login and temporary password from your email. You can update your password after signing in.';
   });
 
   readonly resendForm = new FormGroup({

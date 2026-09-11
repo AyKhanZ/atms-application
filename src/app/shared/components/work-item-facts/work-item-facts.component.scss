@@ -3,7 +3,7 @@
   min-width: 0;
 }
 
-.ticket-facts h3 {
+.work-item-facts h3 {
   margin: 0;
   font-size: 0.95rem;
 }
@@ -31,53 +31,24 @@ dt {
   font-size: 0.84rem;
 }
 
+/* Plain-text values (the deadline) had no size of their own and fell back to 16px, while every
+   badge in this column sits at 0.78-0.86rem. One band for the whole panel: the label and the
+   value share a size and differ by weight and colour. */
 dd {
   min-width: 0;
   margin: 0;
   overflow: hidden;
+  font-size: 0.84rem;
   font-weight: 700;
   text-align: right;
 }
 
-.assignee-chip {
-  display: inline-flex;
-  max-width: 100%;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 0.4rem;
-  overflow: hidden;
-  color: var(--app-text);
-  font-size: 0.82rem;
-}
-
-.assignee-chip span {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.assignee-chip--unassigned {
+/* A missing value is not a value: it keeps the row's position but drops the weight and colour,
+   the same way the assignee shows "Unassigned". Bold dark text here read as the loudest thing in
+   the panel while saying that nothing is set. */
+.fact-empty {
   color: var(--app-muted);
-  font-weight: 600;
-}
-
-.assignee-chip--unassigned i {
-  display: grid;
-  width: 1.375rem;
-  height: 1.375rem;
-  flex: 0 0 auto;
-  place-items: center;
-  border-radius: 999px;
-  background: var(--app-surface-muted);
-  color: var(--gray-icon);
-  font-size: 0.7rem;
-}
-
-:host ::ng-deep .assignee-chip .avatar {
-  --avatar-size: 1.375rem;
-  --avatar-radius: 999px;
-  --avatar-font-size: 0.56rem;
+  font-weight: 400;
 }
 
 .deadline-value {

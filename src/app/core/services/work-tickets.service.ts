@@ -24,6 +24,7 @@ export class WorkTicketsService {
     filter: WorkTicketFilter = {},
   ): Observable<WorkTicketPageModel> {
     let params = new HttpParams().set('pageSize', filter.pageSize ?? 50);
+    if (filter.search?.trim()) params = params.set('search', filter.search.trim());
     if (filter.cursor) params = params.set('cursor', filter.cursor);
     if (filter.milestoneId) params = params.set('milestoneId', filter.milestoneId);
 

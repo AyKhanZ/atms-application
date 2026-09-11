@@ -6,11 +6,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { BreadcrumbOverrideService } from '../../../core/services/breadcrumb-override.service';
 
-export interface BreadcrumbItem {
-  title: string;
-  path: string;
-  icon?: string;
-}
+import { BreadcrumbItem } from '../../../core/models/breadcrumb-item.model';
 
 @Component({
   selector: 'app-breadcrumbs',
@@ -38,7 +34,14 @@ export class BreadcrumbsComponent {
    */
   readonly breadcrumbs = computed<BreadcrumbItem[]>(() => {
     this.navigationTick();
+    const trail = this.breadcrumbOverride.trail();
+    if (trail?.ownerPath === this.router.url.split(/[?#]/)[0]) return trail.items;
     return this.build(this.activatedRoute.root, this.breadcrumbOverride.value());
+  });
+
+  readonly currentPath = computed(() => {
+    this.navigationTick();
+    return this.router.url.split(/[?#]/)[0];
   });
 
   constructor() {

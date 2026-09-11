@@ -90,12 +90,13 @@
               filterBy="label,title,groupTitle"
               [loading]="milestonesLoading()"
               appendTo="body"
+              panelStyleClass="milestone-select-panel"
               (onFilter)="searchMilestones($any($event).filter ?? '')"
             >
               <ng-template pTemplate="group" let-group>
                 <div class="milestone-group">
                   <i class="pi pi-folder" aria-hidden="true"></i>
-                  <strong>{{ group.label }}</strong>
+                  <span>{{ group.label }}</span>
                 </div>
               </ng-template>
               <ng-template pTemplate="selectedItem" let-milestone>
@@ -197,7 +198,7 @@
               [filter]="true"
               filterBy="name,surname,email"
               [showClear]="true"
-              panelStyleClass="ticket-assignee-select-panel"
+              panelStyleClass="assignee-select-panel"
               appendTo="body"
             >
               <ng-template #selectedItem let-participant>

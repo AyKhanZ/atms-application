@@ -20,21 +20,42 @@
         optionValue="id"
         placeholder="Select user"
         [filter]="true"
+        filterBy="name,surname,email"
+        panelStyleClass="participant-user-select-panel"
         appendTo="body"
       >
-        <ng-template pTemplate="selectedItem" let-user>
-          {{ candidateName(user) }}
+        <ng-template #selectedItem let-user>
+          <span class="user-selection">
+            <app-profile-avatar
+              [imageUrl]="user.avatarPath"
+              [fullName]="user | personName"
+              [initials]="user | personInitials"
+              [previewEnabled]="false"
+            />
+            <span>{{ user | personName }}</span>
+          </span>
         </ng-template>
-        <ng-template pTemplate="item" let-user>
+        <ng-template #item let-user>
           <div class="user-option">
-            <strong>{{ candidateName(user) }}</strong>
-            <span>{{ user.email }}</span>
+            <app-profile-avatar
+              [imageUrl]="user.avatarPath"
+              [fullName]="user | personName"
+              [initials]="user | personInitials"
+              [previewEnabled]="false"
+            />
+            <span
+              ><strong>{{ user | personName }}</strong
+              ><small>{{ user.email }}</small></span
+            >
           </div>
         </ng-template>
       </p-select>
-      @if (showError('userId')) {
-        <small>User is required.</small>
-      }
+      <small
+        class="field-error"
+        [class.field-error--visible]="showError('userId')"
+        aria-live="polite"
+        >{{ showError('userId') ? 'Select a user.' : '' }}</small
+      >
     </div>
 
     <div class="field">
@@ -50,9 +71,12 @@
         placeholder="Select role"
         appendTo="body"
       />
-      @if (showError('roleId')) {
-        <small>Role is required.</small>
-      }
+      <small
+        class="field-error"
+        [class.field-error--visible]="showError('roleId')"
+        aria-live="polite"
+        >{{ showError('roleId') ? 'Select a role.' : '' }}</small
+      >
     </div>
 
     <div class="dialog-actions">

@@ -42,11 +42,12 @@
 .onboarding-main {
   display: grid;
   min-height: calc(100% - 60px);
-  padding: clamp(.6rem, 1.2vw, 1.25rem) clamp(1rem, 3vw, 2.5rem);
+  padding: clamp(0.6rem, 1.2vw, 1.25rem) clamp(1rem, 3vw, 2.5rem);
   place-items: start center;
 }
 
-.onboarding-card, .success-card {
+.onboarding-card,
+.success-card {
   width: min(1500px, 100%);
   overflow: visible;
   border: 1px solid var(--gray-border);
@@ -61,7 +62,7 @@
   justify-content: space-between;
   gap: 1rem;
   min-height: 62px;
-  padding: .65rem clamp(1.5rem, 4vw, 3.75rem);
+  padding: 0.65rem clamp(1.5rem, 4vw, 3.75rem);
   border-radius: 10px 10px 0 0;
   border-bottom: 1px solid var(--gray-border);
   background: var(--white);
@@ -76,7 +77,7 @@
   display: flex;
   align-items: center;
   flex: 0 0 auto;
-  padding: .3rem;
+  padding: 0.3rem;
   border: 1px solid var(--gray-border);
   border-radius: 999px;
   background: var(--white-soft);
@@ -85,18 +86,18 @@
 .step {
   display: flex;
   align-items: center;
-  gap: .45rem;
+  gap: 0.45rem;
   min-width: 0;
-  padding: .35rem .65rem;
+  padding: 0.35rem 0.65rem;
   border: 0;
   border-radius: 999px;
   background: transparent;
   color: var(--gray-text);
   cursor: pointer;
   text-align: left;
-  opacity: .66;
-  transform: scale(.96);
-  transition: .24s;
+  opacity: 0.66;
+  transform: scale(0.96);
+  transition: 0.24s;
 }
 
 .step__marker {
@@ -108,7 +109,7 @@
   border: 1px solid #d7dbe0;
   border-radius: 50%;
   background: var(--white);
-  font-size: .78rem;
+  font-size: 0.78rem;
   font-weight: 800;
 }
 
@@ -118,7 +119,7 @@
 
 .step__text strong {
   color: var(--gray-text-strong);
-  font-size: .84rem;
+  font-size: 0.84rem;
 }
 
 .step--active {
@@ -151,7 +152,7 @@
 
 .form-content {
   min-height: 0;
-  padding: clamp(1.1rem, 2vw, 1.9rem) clamp(1.5rem, 4vw, 3.75rem) .85rem;
+  padding: clamp(1.1rem, 2vw, 1.9rem) clamp(1.5rem, 4vw, 3.75rem) 0.85rem;
 }
 
 .personal-grid {
@@ -164,7 +165,7 @@
 .personal-fields {
   display: grid;
   grid-template-columns: repeat(20, minmax(0, 1fr));
-  gap: .7rem 1.25rem;
+  gap: 0.7rem 1.25rem;
   min-width: 0;
 }
 
@@ -175,39 +176,40 @@
 .field {
   display: grid;
   align-content: start;
-  gap: .45rem;
+  gap: 0.45rem;
   min-width: 0;
 }
 
-.field > label, .field-label label {
+.field > label,
+.field-label label {
   color: var(--gray-text-strong);
-  font-size: .86rem;
+  font-size: 0.86rem;
   font-weight: 700;
 }
 
 .field-label {
   display: flex;
   align-items: center;
-  gap: .5rem;
+  gap: 0.5rem;
 }
 
 .field-line {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: start;
-  gap: .75rem;
+  gap: 0.75rem;
   min-height: 1.1rem;
 }
 
 .counter {
   color: var(--gray-text);
-  font-size: .72rem;
+  font-size: 0.72rem;
 }
 
 .field label .pi {
-  margin-left: .25rem;
+  margin-left: 0.25rem;
   color: var(--gray-icon);
-  font-size: .8rem;
+  font-size: 0.8rem;
 }
 
 .field-error {
@@ -216,7 +218,7 @@
 
 .field-error small {
   color: var(--red-hover);
-  font-size: .75rem;
+  font-size: 0.75rem;
 }
 
 .field input[readonly] {
@@ -224,16 +226,20 @@
   color: var(--gray-text);
 }
 
-:host ::ng-deep .field .p-inputtext, :host ::ng-deep .field .p-select, :host ::ng-deep .field .p-datepicker-input {
+:host ::ng-deep .field .p-inputtext,
+:host ::ng-deep .field .p-select,
+:host ::ng-deep .field .p-datepicker-input {
   min-height: 48px;
   border-radius: 8px;
 }
 
-:host ::ng-deep .field .p-password, :host ::ng-deep .field .p-password-input {
+:host ::ng-deep .field .p-password,
+:host ::ng-deep .field .p-password-input {
   width: 100%;
 }
 
-:host ::ng-deep .field .p-datepicker, :host ::ng-deep .field .p-select {
+:host ::ng-deep .field .p-datepicker,
+:host ::ng-deep .field .p-select {
   width: 100%;
   align-items: center;
 }
@@ -254,22 +260,23 @@
 }
 
 :host ::ng-deep .field .p-datepicker-input-icon-container {
-  right: .9rem;
+  right: 0.9rem;
   color: var(--gray-icon);
 }
 
 :host ::ng-deep .field .inline-calendar .p-datepicker-trigger {
   position: absolute;
-  right: .25rem;
+  right: 0.25rem;
   width: 2.5rem;
-  height: calc(100% - .5rem);
+  height: calc(100% - 0.5rem);
   border: 0;
   border-radius: 6px;
   background: transparent;
   color: var(--gray-icon);
 }
 
-:host ::ng-deep .photo-field .file-upload, :host ::ng-deep .photo-field .file-upload__body {
+:host ::ng-deep .photo-field .file-upload,
+:host ::ng-deep .photo-field .file-upload__body {
   height: 100%;
 }
 
@@ -284,7 +291,8 @@
   justify-self: center;
 }
 
-:host ::ng-deep .photo-field .file-upload__content .p-fileupload-basic, :host ::ng-deep .photo-field .file-upload__content .p-fileupload-choose {
+:host ::ng-deep .photo-field .file-upload__content .p-fileupload-basic,
+:host ::ng-deep .photo-field .file-upload__content .p-fileupload-choose {
   width: 100%;
 }
 
@@ -297,7 +305,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: .7rem;
+  gap: 0.7rem;
   padding: 1.2rem 0 0;
 }
 
@@ -312,7 +320,7 @@
 
 .security-content {
   display: grid;
-  grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
   gap: 1.35rem clamp(2rem, 4vw, 3.75rem);
   align-items: center;
 }
@@ -354,9 +362,9 @@
 .invite-count {
   display: flex;
   justify-content: flex-end;
-  margin-bottom: .7rem;
+  margin-bottom: 0.7rem;
   color: var(--gray-text);
-  font-size: .86rem;
+  font-size: 0.86rem;
 }
 
 .invite-table {
@@ -366,10 +374,11 @@
   border-radius: 8px;
 }
 
-.invite-head, .invite-row {
+.invite-head,
+.invite-row {
   display: grid;
-  grid-template-columns: minmax(120px, .85fr) minmax(150px, 1.1fr) minmax(220px, 1.55fr) 44px;
-  gap: .65rem;
+  grid-template-columns: minmax(120px, 0.85fr) minmax(150px, 1.1fr) minmax(220px, 1.55fr) 44px;
+  gap: 0.65rem;
   align-items: start;
 }
 
@@ -377,15 +386,15 @@
   position: sticky;
   top: 0;
   z-index: 1;
-  padding: .65rem .8rem;
+  padding: 0.65rem 0.8rem;
   background: var(--gray-bg);
   color: var(--gray-text-strong);
-  font-size: .78rem;
+  font-size: 0.78rem;
   font-weight: 800;
 }
 
 .invite-row {
-  padding: .75rem .8rem .25rem;
+  padding: 0.75rem 0.8rem 0.25rem;
   border-top: 1px solid var(--gray-border);
 }
 
@@ -395,13 +404,13 @@
 
 .invite-row > div:not(.invite-row__header) {
   display: grid;
-  gap: .15rem;
+  gap: 0.15rem;
 }
 
 .invite-row small {
   min-height: 1rem;
   color: var(--red-hover);
-  font-size: .72rem;
+  font-size: 0.72rem;
 }
 
 .invite-row__header {
@@ -426,10 +435,10 @@
   min-height: 68px;
   justify-items: center;
   align-content: start;
-  gap: .2rem;
-  margin-top: .8rem;
+  gap: 0.2rem;
+  margin-top: 0.8rem;
   color: var(--gray-text);
-  font-size: .86rem;
+  font-size: 0.86rem;
 }
 
 .sr-only {
@@ -452,7 +461,7 @@
   }
   .onboarding-main {
     min-height: calc(100% - 62px);
-    padding: .75rem;
+    padding: 0.75rem;
   }
   .welcome-header {
     min-height: 112px;
@@ -460,7 +469,7 @@
   }
   .stepper {
     overflow-x: auto;
-    padding: .8rem;
+    padding: 0.8rem;
   }
   .step-line {
     min-width: 1.25rem;
@@ -469,7 +478,10 @@
     min-height: 0;
     padding: 1.35rem 1rem;
   }
-  .personal-grid, .personal-fields, .security-content, .skeleton-grid {
+  .personal-grid,
+  .personal-fields,
+  .security-content,
+  .skeleton-grid {
     grid-template-columns: 1fr;
   }
   .personal-fields > .field {
@@ -491,8 +503,8 @@
   }
   .invite-row {
     grid-template-columns: 1fr;
-    margin-bottom: .8rem;
-    padding: .9rem;
+    margin-bottom: 0.8rem;
+    padding: 0.9rem;
     border: 1px solid var(--gray-border);
     border-radius: 8px;
   }
@@ -500,16 +512,16 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: .75rem;
+    gap: 0.75rem;
     color: var(--gray-text-strong);
-    font-size: .82rem;
+    font-size: 0.82rem;
   }
   .remove-row--desktop {
     display: none;
   }
   .form-actions {
-    gap: .6rem;
-    padding: .8rem;
+    gap: 0.6rem;
+    padding: 0.8rem;
   }
   .form-actions .p-button {
     min-width: 0;

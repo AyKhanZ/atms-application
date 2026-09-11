@@ -33,16 +33,6 @@
     </section>
   } @else {
     <section class="panel project-form-panel">
-      <!-- Only on create, where the parent is a decision being made. On edit the breadcrumb
-           already carries the context, and Edit ticket shows no such block either. -->
-      @if (!isEdit() && contextTask(); as context) {
-        <div class="task-context" aria-label="Parent task">
-          <span>Parent task</span>
-          <strong>#{{ context.code }} {{ context.title }}</strong>
-          <small>#{{ context.workTicketCode }} {{ context.workTicketTitle }}</small>
-        </div>
-      }
-
       <app-task-form-fields
         [form]="form"
         [submitted]="submitted()"
@@ -51,7 +41,26 @@
         [assignees]="assignees()"
         [isEdit]="isEdit()"
         (submitForm)="submit()"
-      />
+      >
+        <div task-parent>
+          <!-- Editable in both modes: moving a task to another ticket, or a subtask to another
+               task, is the same kind of change as moving a ticket to another milestone. -->
+          @if (projectId && ticketId) {
+            <app-task-parent-select
+              [projectId]="projectId"
+              [ticketId]="ticketId"
+              [isSubtask]="isSubtask()"
+              [selection]="selectedParent()"
+              [disabled]="saving()"
+              [invalid]="
+                submitted() &&
+                (form.controls.workTicketId.invalid || form.controls.parentWorkTaskId.invalid)
+              "
+              (selected)="selectParent($event)"
+            />
+          }
+        </div>
+      </app-task-form-fields>
     </section>
   }
 </section>

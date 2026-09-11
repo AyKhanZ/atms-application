@@ -18,6 +18,12 @@ describe('WorkTicketsService', () => {
   });
 
   afterEach(() => http.verify());
+  it.each(['  payment  ', 'оплата', '51', ''])('forwards trimmed search %s', (search) => {
+    service.getWorkTickets('project-1', { search }).subscribe();
+    const request = http.expectOne((req) => req.url.endsWith('/work-tickets'));
+    expect(request.request.params.get('search')).toBe(search.trim() || null);
+    request.flush({ items: [], hasMore: false });
+  });
 
   it('loads a cursor page filtered by milestone', () => {
     service

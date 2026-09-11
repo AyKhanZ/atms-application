@@ -1,71 +1,64 @@
 <div class="container">
-  <section class="confirmation-card" [class.confirmation-card--failed]="isFailed()">
+  <section class="auth-card" [class.auth-card--failed]="isFailed()">
     <div class="status-mark">
-      <i [class]="iconClass()"></i>
+      <i [class]="iconClass()" aria-hidden="true"></i>
     </div>
 
-    <div class="confirmation-card__content">
-      <p class="eyebrow">Account verification</p>
+    <div class="confirmation-content">
       <h1>{{ title() }}</h1>
       <p class="subtitle">{{ subtitle() }}</p>
-
-      <div class="status-panel">
-        <i class="pi pi-shield"></i>
-        <p>{{ note() }}</p>
-      </div>
-
-      @if (isFailed()) {
-        <form class="resend-form" [formGroup]="resendForm" (ngSubmit)="resendConfirmation()">
-          <div class="field">
-            <p-floatlabel variant="on">
-              <input
-                id="confirmationEmail"
-                pInputText
-                type="email"
-                maxlength="100"
-                formControlName="email"
-                autocomplete="email"
-              />
-              <label for="confirmationEmail">Email</label>
-            </p-floatlabel>
-            <div class="field-error">
-              @if (
-                resendForm.controls.email.hasError('email') && resendForm.controls.email.touched
-              ) {
-                <small>Please enter a valid email address</small>
-              }
-              @if (
-                resendForm.controls.email.hasError('required') && resendForm.controls.email.touched
-              ) {
-                <small>Email is required</small>
-              }
-            </div>
-          </div>
-
-          @if (resendSent()) {
-            <p class="resend-success">
-              A new confirmation link has been sent. Please check your inbox.
-            </p>
-          }
-
-          <button
-            pButton
-            type="submit"
-            class="primary-action"
-            [disabled]="resendForm.invalid || isResending()"
-          >
-            {{ isResending() ? 'Sending...' : 'Request new link' }}
-          </button>
-        </form>
-      }
-
-      <div class="actions">
-        @if (!isFailed()) {
-          <a pButton routerLink="/login" class="primary-action">Go to login</a>
-        } @else {
-          <a routerLink="/login" class="secondary-link">Back to login</a>
-        }
-      </div>
     </div>
+
+    @if (isFailed()) {
+      <form [formGroup]="resendForm" (ngSubmit)="resendConfirmation()">
+        <div class="field">
+          <p-floatlabel variant="on">
+            <input
+              id="confirmationEmail"
+              pInputText
+              type="email"
+              maxlength="100"
+              formControlName="email"
+              autocomplete="email"
+            />
+            <label for="confirmationEmail">Email</label>
+          </p-floatlabel>
+          <div class="field-error">
+            @if (resendForm.controls.email.hasError('email') && resendForm.controls.email.touched) {
+              <small>Please enter a valid email address</small>
+            }
+            @if (
+              resendForm.controls.email.hasError('required') && resendForm.controls.email.touched
+            ) {
+              <small>Email is required</small>
+            }
+          </div>
+        </div>
+
+        @if (resendSent()) {
+          <p class="resend-success">
+            A new confirmation link has been sent. Please check your inbox.
+          </p>
+        }
+
+        <!-- Field, then the way back, then the action — the same order as Forgot password. -->
+        <div class="navigation-wrapper">
+          <a routerLink="/login" class="back-link">Back to login</a>
+        </div>
+
+        <button
+          pButton
+          type="submit"
+          class="submit-btn"
+          [disabled]="resendForm.invalid || isResending()"
+        >
+          {{ isResending() ? 'Sending...' : 'Request new link' }}
+        </button>
+      </form>
+    } @else {
+      <div class="confirmed-actions">
+        <a pButton routerLink="/login" class="submit-btn">Go to login</a>
+      </div>
+    }
   </section>
 </div>

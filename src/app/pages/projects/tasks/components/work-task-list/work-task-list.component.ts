@@ -8,29 +8,29 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
-import { HttpErrorResponse } from '@angular/common/http';
+
 import { Router } from '@angular/router';
-import { ConfirmationService } from 'primeng/api';
+import { MenuItem } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { Menu, MenuModule } from 'primeng/menu';
 import { Subject, catchError, finalize, merge, of, switchMap, tap } from 'rxjs';
 import { WorkTaskModel } from '../../../../../core/models/work-tasks';
-import { SnackBarService } from '../../../../../core/services/snack-bar.service';
+
 import { WorkTasksService } from '../../../../../core/services/work-tasks.service';
 import { EmptyStateComponent } from '../../../../../shared/components/empty-state/empty-state.component';
-import { TicketPriorityBadgeComponent } from '../../../tickets/components/ticket-priority-badge/ticket-priority-badge.component';
+import { WorkItemAssigneeComponent } from '../../../../../shared/components/work-item-assignee/work-item-assignee.component';
 import { TaskStatusBadgeComponent } from '../task-status-badge/task-status-badge.component';
 
 @Component({
   selector: 'app-work-task-list',
   imports: [
     ButtonModule,
-    ConfirmDialogModule,
+    MenuModule,
     EmptyStateComponent,
-    TicketPriorityBadgeComponent,
+    WorkItemAssigneeComponent,
     TaskStatusBadgeComponent,
   ],
-  providers: [ConfirmationService],
+
   templateUrl: './work-task-list.component.html',
   styleUrl: './work-task-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -41,11 +41,9 @@ export class WorkTaskListComponent {
   readonly parentTaskId = input<string | null>(null);
   readonly canCreate = input(false);
   readonly canEdit = input(false);
-  readonly canDelete = input(false);
 
   private readonly tasksService = inject(WorkTasksService);
-  private readonly confirmation = inject(ConfirmationService);
-  private readonly snackBar = inject(SnackBarService);
+
   private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
 
@@ -96,37 +94,19 @@ export class WorkTaskListComponent {
       });
   }
 
-  confirmDelete(task: WorkTaskModel, event: Event): void {
-    event.stopPropagation();
-    const kind = task.isSubtask ? 'subtask' : 'task';
+  readonly selectedTask = signal<WorkTaskModel | null>(null);
+  readonly taskActions = computed<MenuItem[]>(() => {
+    const task = this.selectedTask();
+    return task && this.canEdit()
+      ? [{ label: 'Edit', icon: 'pi pi-pencil', command: () => this.edit(task) }]
+      : [];
+  });
 
-    // A blocked delete is explained in a dialog, not a snackbar: the reason has to stay on screen
-    // long enough to act on, and this matches how the plan tab refuses to delete a filled group.
-    if (task.subtaskCount > 0) {
-      this.confirmation.confirm({
-        key: 'taskListDelete',
-        header: `This ${kind} can't be deleted yet`,
-        message: `“#${task.code} ${task.title}” still has ${task.subtaskCount} ${task.subtaskCount === 1 ? 'subtask' : 'subtasks'}. Delete them first, then delete the ${kind}.`,
-        icon: 'pi pi-exclamation-triangle',
-        acceptLabel: 'Got it',
-        rejectVisible: false,
-      });
-      return;
-    }
-
-    this.confirmation.confirm({
-      key: 'taskListDelete',
-      header: `Delete ${kind}?`,
-      message: `“#${task.code} ${task.title}” will be deleted. This action cannot be undone.`,
-      icon: 'pi pi-exclamation-triangle',
-      acceptLabel: 'Delete',
-      rejectLabel: 'Cancel',
-      acceptButtonStyleClass: 'p-button-danger',
-      rejectButtonStyleClass: 'p-button-outlined',
-      accept: () => this.delete(task),
-    });
+  openMenu(event: Event, task: WorkTaskModel, menu: Menu): void {
+    if (!this.canEdit()) return;
+    this.selectedTask.set(task);
+    menu.toggle(event);
   }
-
   create(): void {
     const parentTaskId = this.parentTaskId();
     const ticketId = this.ticketId();
@@ -150,8 +130,8 @@ export class WorkTaskListComponent {
     ]);
   }
 
-  edit(task: WorkTaskModel, event: Event): void {
-    event.stopPropagation();
+  edit(task: WorkTaskModel): void {
+    if (!this.canEdit()) return;
     void this.router.navigate(
       ['/projects', this.projectId(), 'tickets', task.workTicketId, 'tasks', task.id, 'edit'],
       { state: { returnUrl: this.router.url } },
@@ -192,26 +172,4 @@ export class WorkTaskListComponent {
       cursor,
     });
   }
-
-  private delete(task: WorkTaskModel): void {
-    this.tasksService
-      .deleteWorkTask(this.projectId(), task.id)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => {
-          this.items.update((items) => items.filter((item) => item.id !== task.id));
-          this.snackBar.success(`${task.isSubtask ? 'Subtask' : 'Task'} deleted.`);
-        },
-        error: (error: HttpErrorResponse) => this.snackBar.error(taskDeleteErrorMessage(error)),
-      });
-  }
-}
-
-function taskDeleteErrorMessage(error: HttpErrorResponse): string {
-  if (error.status === 400) {
-    const errors = error.error?.errors as { error?: string }[] | undefined;
-    const message = errors?.find((item) => item.error)?.error;
-    if (message) return message;
-  }
-  return 'The task could not be deleted. Please try again.';
 }

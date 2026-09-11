@@ -18,6 +18,8 @@ export type TaskFormGroup = FormGroup<{
   statusId: FormControl<number | null>;
   deadline: FormControl<Date | null>;
   assigneeId: FormControl<string | null>;
+  workTicketId: FormControl<string | null>;
+  parentWorkTaskId: FormControl<string | null>;
 }>;
 
 @Component({

@@ -8,72 +8,145 @@
 
 .tasks-toolbar {
   display: flex;
-  align-items: center;
   justify-content: flex-end;
-  gap: 1rem;
   margin-bottom: 1rem;
 }
 
+/* The list owns the columns, not the row — see .ticket-list: badge text length depends on the
+   interface language, so fixed track widths overflow as soon as a word gets longer. */
 .task-list {
   display: grid;
+  grid-template-columns: minmax(0, 1fr) repeat(3, auto) 2.4rem;
+  column-gap: 0.45rem;
+  overflow: hidden;
   border: 1px solid var(--app-border);
   border-radius: 8px;
-  overflow: hidden;
 }
 
+/* Every metric below mirrors .ticket-row in milestone-ticket-list: a task and a ticket are the
+   same kind of row and must not drift apart again. The only intentional difference is the
+   container — a ticket list hangs off a milestone rail, a task list sits inside a tab. */
 .task-row {
   display: grid;
-  grid-template-columns: auto auto minmax(0, 1fr) auto auto minmax(7rem, auto) auto auto;
+  grid-column: 1 / -1;
+  grid-template-columns: minmax(0, 1fr) repeat(3, auto) 2.4rem;
+  min-width: 0;
+  min-height: 3.1rem;
   align-items: center;
-  gap: 0.75rem;
-  min-height: 3.6rem;
+  gap: 0.45rem;
   padding: 0.45rem 0.75rem;
-  cursor: pointer;
+  background: var(--white);
 }
 
 .task-row + .task-row {
   border-top: 1px solid var(--app-border);
 }
 
-.task-row:hover {
-  background: var(--orange-light-hover);
+/* No row-wide hover background: a ticket row does not have one, and only the title reacts. */
+
+.task-main {
+  display: grid;
+  grid-template-columns: 1.15rem auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.55rem;
+  min-width: 0;
+  padding: 0.25rem;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--app-text);
+  text-align: left;
+  cursor: pointer;
 }
 
-.task-row:focus-visible {
+.task-main:hover strong {
+  color: var(--orange-text-hover);
+}
+
+.task-main:focus-visible,
+.item-menu-button:focus-visible {
   outline: 3px solid var(--orange-focus-outline);
-  outline-offset: -3px;
+  outline-offset: 1px;
 }
 
 .task-icon {
-  color: var(--orange);
+  color: var(--orange-text-hover);
+  font-size: 0.95rem;
 }
 
 .task-code {
-  font-weight: 800;
+  color: var(--app-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
 }
 
 .task-title {
+  min-width: 0;
   overflow: hidden;
+  color: var(--app-text);
+  font-size: 0.86rem;
+  line-height: 1.25;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
+/* The same three tracks as .ticket-meta, so a task row and a ticket row line up column for
+   column: where a ticket carries its type, a task carries its subtask progress. */
+.task-meta {
+  display: grid;
+  grid-column: 2 / 5;
+  grid-template-columns: repeat(3, auto);
+  min-width: 0;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+@supports (grid-template-columns: subgrid) {
+  .task-row,
+  .task-meta {
+    grid-template-columns: subgrid;
+  }
+}
+
+/* Placed by column rather than by order: the progress cell only exists on a task that has
+   subtasks, and auto-placement then pulled the assignee into the narrow first track — which is
+   how "Unassigned" ended up rendered as "Un…" on every row without subtasks. */
 .progress {
-  padding: 0.15rem 0.4rem;
-  border: 1px solid var(--app-border);
-  border-radius: 7px;
-  font-size: 0.72rem;
-}
-
-.assignee {
+  grid-column: 1;
+  justify-self: start;
   color: var(--app-muted);
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-size: 0.72rem;
   white-space: nowrap;
 }
 
-.task-actions {
-  display: flex;
+app-work-item-assignee {
+  grid-column: 2;
+  min-width: 0;
+}
+
+app-task-status-badge {
+  grid-column: 3;
+}
+
+.item-menu-button {
+  display: grid;
+  width: 2.4rem;
+  height: 2.4rem;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--app-muted);
+  cursor: pointer;
+}
+
+.item-menu-button:hover:not(:disabled) {
+  border-color: var(--app-border);
+  background: var(--white);
+  color: var(--app-text);
 }
 
 .tasks-state,
@@ -84,54 +157,52 @@
   justify-content: center;
   gap: 0.5rem;
   color: var(--app-muted);
+  font-size: 0.78rem;
 }
 
 .load-more {
   display: flex;
-  margin: 1rem auto 0;
+  width: max-content;
+  min-height: 2.1rem;
+  margin: 0.75rem auto 0;
+  color: var(--gray-text-strong);
+  font-size: 0.78rem;
 }
 
-@container (max-width:42rem) {
-  .assignee {
-    display: none;
-  }
-
+@container (max-width: 34rem) {
   .task-row {
-    grid-template-columns: auto auto minmax(0, 1fr) auto auto auto auto;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .task-row--with-menu {
+    grid-template-columns: minmax(0, 1fr) 2.4rem;
+  }
+
+  /* Stacked under the title on a narrow row, exactly like .ticket-meta. */
+  /* Stacked under the title: the row is its own grid again, so the tracks follow the content. */
+  .task-meta {
+    grid-row: 2;
+    grid-column: 1 / -1;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    width: min(100%, 17rem);
+    max-width: 100%;
+    justify-self: start;
+    gap: 0.3rem;
+  }
+
+  .item-menu-button {
+    grid-row: 1;
+    grid-column: 2;
   }
 }
 
-@container (max-width:30rem) {
+@container (max-width: 30rem) {
   .tasks-tab {
     padding: 1rem;
-  }
-
-  .tasks-toolbar {
-    align-items: stretch;
-    flex-direction: column;
   }
 
   .tasks-toolbar > button {
     width: 100%;
   }
-
-  .task-row {
-    grid-template-columns: auto auto minmax(0, 1fr) auto;
-  }
-
-  .task-row app-ticket-priority-badge,
-  .task-row app-task-status-badge,
-  .progress {
-    grid-row: 2;
-  }
-
-  .task-actions {
-    grid-column: 4;
-    grid-row: 1 / span 2;
-  }
-
-  .task-actions button {
-    min-width: 44px;
-    min-height: 44px;
-  }
 }
+

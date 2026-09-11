@@ -4,24 +4,36 @@
   <h3>Location</h3>
 
   <div class="location-tree">
-    <span class="location-group">
+    <span class="location-level location-level--group">
       <i class="pi pi-folder" aria-hidden="true"></i>
       <span>{{ item.groupTitle }}</span>
     </span>
+
     <div class="location-branch">
-      <span class="location-milestone">
+      <span class="location-level location-level--milestone">
         <i class="pi pi-flag" aria-hidden="true"></i>
-        <strong>{{ item.milestoneTitle }}</strong>
+        <span>{{ item.milestoneTitle }}</span>
       </span>
 
-      <app-ticket-milestone-jump
-        class="location-ticket-switcher"
-        [projectId]="item.workProjectId"
-        [groupTitle]="item.groupTitle"
-        [milestoneTitle]="item.milestoneTitle"
-        [milestoneId]="item.milestoneId"
-        [currentTicket]="item"
-      />
+      <div class="location-branch">
+        <app-work-item-jump
+          [current]="item"
+          [items]="jump.items()"
+          icon="pi-ticket"
+          label="Switch ticket"
+          [context]="jumpContext()"
+          [groupLabel]="item.milestoneTitle"
+          [loading]="jump.loading()"
+          [loadError]="jump.error()"
+          [initialized]="jump.initialized()"
+          [hasMore]="jump.hasMore()"
+          [searchTerm]="jump.term()"
+          (searchChanged)="jump.search($event)"
+          (more)="jump.loadMore()"
+          (retry)="jump.retry()"
+          (selected)="selectSibling($event)"
+        />
+      </div>
     </div>
   </div>
 

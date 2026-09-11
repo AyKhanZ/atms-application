@@ -1,0 +1,16 @@
+@if (assignee(); as assignee) {
+  <span class="assignee-chip" [title]="assignee | personName">
+    <app-profile-avatar
+      [imageUrl]="assignee.avatarPath"
+      [fullName]="assignee | personName"
+      [initials]="assignee | personInitials"
+      [previewEnabled]="false"
+    />
+    <span>{{ assignee | personName }}</span>
+  </span>
+} @else {
+  <span class="assignee-chip assignee-chip--unassigned">
+    <i class="pi pi-user" aria-hidden="true"></i>
+    <span>Unassigned</span>
+  </span>
+}

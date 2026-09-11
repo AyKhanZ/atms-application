@@ -10,9 +10,18 @@
 >
   @if (participant(); as selectedParticipant) {
     <form class="participant-dialog-form" [formGroup]="form" (ngSubmit)="submit()">
+      <!-- Same avatar as the row the dialog was opened from, so it is obvious whose role changes. -->
       <div class="selected-person">
-        <strong>{{ fullName(selectedParticipant) }}</strong>
-        <span>{{ selectedParticipant.email }}</span>
+        <app-profile-avatar
+          [imageUrl]="selectedParticipant.avatarPath"
+          [fullName]="fullName(selectedParticipant)"
+          [initials]="initials(selectedParticipant)"
+          [previewEnabled]="false"
+        />
+        <div class="selected-person__copy">
+          <strong>{{ fullName(selectedParticipant) }}</strong>
+          <span>{{ selectedParticipant.email }}</span>
+        </div>
       </div>
 
       <div class="field">

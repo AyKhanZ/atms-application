@@ -1,0 +1,262 @@
+@use 'work-location';
+
+:host {
+  position: relative;
+  display: block;
+  min-width: 0;
+}
+
+.work-item-jump {
+  position: relative;
+  display: grid;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.work-item-jump-trigger {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr) auto;
+  width: 100%;
+  min-width: 0;
+  min-height: 2.75rem;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+  background: var(--white);
+  color: var(--app-text);
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.work-item-jump-trigger:hover {
+  border-color: var(--orange-border);
+}
+
+.work-item-jump-trigger:focus-visible {
+  border-color: var(--orange);
+  outline: 3px solid var(--orange-focus-outline);
+  outline-offset: 1px;
+}
+
+.work-item-jump-trigger > .pi-ticket {
+  color: var(--orange-text-hover);
+}
+
+.work-item-jump-trigger__code {
+  color: var(--app-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.work-item-jump-trigger__title {
+  display: -webkit-box;
+  min-width: 0;
+  overflow: hidden;
+  font-size: 0.84rem;
+  line-height: 1.3;
+  text-align: left;
+  white-space: normal;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.work-item-jump-trigger__chevron {
+  color: var(--app-muted);
+  font-size: 0.72rem;
+  transition: transform 0.15s ease;
+}
+
+.work-item-jump--open .work-item-jump-trigger__chevron {
+  transform: rotate(180deg);
+}
+
+.work-item-jump-panel {
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--app-border);
+  border-radius: 10px;
+  background: var(--white);
+  box-shadow: 0 14px 36px rgb(15 23 42 / 16%);
+}
+.work-item-jump-panel:not(:popover-open) {
+  display: none;
+}
+
+.work-item-jump-search {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.55rem;
+  margin: 0.65rem;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+}
+
+.work-item-jump-search:focus-within {
+  border-color: var(--orange);
+  box-shadow: 0 0 0 3px var(--orange-focus-outline);
+}
+
+.work-item-jump-search i {
+  color: var(--app-muted);
+}
+
+.work-item-jump-search input {
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--app-text);
+  font: inherit;
+  font-size: 0.82rem;
+}
+
+.work-item-jump-context {
+  display: grid;
+  gap: 0.4rem;
+  padding: 0.4rem 0;
+  background: var(--white);
+}
+
+.work-item-jump-context__level {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+  color: var(--app-muted);
+  font-size: 0.85rem;
+  font-weight: 400;
+}
+
+/* Match the edit parent tree exactly: descendant guides reach back to the icon above and the
+   deepest context row hands its lines to the first selectable item without a visible gap. */
+.work-item-jump-context__level.work-item-jump-tree-row::before {
+  top: -0.15rem;
+  bottom: -0.3rem;
+}
+
+.work-item-jump-context__level.work-item-jump-tree-row:last-child::before {
+  bottom: -0.4rem;
+}
+
+.work-item-jump-context__level span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.work-item-jump-context__level i {
+  color: var(--gray-icon);
+}
+.work-item-jump-list {
+  overflow-y: auto;
+  min-height: 0;
+  overscroll-behavior: contain;
+  max-height: 18rem;
+  margin: 0;
+}
+
+.work-item-jump-option {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr);
+  width: 100%;
+  min-width: 0;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.4rem 0.75rem 0.4rem calc(0.75rem + var(--tree-depth, 0) * 1.2rem);
+  border: 0;
+  background: var(--white);
+  color: var(--app-text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.work-item-jump-option > i {
+  color: var(--orange);
+}
+
+/* The edit parent select and this details switcher are two presentations of the same plan tree.
+   Keep their 1.2rem hierarchy step and uninterrupted guide-line geometry identical. */
+.work-item-jump-tree-row {
+  @include work-location.guide-lines(0.75rem);
+}
+
+.work-item-jump-option:hover {
+  background: var(--orange-light-hover);
+}
+
+.work-item-jump-option:focus-visible {
+  background: var(--orange-light-hover);
+  outline: 2px solid var(--orange);
+  outline-offset: -2px;
+}
+
+.work-item-jump-option--current {
+  background: var(--orange-light);
+  color: var(--orange-text-hover);
+  font-weight: 600;
+}
+
+.work-item-jump-option__code {
+  color: var(--app-muted);
+  font-size: 0.85rem;
+  font-weight: inherit;
+}
+
+.work-item-jump-option--current .work-item-jump-option__code {
+  color: inherit;
+}
+
+.work-item-jump-option__title {
+  display: -webkit-box;
+  min-width: 0;
+  overflow: hidden;
+  font-size: 0.85rem;
+  font-weight: inherit;
+  line-height: 1.3;
+  white-space: normal;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.work-item-jump-message {
+  display: flex;
+  min-height: 5rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  color: var(--app-muted);
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+.work-item-jump-footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+}
+.work-item-jump-footer:not(:empty) {
+  padding: 0.65rem;
+}
+.work-item-jump-footer button {
+  padding: 0.6rem 0.9rem;
+  border: 1px solid var(--app-border);
+  border-radius: 6px;
+  background: var(--white);
+  color: var(--app-text);
+  cursor: pointer;
+}
