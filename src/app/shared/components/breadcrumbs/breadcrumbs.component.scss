@@ -4,22 +4,43 @@
 }
 
 .breadcrumbs {
+  position: relative;
   display: flex;
   min-width: 0;
   align-items: center;
   flex-wrap: nowrap;
   gap: 0.125rem;
+  margin-bottom: 0.85rem;
   overflow: hidden;
+}
+
+/* Folded levels are taken out of flow rather than removed, so the component can still measure
+   them and know when there is room to show them again. */
+.crumb--hidden {
+  position: absolute;
+  top: 0;
+  left: 0;
+  visibility: hidden;
+  pointer-events: none;
 }
 
 .crumb {
   display: flex;
-  min-width: 0;
+  /* No shrinking: shrinking is distributed by width, so a short level like «Projects» would be
+     eaten down to two letters while a long title next to it keeps half its text. Levels are
+     either shown whole or folded away. */
+  flex: 0 0 auto;
   align-items: center;
+
+  /* The level you are on is the one exception: once everything else is folded it is all that is
+     left, and it has to give way rather than run off the edge. */
+  &--last {
+    min-width: 0;
+    flex: 0 1 auto;
+  }
 
   &__link {
     display: flex;
-    max-width: 14rem;
     min-width: 0;
     align-items: center;
     gap: 0.25rem;
@@ -44,7 +65,6 @@
     }
 
     &--current {
-      max-width: 18rem;
       color: var(--app-text);
       cursor: default;
       font-weight: 700;
@@ -65,10 +85,12 @@
     line-height: 1rem;
   }
 
+  /* Same cap the component measures with. Keep the two in step. */
   &__title {
-    white-space: nowrap;
+    max-width: 15rem;
     overflow: hidden;
     text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   &__separator {
@@ -80,29 +102,32 @@
     font-size: 0.75rem;
     line-height: 1rem;
   }
-}
 
-@media (max-width: 48rem) {
-  .crumb:not(:last-child) .crumb__link {
-    max-width: 8.5rem;
-  }
+  &__more {
+    display: grid;
+    width: 1.75rem;
+    height: 1.75rem;
+    place-items: center;
+    border: 0;
+    border-radius: 0.25rem;
+    background: transparent;
+    color: var(--app-muted);
+    cursor: pointer;
 
-  .crumb:last-child {
-    flex: 1 1 auto;
-  }
+    &:hover {
+      background: var(--orange-light);
+      color: var(--orange-text-hover);
+    }
 
-  .crumb__link--current {
-    max-width: 100%;
+    &:focus-visible {
+      outline: 2px solid var(--orange-focus-ring);
+      outline-offset: 1px;
+    }
   }
 }
 
 @media (max-width: 30rem) {
-  .crumb:not(:last-child) .crumb__link {
-    max-width: 5.5rem;
-  }
-
-  .crumb__link,
-  .crumb__link--current {
+  .crumb__link {
     font-size: 0.75rem;
   }
 }

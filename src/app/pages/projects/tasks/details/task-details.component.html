@@ -4,9 +4,6 @@
   <div class="page-header task-page-header">
     <div class="task-page-heading">
       <h1 class="page-title">{{ task()?.isSubtask ? 'Subtask details' : 'Task details' }}</h1>
-      <p class="page-subtitle" [title]="task()?.title || ''">
-        {{ task()?.title || 'Task workspace' }}
-      </p>
     </div>
     <div class="page-actions">
       <app-back-button (back)="back()" />

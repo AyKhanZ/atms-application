@@ -88,6 +88,12 @@ export const appConfig: ApplicationConfig = {
     provideAnimationsAsync(),
     providePrimeNG({
       ripple: true,
+      // On a narrow screen a panel is about as wide as the window, so anchoring it to its field
+      // means it either points at the field or stays clear of the edges — never both. Below this
+      // width every overlay comes up as a sheet from the bottom with a backdrop instead.
+      overlayOptions: {
+        responsive: { breakpoint: '768px', direction: 'bottom' },
+      },
       theme: {
         preset: BaimTheme,
         options: {

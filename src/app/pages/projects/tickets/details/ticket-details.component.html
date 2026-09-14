@@ -4,9 +4,6 @@
   <div class="page-header ticket-page-header">
     <div class="ticket-page-heading">
       <h1 class="page-title">Ticket details</h1>
-      <p class="page-subtitle" [title]="ticket()?.title || ''">
-        {{ ticket()?.title || 'Ticket workspace' }}
-      </p>
     </div>
     <div class="page-actions">
       <app-back-button (back)="back()" />

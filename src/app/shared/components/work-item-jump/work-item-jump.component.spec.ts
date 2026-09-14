@@ -2,7 +2,13 @@ import { TestBed } from '@angular/core/testing';
 import { WorkItemJumpComponent } from './work-item-jump.component';
 
 describe('WorkItemJumpComponent', () => {
-  async function setup() {
+  /** jsdom lays nothing out, so the width that decides panel or sheet has to be stated. */
+  function viewportWidth(width: number) {
+    vi.spyOn(document.documentElement, 'clientWidth', 'get').mockReturnValue(width);
+  }
+
+  async function setup(width = 1200) {
+    viewportWidth(width);
     await TestBed.configureTestingModule({ imports: [WorkItemJumpComponent] }).compileComponents();
     const fixture = TestBed.createComponent(WorkItemJumpComponent);
     fixture.componentRef.setInput('current', { id: '1', code: '1', title: 'Current' });
@@ -42,6 +48,21 @@ describe('WorkItemJumpComponent', () => {
     component.onEscape(new Event('keydown'));
     expect(panel.hidePopover).toHaveBeenCalledOnce();
     expect(document.activeElement).toBe(trigger);
+    fixture.destroy();
+    element.remove();
+  });
+
+  it('comes up as a sheet on a narrow screen instead of aiming at the trigger', async () => {
+    const { fixture, component, panel, element } = await setup(390);
+
+    component.toggle();
+
+    expect(component.sheet()).toBe(true);
+    // Nothing is positioned by hand: a sheet is placed by the stylesheet.
+    expect(panel.style.top).toBe('');
+    expect(panel.style.left).toBe('');
+    expect(panel.style.width).toBe('');
+
     fixture.destroy();
     element.remove();
   });

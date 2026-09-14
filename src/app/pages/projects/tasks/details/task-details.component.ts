@@ -19,6 +19,7 @@ import {
 } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { catchError, finalize, forkJoin, of, switchMap } from 'rxjs';
 import { ProjectPermissions } from '../../../../core/enums/project-permissions.enum';
+import { BreadcrumbItem } from '../../../../core/models/breadcrumb-item.model';
 import { WorkTaskModel } from '../../../../core/models/work-tasks';
 import { WorkProjectModel } from '../../../../core/models/work-projects/work-project.model';
 import { BreadcrumbOverrideService } from '../../../../core/services/breadcrumb-override.service';
@@ -205,16 +206,49 @@ This ${task.isSubtask ? 'subtask' : 'task'} will be deleted. This action cannot 
     });
   }
 
-  private clearBreadcrumbs(): void {
-    if (!this.projectId) return;
-    this.breadcrumbs.clear(`/projects/${this.projectId}`);
-    if (!this.ticketId) return;
-    this.breadcrumbs.clear(`/projects/${this.projectId}/tickets/${this.ticketId}`);
-    if (this.taskId) {
-      this.breadcrumbs.clear(
-        `/projects/${this.projectId}/tickets/${this.ticketId}/tasks/${this.taskId}`,
-      );
+  /**
+   * The whole trail is set at once instead of renaming route segments: a subtask has no segment
+   * of its own for the parent task, and without this crumb the trail jumps straight from the
+   * ticket to the subtask.
+   */
+  private showBreadcrumbs(result: TaskPageData): void {
+    const task = result.task;
+    const ticketPath = `/projects/${this.projectId}/tickets/${this.ticketId}`;
+    const items: BreadcrumbItem[] = [
+      { title: 'Projects', path: '/projects', icon: 'pi-briefcase' },
+      {
+        title: `#${result.project.code} ${result.project.title}`,
+        path: `/projects/${this.projectId}`,
+      },
+      {
+        title: `#${task.workTicketCode} ${task.workTicketTitle}`,
+        path: ticketPath,
+        icon: 'pi-ticket',
+      },
+    ];
+
+    if (task.parentWorkTaskId) {
+      items.push({
+        title: `#${task.parentWorkTaskCode} ${task.parentWorkTaskTitle}`,
+        path: `${ticketPath}/tasks/${task.parentWorkTaskId}`,
+        icon: 'pi-check-square',
+      });
     }
+
+    items.push({
+      title: `#${task.code} ${task.title}`,
+      path: `${ticketPath}/tasks/${task.id}`,
+      icon: task.isSubtask ? 'pi-sitemap' : 'pi-check-square',
+    });
+
+    this.breadcrumbs.setTrail(`${ticketPath}/tasks/${task.id}`, items);
+  }
+
+  private clearBreadcrumbs(): void {
+    if (!this.projectId || !this.ticketId || !this.taskId) return;
+    this.breadcrumbs.clearTrail(
+      `/projects/${this.projectId}/tickets/${this.ticketId}/tasks/${this.taskId}`,
+    );
   }
 
   private load() {
@@ -254,18 +288,7 @@ This ${task.isSubtask ? 'subtask' : 'task'} will be deleted. This action cannot 
     // no such tab — fall back to Details instead of rendering an empty body.
     if (result.task.isSubtask && this.activeTab() === 'subtasks') this.selectTab('details');
     this.applyPermissions(result.permissions);
-    this.breadcrumbs.set(
-      `/projects/${this.projectId}`,
-      `#${result.project.code} ${result.project.title}`,
-    );
-    this.breadcrumbs.set(
-      `/projects/${this.projectId}/tickets/${this.ticketId}`,
-      `#${result.task.workTicketCode} ${result.task.workTicketTitle}`,
-    );
-    this.breadcrumbs.set(
-      `/projects/${this.projectId}/tickets/${this.ticketId}/tasks/${this.taskId}`,
-      `#${result.task.code} ${result.task.title}`,
-    );
+    this.showBreadcrumbs(result);
   }
 
   private applyPermissions(permissions: string[]): void {

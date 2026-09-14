@@ -165,11 +165,6 @@ h6 {
   line-height: 1.2;
 }
 
-.page-subtitle {
-  margin: 0.35rem 0 0;
-  color: var(--app-muted);
-}
-
 .toolbar {
   display: flex;
   flex-wrap: wrap;
@@ -706,20 +701,8 @@ app-onboarding .confetti i:nth-child(5n) {
     grid-template-columns: 1fr;
   }
 
-  .p-select-overlay,
-  .p-datepicker-panel {
-    max-width: calc(100vw - 1rem);
-  }
-
-  .p-datepicker-panel {
-    width: min(21rem, calc(100vw - 1rem));
-  }
-
-  .p-select-overlay {
-    min-width: min(100%, calc(100vw - 1rem));
-    width: min(100%, calc(100vw - 1rem));
-  }
-
+  /* Widths are not clamped here any more: below 768px every overlay switches to the sheet below
+     instead of trying to point at its field and stay on screen at the same time. */
   .p-select-option {
     white-space: normal;
     overflow-wrap: anywhere;
@@ -861,6 +844,51 @@ app-onboarding .confetti i:nth-child(5n) {
    They must not bleed, because PrimeNG clips every option to its own box — `overflow: hidden` is
    what keeps the click ripple inside the row, and removing it let a ripple as wide as the whole
    panel wash over the list on every click. */
+/* A safety net for the anchored case: PrimeNG sizes a panel from its field, and a field as wide
+   as the page would give a panel wider than the window. Placement below 768px is the sheet. */
+.parent-select-panel.p-select-overlay,
+.milestone-select-panel.p-select-overlay,
+.assignee-select-panel.p-select-overlay,
+.work-group-parent-select-panel.p-select-overlay {
+  max-width: calc(100vw - 2rem);
+}
+
+/* Below the breakpoint set in app.config.ts PrimeNG stops anchoring an overlay to its field and
+   shows it as a sheet with a backdrop. A panel as wide as the screen cannot point at a field and
+   keep clear of both edges at once, so on a phone it stops trying and comes up from the bottom —
+   which is also where the thumb is. These rules only shape that sheet; the switch itself is a
+   PrimeNG option, not a CSS trick. */
+.p-overlay-modal > .p-overlay-content {
+  width: 100%;
+}
+
+.p-overlay-modal {
+  .p-select-overlay,
+  .p-multiselect-overlay,
+  .p-autocomplete-overlay,
+  .p-datepicker-panel {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    border-radius: 14px 14px 0 0;
+  }
+}
+
+/* The folded levels of the trail. Without a cap the popup is as wide as the longest title, which
+   for a ticket is the whole screen. */
+.breadcrumbs-menu.p-menu {
+  max-width: min(24rem, calc(100vw - 2rem));
+
+  .p-menu-item-link {
+    align-items: flex-start;
+  }
+
+  .p-menu-item-label {
+    overflow-wrap: anywhere;
+    white-space: normal;
+  }
+}
+
 .parent-select-panel .p-select-option,
 .parent-select-panel .p-select-option-group {
   padding-block: 0;

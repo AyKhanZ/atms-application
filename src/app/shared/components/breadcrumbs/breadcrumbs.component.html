@@ -1,30 +1,64 @@
-<div class="breadcrumbs">
-  @for (crumb of breadcrumbs(); track crumb.path; let last = $last) {
-    <div class="crumb">
-      @if (last && crumb.path === currentPath()) {
-        <span class="crumb__link crumb__link--current" aria-current="page">
-          @if (crumb.icon) {
-            <i class="crumb__icon pi" [ngClass]="crumb.icon"></i>
-          }
-          <span class="crumb__title">{{ crumb.title }}</span>
-        </span>
-      } @else {
-        <a
-          [routerLink]="crumb.path"
-          class="crumb__link"
-          [pTooltip]="crumb.title"
-          [tooltipDisabled]="crumb.title.length < 20"
-        >
-          @if (crumb.icon) {
-            <i class="crumb__icon pi" [ngClass]="crumb.icon"></i>
-          }
-          <span class="crumb__title">{{ crumb.title }}</span>
-        </a>
-      }
+<!-- A single level is the page title again, one line above it. Nothing to navigate, so nothing
+     is drawn. -->
+@if (breadcrumbs().length > 1) {
+  <nav class="breadcrumbs" #bar aria-label="Breadcrumb">
+    @for (crumb of breadcrumbs(); track crumb.path; let index = $index; let last = $last) {
+      <div
+        class="crumb"
+        [class.crumb--hidden]="isFolded(index, last)"
+        [class.crumb--last]="last"
+        [style.order]="index ? 2 : 0"
+      >
+        @if (last && crumb.path === currentPath()) {
+          <span class="crumb__link crumb__link--current" aria-current="page">
+            @if (crumb.icon) {
+              <i class="crumb__icon pi" [ngClass]="crumb.icon"></i>
+            }
+            <span class="crumb__title">{{ crumb.title }}</span>
+          </span>
+        } @else {
+          <a
+            [routerLink]="crumb.path"
+            class="crumb__link"
+            [pTooltip]="crumb.title"
+            [tooltipDisabled]="crumb.title.length < 24"
+          >
+            @if (crumb.icon) {
+              <i class="crumb__icon pi" [ngClass]="crumb.icon"></i>
+            }
+            <span class="crumb__title">{{ crumb.title }}</span>
+          </a>
+        }
 
-      @if (!last) {
-        <i class="crumb__separator pi pi-chevron-right"></i>
-      }
+        @if (!last) {
+          <i class="crumb__separator pi pi-chevron-right"></i>
+        }
+      </div>
+    }
+
+    <!-- Always rendered so its width can be measured; hidden the same way folded crumbs are. -->
+    <div
+      class="crumb crumb--more"
+      [class.crumb--hidden]="foldedCount() === 0 && !rootFolded()"
+      [style.order]="1"
+    >
+      <button
+        type="button"
+        class="crumb__more"
+        aria-label="Show hidden levels"
+        (click)="pathMenu.toggle($event)"
+      >
+        <i class="pi pi-ellipsis-h"></i>
+      </button>
+      <i class="crumb__separator pi pi-chevron-right"></i>
     </div>
-  }
-</div>
+  </nav>
+
+  <p-menu
+    #pathMenu
+    [model]="foldedItems()"
+    [popup]="true"
+    appendTo="body"
+    styleClass="breadcrumbs-menu"
+  />
+}

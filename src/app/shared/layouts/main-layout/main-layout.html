@@ -1,10 +1,15 @@
 <div class="layout">
   <app-sidenav />
 
+  @if (layout.drawerOpen()) {
+    <div class="drawer-scrim" (click)="layout.closeDrawer()"></div>
+  }
+
   <div class="content-wrapper" [style.margin-left.px]="layout.sidenavWidth()">
     <app-topbar />
 
     <main class="page-content">
+      <app-breadcrumbs />
       <router-outlet />
     </main>
   </div>

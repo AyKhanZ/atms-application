@@ -147,6 +147,7 @@ export class TicketDetailsComponent implements OnDestroy {
         this.breadcrumbOverride.set(
           this.ticketBreadcrumbPath,
           `#${result.ticket.code} ${result.ticket.title}`,
+          'pi-ticket',
         );
       });
   }
@@ -228,7 +229,7 @@ The ticket will be deleted. This action cannot be undone.`,
 
     if (ticketId) {
       this.ticketBreadcrumbPath = `/projects/${this.projectId}/tickets/${ticketId}`;
-      this.breadcrumbOverride.set(this.ticketBreadcrumbPath, 'Ticket');
+      this.breadcrumbOverride.set(this.ticketBreadcrumbPath, 'Ticket', 'pi-ticket');
     }
 
     this.ticketId.set(ticketId);

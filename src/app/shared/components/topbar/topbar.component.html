@@ -1,7 +1,9 @@
 <header class="topbar">
-  <div class="left">
-    <app-breadcrumbs />
-  </div>
+  @if (layout.mode() === 'hidden') {
+    <button type="button" class="menu-btn" aria-label="Open menu" (click)="layout.openDrawer()">
+      <i class="pi pi-bars"></i>
+    </button>
+  }
 
   <div class="right">
     <button type="button" class="notification-btn" aria-label="Notifications">

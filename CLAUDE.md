@@ -12,7 +12,7 @@ Read the relevant file **before** starting, not after.
 | Design or change any screen | `docs/ai/UX_UI_PRINCIPLES.md` |
 | Touch anything role-, permission- or domain-related | `docs/ai/PRODUCT_CONTEXT.md` |
 | Write code | `AGENTS.md` |
-| Build a screen that already has agreed behaviour | `../Specs/1_BAIM_Project specification.docx` |
+| Build a screen that already has agreed behaviour | `../Specs/00-overview.md` and the numbered files next to it |
 
 `Specs/` holds decisions that are already made and were often argued over. Check it before
 proposing an alternative that was rejected months ago.

@@ -91,6 +91,24 @@
   display: none;
 }
 
+/* Same answer the select overlays give below 768px: stop pointing at the trigger and come up
+   from the bottom. A panel this wide cannot both point at something and keep off the edges. */
+.work-item-jump-panel--sheet {
+  inset: auto 0 0 0;
+  width: 100%;
+  max-height: 80vh;
+  border-width: 1px 0 0;
+  border-radius: 14px 14px 0 0;
+}
+
+.work-item-jump-panel--sheet::backdrop {
+  background: rgb(15 23 42 / 45%);
+}
+
+.work-item-jump-panel--sheet .work-item-jump-list {
+  max-height: none;
+}
+
 .work-item-jump-search {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);

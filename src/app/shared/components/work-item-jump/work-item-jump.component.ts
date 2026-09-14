@@ -46,6 +46,9 @@ export class WorkItemJumpComponent implements OnInit {
   readonly more = output<void>();
   readonly retry = output<void>();
   readonly open = signal(false);
+  /** Same threshold the select overlays use: under it the panel is a sheet, not a pointer. */
+  private static readonly sheetBreakpoint = 768;
+  readonly sheet = signal(false);
   ngOnInit(): void {
     const onScroll = (event: Event) => {
       if (this.open() && !this.panel()?.nativeElement.contains(event.target as Node)) this.close();
@@ -96,10 +99,27 @@ export class WorkItemJumpComponent implements OnInit {
     if (!trigger || !panel) return;
     const anchor = trigger.getBoundingClientRect();
     const viewport = {
-      width: window.innerWidth,
+      // clientWidth, not innerWidth: innerWidth counts the scrollbar, so the panel was laid out
+      // 15px wider than the visible area and its right edge ended up under the scrollbar.
+      width: document.documentElement.clientWidth,
       height: window.innerHeight,
       topInset: document.querySelector('app-topbar')?.getBoundingClientRect().bottom ?? 0,
     };
+    const sheet = viewport.width <= WorkItemJumpComponent.sheetBreakpoint;
+    this.sheet.set(sheet);
+
+    if (sheet) {
+      // A sheet is placed by the stylesheet, so anything measured earlier has to go — otherwise
+      // a width from a wider window survives the resize and the sheet comes up narrow.
+      for (const property of ['width', 'maxHeight', 'left', 'top']) {
+        panel.style.removeProperty(property.replace(/[A-Z]/g, (c) => '-' + c.toLowerCase()));
+      }
+      panel.showPopover();
+      this.open.set(true);
+      this.search()?.nativeElement.focus({ preventScroll: true });
+      return;
+    }
+
     const placement = workItemJumpPosition(anchor, viewport);
     panel.style.width = placement.width + 'px';
     panel.style.maxHeight = placement.maxHeight + 'px';

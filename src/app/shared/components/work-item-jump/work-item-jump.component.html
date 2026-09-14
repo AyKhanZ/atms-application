@@ -19,6 +19,7 @@
     #panel
     popover="manual"
     class="work-item-jump-panel"
+    [class.work-item-jump-panel--sheet]="sheet()"
     [attr.aria-label]="groupLabel()"
     [id]="'work-switcher-' + current().id"
     (keydown)="navigateOptions($event)"

@@ -1,7 +1,13 @@
-<aside class="sidebar" [class.collapsed]="layout.collapsed()">
+<aside
+  class="sidebar"
+  [class.sidebar--icons]="layout.mode() === 'icons'"
+  [class.sidebar--drawer]="layout.mode() === 'hidden'"
+  [class.sidebar--open]="layout.drawerOpen()"
+  [attr.inert]="layout.mode() === 'hidden' && !layout.drawerOpen() ? '' : null"
+>
   <div class="logo">
-    <a routerLink="/dashboard" routerLinkActive="active">
-      @if (!layout.collapsed()) {
+    <a routerLink="/dashboard" routerLinkActive="active" (click)="layout.closeDrawer()">
+      @if (layout.showLabels()) {
         <img
           src="https://baim.az/wp-content/uploads/2025/05/cropped-cropped-group-26.png"
           alt="logo"
@@ -16,13 +22,21 @@
         />
       }
     </a>
+
+    @if (layout.mode() === 'hidden') {
+      <button type="button" class="drawer-close" aria-label="Close menu" (click)="layout.closeDrawer()">
+        <i class="pi pi-times"></i>
+      </button>
+    }
   </div>
 
-  <nav class="menu">
+  <!-- One handler for the whole menu: after a jump the drawer has done its job and gets out of
+       the way. On a wide screen there is no drawer and this does nothing. -->
+  <nav class="menu" (click)="layout.closeDrawer()">
     <a routerLink="/dashboard" routerLinkActive="active">
       <i class="pi pi-th-large"></i>
 
-      @if (!layout.collapsed()) {
+      @if (layout.showLabels()) {
         <span>Dashboard</span>
       }
     </a>
@@ -31,7 +45,7 @@
       <a routerLink="/projects" routerLinkActive="active">
         <i class="pi pi-briefcase"></i>
 
-        @if (!layout.collapsed()) {
+        @if (layout.showLabels()) {
           <span>Projects</span>
         }
       </a>
@@ -41,7 +55,7 @@
       <a routerLink="/users" routerLinkActive="active">
         <i class="pi pi-users"></i>
 
-        @if (!layout.collapsed()) {
+        @if (layout.showLabels()) {
           <span>Users</span>
         }
       </a>
@@ -51,18 +65,25 @@
       <a routerLink="/organizations" routerLinkActive="active">
         <i class="pi pi-building"></i>
 
-        @if (!layout.collapsed()) {
+        @if (layout.showLabels()) {
           <span>Organizations</span>
         }
       </a>
     </ng-container>
   </nav>
 
-  <button type="button" class="collapse-btn" (click)="layout.toggleSidebar()">
-    <i
-      class="pi"
-      [class.pi-chevron-right]="layout.collapsed()"
-      [class.pi-chevron-left]="!layout.collapsed()"
-    ></i>
-  </button>
+  @if (layout.canCollapse()) {
+    <button
+      type="button"
+      class="collapse-btn"
+      [attr.aria-label]="layout.collapsed() ? 'Expand menu' : 'Collapse menu'"
+      (click)="layout.toggleSidebar()"
+    >
+      <i
+        class="pi"
+        [class.pi-chevron-right]="layout.collapsed()"
+        [class.pi-chevron-left]="!layout.collapsed()"
+      ></i>
+    </button>
+  }
 </aside>

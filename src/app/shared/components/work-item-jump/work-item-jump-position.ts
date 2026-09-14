@@ -14,7 +14,9 @@ export function workItemJumpPosition(
   viewport: TicketJumpViewport,
   panelHeight = 512,
 ) {
-  const margin = 12;
+  // Same gap the page keeps from the edge of the window, so a panel does not look pinned to it
+  // while everything under it is inset. Below 768px the panel is a sheet and never gets here.
+  const margin = 24;
   const gap = 8;
   const above = Math.max(0, anchor.top - viewport.topInset - margin - gap);
   const below = Math.max(0, viewport.height - anchor.bottom - margin - gap);
