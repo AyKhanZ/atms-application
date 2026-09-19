@@ -1,0 +1,102 @@
+<button
+  type="button"
+  class="mobile-trigger"
+  aria-label="Search projects, tickets, tasks and subtasks"
+  (click)="show()"
+>
+  <i class="pi pi-search" aria-hidden="true"></i>
+</button>
+
+@if (open() && isMobile()) {
+  <div class="backdrop" (click)="close()"></div>
+}
+
+<section
+  class="search-shell"
+  [style.--search-room.px]="room()"
+  [class.search-shell--open]="open()"
+  [class.search-shell--mobile]="open() && isMobile()"
+  [attr.role]="open() && isMobile() ? 'dialog' : null"
+  [attr.aria-modal]="open() && isMobile() ? true : null"
+  [attr.aria-label]="open() ? 'Search projects, tickets, tasks and subtasks' : null"
+>
+  <div class="search-header">
+    @if (open() && isMobile()) {
+      <button type="button" class="mobile-back" aria-label="Close search" (click)="close()">
+        <i class="pi pi-arrow-left" aria-hidden="true"></i>
+      </button>
+    }
+    <app-search-input
+      [value]="query()"
+      [expanded]="open()"
+      (focused)="show()"
+      (valueChange)="changeQuery($event)"
+    />
+  </div>
+
+  @if (open() && (isMobile() || !waitingForRecent())) {
+    <div class="search-dropdown">
+      @if (searchable()) {
+        <app-search-filters [chips]="chips()" [active]="filter()" (select)="changeFilter($event)" />
+      }
+      <div class="body" id="global-search-results" [attr.aria-busy]="loading()">
+        @if (loading()) {
+          <div class="skeleton" role="status" aria-label="Searching">
+            @for (line of [1, 2, 3, 4, 5]; track line) {
+              <span class="skeleton__row" aria-hidden="true"></span>
+            }
+          </div>
+        } @else if (failed()) {
+          <div class="message" role="alert">
+            <i class="pi pi-exclamation-circle" aria-hidden="true"></i>
+            <strong>Search is unavailable</strong>
+            <p>Please try again in a moment.</p>
+            <button type="button" (click)="retry()">Try again</button>
+          </div>
+        } @else if (!searchable()) {
+          @if (waitingForRecent()) {
+            <!-- Drawn once the list arrives; see waitingForRecent. -->
+          } @else if (query().trim().length === 0 && recent().length > 0) {
+            <h2 class="body__title">Recently opened</h2>
+            @for (item of recent(); track item.id) {
+              <app-search-result-row
+                role="button"
+                tabindex="0"
+                class="body__row"
+                [attr.data-result-id]="item.id"
+                [item]="item"
+                [active]="item.id === activeId()"
+                [followsPointer]="false"
+                (mousemove)="point(item.id, $event)"
+                (click)="choose(item)"
+                (keydown.enter)="choose(item)"
+                (keydown.space)="$event.preventDefault(); choose(item)"
+              />
+            }
+          } @else {
+            <div class="message" role="status">
+              <i class="pi pi-search" aria-hidden="true"></i>
+              <strong>Find projects, tickets, tasks and subtasks</strong>
+              <p>Enter a code or at least 3 letters from a title.</p>
+            </div>
+          }
+        } @else if (nothingFound()) {
+          <div class="message" role="status">
+            <i class="pi pi-search" aria-hidden="true"></i>
+            <strong>No results found</strong>
+            <p>Try a different code or a word from the title.</p>
+          </div>
+        } @else {
+          <app-search-results
+            [groups]="groups()"
+            [query]="query()"
+            [activeId]="activeId()"
+            (point)="point($event.id, $event.event)"
+            (choose)="choose($event)"
+            (showAll)="showAll($event)"
+          />
+        }
+      </div>
+    </div>
+  }
+</section>

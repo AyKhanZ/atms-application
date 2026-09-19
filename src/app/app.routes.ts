@@ -5,10 +5,12 @@ import { Permissions } from './core/enums/permissions.enum';
 import { guestGuard } from './core/guards/guest.guard';
 import { onboardingCompletedGuard, onboardingPageGuard } from './core/guards/onboarding.guard';
 import { unsavedChangesGuard } from './core/guards/unsaved-changes.guard';
+import { skipNavigationHistory } from './core/services/navigation-history.service';
 
 export const routes: Routes = [
   {
     path: 'server-unavailable',
+    data: { [skipNavigationHistory]: true },
     loadComponent: () =>
       import('./pages/errors/server-error/server-error.component').then(
         (c) => c.ServerErrorComponent,
@@ -16,6 +18,7 @@ export const routes: Routes = [
   },
   {
     path: 'onboarding',
+    data: { [skipNavigationHistory]: true },
     canActivate: [authGuard, onboardingPageGuard],
     canDeactivate: [unsavedChangesGuard],
     loadComponent: () =>
@@ -24,6 +27,7 @@ export const routes: Routes = [
   // Auth layout
   {
     path: '',
+    data: { [skipNavigationHistory]: true },
     loadComponent: () =>
       import('./shared/layouts/auth/auth-layout').then((c) => c.AuthLayoutComponent),
     canActivateChild: [guestGuard],
@@ -46,6 +50,12 @@ export const routes: Routes = [
         path: 'dashboard',
         data: { breadcrumb: { title: 'Dashboard', icon: 'pi-th-large' } },
         loadComponent: () => import('./pages/dashboard/dashboard').then((c) => c.Dashboard),
+      },
+      {
+        path: 'search',
+        data: { breadcrumb: { title: 'Search', icon: 'pi-search' } },
+        loadComponent: () =>
+          import('./pages/search/search.component').then((c) => c.SearchComponent),
       },
       {
         path: 'users',
@@ -72,6 +82,7 @@ export const routes: Routes = [
   },
   {
     path: 'errors',
+    data: { [skipNavigationHistory]: true },
     children: [
       {
         path: '500',

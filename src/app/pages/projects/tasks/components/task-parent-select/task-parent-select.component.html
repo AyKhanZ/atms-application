@@ -55,13 +55,17 @@
           <span>{{ parent.milestoneTitle }}</span>
           @if (isSubtask()) {
             <i class="pi pi-angle-right" aria-hidden="true"></i>
-            <i class="pi pi-ticket" aria-hidden="true"></i>
-            <span>#{{ parent.ticketCode }} {{ parent.ticketTitle }}</span>
+            <app-work-item-ref
+              [type]="kinds.Ticket"
+              [code]="parent.ticketCode"
+              [labelled]="false"
+            />
+            <span>{{ parent.ticketTitle }}</span>
           }
         </span>
         <i class="pi pi-angle-right" aria-hidden="true"></i>
-        <i [class]="isSubtask() ? 'pi pi-check-square' : 'pi pi-ticket'" aria-hidden="true"></i>
-        <strong>#{{ parent.code }} {{ parent.title }}</strong>
+        <app-work-item-ref [type]="parentKind()" [code]="parent.code" [labelled]="false" />
+        <strong>{{ parent.title }}</strong>
       </span>
     </ng-template>
     <!-- Indented one step past the deepest header line, so an item visibly sits inside the
@@ -72,8 +76,8 @@
         [style.--tree-depth]="optionDepth()"
         [style.padding-left.rem]="optionIndent()"
       >
-        <i [class]="isSubtask() ? 'pi pi-check-square' : 'pi pi-ticket'" aria-hidden="true"></i>
-        <span>#{{ parent.code }} {{ parent.title }}</span>
+        <app-work-item-ref [type]="parentKind()" [code]="parent.code" [labelled]="false" />
+        <span>{{ parent.title }}</span>
       </span>
     </ng-template>
     <ng-template #footer>

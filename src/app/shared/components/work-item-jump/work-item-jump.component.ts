@@ -14,9 +14,13 @@ import {
 import { WorkItemJumpItem } from './work-item-jump-item';
 import { WorkItemJumpContext } from './work-item-jump-context';
 import { workItemJumpPosition } from './work-item-jump-position';
+import { InputClearComponent } from '../input-clear/input-clear.component';
+import { WorkItemRefComponent } from '../work-item-ref/work-item-ref.component';
+import { WorkItemKind } from '../../../core/models/work-items';
 
 @Component({
   selector: 'app-work-item-jump',
+  imports: [InputClearComponent, WorkItemRefComponent],
   templateUrl: './work-item-jump.component.html',
   styleUrl: './work-item-jump.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -34,8 +38,9 @@ export class WorkItemJumpComponent implements OnInit {
   readonly context = input<readonly WorkItemJumpContext[]>([]);
   /** Not shown any more — the trigger reads as a select on its own. Kept for assistive tech. */
   readonly label = input('Switch item');
-  /** PrimeIcons class of the entity being switched, so the trigger reads as one more tree level. */
-  readonly icon = input('pi-ticket');
+  /** Kind of the entity being switched: its icon and colour, so the trigger reads as one more
+   *  tree level and matches the same item everywhere else. */
+  readonly kind = input(WorkItemKind.Ticket);
   readonly loading = input(false);
   readonly loadError = input(false);
   readonly initialized = input(true);
@@ -156,6 +161,11 @@ export class WorkItemJumpComponent implements OnInit {
   choose(id: string): void {
     this.close(true);
     if (id !== this.current().id) this.selected.emit(id);
+  }
+
+  clearSearch(): void {
+    this.searchChanged.emit('');
+    this.search()?.nativeElement.focus({ preventScroll: true });
   }
 
   updateSearch(event: Event): void {

@@ -29,8 +29,11 @@ import {
   WorkGroupModel,
 } from '../../../../../core/models/work-groups';
 import { ProjectAccessService } from '../../../../../core/services/project-access.service';
-import { WorkTicketsService } from '../../../../../core/services/work-tickets.service';
 import { WorkGroupsStoreActions, WorkGroupsStoreSelectors } from '../../../../../store/work-groups';
+import {
+  WorkTicketsStoreActions,
+  WorkTicketsStoreSelectors,
+} from '../../../../../store/work-tickets';
 import {
   WorkGroupDialogComponent,
   WorkGroupDialogMode,
@@ -42,6 +45,7 @@ import {
   MilestoneTicketListComponent,
   MilestoneTicketPageState,
 } from './components/milestone-ticket-list/milestone-ticket-list.component';
+import { EmptyStateComponent } from '../../../../../shared/components/empty-state/empty-state.component';
 
 interface SelectedWorkGroup {
   item: WorkGroupModel;
@@ -51,6 +55,7 @@ interface SelectedWorkGroup {
 @Component({
   selector: 'app-groups-tab',
   imports: [
+    EmptyStateComponent,
     ButtonModule,
     ConfirmDialogComponent,
     MenuModule,
@@ -71,7 +76,8 @@ export class GroupsTabComponent implements OnInit, OnDestroy {
   private readonly projectAccess = inject(ProjectAccessService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
-  private readonly workTicketsService = inject(WorkTicketsService);
+  private readonly ticketStorePages = this.store.selectSignal(WorkTicketsStoreSelectors.getPages);
+  private readonly loadedTicketPageKeys = new Set<string>();
   private knownGroupIds = new Set<string>();
   private hasLoadedGroups = false;
   private hasRestoredExpansionState = false;
@@ -95,7 +101,6 @@ export class GroupsTabComponent implements OnInit, OnDestroy {
     this.projectPermissions().includes(ProjectPermissions.Ticket.Create),
   );
   readonly canAdd = computed(() => this.canEdit() || this.canCreateTickets());
-  readonly ticketPages = signal<Record<string, MilestoneTicketPageState>>({});
 
   readonly groups = this.store.selectSignal(WorkGroupsStoreSelectors.getItems);
   readonly loading = this.store.selectSignal(WorkGroupsStoreSelectors.isLoading);
@@ -205,7 +210,7 @@ export class GroupsTabComponent implements OnInit, OnDestroy {
           if (!this.expandedMilestoneIds().has(milestone.id)) continue;
           // The count comes with the group payload, so an empty milestone needs no request.
           if (milestone.ticketCount === 0) continue;
-          if (!this.ticketPages()[milestone.id]) this.loadTicketsFor(milestone.id, true);
+          if (!this.ticketPageFor(milestone.id)) this.loadTicketsFor(milestone.id, true);
         }
       }
     });
@@ -272,6 +277,9 @@ export class GroupsTabComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.store.dispatch(WorkGroupsStoreActions.resetWorkGroups());
+    for (const requestKey of this.loadedTicketPageKeys) {
+      this.store.dispatch(WorkTicketsStoreActions.clearPage({ requestKey }));
+    }
   }
 
   loadGroups(): void {
@@ -329,7 +337,7 @@ export class GroupsTabComponent implements OnInit, OnDestroy {
   }
 
   ticketPageFor(milestoneId: string): MilestoneTicketPageState | null {
-    return this.ticketPages()[milestoneId] ?? null;
+    return this.ticketStorePages()[this.ticketPageKey(milestoneId)] ?? null;
   }
 
   editTicket(ticketId: string): void {
@@ -367,41 +375,27 @@ export class GroupsTabComponent implements OnInit, OnDestroy {
   }
 
   loadTicketsFor(milestoneId: string, reset = false): void {
-    const current = this.ticketPages()[milestoneId];
+    const requestKey = this.ticketPageKey(milestoneId);
+    const current = this.ticketStorePages()[requestKey];
     if (current?.loading || (!reset && current && !current.hasMore)) return;
 
-    const state: MilestoneTicketPageState =
-      reset || !current
-        ? { items: [], nextCursor: null, hasMore: true, loading: true }
-        : { ...current, loading: true };
+    this.loadedTicketPageKeys.add(requestKey);
+    this.store.dispatch(
+      WorkTicketsStoreActions.loadTickets({
+        requestKey,
+        projectId: this.projectId(),
+        append: !reset,
+        filter: {
+          milestoneId,
+          cursor: reset ? null : current?.nextCursor,
+          pageSize: this.ticketPageSize,
+        },
+      }),
+    );
+  }
 
-    this.ticketPages.update((pages) => ({ ...pages, [milestoneId]: state }));
-    this.workTicketsService
-      .getWorkTickets(this.projectId(), {
-        milestoneId,
-        cursor: state.nextCursor,
-        pageSize: this.ticketPageSize,
-      })
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (page) => {
-          this.ticketPages.update((pages) => ({
-            ...pages,
-            [milestoneId]: {
-              items: reset ? page.items : [...state.items, ...page.items],
-              nextCursor: page.nextCursor,
-              hasMore: page.hasMore,
-              loading: false,
-            },
-          }));
-        },
-        error: () => {
-          this.ticketPages.update((pages) => ({
-            ...pages,
-            [milestoneId]: { ...state, loading: false },
-          }));
-        },
-      });
+  private ticketPageKey(milestoneId: string): string {
+    return `milestone:${this.projectId()}:${milestoneId}`;
   }
 
   openItemMenu(event: Event, item: WorkGroupModel, kind: WorkGroupKind, menu: Menu): void {

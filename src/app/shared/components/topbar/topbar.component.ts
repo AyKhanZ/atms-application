@@ -1,6 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { MenuItem } from 'primeng/api';
 import { MenuModule } from 'primeng/menu';
+import { GlobalSearchComponent } from '../global-search/global-search.component';
 import { UserStoreSelectors } from '../../../store/user';
 import { Store } from '@ngrx/store';
 import { AuthStoreActions } from '../../../store/auth';
@@ -10,7 +11,7 @@ import { LayoutService } from '../../../core/services/layout.service';
 
 @Component({
   selector: 'app-topbar',
-  imports: [MenuModule],
+  imports: [MenuModule, GlobalSearchComponent],
   templateUrl: './topbar.component.html',
   styleUrl: './topbar.component.scss',
 })

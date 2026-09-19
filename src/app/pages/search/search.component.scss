@@ -1,0 +1,107 @@
+/* Same header as the ticket and task pages: the back button stays beside the title while there is
+   room, and only on a narrow page drops under it and takes the full width. */
+.search-page-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+}
+
+@container (max-width: 36rem) {
+  .search-page-header {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .page-actions app-back-button,
+  :host ::ng-deep .page-actions app-back-button button {
+    width: 100%;
+  }
+}
+
+.search-panel {
+  display: grid;
+  gap: 0;
+  padding: 0;
+  container-type: inline-size;
+  overflow: hidden;
+}
+
+.search-panel__input {
+  display: block;
+  padding: 1rem 1rem 0.75rem;
+}
+
+.search-panel__list {
+  display: grid;
+  gap: 0.15rem;
+  padding: 0.5rem;
+}
+
+.search-panel__skeleton {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0.5rem 0.25rem;
+}
+
+.search-panel__skeleton span {
+  height: 2.5rem;
+  border-radius: var(--radius-btn);
+  background: linear-gradient(
+    90deg,
+    var(--app-surface-muted) 25%,
+    var(--gray-hover) 50%,
+    var(--app-surface-muted) 75%
+  );
+  background-size: 200% 100%;
+  animation: search-page-skeleton 1.2s ease-in-out infinite;
+}
+
+@keyframes search-page-skeleton {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .search-panel__skeleton span {
+    animation: none;
+  }
+}
+
+.search-panel__error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  color: var(--app-muted);
+  font-size: 0.85rem;
+}
+
+.search-panel__error button,
+.search-panel__more {
+  padding: 0.5rem 0.9rem;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-btn);
+  background: var(--app-surface);
+  color: var(--app-text);
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.search-panel__error button:hover,
+.search-panel__more:hover {
+  border-color: var(--orange-border);
+  color: var(--orange-text-hover);
+}
+
+.search-panel__more {
+  justify-self: center;
+  margin: 0.5rem 0;
+}
+
+.search-panel__error button:focus-visible,
+.search-panel__more:focus-visible,
+.search-panel__list app-search-result-row:focus-visible {
+  outline: 2px solid var(--orange-focus-outline);
+  outline-offset: 1px;
+}

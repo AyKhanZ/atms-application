@@ -33,7 +33,7 @@
                 <app-work-item-jump
                   [current]="item"
                   [items]="jump.items()"
-                  icon="pi-sitemap"
+                  [kind]="kinds.Subtask"
                   label="Switch subtask"
                   [context]="jumpContext()"
                   [groupLabel]="item.parentWorkTaskTitle || item.workTicketTitle"
@@ -53,7 +53,7 @@
             <app-work-item-jump
               [current]="item"
               [items]="jump.items()"
-              icon="pi-check-square"
+              [kind]="kinds.Task"
               label="Switch task"
               [context]="jumpContext()"
               [groupLabel]="item.workTicketTitle"

@@ -1,0 +1,58 @@
+<span
+  class="row"
+  [class.row--active]="active()"
+  [class.row--hoverable]="followsPointer()"
+  [class.row--project]="item().itemType === 1"
+>
+  <span class="row__identity">
+    <app-work-item-ref class="row__code" [type]="item().itemType" [code]="item().code" />
+
+    <!-- The pieces sit tight against each other on purpose: a line break between them renders as a
+       real space and splits the word around the highlight. Left to itself the formatter puts the
+       breaks back, so this block is kept out of its hands. -->
+    <!-- prettier-ignore -->
+    <span class="row__title"
+    >@for (part of titleParts(); track $index) {<span
+      [class.row__title-match]="part.matched"
+      >{{ part.text }}</span
+    >}</span
+  >
+  </span>
+
+  @switch (item().itemType) {
+    @case (1) {
+      <app-project-status-badge class="row__status" [status]="item().status" />
+    }
+    @case (2) {
+      <app-ticket-status-badge class="row__status" [status]="item().status" />
+    }
+    @default {
+      <app-task-status-badge class="row__status" [status]="item().status" />
+    }
+  }
+
+  <app-work-item-assignee
+    class="row__assignee"
+    [assignee]="item().assignee"
+    [compact]="true"
+    [shortName]="true"
+  />
+
+  @if (trail().length > 0) {
+    <span class="row__trail" [title]="trailLabel()" [attr.aria-label]="trailLabel()">
+      @for (step of visibleTrail(); track $index; let last = $last) {
+        <span class="row__trail-item" [class.row__trail-item--last]="last">
+          <i class="pi" [class]="'pi ' + step.icon" aria-hidden="true"></i>
+          <span class="row__trail-step">{{ step.label }}</span>
+        </span>
+        @if (!last) {
+          <span class="row__trail-separator" aria-hidden="true">›</span>
+          @if (trail().length > 2) {
+            <span class="row__trail-overflow" aria-hidden="true">…</span>
+            <span class="row__trail-separator" aria-hidden="true">›</span>
+          }
+        }
+      }
+    </span>
+  }
+</span>

@@ -15,6 +15,7 @@ import {
 import { ButtonModule } from 'primeng/button';
 import { WorkTicketModel } from '../../../../../core/models/work-tickets';
 import { Router } from '@angular/router';
+import { WorkItemKind } from '../../../../../core/models/work-items';
 
 /**
  * Where the ticket sits in the project plan: the group → milestone path, the switcher for
@@ -32,6 +33,7 @@ import { Router } from '@angular/router';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TicketLocationComponent {
+  protected readonly kinds = WorkItemKind;
   readonly ticket = input.required<WorkTicketModel>();
 
   /** The tree above the switcher, repeated inside the panel so the list is visibly scoped. */
@@ -62,6 +64,9 @@ export class TicketLocationComponent {
   }
 
   selectSibling(id: string): void {
-    void this.router.navigate(['/projects', this.ticket().workProjectId, 'tickets', id]);
+    // A sibling stands in for this page: Back returns where the user came from, not to it.
+    void this.router.navigate(['/projects', this.ticket().workProjectId, 'tickets', id], {
+      state: { replaceHistory: true },
+    });
   }
 }

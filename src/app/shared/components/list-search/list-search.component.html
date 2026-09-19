@@ -1,12 +1,17 @@
-<label class="list-search">
-  <i class="pi pi-search"></i>
+<div class="list-search">
+  <i class="pi pi-search" aria-hidden="true"></i>
   <input
+    #field
     pInputText
     type="search"
+    [attr.aria-label]="placeholder()"
     [placeholder]="placeholder()"
     [maxlength]="maxLength()"
     [disabled]="disabled()"
     [ngModel]="value()"
     (ngModelChange)="valueChange.emit($event)"
   />
-</label>
+  @if (value() && !disabled()) {
+    <app-input-clear class="list-search__clear" (cleared)="clear(field)" />
+  }
+</div>

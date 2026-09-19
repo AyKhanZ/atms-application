@@ -12,8 +12,7 @@
           [attr.aria-label]="'View ticket ' + ticket.title"
           (click)="viewTicket.emit(ticket.id)"
         >
-          <i class="pi pi-ticket structure-icon"></i>
-          <span class="ticket-code">{{ ticketCode(ticket.code) }}</span>
+          <app-work-item-ref [type]="kinds.Ticket" [code]="ticket.code" />
           <span class="ticket-title-group">
             <strong [title]="ticket.title">{{ ticket.title }}</strong>
             @if (ticket.id === currentTicketId()) {
@@ -24,7 +23,11 @@
 
         <div class="ticket-meta">
           <app-work-item-type [type]="ticket.workTicketType" />
-          <app-work-item-assignee [assignee]="ticket.assignee" [compact]="true" />
+          <app-work-item-assignee
+            [assignee]="ticket.assignee"
+            [compact]="true"
+            [shortName]="true"
+          />
           <app-ticket-status-badge [status]="ticket.workTicketStatus" />
         </div>
 

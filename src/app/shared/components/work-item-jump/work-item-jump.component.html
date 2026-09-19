@@ -10,8 +10,7 @@
     [title]="label() + ': #' + current().code + ' ' + current().title"
     (click)="toggle()"
   >
-    <i class="pi" [class]="'pi ' + icon()" aria-hidden="true"></i>
-    <span class="work-item-jump-trigger__code">#{{ current().code }}</span>
+    <app-work-item-ref [type]="kind()" [code]="current().code" [labelled]="false" />
     <strong class="work-item-jump-trigger__title">{{ current().title }}</strong>
     <i class="pi pi-chevron-down work-item-jump-trigger__chevron" aria-hidden="true"></i>
   </button>
@@ -24,7 +23,7 @@
     [id]="'work-switcher-' + current().id"
     (keydown)="navigateOptions($event)"
   >
-    <label class="work-item-jump-search">
+    <div class="work-item-jump-search">
       <i class="pi pi-search" aria-hidden="true"></i>
       <input
         #search
@@ -35,7 +34,10 @@
         [disabled]="!initialized()"
         (input)="updateSearch($event)"
       />
-    </label>
+      @if (searchTerm() && initialized()) {
+        <app-input-clear (cleared)="clearSearch()" />
+      }
+    </div>
     <!-- The ancestors, stepped like the Location tree, so the list is visibly scoped to them. -->
     <header class="work-item-jump-context">
       @for (level of context(); track level.title; let index = $index) {
@@ -67,8 +69,7 @@
           [attr.aria-current]="item.id === current().id ? 'page' : null"
           (click)="choose(item.id)"
         >
-          <i class="pi" [class]="'pi ' + icon()" aria-hidden="true"></i>
-          <span class="work-item-jump-option__code">#{{ item.code }}</span>
+          <app-work-item-ref [type]="kind()" [code]="item.code" [labelled]="false" />
           <span class="work-item-jump-option__title" [title]="item.title">{{ item.title }}</span>
         </button>
       }

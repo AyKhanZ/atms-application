@@ -4,6 +4,7 @@
   border-bottom: 1px solid var(--gray-border);
   display: flex;
   align-items: center;
+  gap: 1rem;
   /* The bar holds account-level controls only; the trail lives above the page, where it has the
      full content width and does not compete with them. The burger, when there is one, takes the
      free left side. */
@@ -11,6 +12,20 @@
   padding-inline: 24px;
   flex-shrink: 0;
   z-index: 10;
+}
+
+app-global-search {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+@media (max-width: 767px) {
+  app-global-search {
+    flex: 0 0 auto;
+  }
+  .topbar {
+    gap: 0.5rem;
+  }
 }
 
 .right {

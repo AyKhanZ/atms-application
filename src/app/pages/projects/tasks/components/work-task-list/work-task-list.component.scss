@@ -1,9 +1,17 @@
 :host {
-  display: block;
+  display: grid;
 }
 
+/* Stretches to the tab body, so an empty list centres its message in the room left under the
+   toolbar, the way an empty Attachments or History tab does. */
 .tasks-tab {
+  display: flex;
+  flex-direction: column;
   padding: 1.5rem;
+}
+
+.tasks-tab > app-empty-state {
+  flex: 1;
 }
 
 .tasks-toolbar {
@@ -21,6 +29,14 @@
   overflow: hidden;
   border: 1px solid var(--app-border);
   border-radius: 8px;
+}
+
+/* A task can have subtasks, so its list keeps room for the "0/31" counter even while no loaded
+   row has one. Sized to content, the column appeared only when such a row came in with the next
+   page, and every row above shifted sideways. Subtasks have no subtasks of their own, so their
+   list does not reserve it. */
+.task-list--with-progress {
+  grid-template-columns: minmax(0, 1fr) minmax(2.75rem, auto) auto auto 2.4rem;
 }
 
 /* Every metric below mirrors .ticket-row in milestone-ticket-list: a task and a ticket are the
@@ -46,7 +62,7 @@
 
 .task-main {
   display: grid;
-  grid-template-columns: 1.15rem auto minmax(0, 1fr);
+  grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
   gap: 0.55rem;
   min-width: 0;
@@ -67,19 +83,6 @@
 .item-menu-button:focus-visible {
   outline: 3px solid var(--orange-focus-outline);
   outline-offset: 1px;
-}
-
-.task-icon {
-  color: var(--orange-text-hover);
-  font-size: 0.95rem;
-}
-
-.task-code {
-  color: var(--app-muted);
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  white-space: nowrap;
 }
 
 .task-title {
@@ -178,16 +181,29 @@ app-task-status-badge {
     grid-template-columns: minmax(0, 1fr) 2.4rem;
   }
 
-  /* Stacked under the title on a narrow row, exactly like .ticket-meta. */
-  /* Stacked under the title: the row is its own grid again, so the tracks follow the content. */
+  /* Stacked under the title on a narrow row, exactly like .ticket-meta: who on the left, state on
+     the right under the menu. Left-packed, the status used to hang in the middle of the row. */
   .task-meta {
     grid-row: 2;
     grid-column: 1 / -1;
-    grid-template-columns: auto minmax(0, 1fr) auto;
-    width: min(100%, 17rem);
-    max-width: 100%;
-    justify-self: start;
-    gap: 0.3rem;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    width: 100%;
+    gap: 0.45rem;
+  }
+
+  .task-meta > app-work-item-assignee {
+    grid-row: 1;
+    grid-column: 1;
+  }
+
+  .task-meta > .progress {
+    grid-row: 1;
+    grid-column: 2;
+  }
+
+  .task-meta > app-task-status-badge {
+    grid-row: 1;
+    grid-column: 3;
   }
 
   .item-menu-button {
@@ -205,4 +221,3 @@ app-task-status-badge {
     width: 100%;
   }
 }
-

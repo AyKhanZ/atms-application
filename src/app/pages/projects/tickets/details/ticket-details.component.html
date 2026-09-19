@@ -43,9 +43,9 @@
     </section>
   } @else if (ticket(); as item) {
     <article class="panel ticket-panel">
-      <header class="ticket-hero">
+      <header class="ticket-hero kind-stripe kind-stripe--ticket">
         <div class="ticket-identity">
-          <span class="ticket-code">TICKET #{{ item.code }}</span>
+          <app-work-item-ref [type]="kinds.Ticket" [code]="item.code" />
           <h2>{{ item.title }}</h2>
         </div>
         <div class="ticket-state-area">
@@ -68,36 +68,47 @@
         (select)="selectTab($event)"
       />
 
-      @if (activeTab() === 'details') {
-        <div class="work-item-details-content">
-          <section class="description-card">
-            <h3>Description</h3>
-            @if (item.description) {
-              <p class="description">{{ item.description }}</p>
-            } @else {
-              <p class="inline-empty">No description has been added.</p>
-            }
-          </section>
+      <!-- One height for every tab, so moving between empty ones does not resize the card. -->
+      <div class="tab-body">
+        @if (activeTab() === 'details') {
+          <div class="work-item-details-content">
+            <section class="description-card">
+              <h3>Description</h3>
+              @if (item.description) {
+                <p class="description">{{ item.description }}</p>
+              } @else {
+                <p class="inline-empty">No description has been added.</p>
+              }
+            </section>
 
-          <aside class="work-item-information">
-            @if (facts(); as ticketFacts) {
-              <app-work-item-facts [facts]="ticketFacts" />
-            }
-            <app-ticket-location [ticket]="item" (viewInPlan)="viewInPlan()" />
-          </aside>
-        </div>
-      } @else if (activeTab() === 'tasks') {
-        <app-work-task-list
-          [projectId]="item.workProjectId"
-          [ticketId]="item.id"
-          [canCreate]="canCreateTask()"
-          [canEdit]="canEditTask()"
-        />
-      } @else if (activeTab() === 'attachments') {
-        <app-empty-state icon="pi-paperclip" title="No attachments yet" [compact]="true" />
-      } @else {
-        <app-empty-state icon="pi-history" title="No activity yet" [compact]="true" />
-      }
+            <aside class="work-item-information">
+              @if (facts(); as ticketFacts) {
+                <app-work-item-facts [facts]="ticketFacts" />
+              }
+              <app-ticket-location [ticket]="item" (viewInPlan)="viewInPlan()" />
+            </aside>
+          </div>
+        } @else if (activeTab() === 'tasks') {
+          <app-work-task-list
+            [projectId]="item.workProjectId"
+            [ticketId]="item.id"
+            [canCreate]="canCreateTask()"
+            [canEdit]="canEditTask()"
+          />
+        } @else if (activeTab() === 'attachments') {
+          <app-empty-state
+            icon="pi-paperclip"
+            title="No attachments yet"
+            description="Files added here will be listed in this tab."
+          />
+        } @else {
+          <app-empty-state
+            icon="pi-history"
+            title="No activity yet"
+            description="Every change will be recorded here."
+          />
+        }
+      </div>
     </article>
   }
 </section>

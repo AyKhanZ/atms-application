@@ -39,9 +39,16 @@
     </section>
   } @else if (task(); as item) {
     <article class="panel task-panel">
-      <header class="task-hero">
+      <header
+        class="task-hero kind-stripe"
+        [class.kind-stripe--task]="!item.isSubtask"
+        [class.kind-stripe--subtask]="item.isSubtask"
+      >
         <div class="task-identity">
-          <span class="task-code">{{ item.isSubtask ? 'SUBTASK' : 'TASK' }} #{{ item.code }}</span>
+          <app-work-item-ref
+            [type]="item.isSubtask ? kinds.Subtask : kinds.Task"
+            [code]="item.code"
+          />
           <h2>{{ item.title }}</h2>
         </div>
         <div class="task-state-area">
@@ -64,21 +71,32 @@
         (select)="selectTab($event)"
       />
 
-      @if (activeTab() === 'details') {
-        <app-task-details-tab [task]="item" />
-      } @else if (activeTab() === 'subtasks' && !item.isSubtask) {
-        <app-work-task-list
-          [projectId]="item.workProjectId"
-          [ticketId]="item.workTicketId"
-          [parentTaskId]="item.id"
-          [canCreate]="canCreate()"
-          [canEdit]="canEdit()"
-        />
-      } @else if (activeTab() === 'attachments') {
-        <app-empty-state icon="pi-paperclip" title="No attachments yet" [compact]="true" />
-      } @else {
-        <app-empty-state icon="pi-history" title="No activity yet" [compact]="true" />
-      }
+      <!-- One height for every tab, so moving between empty ones does not resize the card. -->
+      <div class="tab-body">
+        @if (activeTab() === 'details') {
+          <app-task-details-tab [task]="item" />
+        } @else if (activeTab() === 'subtasks' && !item.isSubtask) {
+          <app-work-task-list
+            [projectId]="item.workProjectId"
+            [ticketId]="item.workTicketId"
+            [parentTaskId]="item.id"
+            [canCreate]="canCreate()"
+            [canEdit]="canEdit()"
+          />
+        } @else if (activeTab() === 'attachments') {
+          <app-empty-state
+            icon="pi-paperclip"
+            title="No attachments yet"
+            description="Files added here will be listed in this tab."
+          />
+        } @else {
+          <app-empty-state
+            icon="pi-history"
+            title="No activity yet"
+            description="Every change will be recorded here."
+          />
+        }
+      </div>
     </article>
   }
 </section>

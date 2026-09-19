@@ -6,7 +6,7 @@
       [initials]="assignee | personInitials"
       [previewEnabled]="false"
     />
-    <span>{{ assignee | personName }}</span>
+    <span>{{ shortName() ? (assignee | personShortName) : (assignee | personName) }}</span>
   </span>
 } @else {
   <span class="assignee-chip assignee-chip--unassigned">

@@ -1,0 +1,34 @@
+:host {
+  display: inline-flex;
+  flex: 0 0 auto;
+}
+
+.input-clear {
+  display: grid;
+  width: 1.75rem;
+  height: 1.75rem;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--app-muted);
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.input-clear i {
+  font-size: 0.75rem;
+}
+
+.input-clear:hover {
+  background: var(--orange-light-hover);
+  color: var(--orange-text-hover);
+}
+
+.input-clear:focus-visible {
+  outline: 2px solid var(--orange-focus-outline);
+  outline-offset: 1px;
+}

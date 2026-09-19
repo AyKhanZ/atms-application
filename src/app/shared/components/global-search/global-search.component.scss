@@ -1,0 +1,224 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+.search-shell {
+  position: relative;
+  width: min(52.5rem, 100%);
+  margin-inline: auto;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-btn);
+  background: var(--app-surface);
+}
+.search-shell:focus-within {
+  border-color: var(--orange-border);
+}
+.search-header {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+.search-header app-search-input {
+  flex: 1;
+  min-width: 0;
+}
+.mobile-trigger {
+  display: none;
+}
+.backdrop {
+  display: none;
+  position: fixed;
+  z-index: 1100;
+  inset: 0;
+  background: rgb(15 23 42 / 45%);
+}
+.search-dropdown {
+  position: absolute;
+  z-index: 1101;
+  top: calc(100% + 0.5rem);
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  /* Between the phone layout and a full sidebar the field shrinks to ~26rem, and a row that narrow
+     falls apart into three lines. So the list is at least 44rem, spilling right of the field over
+     the bell and avatar — but never past the window: --search-room is the width measured from the
+     field's left edge to the window's, set when the box opens. */
+  width: max(100%, min(44rem, var(--search-room, 100%)));
+  max-height: min(35rem, calc(100dvh - 5rem));
+  overflow: hidden;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-btn);
+  background: var(--app-surface);
+  box-shadow: 0 18px 48px rgb(15 23 42 / 22%);
+}
+.mobile-back,
+.mobile-trigger {
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  flex-shrink: 0;
+  padding: 0.5rem;
+  border: 0;
+  border-radius: var(--radius-btn);
+  background: transparent;
+  color: var(--app-muted);
+  font: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+.mobile-back {
+  display: flex;
+}
+.mobile-back:hover,
+.mobile-trigger:hover {
+  background: var(--gray-hover);
+}
+.mobile-back:focus-visible,
+.mobile-trigger:focus-visible,
+.message button:focus-visible {
+  outline: 2px solid var(--orange-focus-outline);
+}
+.body {
+  min-height: 0;
+  max-height: min(31.5rem, calc(100dvh - 8rem));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.body__title {
+  margin: 0;
+  padding: 0.75rem 1rem 0.25rem;
+  color: var(--app-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.body__row {
+  margin-inline: 0;
+}
+.body__row:focus-visible {
+  outline: 2px solid var(--orange-focus-outline);
+  outline-offset: -2px;
+}
+.message {
+  display: flex;
+  min-height: 11.5rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 2rem 1rem;
+  color: var(--app-muted);
+  text-align: center;
+}
+.message > i {
+  display: grid;
+  width: 3rem;
+  height: 3rem;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--orange-light-hover);
+  color: var(--orange-text-hover);
+  font-size: 1.25rem;
+}
+.message strong {
+  color: var(--app-text);
+  font-size: 1rem;
+  font-weight: 600;
+}
+.message p {
+  margin: 0;
+  max-width: 24rem;
+  font-size: 0.875rem;
+}
+.message button {
+  min-height: 2.75rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-btn);
+  background: var(--app-surface);
+  color: var(--orange-text-hover);
+  cursor: pointer;
+}
+.skeleton {
+  display: grid;
+  gap: 1px;
+  padding-block: 0.25rem;
+}
+.skeleton__row {
+  height: 3.5rem;
+  background: linear-gradient(
+    90deg,
+    var(--app-surface-muted) 25%,
+    var(--gray-hover) 50%,
+    var(--app-surface-muted) 75%
+  );
+  background-size: 200% 100%;
+  animation: search-skeleton 1.2s ease-in-out infinite;
+}
+@keyframes search-skeleton {
+  to {
+    background-position: -200% 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeleton__row {
+    animation: none;
+  }
+}
+@media (min-width: 120rem) {
+  .search-shell {
+    width: min(64rem, 100%);
+  }
+}
+@media (max-width: 767px) {
+  .mobile-trigger {
+    display: flex;
+  }
+  .backdrop {
+    display: block;
+  }
+  .search-shell:not(.search-shell--mobile) {
+    display: none;
+  }
+  .search-shell--mobile {
+    top: 0;
+    left: 0;
+    z-index: 1101;
+    display: flex;
+    position: fixed;
+    flex-direction: column;
+    width: 100%;
+    height: 100dvh;
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .search-shell--mobile .search-header {
+    flex: 0 0 auto;
+    min-height: 3.5rem;
+    padding-inline: 0.25rem 0.5rem;
+    border-bottom: 1px solid var(--app-border);
+  }
+  .search-dropdown {
+    position: static;
+    flex: 1;
+    width: auto;
+    max-height: none;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .search-shell--mobile .body {
+    flex: 1;
+    max-height: none;
+  }
+  .search-shell--mobile .message {
+    min-height: 100%;
+  }
+  .skeleton__row {
+    height: 5rem;
+  }
+}

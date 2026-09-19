@@ -5,5 +5,8 @@ export enum Features {
   Organizations = 'organizations',
   WorkProjects = 'workProjects',
   WorkGroups = 'workGroups',
+  GlobalSearch = 'globalSearch',
+  WorkTickets = 'workTickets',
+  WorkTasks = 'workTasks',
   Dictionary = 'dictionary',
 }

@@ -1,10 +1,11 @@
 import {
   ApplicationConfig,
   provideAppInitializer,
+  inject,
   provideZonelessChangeDetection,
   isDevMode,
 } from '@angular/core';
-import { provideRouter, withComponentInputBinding } from '@angular/router';
+import { RouteReuseStrategy, provideRouter, withComponentInputBinding } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { MessageService } from 'primeng/api';
@@ -33,7 +34,15 @@ import { workProjectsReducer } from './store/work-projects/work-projects.reducer
 import { WorkProjectsEffects } from './store/work-projects/work-projects.effects';
 import { workGroupsReducer } from './store/work-groups/work-groups.reducer';
 import { WorkGroupsEffects } from './store/work-groups/work-groups.effects';
+import { globalSearchReducer } from './store/global-search/global-search.reducer';
+import { GlobalSearchEffects } from './store/global-search/global-search.effects';
+import { workTicketsReducer } from './store/work-tickets/work-tickets.reducer';
+import { WorkTicketsEffects } from './store/work-tickets/work-tickets.effects';
+import { workTasksReducer } from './store/work-tasks/work-tasks.reducer';
+import { WorkTasksEffects } from './store/work-tasks/work-tasks.effects';
 import { provideStoreDevtools } from '@ngrx/store-devtools';
+import { NavigationHistoryService } from './core/services/navigation-history.service';
+import { AppRouteReuseStrategy } from './core/routing/app-route-reuse.strategy';
 
 const BaimTheme = definePreset(Aura, {
   semantic: {
@@ -84,6 +93,7 @@ const BaimTheme = definePreset(Aura, {
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes, withComponentInputBinding()),
+    { provide: RouteReuseStrategy, useClass: AppRouteReuseStrategy },
     provideHttpClient(withInterceptors([authInterceptor])),
     provideAnimationsAsync(),
     providePrimeNG({
@@ -111,6 +121,9 @@ export const appConfig: ApplicationConfig = {
       [Features.Organizations]: organizationsReducer,
       [Features.WorkProjects]: workProjectsReducer,
       [Features.WorkGroups]: workGroupsReducer,
+      [Features.GlobalSearch]: globalSearchReducer,
+      [Features.WorkTickets]: workTicketsReducer,
+      [Features.WorkTasks]: workTasksReducer,
       [Features.User]: userReducer,
       [Features.Dictionary]: dictionaryReducer,
     }),
@@ -120,10 +133,17 @@ export const appConfig: ApplicationConfig = {
       OrganizationsEffects,
       WorkProjectsEffects,
       WorkGroupsEffects,
+      GlobalSearchEffects,
+      WorkTicketsEffects,
+      WorkTasksEffects,
       UserEffects,
       DictionaryEffects,
     ]),
     provideAppInitializer(authInitializer),
+    // Started before the first navigation, so Back knows the page the user arrived from.
+    provideAppInitializer(() => {
+      inject(NavigationHistoryService);
+    }),
     provideZonelessChangeDetection(),
     // Redux DevTools
     provideStoreDevtools({

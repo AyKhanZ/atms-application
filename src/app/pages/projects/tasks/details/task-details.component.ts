@@ -13,16 +13,15 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ConfirmationService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
-import {
-  ConfirmDialogComponent,
-  confirmTone,
-} from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { catchError, finalize, forkJoin, of, switchMap } from 'rxjs';
 import { ProjectPermissions } from '../../../../core/enums/project-permissions.enum';
-import { BreadcrumbItem } from '../../../../core/models/breadcrumb-item.model';
+import { WorkItemKind } from '../../../../core/models/work-items';
+import { WorkItemRefComponent } from '../../../../shared/components/work-item-ref/work-item-ref.component';
 import { WorkTaskModel } from '../../../../core/models/work-tasks';
 import { WorkProjectModel } from '../../../../core/models/work-projects/work-project.model';
 import { BreadcrumbOverrideService } from '../../../../core/services/breadcrumb-override.service';
+import { RecentWorkItemsService } from '../../../../core/services/recent-work-items.service';
 import { ProjectAccessService } from '../../../../core/services/project-access.service';
 import { ProjectPermissionsRefreshService } from '../../../../core/services/project-permissions-refresh.service';
 import { SnackBarService } from '../../../../core/services/snack-bar.service';
@@ -39,8 +38,17 @@ import { RelativeTimePipe } from '../../../../shared/pipes/relative-time.pipe';
 import { TaskStatusBadgeComponent } from '../components/task-status-badge/task-status-badge.component';
 import { TaskDetailsTabComponent } from '../components/task-details-tab/task-details-tab.component';
 import { WorkTaskListComponent } from '../components/work-task-list/work-task-list.component';
-
-type TaskTab = 'details' | 'subtasks' | 'attachments' | 'history';
+import { NavigationHistoryService } from '../../../../core/services/navigation-history.service';
+import { validationMessage } from '../../../../core/utils/http-error.utils';
+import {
+  TaskTab,
+  parseTaskTab,
+  taskDeleteBlockedConfirmation,
+  taskDeleteConfirmation,
+  taskBreadcrumbTrail,
+  taskParentRoute,
+  taskTabQueryParam,
+} from './task-details.utils';
 
 interface TaskPageData {
   task: WorkTaskModel;
@@ -51,6 +59,7 @@ interface TaskPageData {
 @Component({
   selector: 'app-task-details',
   imports: [
+    WorkItemRefComponent,
     ButtonModule,
     ConfirmDialogComponent,
     BackButtonComponent,
@@ -68,8 +77,11 @@ interface TaskPageData {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TaskDetailsComponent implements OnDestroy {
+  protected readonly kinds = WorkItemKind;
   private readonly route = inject(ActivatedRoute);
+  private readonly recent = inject(RecentWorkItemsService);
   private readonly router = inject(Router);
+  private readonly navigationHistory = inject(NavigationHistoryService);
   private readonly tasks = inject(WorkTasksService);
   private readonly projects = inject(WorkProjectsService);
   private readonly projectAccess = inject(ProjectAccessService);
@@ -153,22 +165,24 @@ export class TaskDetailsComponent implements OnDestroy {
     });
   }
 
+  /** Where the user came from; the parent when that is unknown, as after opening a shared link. */
   back(): void {
+    if (!this.navigationHistory.back()) this.up();
+  }
+
+  /**
+   * The item's parent. After a delete it replaces the gone page in the history, so Back from the
+   * parent does not lead to a page that no longer exists.
+   */
+  private up(replaceHistory = false): void {
     const task = this.task();
-    if (!task || !this.projectId) {
-      void this.router.navigate(['/projects']);
+    const state = { replaceHistory };
+    if (!task) {
+      void this.router.navigate(['/projects'], { state });
       return;
     }
-    if (task.parentWorkTaskId) {
-      void this.router.navigate(
-        ['/projects', this.projectId, 'tickets', task.workTicketId, 'tasks', task.parentWorkTaskId],
-        { queryParams: { tab: 'subtasks' } },
-      );
-    } else {
-      void this.router.navigate(['/projects', this.projectId, 'tickets', task.workTicketId], {
-        queryParams: { tab: 'tasks' },
-      });
-    }
+    const parent = taskParentRoute(task);
+    void this.router.navigate(parent.commands, { queryParams: parent.queryParams, state });
   }
 
   edit(): void {
@@ -182,66 +196,11 @@ export class TaskDetailsComponent implements OnDestroy {
   confirmDelete(): void {
     const task = this.task();
     if (!task || !this.canDelete() || this.deleting()) return;
-    if (task.subtaskCount > 0) {
-      this.confirmation.confirm({
-        key: 'taskDelete',
-        header: "This task can't be deleted yet",
-        message: `#${task.code} ${task.title}
-It still has ${task.subtaskCount} ${task.subtaskCount === 1 ? 'subtask' : 'subtasks'}. Delete them first, then delete the task.`,
-        acceptLabel: 'Got it',
-        rejectVisible: false,
-        acceptButtonProps: confirmTone('warning'),
-      });
-      return;
-    }
-    this.confirmation.confirm({
-      key: 'taskDelete',
-      header: `Delete ${task.isSubtask ? 'subtask' : 'task'}?`,
-      message: `#${task.code} ${task.title}
-This ${task.isSubtask ? 'subtask' : 'task'} will be deleted. This action cannot be undone.`,
-      acceptLabel: 'Delete',
-      rejectLabel: 'Cancel',
-      acceptButtonProps: confirmTone('danger'),
-      accept: () => this.delete(task),
-    });
-  }
-
-  /**
-   * The whole trail is set at once instead of renaming route segments: a subtask has no segment
-   * of its own for the parent task, and without this crumb the trail jumps straight from the
-   * ticket to the subtask.
-   */
-  private showBreadcrumbs(result: TaskPageData): void {
-    const task = result.task;
-    const ticketPath = `/projects/${this.projectId}/tickets/${this.ticketId}`;
-    const items: BreadcrumbItem[] = [
-      { title: 'Projects', path: '/projects', icon: 'pi-briefcase' },
-      {
-        title: `#${result.project.code} ${result.project.title}`,
-        path: `/projects/${this.projectId}`,
-      },
-      {
-        title: `#${task.workTicketCode} ${task.workTicketTitle}`,
-        path: ticketPath,
-        icon: 'pi-ticket',
-      },
-    ];
-
-    if (task.parentWorkTaskId) {
-      items.push({
-        title: `#${task.parentWorkTaskCode} ${task.parentWorkTaskTitle}`,
-        path: `${ticketPath}/tasks/${task.parentWorkTaskId}`,
-        icon: 'pi-check-square',
-      });
-    }
-
-    items.push({
-      title: `#${task.code} ${task.title}`,
-      path: `${ticketPath}/tasks/${task.id}`,
-      icon: task.isSubtask ? 'pi-sitemap' : 'pi-check-square',
-    });
-
-    this.breadcrumbs.setTrail(`${ticketPath}/tasks/${task.id}`, items);
+    this.confirmation.confirm(
+      task.subtaskCount > 0
+        ? taskDeleteBlockedConfirmation(task)
+        : taskDeleteConfirmation(task, () => this.delete(task)),
+    );
   }
 
   private clearBreadcrumbs(): void {
@@ -288,7 +247,14 @@ This ${task.isSubtask ? 'subtask' : 'task'} will be deleted. This action cannot 
     // no such tab — fall back to Details instead of rendering an empty body.
     if (result.task.isSubtask && this.activeTab() === 'subtasks') this.selectTab('details');
     this.applyPermissions(result.permissions);
-    this.showBreadcrumbs(result);
+    this.breadcrumbs.setTrail(
+      `/projects/${this.projectId}/tickets/${this.ticketId}/tasks/${result.task.id}`,
+      taskBreadcrumbTrail(result.project, result.task),
+    );
+    this.recent.track(
+      result.task.isSubtask ? WorkItemKind.Subtask : WorkItemKind.Task,
+      result.task.id,
+    );
   }
 
   private applyPermissions(permissions: string[]): void {
@@ -322,29 +288,14 @@ This ${task.isSubtask ? 'subtask' : 'task'} will be deleted. This action cannot 
       .subscribe({
         next: () => {
           this.snackBar.success(`${task.isSubtask ? 'Subtask' : 'Task'} deleted.`);
-          this.back();
+          this.up(true);
         },
         error: (error: HttpErrorResponse) => {
-          this.snackBar.error(taskDeleteErrorMessage(error));
+          this.snackBar.error(
+            validationMessage(error) ?? 'We could not delete this item. Please try again.',
+          );
           this.refreshPermissionsAfterForbidden(error);
         },
       });
   }
-}
-
-export function parseTaskTab(value: string | null): TaskTab {
-  return value === 'subtasks' || value === 'attachments' || value === 'history' ? value : 'details';
-}
-
-export function taskTabQueryParam(tab: TaskTab): string | null {
-  return tab === 'details' ? null : tab;
-}
-
-function taskDeleteErrorMessage(error: HttpErrorResponse): string {
-  if (error.status === 400) {
-    const errors = error.error?.errors as { error?: string }[] | undefined;
-    const message = errors?.find((item) => item.error)?.error;
-    if (message) return message;
-  }
-  return 'We could not delete this item. Please try again.';
 }

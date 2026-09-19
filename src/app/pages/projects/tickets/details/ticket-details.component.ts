@@ -13,15 +13,15 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ConfirmationService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
-import {
-  ConfirmDialogComponent,
-  confirmTone,
-} from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { catchError, finalize, forkJoin, map, of, switchMap } from 'rxjs';
 import { ProjectPermissions } from '../../../../core/enums/project-permissions.enum';
 import { WorkProjectModel } from '../../../../core/models/work-projects';
 import { WorkTicketModel } from '../../../../core/models/work-tickets';
 import { BreadcrumbOverrideService } from '../../../../core/services/breadcrumb-override.service';
+import { WorkItemKind } from '../../../../core/models/work-items';
+import { WorkItemRefComponent } from '../../../../shared/components/work-item-ref/work-item-ref.component';
+import { RecentWorkItemsService } from '../../../../core/services/recent-work-items.service';
 import { ProjectAccessService } from '../../../../core/services/project-access.service';
 import { ProjectPermissionsRefreshService } from '../../../../core/services/project-permissions-refresh.service';
 import { SnackBarService } from '../../../../core/services/snack-bar.service';
@@ -40,12 +40,21 @@ import { WorkItemFacts } from '../../../../shared/components/work-item-facts/wor
 import { TicketLocationComponent } from '../components/ticket-location/ticket-location.component';
 import { TicketStatusBadgeComponent } from '../components/ticket-status-badge/ticket-status-badge.component';
 import { WorkTaskListComponent } from '../../tasks/components/work-task-list/work-task-list.component';
-
-export type TicketTab = 'details' | 'tasks' | 'attachments' | 'history';
+import { NavigationHistoryService } from '../../../../core/services/navigation-history.service';
+import { validationMessage } from '../../../../core/utils/http-error.utils';
+import {
+  TicketTab,
+  parseTicketTab,
+  ticketDeleteBlockedConfirmation,
+  ticketDeleteConfirmation,
+  ticketHasTasks,
+  ticketTabQueryParam,
+} from './ticket-details.utils';
 
 @Component({
   selector: 'app-ticket-details',
   imports: [
+    WorkItemRefComponent,
     ButtonModule,
     ConfirmDialogComponent,
     BackButtonComponent,
@@ -64,8 +73,11 @@ export type TicketTab = 'details' | 'tasks' | 'attachments' | 'history';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TicketDetailsComponent implements OnDestroy {
+  protected readonly kinds = WorkItemKind;
   private readonly route = inject(ActivatedRoute);
+  private readonly recent = inject(RecentWorkItemsService);
   private readonly router = inject(Router);
+  private readonly navigationHistory = inject(NavigationHistoryService);
   private readonly workProjectsService = inject(WorkProjectsService);
   private readonly workTicketsService = inject(WorkTicketsService);
   private readonly projectAccess = inject(ProjectAccessService);
@@ -149,6 +161,7 @@ export class TicketDetailsComponent implements OnDestroy {
           `#${result.ticket.code} ${result.ticket.title}`,
           'pi-ticket',
         );
+        this.recent.track(WorkItemKind.Ticket, result.ticket.id);
       });
   }
 
@@ -165,8 +178,9 @@ export class TicketDetailsComponent implements OnDestroy {
     });
   }
 
+  /** Where the user came from; the ticket's place in the plan when that is unknown. */
   back(): void {
-    this.viewInPlan();
+    if (!this.navigationHistory.back()) this.viewInPlan();
   }
 
   edit(): void {
@@ -182,37 +196,20 @@ export class TicketDetailsComponent implements OnDestroy {
     if (!ticket || !this.canDelete() || this.deleting()) return;
     // Blocked and confirmed deletions are both answered in the same dialog, the way a task does
     // it: a toast for the refusal put the explanation somewhere the user was not looking.
-    const taskCount = ticket.totalTaskCount ?? 0;
-    if (ticketHasTasks(ticket)) {
-      this.confirmation.confirm({
-        key: 'ticketDelete',
-        header: "This ticket can't be deleted yet",
-        message: `#${ticket.code} ${ticket.title}
-It still has ${taskCount} ${taskCount === 1 ? 'task' : 'tasks'}. Delete them first, then delete the ticket.`,
-        acceptLabel: 'Got it',
-        rejectVisible: false,
-        acceptButtonProps: confirmTone('warning'),
-      });
-      return;
-    }
-
-    this.confirmation.confirm({
-      key: 'ticketDelete',
-      header: 'Delete ticket?',
-      message: `#${ticket.code} ${ticket.title}
-The ticket will be deleted. This action cannot be undone.`,
-      acceptLabel: 'Delete',
-      rejectLabel: 'Cancel',
-      acceptButtonProps: confirmTone('danger'),
-      accept: () => this.deleteTicket(ticket),
-    });
+    this.confirmation.confirm(
+      ticketHasTasks(ticket)
+        ? ticketDeleteBlockedConfirmation(ticket)
+        : ticketDeleteConfirmation(ticket, () => this.deleteTicket(ticket)),
+    );
   }
 
-  viewInPlan(): void {
+  /** After a delete the plan replaces the gone page in the history, so Back does not return to it. */
+  viewInPlan(replaceHistory = false): void {
     const ticket = this.ticket();
     if (!this.projectId) return;
 
     void this.router.navigate(['/projects', this.projectId], {
+      state: { replaceHistory },
       queryParams: {
         tab: 'plan',
         groupId: ticket?.groupId ?? null,
@@ -294,33 +291,14 @@ The ticket will be deleted. This action cannot be undone.`,
       .subscribe({
         next: () => {
           this.snackBar.success('Ticket deleted.');
-          this.viewInPlan();
+          this.viewInPlan(true);
         },
         error: (error: HttpErrorResponse) => {
-          this.snackBar.error(ticketDeleteErrorMessage(error));
+          this.snackBar.error(
+            validationMessage(error) ?? 'The ticket could not be deleted. Please try again.',
+          );
           this.refreshPermissionsAfterForbidden(error);
         },
       });
   }
-}
-
-function ticketDeleteErrorMessage(error: HttpErrorResponse): string {
-  if (error.status === 400) {
-    const errors = error.error?.errors as { error?: string }[] | undefined;
-    const message = errors?.find((item) => item.error)?.error;
-    if (message) return message;
-  }
-  return 'The ticket could not be deleted. Please try again.';
-}
-
-export function parseTicketTab(value: string | null): TicketTab {
-  return value === 'tasks' || value === 'attachments' || value === 'history' ? value : 'details';
-}
-
-export function ticketTabQueryParam(tab: TicketTab): string | null {
-  return tab === 'details' ? null : tab;
-}
-
-export function ticketHasTasks(ticket: Pick<WorkTicketModel, 'totalTaskCount'>): boolean {
-  return (ticket.totalTaskCount ?? 0) > 0;
 }

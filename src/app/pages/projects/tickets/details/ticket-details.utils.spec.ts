@@ -1,4 +1,4 @@
-import { parseTicketTab, ticketHasTasks, ticketTabQueryParam } from './ticket-details.component';
+import { parseTicketTab, ticketHasTasks, ticketTabQueryParam } from './ticket-details.utils';
 
 describe('TicketDetailsComponent navigation helpers', () => {
   it.each([

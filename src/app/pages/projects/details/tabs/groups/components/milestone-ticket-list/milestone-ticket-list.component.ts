@@ -6,6 +6,8 @@ import { WorkTicketModel } from '../../../../../../../core/models/work-tickets';
 import { WorkItemAssigneeComponent } from '../../../../../../../shared/components/work-item-assignee/work-item-assignee.component';
 import { TicketStatusBadgeComponent } from '../../../../../tickets/components/ticket-status-badge/ticket-status-badge.component';
 import { WorkItemTypeComponent } from '../../../../../../../shared/components/work-item-type/work-item-type.component';
+import { WorkItemRefComponent } from '../../../../../../../shared/components/work-item-ref/work-item-ref.component';
+import { WorkItemKind } from '../../../../../../../core/models/work-items';
 
 export interface MilestoneTicketPageState {
   items: WorkTicketModel[];
@@ -17,6 +19,7 @@ export interface MilestoneTicketPageState {
 @Component({
   selector: 'app-milestone-ticket-list',
   imports: [
+    WorkItemRefComponent,
     ButtonModule,
     MenuModule,
     WorkItemAssigneeComponent,
@@ -28,6 +31,7 @@ export interface MilestoneTicketPageState {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MilestoneTicketListComponent {
+  protected readonly kinds = WorkItemKind;
   readonly milestoneTitle = input.required<string>();
   readonly page = input<MilestoneTicketPageState | null>(null);
   readonly canEditTickets = input(false);
@@ -57,9 +61,5 @@ export class MilestoneTicketListComponent {
     if (!this.canEditTickets()) return;
     this.selectedTicket.set(ticket);
     menu.toggle(event);
-  }
-
-  ticketCode(code: string): string {
-    return `#${code}`;
   }
 }

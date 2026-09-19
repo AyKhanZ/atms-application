@@ -1,0 +1,31 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+.search-input {
+  display: flex;
+  min-height: 2.5rem;
+  align-items: center;
+  gap: 0.75rem;
+  padding-inline: 0.75rem;
+}
+.search-input > .pi-search {
+  flex: 0 0 auto;
+  color: var(--orange-text-hover);
+  font-size: 1rem;
+}
+.search-input input {
+  width: 100%;
+  min-width: 0;
+  min-height: 2.5rem;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--app-text);
+  font: inherit;
+  font-size: 1rem;
+}
+.search-input input::placeholder {
+  color: var(--app-muted);
+}

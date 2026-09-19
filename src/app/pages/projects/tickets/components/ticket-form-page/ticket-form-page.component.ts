@@ -1,4 +1,3 @@
-import { HttpErrorResponse } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -20,10 +19,12 @@ import {
   distinctUntilChanged,
   finalize,
   forkJoin,
-  Observable,
   of,
   switchMap,
+  take,
 } from 'rxjs';
+import { Actions, ofType } from '@ngrx/effects';
+import { Store } from '@ngrx/store';
 import { ConfirmationService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
@@ -57,6 +58,11 @@ import {
   toMilestoneOption,
   uniqueMilestones,
 } from './ticket-milestone-options';
+import {
+  WorkTicketsStoreActions,
+  WorkTicketsStoreSelectors,
+} from '../../../../../store/work-tickets';
+import { WorkItemMutationError } from '../../../../../core/models/work-items';
 
 interface TicketFormNavigationState {
   milestone?: MilestoneOptionModel;
@@ -93,6 +99,8 @@ export class TicketFormPageComponent implements OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly workTicketsService = inject(WorkTicketsService);
+  private readonly store = inject(Store);
+  private readonly actions$ = inject(Actions);
   private readonly workProjectsService = inject(WorkProjectsService);
   private readonly workGroupsService = inject(WorkGroupsService);
   private readonly dictionaryService = inject(DictionaryService);
@@ -112,7 +120,7 @@ export class TicketFormPageComponent implements OnDestroy {
   private readonly ticketBreadcrumbPath = `/projects/${this.projectId}/tickets/${this.ticketId}`;
   readonly submitted = signal(false);
   readonly loading = signal(true);
-  readonly saving = signal(false);
+  readonly saving = this.store.selectSignal(WorkTicketsStoreSelectors.isSaving);
   readonly loadError = signal<string | null>(null);
   readonly project = signal<WorkProjectModel | null>(null);
   readonly ticket = signal<WorkTicketModel | null>(null);
@@ -254,45 +262,56 @@ export class TicketFormPageComponent implements OnDestroy {
     if (!createCommand) return;
 
     const statusId = this.form.controls.workTicketStatusId.value;
-    let request: Observable<unknown>;
-    if (this.ticketId) {
-      if (statusId === null) {
-        this.form.controls.workTicketStatusId.markAsTouched();
-        return;
-      }
-
-      request = this.workTicketsService.updateWorkTicket(this.projectId, this.ticketId, {
-        ...createCommand,
-        workTicketStatusId: statusId,
-      } satisfies UpdateWorkTicketCommand);
-    } else {
-      request = this.workTicketsService.createWorkTicket(this.projectId, createCommand);
+    if (this.ticketId && statusId === null) {
+      this.form.controls.workTicketStatusId.markAsTouched();
+      return;
     }
 
-    this.saving.set(true);
-
-    request
+    // The request goes through the store, like a project's. The answer is the next success or
+    // failure of this kind: only one save can be under way, the button is disabled meanwhile.
+    this.actions$
       .pipe(
+        ofType(
+          WorkTicketsStoreActions.createTicketSuccess,
+          WorkTicketsStoreActions.updateTicketSuccess,
+          WorkTicketsStoreActions.createTicketFailure,
+          WorkTicketsStoreActions.updateTicketFailure,
+        ),
+        take(1),
         takeUntilDestroyed(this.destroyRef),
-        finalize(() => this.saving.set(false)),
       )
-      .subscribe({
-        next: () => {
-          this.navigationComplete = true;
-          this.snackBar.success(this.ticketId ? 'Ticket changes saved.' : 'Ticket created.');
-          this.navigateBack();
-        },
-        error: (error: HttpErrorResponse) => {
-          this.snackBar.error(ticketErrorMessage(error));
+      .subscribe((action) => {
+        if ('error' in action) {
+          this.snackBar.error(ticketErrorMessage(action.error));
           // The cached permissions said this was allowed; drop them so the next page is right.
-          if (error.status === 403 && this.projectId) {
+          if (action.error.status === 403 && this.projectId) {
             this.permissionsRefresh
               .refreshAfterForbidden(this.projectId)
               .pipe(takeUntilDestroyed(this.destroyRef))
               .subscribe({ error: () => undefined });
           }
-        },
+          return;
+        }
+        this.navigationComplete = true;
+        this.snackBar.success(this.ticketId ? 'Ticket changes saved.' : 'Ticket created.');
+        this.navigateBack();
       });
+
+    this.store.dispatch(
+      this.ticketId && statusId !== null
+        ? WorkTicketsStoreActions.updateTicket({
+            projectId: this.projectId,
+            ticketId: this.ticketId,
+            command: {
+              ...createCommand,
+              workTicketStatusId: statusId,
+            } satisfies UpdateWorkTicketCommand,
+          })
+        : WorkTicketsStoreActions.createTicket({
+            projectId: this.projectId,
+            command: createCommand,
+          }),
+    );
   }
 
   cancel(): void {
@@ -513,12 +532,8 @@ function ticketFieldLabel(name: string): string {
   )[name];
 }
 
-function ticketErrorMessage(error: HttpErrorResponse): string {
-  if (error.status === 400) {
-    const errors = error.error?.errors as { error?: string }[] | undefined;
-    const message = errors?.find((item) => item.error)?.error;
-    if (message) return message;
-  }
+function ticketErrorMessage(error: WorkItemMutationError): string {
+  if (error.message) return error.message;
   if (error.status === 403) return 'You no longer have permission to edit tickets in this project.';
   if (error.status === 404)
     return 'The ticket or selected milestone is no longer available. Refresh the plan.';

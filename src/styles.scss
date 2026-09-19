@@ -75,6 +75,13 @@
   --gray-text-color: var(--gray-text);
   --radius-btn: 8px;
   --radius-card: 8px;
+  /* Kind of work. Ordered like Azure DevOps — the higher the level, the louder the colour — with
+     orange left out: it is the brand and the Active status. Dark shades, so each reads on white as
+     text. */
+  --kind-project: #7c3aed;
+  --kind-ticket: #2563eb;
+  --kind-task: #a16207;
+  --kind-subtask: #be185d;
 }
 
 html,
@@ -179,6 +186,34 @@ h6 {
   border-radius: 8px;
   background: var(--app-surface);
   box-shadow: 0 1px 2px rgb(15 23 42 / 5%);
+}
+
+/* The kind of an item along the left edge of its details header, the way Azure DevOps marks a work
+   item. Only the header: down the whole card it framed the tabs and lists too, which are not the
+   item itself. Drawn as an inset shadow so the header content does not shift. */
+.kind-stripe {
+  box-shadow: inset 4px 0 0 var(--kind-stripe-color);
+}
+.kind-stripe--project {
+  --kind-stripe-color: var(--kind-project);
+}
+.kind-stripe--ticket {
+  --kind-stripe-color: var(--kind-ticket);
+}
+.kind-stripe--task {
+  --kind-stripe-color: var(--kind-task);
+}
+.kind-stripe--subtask {
+  --kind-stripe-color: var(--kind-subtask);
+}
+
+/* The body under a details page's tabs. A floor, not a fixed height: an empty tab with an Add
+   button above its message and one without used to differ, and the card jumped when moving
+   between them. Sized to hold the tallest empty tab — a task list with its toolbar. Content
+   longer than this simply grows past it. */
+.tab-body {
+  display: grid;
+  min-height: 17rem;
 }
 
 .panel-padding {
@@ -971,39 +1006,6 @@ app-onboarding .confetti i:nth-child(5n) {
   overflow-wrap: anywhere;
 }
 
-.project-tab-empty-state {
-  display: grid;
-  min-height: 30rem;
-  place-items: center;
-  align-content: center;
-  gap: 0.85rem;
-  padding: 2rem 1rem;
-  text-align: center;
-}
-
-.project-tab-empty-state--compact {
-  min-height: 22rem;
-}
-
-.project-tab-empty-state h3 {
-  margin: 0;
-  font-size: 1.2rem;
-}
-
-.project-tab-empty-state__icon {
-  display: grid;
-  width: 5.5rem;
-  height: 5.5rem;
-  place-items: center;
-  border-radius: 50%;
-  background: var(--orange-light);
-  color: var(--orange);
-}
-
-.project-tab-empty-state__icon i {
-  font-size: 2.25rem;
-}
-
 .p-button.p-button-danger.participant-danger-confirm-button:not(.p-button-text):not(
     .p-button-outlined
   ) {
@@ -1034,4 +1036,19 @@ app-onboarding .confetti i:nth-child(5n) {
   border-color: #b91c1c;
   background: #b91c1c;
   color: var(--white);
+}
+
+/* The browser draws its own cross in type="search" fields: blue, without hover or pointer, and
+   only in Chromium. Search fields use app-input-clear instead, so the built-in one is hidden
+   everywhere — otherwise a new field would quietly bring it back. */
+input[type='search']::-webkit-search-cancel-button,
+input[type='search']::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* A sortable header is a label and its arrows. Let the column narrow and the arrows drop to a line
+   of their own under the label, which reads as a stray icon. Kept on one line in every table. */
+.p-datatable-sortable-column {
+  white-space: nowrap;
 }

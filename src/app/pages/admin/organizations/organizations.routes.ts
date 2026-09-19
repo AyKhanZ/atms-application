@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { permissionGuard } from '../../../core/guards/permission.guard';
 import { Permissions } from '../../../core/enums/permissions.enum';
+import { transientInHistory } from '../../../core/services/navigation-history.service';
 
 export const ORGANIZATIONS_ROUTES: Routes = [
   {
@@ -10,6 +11,7 @@ export const ORGANIZATIONS_ROUTES: Routes = [
   },
   {
     path: 'create',
+    data: { [transientInHistory]: true },
     loadComponent: () => import('./create/create.component').then((c) => c.CreateComponent),
     canActivate: [permissionGuard(Permissions.Organization.Edit)],
   },
@@ -20,6 +22,7 @@ export const ORGANIZATIONS_ROUTES: Routes = [
   },
   {
     path: ':id/edit',
+    data: { [transientInHistory]: true },
     loadComponent: () => import('./edit/edit.component').then((c) => c.EditComponent),
     canActivate: [permissionGuard(Permissions.Organization.Edit)],
   },

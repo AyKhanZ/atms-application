@@ -1,3 +1,4 @@
+import { WorkItemKind } from '../../../core/models/work-items';
 import { TestBed } from '@angular/core/testing';
 import { WorkItemJumpComponent } from './work-item-jump.component';
 
@@ -97,7 +98,7 @@ describe('WorkItemJumpComponent', () => {
       { icon: 'pi-folder', title: 'Group' },
       { icon: 'pi-flag', title: 'Milestone' },
     ]);
-    fixture.componentRef.setInput('icon', 'pi-ticket');
+    fixture.componentRef.setInput('kind', WorkItemKind.Ticket);
     fixture.detectChanges();
 
     const levels = element.querySelectorAll<HTMLElement>('.work-item-jump-context__level');

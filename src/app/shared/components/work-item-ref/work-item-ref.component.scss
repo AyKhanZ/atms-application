@@ -1,0 +1,30 @@
+/* One look wherever an item is named — above a details title, in search, in the recent list — so
+   "TASK #34" reads the same everywhere. The whole line takes the kind's colour. */
+:host {
+  display: inline-flex;
+  min-width: 0;
+  align-items: center;
+  gap: 0.375rem;
+  color: var(--kind-color);
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+:host([data-kind='project']) {
+  --kind-color: var(--kind-project);
+}
+:host([data-kind='ticket']) {
+  --kind-color: var(--kind-ticket);
+}
+:host([data-kind='task']) {
+  --kind-color: var(--kind-task);
+}
+:host([data-kind='subtask']) {
+  --kind-color: var(--kind-subtask);
+}
+
+i {
+  font-size: 0.8rem;
+}

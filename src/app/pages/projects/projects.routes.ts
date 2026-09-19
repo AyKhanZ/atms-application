@@ -6,6 +6,8 @@ import { permissionGuard } from '../../core/guards/permission.guard';
 import { projectPermissionGuard } from '../../core/guards/project-permission.guard';
 import { roleGuard } from '../../core/guards/role.guard';
 import { unsavedChangesGuard } from '../../core/guards/unsaved-changes.guard';
+import { recreateOnParamChange } from '../../core/routing/app-route-reuse.strategy';
+import { transientInHistory } from '../../core/services/navigation-history.service';
 
 export const PROJECTS_ROUTES: Routes = [
   {
@@ -15,7 +17,7 @@ export const PROJECTS_ROUTES: Routes = [
   },
   {
     path: 'create',
-    data: { breadcrumb: { title: 'New project' } },
+    data: { breadcrumb: { title: 'New project' }, [transientInHistory]: true },
     canActivate: [roleGuard(Roles.SuperAdmin)],
     canDeactivate: [unsavedChangesGuard],
     loadComponent: () => import('./create/create.component').then((c) => c.ProjectCreateComponent),
@@ -24,6 +26,7 @@ export const PROJECTS_ROUTES: Routes = [
     // No breadcrumb entry: the trail already ends at the project being edited, and the page's
     // own "Edit project" heading states the mode. A crumb here would only repeat it.
     path: ':projectId/edit',
+    data: { [transientInHistory]: true },
     canActivate: [
       permissionGuard(Permissions.Project.Edit),
       projectPermissionGuard(ProjectPermissions.Project.Edit),
@@ -33,7 +36,7 @@ export const PROJECTS_ROUTES: Routes = [
   },
   {
     path: ':projectId/tickets/create',
-    data: { breadcrumb: { title: 'New ticket' } },
+    data: { breadcrumb: { title: 'New ticket' }, [transientInHistory]: true },
     canActivate: [
       permissionGuard(Permissions.Project.View),
       projectPermissionGuard(ProjectPermissions.Ticket.Create),
@@ -47,6 +50,7 @@ export const PROJECTS_ROUTES: Routes = [
   {
     // No breadcrumb entry — see the project edit route above.
     path: ':projectId/tickets/:ticketId/edit',
+    data: { [transientInHistory]: true },
     canActivate: [
       permissionGuard(Permissions.Project.Edit),
       projectPermissionGuard(ProjectPermissions.Ticket.Edit),
@@ -59,7 +63,7 @@ export const PROJECTS_ROUTES: Routes = [
   },
   {
     path: ':projectId/tickets/:ticketId/tasks/create',
-    data: { breadcrumb: { title: 'New task' } },
+    data: { breadcrumb: { title: 'New task' }, [transientInHistory]: true },
     canActivate: [
       permissionGuard(Permissions.Project.View),
       projectPermissionGuard(ProjectPermissions.Task.Create),
@@ -72,6 +76,7 @@ export const PROJECTS_ROUTES: Routes = [
   },
   {
     path: ':projectId/tickets/:ticketId/tasks/:taskId/edit',
+    data: { [transientInHistory]: true },
     canActivate: [
       permissionGuard(Permissions.Project.Edit),
       projectPermissionGuard(ProjectPermissions.Task.Edit),
@@ -93,6 +98,8 @@ export const PROJECTS_ROUTES: Routes = [
   },
   {
     path: ':projectId/tickets/:ticketId',
+    // Follows its ticket id itself; a ticket of another project gets a fresh page.
+    data: { [recreateOnParamChange]: ['projectId'] },
     canActivate: [
       permissionGuard(Permissions.Project.View),
       projectPermissionGuard(ProjectPermissions.Project.View),
@@ -104,6 +111,8 @@ export const PROJECTS_ROUTES: Routes = [
   },
   {
     path: ':projectId',
+    // The page is built around one project id; another project gets a fresh page.
+    data: { [recreateOnParamChange]: true },
     canActivate: [
       permissionGuard(Permissions.Project.View),
       projectPermissionGuard(ProjectPermissions.Project.View),

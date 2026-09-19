@@ -9,6 +9,7 @@ import { ProjectAccessService } from '../../../../../core/services/project-acces
 import { Features } from '../../../../../store/features.enum';
 import { initialWorkGroupsState } from '../../../../../store/work-groups/work-groups.state';
 import { WorkGroupsStoreActions } from '../../../../../store/work-groups';
+import { initialWorkTicketsState } from '../../../../../store/work-tickets/work-tickets.state';
 import {
   GroupsTabComponent,
   completedMilestoneCount,
@@ -101,6 +102,7 @@ describe('GroupsTabComponent', () => {
         provideMockActions(() => actions$),
         provideMockStore({
           initialState: {
+            [Features.WorkTickets]: initialWorkTicketsState,
             [Features.WorkGroups]: {
               ...initialWorkGroupsState,
               items: [workGroup()],
@@ -146,12 +148,10 @@ describe('GroupsTabComponent', () => {
     fixture.detectChanges();
 
     const element = fixture.nativeElement as HTMLElement;
-    const emptyState = element.querySelector('.groups-state--empty');
+    const emptyState = element.querySelector('app-empty-state');
 
     expect(element.querySelector('.groups-toolbar h3')).toBeNull();
-    expect(
-      emptyState?.querySelector('.project-tab-empty-state__icon .pi-folder-open'),
-    ).not.toBeNull();
+    expect(emptyState?.querySelector('.empty-state__icon .pi-folder-open')).not.toBeNull();
     expect(emptyState?.querySelector('h3')?.textContent?.trim()).toBe('No groups in the plan yet');
     expect(emptyState?.querySelector('span')).toBeNull();
     expect(emptyState?.querySelector('button')).toBeNull();
