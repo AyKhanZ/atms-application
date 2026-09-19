@@ -1,29 +1,30 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
+  OnDestroy,
   computed,
+  effect,
   inject,
   input,
   signal,
 } from '@angular/core';
-import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
-
 import { Router } from '@angular/router';
+import { Store } from '@ngrx/store';
 import { MenuItem } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { Menu, MenuModule } from 'primeng/menu';
-import { Subject, catchError, finalize, merge, of, switchMap, tap } from 'rxjs';
-import { WorkTaskModel } from '../../../../../core/models/work-tasks';
-
-import { WorkTasksService } from '../../../../../core/services/work-tasks.service';
+import { WorkTaskFilter, WorkTaskModel } from '../../../../../core/models/work-tasks';
+import { WorkTasksStoreActions, WorkTasksStoreSelectors } from '../../../../../store/work-tasks';
 import { EmptyStateComponent } from '../../../../../shared/components/empty-state/empty-state.component';
 import { WorkItemAssigneeComponent } from '../../../../../shared/components/work-item-assignee/work-item-assignee.component';
 import { TaskStatusBadgeComponent } from '../task-status-badge/task-status-badge.component';
+import { WorkItemRefComponent } from '../../../../../shared/components/work-item-ref/work-item-ref.component';
+import { WorkItemKind } from '../../../../../core/models/work-items';
 
 @Component({
   selector: 'app-work-task-list',
   imports: [
+    WorkItemRefComponent,
     ButtonModule,
     MenuModule,
     EmptyStateComponent,
@@ -35,24 +36,17 @@ import { TaskStatusBadgeComponent } from '../task-status-badge/task-status-badge
   styleUrl: './work-task-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class WorkTaskListComponent {
+export class WorkTaskListComponent implements OnDestroy {
+  protected readonly kinds = WorkItemKind;
   readonly projectId = input.required<string>();
   readonly ticketId = input<string | null>(null);
   readonly parentTaskId = input<string | null>(null);
   readonly canCreate = input(false);
   readonly canEdit = input(false);
 
-  private readonly tasksService = inject(WorkTasksService);
-
-  private readonly destroyRef = inject(DestroyRef);
+  private readonly store = inject(Store);
   private readonly router = inject(Router);
-
-  readonly items = signal<WorkTaskModel[]>([]);
-  readonly loading = signal(true);
-  readonly loadingMore = signal(false);
-  readonly loadError = signal(false);
-  readonly nextCursor = signal<string | null>(null);
-  readonly hasMore = signal(false);
+  private readonly taskPages = this.store.selectSignal(WorkTasksStoreSelectors.getPages);
 
   /**
    * The list is reused for a ticket's tasks and for a task's subtasks, and both are reached by
@@ -62,36 +56,32 @@ export class WorkTaskListComponent {
   private readonly queryKey = computed(
     () => `${this.projectId()}|${this.ticketId() ?? ''}|${this.parentTaskId() ?? ''}`,
   );
-
-  private readonly reload = new Subject<void>();
+  private readonly page = computed(() => this.taskPages()[this.queryKey()]);
+  readonly items = computed(() => this.page()?.items ?? []);
+  readonly loading = computed(() => this.page()?.loading ?? true);
+  readonly loadingMore = computed(() => this.loading() && this.items().length > 0);
+  readonly loadError = computed(
+    () => this.page()?.error !== null && this.page()?.error !== undefined,
+  );
+  readonly nextCursor = computed(() => this.page()?.nextCursor ?? null);
+  readonly hasMore = computed(() => this.page()?.hasMore ?? false);
 
   constructor() {
-    merge(toObservable(this.queryKey), this.reload)
-      .pipe(
-        tap(() => {
-          this.items.set([]);
-          this.nextCursor.set(null);
-          this.hasMore.set(false);
-          this.loading.set(true);
-          this.loadError.set(false);
+    effect(() => {
+      const requestKey = this.queryKey();
+      this.store.dispatch(
+        WorkTasksStoreActions.loadTasks({
+          requestKey,
+          projectId: this.projectId(),
+          filter: this.filter(null),
+          append: false,
         }),
-        switchMap(() =>
-          this.fetch(null).pipe(
-            catchError(() => {
-              this.loadError.set(true);
-              return of(null);
-            }),
-            finalize(() => this.loading.set(false)),
-          ),
-        ),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe((page) => {
-        if (!page) return;
-        this.items.set(page.items);
-        this.nextCursor.set(page.nextCursor);
-        this.hasMore.set(page.hasMore);
-      });
+      );
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.store.dispatch(WorkTasksStoreActions.clearPage({ requestKey: this.queryKey() }));
   }
 
   readonly selectedTask = signal<WorkTaskModel | null>(null);
@@ -141,35 +131,35 @@ export class WorkTaskListComponent {
   loadMore(): void {
     if (!this.hasMore() || !this.nextCursor() || this.loadingMore()) return;
 
-    this.loadingMore.set(true);
-    this.fetch(this.nextCursor())
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        finalize(() => this.loadingMore.set(false)),
-      )
-      .subscribe({
-        next: (page) => {
-          this.items.update((items) => [...items, ...page.items]);
-          this.nextCursor.set(page.nextCursor);
-          this.hasMore.set(page.hasMore);
-        },
-        error: () => this.loadError.set(true),
-      });
+    this.store.dispatch(
+      WorkTasksStoreActions.loadTasks({
+        requestKey: this.queryKey(),
+        projectId: this.projectId(),
+        filter: this.filter(this.nextCursor()),
+        append: true,
+      }),
+    );
   }
 
   retry(): void {
-    this.reload.next();
+    this.store.dispatch(
+      WorkTasksStoreActions.loadTasks({
+        requestKey: this.queryKey(),
+        projectId: this.projectId(),
+        filter: this.filter(null),
+        append: false,
+      }),
+    );
   }
 
-  private fetch(cursor: string | null) {
+  private filter(cursor: string | null): WorkTaskFilter {
     const parentWorkTaskId = this.parentTaskId();
-
-    return this.tasksService.getWorkTasks(this.projectId(), {
+    return {
       ...(parentWorkTaskId
         ? { parentWorkTaskId }
         : { workTicketId: this.ticketId(), rootTasksOnly: true }),
       pageSize: 10,
       cursor,
-    });
+    };
   }
 }

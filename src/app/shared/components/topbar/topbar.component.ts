@@ -1,16 +1,17 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { MenuItem } from 'primeng/api';
 import { MenuModule } from 'primeng/menu';
-import { BreadcrumbsComponent } from '../breadcrumbs/breadcrumbs.component';
+import { GlobalSearchComponent } from '../global-search/global-search.component';
 import { UserStoreSelectors } from '../../../store/user';
 import { Store } from '@ngrx/store';
 import { AuthStoreActions } from '../../../store/auth';
 import { Router } from '@angular/router';
 import { ImageUrlService } from '../../../core/services/image-url.service';
+import { LayoutService } from '../../../core/services/layout.service';
 
 @Component({
   selector: 'app-topbar',
-  imports: [MenuModule, BreadcrumbsComponent],
+  imports: [MenuModule, GlobalSearchComponent],
   templateUrl: './topbar.component.html',
   styleUrl: './topbar.component.scss',
 })
@@ -18,6 +19,7 @@ export class TopbarComponent {
   private readonly store = inject(Store);
   private readonly router = inject(Router);
   private readonly imageUrlService = inject(ImageUrlService);
+  readonly layout = inject(LayoutService);
   isMenuOpen = signal(false);
   meModel = this.store.selectSignal(UserStoreSelectors.getMe);
   avatarUrl = computed(() => this.imageUrlService.normalizeAvatar(this.meModel()?.avatarPath));

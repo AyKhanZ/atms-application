@@ -3,8 +3,7 @@
 <section class="page project-details-page">
   <div class="page-header details-header">
     <div>
-      <h1 class="page-title">Details</h1>
-      <p class="page-subtitle">{{ project()?.title || 'Project workspace' }}</p>
+      <h1 class="page-title">Project details</h1>
     </div>
     <div class="details-actions">
       <app-back-button (back)="back()" />
@@ -37,9 +36,9 @@
 
   @if (project(); as item) {
     <article class="panel project-panel">
-      <header class="project-hero">
+      <header class="project-hero kind-stripe kind-stripe--project">
         <div class="project-identity">
-          <span class="project-code">PROJECT #{{ item.code }}</span>
+          <app-work-item-ref [type]="kinds.Project" [code]="item.code" />
           <h2>{{ item.title }}</h2>
           @if (item.updatedAt && item.updatedBy) {
             <p class="updated-meta">
@@ -59,66 +58,77 @@
         (select)="selectTab($event)"
       />
 
-      @if (activeTab() === 'details') {
-        <div class="details-content">
-          <section class="description-card content-card">
-            <div class="section-heading">
-              <h3>Description</h3>
-            </div>
-            @if (item.description) {
-              <p class="description">{{ item.description }}</p>
-            } @else {
-              <p class="inline-empty">No description has been added.</p>
-            }
-          </section>
-
-          <aside class="project-information">
-            <section>
-              <h3>Information</h3>
-              <dl>
-                <div>
-                  <dt>Start date</dt>
-                  <dd>
-                    {{ item.startDate ? (item.startDate | date: 'dd.MM.yyyy') : 'Not set' }}
-                  </dd>
-                </div>
-                <div>
-                  <dt>Target date</dt>
-                  <dd>
-                    {{ item.endDate ? (item.endDate | date: 'dd.MM.yyyy') : 'Not set' }}
-                  </dd>
-                </div>
-                <div>
-                  <dt>Type</dt>
-                  <dd>
-                    <span class="project-metadata-tag project-metadata-tag--type">
-                      {{ item.projectType.name }}
-                    </span>
-                  </dd>
-                </div>
-                <div>
-                  <dt>Kind</dt>
-                  <dd>
-                    <span class="project-metadata-tag project-metadata-tag--kind">
-                      {{ item.projectKind.name }}
-                    </span>
-                  </dd>
-                </div>
-              </dl>
+      <!-- One height for every tab, so moving between empty ones does not resize the card. -->
+      <div class="tab-body">
+        @if (activeTab() === 'details') {
+          <div class="details-content">
+            <section class="description-card content-card">
+              <div class="section-heading">
+                <h3>Description</h3>
+              </div>
+              @if (item.description) {
+                <p class="description">{{ item.description }}</p>
+              } @else {
+                <p class="inline-empty">No description has been added.</p>
+              }
             </section>
-          </aside>
-        </div>
-      } @else if (activeTab() === 'stakeholders') {
-        <app-stakeholders-tab [project]="item" [isSaving]="isSaving()" />
-      } @else if (activeTab() === 'groups') {
-        <ng-container *hasProjectAccess="ProjectPermissions.Project.View; projectId: item.id">
-          <app-groups-tab [projectId]="item.id" [focusedMilestoneId]="focusedMilestoneId()" />
-        </ng-container>
-      } @else if (activeTab() === 'attachments') {
-        <app-empty-state icon="pi-paperclip" title="No attachments yet" />
-      } @else {
-        <app-empty-state icon="pi-history" title="No activity yet" />
-      }
+
+            <aside class="project-information">
+              <section>
+                <h3>Information</h3>
+                <dl>
+                  <div>
+                    <dt>Start date</dt>
+                    <dd>
+                      {{ item.startDate ? (item.startDate | date: 'dd.MM.yyyy') : 'Not set' }}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Target date</dt>
+                    <dd>
+                      {{ item.endDate ? (item.endDate | date: 'dd.MM.yyyy') : 'Not set' }}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Type</dt>
+                    <dd>
+                      <span class="project-metadata-tag project-metadata-tag--type">
+                        {{ item.projectType.name }}
+                      </span>
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Kind</dt>
+                    <dd>
+                      <span class="project-metadata-tag project-metadata-tag--kind">
+                        {{ item.projectKind.name }}
+                      </span>
+                    </dd>
+                  </div>
+                </dl>
+              </section>
+            </aside>
+          </div>
+        } @else if (activeTab() === 'stakeholders') {
+          <app-stakeholders-tab [project]="item" [isSaving]="isSaving()" />
+        } @else if (activeTab() === 'groups') {
+          <ng-container *hasProjectAccess="ProjectPermissions.Project.View; projectId: item.id">
+            <app-groups-tab [projectId]="item.id" [focusedMilestoneId]="focusedMilestoneId()" />
+          </ng-container>
+        } @else if (activeTab() === 'attachments') {
+          <app-empty-state
+            icon="pi-paperclip"
+            title="No attachments yet"
+            description="Files added here will be listed in this tab."
+          />
+        } @else {
+          <app-empty-state
+            icon="pi-history"
+            title="No activity yet"
+            description="Every change will be recorded here."
+          />
+        }
+      </div>
     </article>
   } @else if (loading()) {
     <div class="panel details-loading">

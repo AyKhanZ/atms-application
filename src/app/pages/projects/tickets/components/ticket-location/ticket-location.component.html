@@ -19,7 +19,7 @@
         <app-work-item-jump
           [current]="item"
           [items]="jump.items()"
-          icon="pi-ticket"
+          [kind]="kinds.Ticket"
           label="Switch ticket"
           [context]="jumpContext()"
           [groupLabel]="item.milestoneTitle"

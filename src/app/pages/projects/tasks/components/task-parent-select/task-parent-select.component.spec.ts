@@ -1,4 +1,6 @@
 import { TestBed } from '@angular/core/testing';
+import { provideEffects } from '@ngrx/effects';
+import { provideStore } from '@ngrx/store';
 import { Subject, of, throwError } from 'rxjs';
 import { WorkTasksService } from '../../../../../core/services/work-tasks.service';
 import { WorkTicketsService } from '../../../../../core/services/work-tickets.service';
@@ -6,6 +8,11 @@ import { WorkTaskPageModel } from '../../../../../core/models/work-tasks';
 import { WorkTicketModel } from '../../../../../core/models/work-tickets';
 import { TaskParentSelectComponent } from './task-parent-select.component';
 import { ticketParentOption } from './task-parent-option';
+import { Features } from '../../../../../store/features.enum';
+import { WorkTasksEffects } from '../../../../../store/work-tasks/work-tasks.effects';
+import { workTasksReducer } from '../../../../../store/work-tasks/work-tasks.reducer';
+import { WorkTicketsEffects } from '../../../../../store/work-tickets/work-tickets.effects';
+import { workTicketsReducer } from '../../../../../store/work-tickets/work-tickets.reducer';
 
 const ticket: WorkTicketModel = {
   id: 't',
@@ -32,6 +39,11 @@ async function setup(subtasks = false) {
   TestBed.configureTestingModule({
     imports: [TaskParentSelectComponent],
     providers: [
+      provideStore({
+        [Features.WorkTickets]: workTicketsReducer,
+        [Features.WorkTasks]: workTasksReducer,
+      }),
+      provideEffects(WorkTicketsEffects, WorkTasksEffects),
       { provide: WorkTicketsService, useValue: tickets },
       { provide: WorkTasksService, useValue: tasks },
     ],

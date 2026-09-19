@@ -42,6 +42,7 @@ import {
 } from '../../shared/components/file-upload/file-upload.component';
 import { PasswordRules } from '../../shared/components/password-rules/password-rules';
 import { PasswordValidators } from '../../shared/validators/password.validators';
+import { validationMessage } from '../../core/utils/http-error.utils';
 
 type InvitationGroup = FormGroup<{
   name: FormControl<string>;
@@ -481,8 +482,7 @@ export class OnboardingComponent implements HasUnsavedChanges {
       );
       return;
     }
-    const fieldErrors = error.error?.errors as { error?: string }[] | undefined;
-    this.snackBar.error(fieldErrors?.[0]?.error ?? error.error?.error ?? fallback);
+    this.snackBar.error(validationMessage(error) ?? error.error?.error ?? fallback);
   }
 
   private setActiveView(view: OnboardingView): void {

@@ -47,9 +47,18 @@ function titles(element: HTMLElement): string[] {
 
 describe('BreadcrumbsComponent', () => {
   it('falls back to the static route title when nothing is registered', async () => {
+    const { fixture } = await renderAt('/projects');
+
+    expect(fixture.componentInstance.breadcrumbs().map((crumb) => crumb.title)).toEqual([
+      'Projects',
+    ]);
+  });
+
+  it('draws nothing when the trail is one level deep', async () => {
     const { element } = await renderAt('/projects');
 
-    expect(titles(element)).toEqual(['Projects']);
+    // A lone level repeats the page title one line above it, so there is nothing to draw.
+    expect(titles(element)).toEqual([]);
   });
 
   it('renders a registered title for a dynamic segment', async () => {
@@ -125,9 +134,11 @@ describe('BreadcrumbsComponent form context', () => {
   });
 
   it('ignores a temporary trail owned by another route', async () => {
-    const { fixture, overrides, element } = await renderAt('/projects');
+    const { fixture, overrides } = await renderAt('/projects');
     overrides.setTrail('/projects/p7/edit', [{ title: 'Other page', path: '/projects/p7' }]);
     fixture.detectChanges();
-    expect(titles(element)).toEqual(['Projects']);
+    expect(fixture.componentInstance.breadcrumbs().map((crumb) => crumb.title)).toEqual([
+      'Projects',
+    ]);
   });
 });

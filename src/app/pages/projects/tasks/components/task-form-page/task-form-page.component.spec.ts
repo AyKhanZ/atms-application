@@ -1,4 +1,9 @@
 import { TestBed } from '@angular/core/testing';
+import { provideEffects } from '@ngrx/effects';
+import { provideStore } from '@ngrx/store';
+import { Features } from '../../../../../store/features.enum';
+import { WorkTasksEffects } from '../../../../../store/work-tasks/work-tasks.effects';
+import { workTasksReducer } from '../../../../../store/work-tasks/work-tasks.reducer';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { of } from 'rxjs';
 import { ConfirmationService } from 'primeng/api';
@@ -85,6 +90,9 @@ async function setup(mode: 'create' | 'edit' = 'create', parent = false, loadedT
         },
       },
       { provide: WorkTasksService, useValue: api },
+      // Saving goes through the store; its effect calls the service stubbed above.
+      provideStore({ [Features.WorkTasks]: workTasksReducer }),
+      provideEffects(WorkTasksEffects),
       { provide: SnackBarService, useValue: { success: vi.fn(), error: vi.fn() } },
     ],
   }).overrideComponent(TaskFormPageComponent, {

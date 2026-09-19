@@ -1,0 +1,47 @@
+:host {
+  display: block;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  padding: 0.6rem 0.85rem;
+  border-bottom: 1px solid var(--app-border);
+}
+
+.filters__chip {
+  padding: 0.3rem 0.7rem;
+  border: 1px solid var(--app-border);
+  border-radius: 0.45rem;
+  background: var(--app-surface);
+  color: var(--app-muted);
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 500;
+  transition:
+    background 0.12s ease,
+    border-color 0.12s ease,
+    color 0.12s ease;
+}
+
+.filters__chip:hover:not(:disabled) {
+  border-color: var(--orange-border);
+  color: var(--orange-text-hover);
+}
+
+.filters__chip--active {
+  border-color: var(--orange-border);
+  background: var(--orange-light);
+  color: var(--orange-text-hover);
+}
+
+.filters__chip:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+
+.filters__chip:focus-visible {
+  outline: 2px solid var(--orange-focus-outline);
+  outline-offset: 1px;
+}

@@ -60,7 +60,7 @@
 
 .ticket-main {
   display: grid;
-  grid-template-columns: 1.15rem auto minmax(0, 1fr);
+  grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
   gap: 0.55rem;
   min-width: 0;
@@ -81,19 +81,6 @@
 .item-menu-button:focus-visible {
   outline: 3px solid var(--orange-focus-outline);
   outline-offset: 1px;
-}
-
-.structure-icon {
-  color: var(--orange-text-hover);
-  font-size: 0.95rem;
-}
-
-.ticket-code {
-  color: var(--app-muted);
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  white-space: nowrap;
 }
 
 .ticket-main strong {
@@ -178,15 +165,28 @@
     width: 100%;
   }
 
-  /* Stacked under the title: the row is its own grid again, so the tracks follow the content. */
+  /* Who on the left, type and state on the right under the menu — the same split as a task row. */
   .ticket-meta {
     grid-row: 2;
     grid-column: 1 / -1;
-    grid-template-columns: auto minmax(0, 1fr) auto;
-    width: min(100%, 17rem);
-    max-width: 100%;
-    justify-self: start;
-    gap: 0.3rem;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    width: 100%;
+    gap: 0.45rem;
+  }
+
+  .ticket-meta > app-work-item-assignee {
+    grid-row: 1;
+    grid-column: 1;
+  }
+
+  .ticket-meta > app-work-item-type {
+    grid-row: 1;
+    grid-column: 2;
+  }
+
+  .ticket-meta > app-ticket-status-badge {
+    grid-row: 1;
+    grid-column: 3;
   }
 
   .ticket-row > .item-menu-button {

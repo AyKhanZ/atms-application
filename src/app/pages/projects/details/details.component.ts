@@ -23,9 +23,11 @@ import { Permissions } from '../../../core/enums/permissions.enum';
 import { ProjectPermissions } from '../../../core/enums/project-permissions.enum';
 import { Roles } from '../../../core/enums/roles.enum';
 import { BreadcrumbOverrideService } from '../../../core/services/breadcrumb-override.service';
+import { WorkItemKind } from '../../../core/models/work-items';
+import { WorkItemRefComponent } from '../../../shared/components/work-item-ref/work-item-ref.component';
+import { RecentWorkItemsService } from '../../../core/services/recent-work-items.service';
 import { ProjectPermissionsRefreshService } from '../../../core/services/project-permissions-refresh.service';
 import { VisiblePageRefreshService } from '../../../core/services/visible-page-refresh.service';
-import { projectNavigationUrl } from '../../../core/utils/project-navigation.utils';
 import { BackButtonComponent } from '../../../shared/components/back-button/back-button.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import {
@@ -39,12 +41,14 @@ import { ProjectStatusBadgeComponent } from '../components/status-badge/project-
 import { GroupsTabComponent } from './tabs/groups/groups-tab.component';
 import { WorkGroupExpansionStateService } from './tabs/groups/work-group-expansion-state.service';
 import { StakeholdersTabComponent } from './tabs/stakeholders/stakeholders-tab.component';
+import { NavigationHistoryService } from '../../../core/services/navigation-history.service';
 
 type ProjectTab = 'details' | 'stakeholders' | 'groups' | 'attachments' | 'history';
 
 @Component({
   selector: 'app-project-details',
   imports: [
+    WorkItemRefComponent,
     DatePipe,
     ButtonModule,
     ConfirmDialogModule,
@@ -65,8 +69,10 @@ type ProjectTab = 'details' | 'stakeholders' | 'groups' | 'attachments' | 'histo
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProjectDetailsComponent implements OnDestroy {
+  protected readonly kinds = WorkItemKind;
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly navigationHistory = inject(NavigationHistoryService);
   private readonly store = inject(Store);
   private readonly actions$ = inject(Actions);
   private readonly destroyRef = inject(DestroyRef);
@@ -77,6 +83,7 @@ export class ProjectDetailsComponent implements OnDestroy {
   private readonly breadcrumbOverride = inject(BreadcrumbOverrideService);
   private breadcrumbPath = '';
 
+  private readonly recent = inject(RecentWorkItemsService);
   readonly project = this.store.selectSignal(WorkProjectsStoreSelectors.getItem);
   readonly loading = this.store.selectSignal(WorkProjectsStoreSelectors.isLoading);
   readonly isSaving = this.store.selectSignal(WorkProjectsStoreSelectors.isSubmitted);
@@ -107,6 +114,9 @@ export class ProjectDetailsComponent implements OnDestroy {
       if (project)
         this.breadcrumbOverride.set(this.breadcrumbPath, `#${project.code} ${project.title}`);
     });
+    // Once per opening: the page is built per project id, while the project itself is reloaded
+    // after an edit or on coming back to the tab — that is not the user opening it again.
+    this.recent.track(WorkItemKind.Project, this.id);
     this.route.queryParamMap.pipe(takeUntilDestroyed()).subscribe((params) => {
       this.activeTab.set(parseProjectTab(params.get('tab')));
       const groupId = params.get('groupId');
@@ -162,7 +172,7 @@ export class ProjectDetailsComponent implements OnDestroy {
       .subscribe(() => this.store.dispatch(WorkProjectsStoreActions.loadProject({ id: this.id })));
     this.actions$
       .pipe(ofType(WorkProjectsStoreActions.deleteProjectSuccess), takeUntilDestroyed())
-      .subscribe(() => this.back());
+      .subscribe(() => this.toList(true));
   }
 
   ngOnDestroy(): void {
@@ -178,16 +188,20 @@ export class ProjectDetailsComponent implements OnDestroy {
     });
   }
 
+  /** Where the user came from; the project list when that is unknown. */
   back(): void {
-    const state = history.state as { returnUrl?: unknown };
-    void this.router.navigateByUrl(projectNavigationUrl(state.returnUrl) ?? '/projects');
+    if (!this.navigationHistory.back()) this.toList();
+  }
+
+  /** The project list. After a delete it replaces the gone page in the history, so Back from the
+   *  list does not return to it. */
+  private toList(replaceHistory = false): void {
+    void this.router.navigateByUrl('/projects', { state: { replaceHistory } });
   }
 
   edit(): void {
-    const state = history.state as { returnUrl?: unknown };
-    const detailsReturnUrl = projectNavigationUrl(state.returnUrl) ?? '/projects';
     void this.router.navigate(['/projects', this.id, 'edit'], {
-      state: { cancelUrl: this.router.url, detailsReturnUrl },
+      state: { cancelUrl: this.router.url },
     });
   }
 

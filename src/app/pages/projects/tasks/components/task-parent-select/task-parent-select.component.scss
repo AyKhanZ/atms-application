@@ -53,6 +53,14 @@ p-select {
 .parent-context > i:not(.pi-angle-right) {
   color: var(--orange);
 }
+/* Same gap between the code and the title as everywhere an item is named. */
+.parent-option,
+.parent-selection,
+.parent-context {
+  app-work-item-ref {
+    flex-shrink: 0;
+  }
+}
 .parent-selection > i,
 .parent-context > i {
   flex-shrink: 0;

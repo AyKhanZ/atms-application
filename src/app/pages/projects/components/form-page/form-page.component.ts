@@ -112,8 +112,6 @@ export class ProjectFormPageComponent implements OnDestroy {
   readonly cancelUrl =
     projectNavigationUrl(this.navigationState.cancelUrl) ??
     (this.id ? `/projects/${this.id}` : '/projects');
-  readonly detailsReturnUrl =
-    projectNavigationUrl(this.navigationState.detailsReturnUrl) ?? '/projects';
   readonly isEdit = computed(() => this.mode() === 'edit');
   readonly pageTitle = computed(() => (this.isEdit() ? 'Edit project' : 'Create project'));
   readonly submitLabel = computed(() => (this.isEdit() ? 'Save' : 'Create'));
@@ -180,9 +178,7 @@ export class ProjectFormPageComponent implements OnDestroy {
       .pipe(ofType(WorkProjectsStoreActions.createProjectSuccess), takeUntilDestroyed())
       .subscribe(({ id }) => {
         this.navigationComplete = true;
-        void this.router.navigate(['/projects', id], {
-          state: { returnUrl: this.detailsReturnUrl },
-        });
+        void this.router.navigate(['/projects', id]);
       });
 
     this.actions$
@@ -196,9 +192,7 @@ export class ProjectFormPageComponent implements OnDestroy {
       .subscribe(() => {
         if (this.id) {
           this.navigationComplete = true;
-          void this.router.navigate(['/projects', this.id], {
-            state: { returnUrl: this.detailsReturnUrl },
-          });
+          void this.router.navigate(['/projects', this.id]);
         }
       });
   }
@@ -332,14 +326,9 @@ export class ProjectFormPageComponent implements OnDestroy {
     if (this.hasUnsavedChanges()) event.preventDefault();
   }
 
+  /** Back where the form was opened from. Where the details page leads next is the navigation
+   *  history's business, not the form's, so nothing is handed on. */
   private navigateToCancelUrl(): void {
-    if (this.id && this.cancelUrl === `/projects/${this.id}`) {
-      void this.router.navigateByUrl(this.cancelUrl, {
-        state: { returnUrl: this.detailsReturnUrl },
-      });
-      return;
-    }
-
     void this.router.navigateByUrl(this.cancelUrl);
   }
 
@@ -495,7 +484,6 @@ export class ProjectFormPageComponent implements OnDestroy {
 
 interface ProjectFormNavigationState {
   cancelUrl?: unknown;
-  detailsReturnUrl?: unknown;
 }
 
 function toDate(value: Date | null): string | null {

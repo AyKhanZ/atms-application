@@ -9,6 +9,7 @@ import { SnackBarService } from '../../core/services/snack-bar.service';
 import { WorkGroupsService } from '../../core/services/work-groups.service';
 import * as WorkGroupsStoreSelectors from './work-groups.selectors';
 import * as WorkGroupsStoreActions from './work-groups.actions';
+import { validationMessage } from '../../core/utils/http-error.utils';
 
 @Injectable()
 export class WorkGroupsEffects {
@@ -162,8 +163,8 @@ export class WorkGroupsEffects {
 }
 
 function createErrorMessage(error: HttpErrorResponse, kind: WorkGroupKind): string {
-  const validationMessage = getValidationMessage(error);
-  if (validationMessage) return validationMessage;
+  const invalid = validationMessage(error, 'title');
+  if (invalid) return invalid;
   if (error.status === 409) return duplicateNameMessage(kind);
   if (error.status === 404) {
     return kind === 'milestone'
@@ -175,8 +176,8 @@ function createErrorMessage(error: HttpErrorResponse, kind: WorkGroupKind): stri
 }
 
 function updateErrorMessage(error: HttpErrorResponse, kind: WorkGroupKind): string {
-  const validationMessage = getValidationMessage(error);
-  if (validationMessage) return validationMessage;
+  const invalid = validationMessage(error, 'title');
+  if (invalid) return invalid;
   if (error.status === 409) return duplicateNameMessage(kind);
   if (error.status === 404) return unavailableItemMessage(kind);
 
@@ -204,13 +205,4 @@ function unavailableItemMessage(kind: WorkGroupKind): string {
   const itemName = kind === 'group' ? 'group' : 'milestone';
 
   return `This ${itemName} is no longer available. Refresh the plan and try again.`;
-}
-
-function getValidationMessage(error: HttpErrorResponse): string | null {
-  if (error.status !== 400) return null;
-
-  const errors = error.error?.errors as { field?: string; error?: string }[] | undefined;
-  const titleError = errors?.find((item) => item.field?.toLowerCase() === 'title')?.error;
-
-  return titleError ?? errors?.find((item) => item.error)?.error ?? null;
 }

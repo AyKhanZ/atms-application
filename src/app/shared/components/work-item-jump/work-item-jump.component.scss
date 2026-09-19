@@ -15,7 +15,7 @@
 
 .work-item-jump-trigger {
   display: grid;
-  grid-template-columns: auto auto minmax(0, 1fr) auto;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   width: 100%;
   min-width: 0;
   min-height: 2.75rem;
@@ -40,16 +40,6 @@
   border-color: var(--orange);
   outline: 3px solid var(--orange-focus-outline);
   outline-offset: 1px;
-}
-
-.work-item-jump-trigger > .pi-ticket {
-  color: var(--orange-text-hover);
-}
-
-.work-item-jump-trigger__code {
-  color: var(--app-muted);
-  font-size: 0.78rem;
-  font-weight: 700;
 }
 
 .work-item-jump-trigger__title {
@@ -91,9 +81,27 @@
   display: none;
 }
 
+/* Same answer the select overlays give below 768px: stop pointing at the trigger and come up
+   from the bottom. A panel this wide cannot both point at something and keep off the edges. */
+.work-item-jump-panel--sheet {
+  inset: auto 0 0 0;
+  width: 100%;
+  max-height: 80vh;
+  border-width: 1px 0 0;
+  border-radius: 14px 14px 0 0;
+}
+
+.work-item-jump-panel--sheet::backdrop {
+  background: rgb(15 23 42 / 45%);
+}
+
+.work-item-jump-panel--sheet .work-item-jump-list {
+  max-height: none;
+}
+
 .work-item-jump-search {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: 0.55rem;
   margin: 0.65rem;
@@ -107,8 +115,14 @@
   box-shadow: 0 0 0 3px var(--orange-focus-outline);
 }
 
-.work-item-jump-search i {
+.work-item-jump-search > i {
   color: var(--app-muted);
+}
+
+/* The cross is taller than the text line; pulled into the padding so the field does not grow
+   the moment the first letter is typed. */
+.work-item-jump-search app-input-clear {
+  margin-block: -0.35rem;
 }
 
 .work-item-jump-search input {
@@ -169,7 +183,7 @@
 
 .work-item-jump-option {
   display: grid;
-  grid-template-columns: auto auto minmax(0, 1fr);
+  grid-template-columns: auto minmax(0, 1fr);
   width: 100%;
   min-width: 0;
   align-items: center;
@@ -180,10 +194,6 @@
   color: var(--app-text);
   text-align: left;
   cursor: pointer;
-}
-
-.work-item-jump-option > i {
-  color: var(--orange);
 }
 
 /* The edit parent select and this details switcher are two presentations of the same plan tree.
@@ -206,16 +216,6 @@
   background: var(--orange-light);
   color: var(--orange-text-hover);
   font-weight: 600;
-}
-
-.work-item-jump-option__code {
-  color: var(--app-muted);
-  font-size: 0.85rem;
-  font-weight: inherit;
-}
-
-.work-item-jump-option--current .work-item-jump-option__code {
-  color: inherit;
 }
 
 .work-item-jump-option__title {

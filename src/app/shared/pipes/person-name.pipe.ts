@@ -20,6 +20,19 @@ export class PersonNamePipe implements PipeTransform {
   }
 }
 
+/** Short display name for constrained lists; the full name remains in the tooltip. */
+@Pipe({ name: 'personShortName' })
+export class PersonShortNamePipe implements PipeTransform {
+  transform(person?: NamedPerson | null): string {
+    if (!person) return 'Unassigned';
+    const name = person.name?.trim() ?? '';
+    const surname = person.surname?.trim() ?? '';
+    return name
+      ? `${name}${surname ? ` ${Array.from(surname)[0]}.` : ''}`
+      : surname || 'Unassigned';
+  }
+}
+
 /** "DZ" — the avatar fallback shown while there is no picture. */
 @Pipe({ name: 'personInitials' })
 export class PersonInitialsPipe implements PipeTransform {

@@ -1,0 +1,63 @@
+<section class="page search-page">
+  <div class="page-header search-page-header">
+    <h1 class="page-title">Search</h1>
+    <div class="page-actions">
+      <app-back-button (back)="back()" />
+    </div>
+  </div>
+
+  <article class="panel search-panel">
+    <app-list-search
+      class="search-panel__input"
+      placeholder="Search by code or title"
+      [value]="query()"
+      (valueChange)="changeQuery($event)"
+    />
+
+    <app-search-filters [chips]="chips" [active]="itemType()" (select)="changeType($event)" />
+
+    <div class="search-panel__list">
+      @for (item of items(); track item.id) {
+        <app-search-result-row
+          role="button"
+          tabindex="0"
+          [item]="item"
+          [query]="query()"
+          (click)="open(item)"
+          (keydown.enter)="open(item)"
+          (keydown.space)="$event.preventDefault(); open(item)"
+        />
+      }
+
+      @if (empty()) {
+        <app-empty-state
+          icon="pi-search"
+          title="No results found"
+          description="Try another code or another word from the title."
+        />
+      }
+
+      @if (loading()) {
+        <div class="search-panel__skeleton" aria-hidden="true">
+          @for (line of [1, 2, 3]; track line) {
+            <span></span>
+          }
+        </div>
+      }
+
+      @if (failed()) {
+        <div class="search-panel__error" role="alert">
+          <span>Results could not be loaded.</span>
+          <button type="button" (click)="retry()">Retry</button>
+        </div>
+      }
+
+      <!-- Loads the next page on its own; the button stays as the way in when it cannot. -->
+      <div [appScrollSentinel]="hasMore() && !loading() && !failed()" (reached)="loadMore()"></div>
+
+      @if (hasMore() && !loading()) {
+        <button type="button" class="search-panel__more" (click)="loadMore()">Load more</button>
+      }
+    </div>
+  </article>
+</section>

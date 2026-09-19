@@ -1,6 +1,6 @@
 :host {
   --sidebar-width: 260px;
-  --sidebar-collapsed-width: 80px;
+  --sidebar-icons-width: 80px;
 }
 
 .sidebar {
@@ -19,14 +19,30 @@
   display: flex;
   flex-direction: column;
 
-  transition: width 0.2s ease;
+  transition:
+    width 0.2s ease,
+    transform 0.2s ease;
 
   overflow: hidden;
 
   z-index: 20;
 
-  &.collapsed {
-    width: var(--sidebar-collapsed-width);
+  &--icons {
+    width: var(--sidebar-icons-width);
+  }
+
+  /* Below 1024px the menu is not part of the page any more: it waits off-screen and comes over
+     the content when asked. A permanent strip of icons costs 19% of a 375px screen, and the
+     content is what the person came for. */
+  &--drawer {
+    width: var(--sidebar-width);
+    transform: translateX(-100%);
+    box-shadow: none;
+  }
+
+  &--drawer.sidebar--open {
+    transform: none;
+    box-shadow: 0 0 40px rgb(15 23 42 / 22%);
   }
 }
 
@@ -43,6 +59,37 @@
 
   font-size: 30px;
   font-weight: 700;
+}
+
+.sidebar--drawer .logo {
+  justify-content: space-between;
+  padding-inline: 20px;
+}
+
+.drawer-close {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--gray-text);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--orange-light-hover);
+    color: var(--orange);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--orange-focus-outline);
+    outline-offset: 2px;
+  }
+
+  .pi {
+    font-size: 1.1rem;
+  }
 }
 
 .menu {
@@ -89,6 +136,17 @@
   }
 }
 
+/* An icon on its own still has to be a 44px target, so the row keeps its height and only loses
+   the label. */
+.sidebar--icons .menu {
+  padding-inline: 14px;
+
+  a {
+    justify-content: center;
+    padding-inline: 0;
+  }
+}
+
 .collapse-btn {
   display: flex;
   align-items: center;
@@ -122,36 +180,5 @@
   &:focus-visible {
     outline: 2px solid var(--orange-focus-outline);
     outline-offset: 2px;
-  }
-}
-
-@media (max-width: 768px) {
-  .sidebar,
-  .sidebar.collapsed {
-    width: 72px;
-  }
-
-  .logo img {
-    width: 28px;
-    height: 28px;
-    object-fit: cover;
-    object-position: left;
-  }
-
-  .menu {
-    padding-inline: 10px;
-
-    a {
-      justify-content: center;
-      padding-inline: 0;
-
-      span {
-        display: none;
-      }
-    }
-  }
-
-  .collapse-btn {
-    display: none;
   }
 }

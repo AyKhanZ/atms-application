@@ -74,14 +74,11 @@ describe('TaskLocationComponent', () => {
     const { fixture } = await setup('parent');
     const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
     fixture.componentInstance.selectSibling('sibling');
-    expect(navigate).toHaveBeenCalledWith([
-      '/projects',
-      'project',
-      'tickets',
-      'ticket',
-      'tasks',
-      'sibling',
-    ]);
+    // The sibling takes this page's place, so Back leads where the user came from.
+    expect(navigate).toHaveBeenCalledWith(
+      ['/projects', 'project', 'tickets', 'ticket', 'tasks', 'sibling'],
+      { state: { replaceHistory: true } },
+    );
   });
 
   it('keeps edit Location read-only without loading siblings', async () => {

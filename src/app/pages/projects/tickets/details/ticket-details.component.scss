@@ -19,12 +19,6 @@
   max-width: 100%;
 }
 
-.ticket-page-heading .page-subtitle {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
 .page-actions {
   display: flex;
   flex: 0 0 auto;
@@ -34,8 +28,7 @@
   gap: 0.65rem;
 }
 
-.page-actions > button,
-:host ::ng-deep .page-actions app-back-button button {
+.page-actions > button {
   min-width: 7.75rem;
 }
 
@@ -58,12 +51,6 @@
 
 .ticket-identity {
   min-width: 0;
-}
-
-.ticket-code {
-  color: var(--orange-text-hover);
-  font-size: 0.75rem;
-  font-weight: 800;
 }
 
 .ticket-identity h2 {

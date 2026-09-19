@@ -1,4 +1,3 @@
-import { HttpErrorResponse } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -15,7 +14,11 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ConfirmationService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { Observable, catchError, finalize, of } from 'rxjs';
+import { catchError, finalize, of, take } from 'rxjs';
+import { Actions, ofType } from '@ngrx/effects';
+import { Store } from '@ngrx/store';
+import { WorkTasksStoreActions, WorkTasksStoreSelectors } from '../../../../../store/work-tasks';
+import { WorkItemMutationError } from '../../../../../core/models/work-items';
 import { DictionaryModel } from '../../../../../core/models/dictionary.model';
 import { WorkProjectModel } from '../../../../../core/models/work-projects';
 import { WorkTaskModel } from '../../../../../core/models/work-tasks';
@@ -29,7 +32,6 @@ import {
 } from '../task-parent-select/task-parent-option';
 import { ProjectPermissionsRefreshService } from '../../../../../core/services/project-permissions-refresh.service';
 import { SnackBarService } from '../../../../../core/services/snack-bar.service';
-import { WorkTasksService } from '../../../../../core/services/work-tasks.service';
 import { projectNavigationUrl } from '../../../../../core/utils/project-navigation.utils';
 import { BackButtonComponent } from '../../../../../shared/components/back-button/back-button.component';
 import { eligibleTaskAssignees } from './task-assignee-options';
@@ -63,7 +65,8 @@ export class TaskFormPageComponent {
   private readonly fb = inject(FormBuilder);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly tasks = inject(WorkTasksService);
+  private readonly store = inject(Store);
+  private readonly actions$ = inject(Actions);
   private readonly formContext = inject(TaskFormContextService);
   private readonly snackBar = inject(SnackBarService);
   private readonly permissionsRefresh = inject(ProjectPermissionsRefreshService);
@@ -86,7 +89,7 @@ export class TaskFormPageComponent {
   );
   readonly submitLabel = computed(() => (this.isEdit() ? 'Save' : 'Create'));
   readonly loading = signal(true);
-  readonly saving = signal(false);
+  readonly saving = this.store.selectSignal(WorkTasksStoreSelectors.isSaving);
   readonly submitted = signal(false);
   readonly loadError = signal<string | null>(null);
   readonly project = signal<WorkProjectModel | null>(null);
@@ -205,8 +208,6 @@ export class TaskFormPageComponent {
 
     const value = this.form.getRawValue();
     if (value.priorityId === null || !value.workTicketId) return;
-    this.saving.set(true);
-
     const common = {
       title: (value.title ?? '').trim(),
       description: (value.description ?? '').trim() || null,
@@ -214,55 +215,71 @@ export class TaskFormPageComponent {
       deadline: value.deadline?.toISOString() ?? null,
       assigneeId: value.assigneeId,
     };
-    const request: Observable<string | void> =
-      this.isEdit() && this.taskId && value.statusId !== null
-        ? this.tasks.updateWorkTask(this.projectId, this.taskId, {
-            ...common,
-            statusId: value.statusId,
-            workTicketId: value.workTicketId,
-            parentWorkTaskId: value.parentWorkTaskId,
-          })
-        : this.tasks.createWorkTask(this.projectId, {
-            ...common,
-            workTicketId: value.workTicketId,
-            parentWorkTaskId: value.parentWorkTaskId,
-          });
-
-    request
+    // The request goes through the store, like a project's. The answer is the next success or
+    // failure of this kind: only one save can be under way, the button is disabled meanwhile.
+    this.actions$
       .pipe(
+        ofType(
+          WorkTasksStoreActions.createTaskSuccess,
+          WorkTasksStoreActions.updateTaskSuccess,
+          WorkTasksStoreActions.createTaskFailure,
+          WorkTasksStoreActions.updateTaskFailure,
+        ),
+        take(1),
         takeUntilDestroyed(this.destroyRef),
-        finalize(() => this.saving.set(false)),
       )
-      .subscribe({
-        next: (createdId) => {
-          this.navigationComplete = true;
-          // Same two sentences a ticket uses, so one action does not get three different wordings.
-          const label = this.isSubtask() ? 'Subtask' : 'Task';
-          this.snackBar.success(this.isEdit() ? `${label} changes saved.` : `${label} created.`);
-          if (!this.isEdit() && typeof createdId === 'string') {
-            void this.router.navigate([
-              '/projects',
-              this.projectId,
-              'tickets',
-              value.workTicketId,
-              'tasks',
-              createdId,
-            ]);
-            return;
-          }
-          void this.router.navigateByUrl(this.returnUrl);
-        },
-        error: (error: HttpErrorResponse) => {
-          this.snackBar.error(taskErrorMessage(error));
+      .subscribe((action) => {
+        if ('error' in action) {
+          this.snackBar.error(taskErrorMessage(action.error));
           // The cached permissions said this was allowed; drop them so the next page is right.
-          if (error.status === 403 && this.projectId) {
+          if (action.error.status === 403 && this.projectId) {
             this.permissionsRefresh
               .refreshAfterForbidden(this.projectId)
               .pipe(takeUntilDestroyed(this.destroyRef))
               .subscribe({ error: () => undefined });
           }
-        },
+          return;
+        }
+        const createdId = 'id' in action ? action.id : null;
+        this.navigationComplete = true;
+        // Same two sentences a ticket uses, so one action does not get three different wordings.
+        const label = this.isSubtask() ? 'Subtask' : 'Task';
+        this.snackBar.success(this.isEdit() ? `${label} changes saved.` : `${label} created.`);
+        if (!this.isEdit() && createdId) {
+          void this.router.navigate([
+            '/projects',
+            this.projectId,
+            'tickets',
+            value.workTicketId,
+            'tasks',
+            createdId,
+          ]);
+          return;
+        }
+        void this.router.navigateByUrl(this.returnUrl);
       });
+
+    this.store.dispatch(
+      this.isEdit() && this.taskId && value.statusId !== null
+        ? WorkTasksStoreActions.updateTask({
+            projectId: this.projectId,
+            taskId: this.taskId,
+            command: {
+              ...common,
+              statusId: value.statusId,
+              workTicketId: value.workTicketId,
+              parentWorkTaskId: value.parentWorkTaskId,
+            },
+          })
+        : WorkTasksStoreActions.createTask({
+            projectId: this.projectId,
+            command: {
+              ...common,
+              workTicketId: value.workTicketId,
+              parentWorkTaskId: value.parentWorkTaskId,
+            },
+          }),
+    );
   }
 
   cancel(): void {
@@ -327,12 +344,8 @@ export class TaskFormPageComponent {
   }
 }
 
-function taskErrorMessage(error: HttpErrorResponse): string {
-  if (error.status === 400) {
-    const errors = error.error?.errors as { error?: string }[] | undefined;
-    const message = errors?.find((item) => item.error)?.error;
-    if (message) return message;
-  }
+function taskErrorMessage(error: WorkItemMutationError): string {
+  if (error.message) return error.message;
   if (error.status === 403) return 'You no longer have permission to manage tasks in this project.';
   if (error.status === 404) return 'The task, parent task or ticket is no longer available.';
   return "We couldn't save the task. Please try again.";

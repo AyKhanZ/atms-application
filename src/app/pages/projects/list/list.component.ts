@@ -146,25 +146,16 @@ export class ProjectListComponent implements OnDestroy {
   openCreate(): void {
     void this.router.navigate(['create'], {
       relativeTo: this.route,
-      state: {
-        cancelUrl: this.router.url,
-        detailsReturnUrl: this.router.url,
-      },
+      state: { cancelUrl: this.router.url },
     });
   }
   openDetails(project: WorkProjectItemModel): void {
-    void this.router.navigate([project.id], {
-      relativeTo: this.route,
-      state: { returnUrl: this.router.url },
-    });
+    void this.router.navigate([project.id], { relativeTo: this.route });
   }
   openEdit(project: WorkProjectItemModel): void {
     void this.router.navigate([project.id, 'edit'], {
       relativeTo: this.route,
-      state: {
-        cancelUrl: this.router.url,
-        detailsReturnUrl: this.router.url,
-      },
+      state: { cancelUrl: this.router.url },
     });
   }
   confirmDelete(project: WorkProjectItemModel): void {

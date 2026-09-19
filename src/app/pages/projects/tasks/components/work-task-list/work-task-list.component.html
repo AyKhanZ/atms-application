@@ -6,7 +6,9 @@
       </button>
     </header>
   }
-  @if (loading()) {
+  <!-- Only the first page swaps the list for this line. A next page loads under the rows already
+       shown, with the spinner on Load more: replacing them made the page collapse and jump back. -->
+  @if (loading() && items().length === 0) {
     <div class="tasks-state" role="status">
       <i class="pi pi-spin pi-spinner"></i> Loading tasks...
     </div>
@@ -16,10 +18,14 @@
     <app-empty-state
       [icon]="parentTaskId() ? 'pi-sitemap' : 'pi-list-check'"
       [title]="parentTaskId() ? 'No subtasks yet' : 'No tasks yet'"
-      [compact]="true"
+      [description]="
+        parentTaskId()
+          ? 'Subtasks added to this task will appear here.'
+          : 'Tasks added to this ticket will appear here.'
+      "
     />
   } @else {
-    <div class="task-list">
+    <div class="task-list" [class.task-list--with-progress]="!parentTaskId()">
       @for (task of items(); track task.id) {
         <article class="task-row" [class.task-row--with-menu]="canEdit()">
           <button
@@ -28,21 +34,23 @@
             (click)="open(task)"
             [attr.aria-label]="'View task ' + task.title"
           >
-            <!-- A subtask carries the tree icon, a task the checklist one — the same split as the
-                 tabs, so a row says which of the two it is. -->
-            <i
-              class="pi task-icon"
-              [class]="parentTaskId() ? 'pi pi-sitemap task-icon' : 'pi pi-check-square task-icon'"
-              aria-hidden="true"
-            ></i>
-            <span class="task-code">#{{ task.code }}</span>
+            <!-- Named the way a details header and a search row name it, so a task looks alike
+                 wherever it shows. -->
+            <app-work-item-ref
+              [type]="parentTaskId() ? kinds.Subtask : kinds.Task"
+              [code]="task.code"
+            />
             <strong class="task-title" [title]="task.title">{{ task.title }}</strong>
           </button>
           <div class="task-meta">
             @if (task.subtaskCount > 0) {
               <span class="progress">{{ task.doneSubtaskCount }}/{{ task.subtaskCount }}</span>
             }
-            <app-work-item-assignee [assignee]="task.assignee" [compact]="true" />
+            <app-work-item-assignee
+              [assignee]="task.assignee"
+              [compact]="true"
+              [shortName]="true"
+            />
             <app-task-status-badge [status]="task.status" />
           </div>
           @if (canEdit()) {

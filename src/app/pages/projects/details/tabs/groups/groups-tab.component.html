@@ -55,12 +55,11 @@
       <button pButton type="button" outlined="true" (click)="loadGroups()">Try again</button>
     </div>
   } @else if (groups().length === 0) {
-    <div class="project-tab-empty-state project-tab-empty-state--compact groups-state--empty">
-      <div class="project-tab-empty-state__icon">
-        <i class="pi pi-folder-open"></i>
-      </div>
-      <h3>No groups in the plan yet</h3>
-    </div>
+    <app-empty-state
+      icon="pi-folder-open"
+      title="No groups in the plan yet"
+      description="Groups added to this project will appear here."
+    />
   } @else {
     @if (loadError()) {
       <div class="groups-refresh-error" role="alert">

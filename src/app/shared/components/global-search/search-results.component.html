@@ -1,0 +1,28 @@
+@for (group of groups(); track group.type) {
+  <section class="group">
+    <h2 class="group__title">{{ group.label }}</h2>
+
+    @for (item of group.items; track item.id) {
+      <app-search-result-row
+        role="button"
+        tabindex="0"
+        [attr.data-result-id]="item.id"
+        [item]="item"
+        [query]="query()"
+        [active]="item.id === activeId()"
+        [followsPointer]="false"
+        (mousemove)="point.emit({ id: item.id, event: $event })"
+        (click)="choose.emit(item)"
+        (keydown.enter)="choose.emit(item)"
+        (keydown.space)="$event.preventDefault(); choose.emit(item)"
+      />
+    }
+
+    @if (group.hasMore) {
+      <button type="button" class="group__more" (click)="showAll.emit(group.type)">
+        Show all
+        <i class="pi pi-arrow-right" aria-hidden="true"></i>
+      </button>
+    }
+  </section>
+}

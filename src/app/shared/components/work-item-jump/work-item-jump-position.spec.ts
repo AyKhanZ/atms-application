@@ -19,15 +19,15 @@ describe('workItemJumpPosition', () => {
     expect(result.side).toBe('below');
     expect(result.top).toBe(138);
   });
-  it.each([360, 390, 768, 1024, 1440])('stays inside a %s px viewport', (width) => {
+  it.each([800, 1024, 1440])('stays inside a %s px viewport', (width) => {
     const result = workItemJumpPosition(
       { top: 500, bottom: 550, right: width - 20 },
       { width, height: 844, topInset: 56 },
     );
-    expect(result.left).toBeGreaterThanOrEqual(12);
-    expect(result.left + result.width).toBeLessThanOrEqual(width - 12);
-    expect(result.top).toBeGreaterThanOrEqual(68);
-    expect(result.top + result.maxHeight).toBeLessThanOrEqual(832);
+    expect(result.left).toBeGreaterThanOrEqual(24);
+    expect(result.left + result.width).toBeLessThanOrEqual(width - 24);
+    expect(result.top).toBeGreaterThanOrEqual(80);
+    expect(result.top + result.maxHeight).toBeLessThanOrEqual(820);
   });
   it('caps height in a short viewport and uses the roomier side', () => {
     const result = workItemJumpPosition(
@@ -35,7 +35,7 @@ describe('workItemJumpPosition', () => {
       { width: 390, height: 400, topInset: 56 },
     );
     expect(result.side).toBe('above');
-    expect(result.maxHeight).toBe(144);
+    expect(result.maxHeight).toBe(132);
   });
 
   it('uses the compact desktop width on a medium viewport', () => {

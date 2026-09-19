@@ -9,19 +9,13 @@
 .task-page-heading {
   min-width: 0;
 }
-.task-page-heading .page-subtitle {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
 .page-actions {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
   gap: 0.65rem;
 }
-.page-actions > button,
-:host ::ng-deep .page-actions app-back-button button {
+.page-actions > button {
   min-width: 7.75rem;
 }
 .task-panel {
@@ -34,11 +28,6 @@
   gap: 1.5rem;
   padding: 1.5rem;
   border-bottom: 1px solid var(--app-border);
-}
-.task-code {
-  color: var(--orange-text-hover);
-  font-size: 0.75rem;
-  font-weight: 800;
 }
 .task-identity h2 {
   margin: 0.35rem 0 0;

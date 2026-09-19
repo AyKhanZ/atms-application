@@ -13,6 +13,7 @@ import {
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { WorkTaskModel } from '../../../../../core/models/work-tasks';
+import { WorkItemKind } from '../../../../../core/models/work-items';
 
 @Component({
   selector: 'app-task-location',
@@ -23,6 +24,7 @@ import { WorkTaskModel } from '../../../../../core/models/work-tasks';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TaskLocationComponent {
+  protected readonly kinds = WorkItemKind;
   readonly task = input.required<WorkTaskModel>();
   readonly allowJump = input(true);
 
@@ -73,13 +75,10 @@ export class TaskLocationComponent {
 
   selectSibling(id: string): void {
     const item = this.task();
-    void this.router.navigate([
-      '/projects',
-      item.workProjectId,
-      'tickets',
-      item.workTicketId,
-      'tasks',
-      id,
-    ]);
+    // A sibling stands in for this page: Back returns where the user came from, not to it.
+    void this.router.navigate(
+      ['/projects', item.workProjectId, 'tickets', item.workTicketId, 'tasks', id],
+      { state: { replaceHistory: true } },
+    );
   }
 }

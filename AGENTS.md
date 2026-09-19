@@ -32,6 +32,31 @@ Treat this repository as a real production application. Follow the existing arch
 
 ---
 
+## How to talk to the owner and how to write specs
+
+The owner reads Russian and thinks in plain language. Match that.
+
+**Answers.** Conclusion first, details after. Short sentences, no corporate filler, no walls of
+text. Concrete numbers instead of adjectives — 'container 1000-1150px', not 'make it spacious'.
+When a decision was made, say why, and name the option that was rejected. Do not restate the
+question back. Do not pad with what was already agreed. End with a short summary line.
+
+**Uncertainty.** A doubt is written as a doubt and kept apart from a rule, never mixed into the
+same paragraph. In a spec it goes to the "Открытые вопросы" section.
+
+**Specs** live in `Specs/` and are written in Russian, in this order:
+
+1. Что это и зачем — 3-5 lines, no detail.
+2. Что уже есть — what works today, so nobody has to grep for it.
+3. Как должно работать — rules, exact numbers, tables.
+4. Экран — an ASCII sketch when it explains something.
+5. Переиспользовать — what to take ready instead of writing again.
+6. Открытые вопросы — everything undecided.
+7. Известные расхождения — spec says one thing, code does another. State it plainly.
+
+Behaviour and implementation detail are separated: the rule first, the note about how it is built
+on its own line. Code, comments, commit messages and the interface itself stay in English.
+
 ## Commit messages
 
 Never add trailers or attribution lines to a commit message, a pull request body, or any commit text you draft for a human to use.

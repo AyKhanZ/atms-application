@@ -1,8 +1,15 @@
+import { WorkItemKind } from '../../../core/models/work-items';
 import { TestBed } from '@angular/core/testing';
 import { WorkItemJumpComponent } from './work-item-jump.component';
 
 describe('WorkItemJumpComponent', () => {
-  async function setup() {
+  /** jsdom lays nothing out, so the width that decides panel or sheet has to be stated. */
+  function viewportWidth(width: number) {
+    vi.spyOn(document.documentElement, 'clientWidth', 'get').mockReturnValue(width);
+  }
+
+  async function setup(width = 1200) {
+    viewportWidth(width);
     await TestBed.configureTestingModule({ imports: [WorkItemJumpComponent] }).compileComponents();
     const fixture = TestBed.createComponent(WorkItemJumpComponent);
     fixture.componentRef.setInput('current', { id: '1', code: '1', title: 'Current' });
@@ -46,6 +53,21 @@ describe('WorkItemJumpComponent', () => {
     element.remove();
   });
 
+  it('comes up as a sheet on a narrow screen instead of aiming at the trigger', async () => {
+    const { fixture, component, panel, element } = await setup(390);
+
+    component.toggle();
+
+    expect(component.sheet()).toBe(true);
+    // Nothing is positioned by hand: a sheet is placed by the stylesheet.
+    expect(panel.style.top).toBe('');
+    expect(panel.style.left).toBe('');
+    expect(panel.style.width).toBe('');
+
+    fixture.destroy();
+    element.remove();
+  });
+
   it('keeps internal scrolling open and closes on page scroll', async () => {
     const { fixture, component, element } = await setup();
     component.toggle();
@@ -76,7 +98,7 @@ describe('WorkItemJumpComponent', () => {
       { icon: 'pi-folder', title: 'Group' },
       { icon: 'pi-flag', title: 'Milestone' },
     ]);
-    fixture.componentRef.setInput('icon', 'pi-ticket');
+    fixture.componentRef.setInput('kind', WorkItemKind.Ticket);
     fixture.detectChanges();
 
     const levels = element.querySelectorAll<HTMLElement>('.work-item-jump-context__level');

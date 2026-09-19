@@ -10,7 +10,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 @Component({
   selector: 'app-empty-state',
   template: `
-    <section class="empty-state" [class.empty-state--compact]="compact()">
+    <section class="empty-state">
       <div class="empty-state__icon">
         <i class="pi" [class]="'pi ' + icon()" aria-hidden="true"></i>
       </div>
@@ -28,6 +28,4 @@ export class EmptyStateComponent {
   readonly icon = input.required<string>();
   readonly title = input.required<string>();
   readonly description = input<string | null>(null);
-  /** Shorter panel, for tabs nested inside an already-tall card. */
-  readonly compact = input(false);
 }

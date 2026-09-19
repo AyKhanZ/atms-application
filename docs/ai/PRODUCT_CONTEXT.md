@@ -11,7 +11,7 @@ engineering rules.
 |---|---|
 | Visual and UX rules | `docs/ai/UX_UI_PRINCIPLES.md` |
 | Engineering rules | `AGENTS.md` |
-| Product decisions already taken | `Specs/1_BAIM_Project specification.docx` |
+| Product decisions already taken | `Specs/00-overview.md` and the numbered files next to it |
 
 ---
 

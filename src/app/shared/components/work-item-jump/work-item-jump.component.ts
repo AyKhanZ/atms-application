@@ -14,9 +14,13 @@ import {
 import { WorkItemJumpItem } from './work-item-jump-item';
 import { WorkItemJumpContext } from './work-item-jump-context';
 import { workItemJumpPosition } from './work-item-jump-position';
+import { InputClearComponent } from '../input-clear/input-clear.component';
+import { WorkItemRefComponent } from '../work-item-ref/work-item-ref.component';
+import { WorkItemKind } from '../../../core/models/work-items';
 
 @Component({
   selector: 'app-work-item-jump',
+  imports: [InputClearComponent, WorkItemRefComponent],
   templateUrl: './work-item-jump.component.html',
   styleUrl: './work-item-jump.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -34,8 +38,9 @@ export class WorkItemJumpComponent implements OnInit {
   readonly context = input<readonly WorkItemJumpContext[]>([]);
   /** Not shown any more — the trigger reads as a select on its own. Kept for assistive tech. */
   readonly label = input('Switch item');
-  /** PrimeIcons class of the entity being switched, so the trigger reads as one more tree level. */
-  readonly icon = input('pi-ticket');
+  /** Kind of the entity being switched: its icon and colour, so the trigger reads as one more
+   *  tree level and matches the same item everywhere else. */
+  readonly kind = input(WorkItemKind.Ticket);
   readonly loading = input(false);
   readonly loadError = input(false);
   readonly initialized = input(true);
@@ -46,6 +51,9 @@ export class WorkItemJumpComponent implements OnInit {
   readonly more = output<void>();
   readonly retry = output<void>();
   readonly open = signal(false);
+  /** Same threshold the select overlays use: under it the panel is a sheet, not a pointer. */
+  private static readonly sheetBreakpoint = 768;
+  readonly sheet = signal(false);
   ngOnInit(): void {
     const onScroll = (event: Event) => {
       if (this.open() && !this.panel()?.nativeElement.contains(event.target as Node)) this.close();
@@ -96,10 +104,27 @@ export class WorkItemJumpComponent implements OnInit {
     if (!trigger || !panel) return;
     const anchor = trigger.getBoundingClientRect();
     const viewport = {
-      width: window.innerWidth,
+      // clientWidth, not innerWidth: innerWidth counts the scrollbar, so the panel was laid out
+      // 15px wider than the visible area and its right edge ended up under the scrollbar.
+      width: document.documentElement.clientWidth,
       height: window.innerHeight,
       topInset: document.querySelector('app-topbar')?.getBoundingClientRect().bottom ?? 0,
     };
+    const sheet = viewport.width <= WorkItemJumpComponent.sheetBreakpoint;
+    this.sheet.set(sheet);
+
+    if (sheet) {
+      // A sheet is placed by the stylesheet, so anything measured earlier has to go — otherwise
+      // a width from a wider window survives the resize and the sheet comes up narrow.
+      for (const property of ['width', 'maxHeight', 'left', 'top']) {
+        panel.style.removeProperty(property.replace(/[A-Z]/g, (c) => '-' + c.toLowerCase()));
+      }
+      panel.showPopover();
+      this.open.set(true);
+      this.search()?.nativeElement.focus({ preventScroll: true });
+      return;
+    }
+
     const placement = workItemJumpPosition(anchor, viewport);
     panel.style.width = placement.width + 'px';
     panel.style.maxHeight = placement.maxHeight + 'px';
@@ -136,6 +161,11 @@ export class WorkItemJumpComponent implements OnInit {
   choose(id: string): void {
     this.close(true);
     if (id !== this.current().id) this.selected.emit(id);
+  }
+
+  clearSearch(): void {
+    this.searchChanged.emit('');
+    this.search()?.nativeElement.focus({ preventScroll: true });
   }
 
   updateSearch(event: Event): void {

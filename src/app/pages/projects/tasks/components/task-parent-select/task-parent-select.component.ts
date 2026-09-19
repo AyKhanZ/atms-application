@@ -1,36 +1,45 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
+  OnDestroy,
   computed,
+  effect,
   inject,
   input,
   output,
-  signal,
 } from '@angular/core';
-import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
+import { Store } from '@ngrx/store';
 import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
-import { Subject, catchError, exhaustMap, map, merge, of, startWith, switchMap } from 'rxjs';
 import { LabelForDirective } from '../../../../../core/directives/label-for.directive';
-import { WorkTicketsService } from '../../../../../core/services/work-tickets.service';
-import { WorkTasksService } from '../../../../../core/services/work-tasks.service';
+import { WorkTasksStoreActions, WorkTasksStoreSelectors } from '../../../../../store/work-tasks';
+import {
+  WorkTicketsStoreActions,
+  WorkTicketsStoreSelectors,
+} from '../../../../../store/work-tickets';
 import {
   TaskParentOption,
   groupParentOptions,
   taskParentOption,
   ticketParentOption,
 } from './task-parent-option';
+import { WorkItemRefComponent } from '../../../../../shared/components/work-item-ref/work-item-ref.component';
+import { WorkItemKind } from '../../../../../core/models/work-items';
 
 @Component({
   selector: 'app-task-parent-select',
-  imports: [FormsModule, SelectModule, ButtonModule, LabelForDirective],
+  imports: [WorkItemRefComponent, FormsModule, SelectModule, ButtonModule, LabelForDirective],
   templateUrl: './task-parent-select.component.html',
   styleUrl: './task-parent-select.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TaskParentSelectComponent {
+export class TaskParentSelectComponent implements OnDestroy {
+  protected readonly kinds = WorkItemKind;
+  /** A subtask hangs under a task, a task under a ticket. */
+  protected readonly parentKind = computed(() =>
+    this.isSubtask() ? WorkItemKind.Task : WorkItemKind.Ticket,
+  );
   readonly projectId = input.required<string>();
   readonly ticketId = input.required<string>();
   readonly isSubtask = input(false);
@@ -39,80 +48,54 @@ export class TaskParentSelectComponent {
   readonly invalid = input(false);
   readonly selected = output<TaskParentOption>();
 
-  private readonly tickets = inject(WorkTicketsService);
-  private readonly tasks = inject(WorkTasksService);
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly more = new Subject<void>();
-  private readonly retry = new Subject<void>();
+  private readonly store = inject(Store);
+  private readonly ticketPages = this.store.selectSignal(WorkTicketsStoreSelectors.getPages);
+  private readonly taskPages = this.store.selectSignal(WorkTasksStoreSelectors.getPages);
   private readonly scope = computed(() => ({
     projectId: this.projectId(),
     ticketId: this.ticketId(),
     isSubtask: this.isSubtask(),
   }));
-  readonly options = signal<TaskParentOption[]>([]);
-  readonly loading = signal(false);
-  readonly loadError = signal(false);
-  readonly hasMore = signal(false);
-  private cursor: string | null = null;
+  private readonly requestKey = computed(() => {
+    const scope = this.scope();
+    return `parent:${scope.projectId}:${scope.ticketId}:${scope.isSubtask ? 'tasks' : 'tickets'}`;
+  });
+  private readonly page = computed(() =>
+    this.scope().isSubtask
+      ? this.taskPages()[this.requestKey()]
+      : this.ticketPages()[this.requestKey()],
+  );
+  readonly options = computed<TaskParentOption[]>(() => {
+    if (this.scope().isSubtask) {
+      const page = this.taskPages()[this.requestKey()];
+      return (page?.items ?? [])
+        .filter((task) => !task.parentWorkTaskId && !task.isSubtask)
+        .map(taskParentOption);
+    }
+
+    return (this.ticketPages()[this.requestKey()]?.items ?? []).map(ticketParentOption);
+  });
+  readonly loading = computed(() => this.page()?.loading ?? true);
+  readonly loadError = computed(() => Boolean(this.page()?.error));
+  readonly hasMore = computed(() => this.page()?.hasMore ?? false);
   readonly groups = computed(() => {
     const selected = this.selection();
     return groupParentOptions(selected ? [selected, ...this.options()] : this.options());
   });
 
   constructor() {
-    merge(toObservable(this.scope), this.retry)
-      .pipe(
-        switchMap(() => {
-          const scope = this.scope();
-          this.options.set([]);
-          this.cursor = null;
-          this.hasMore.set(false);
-          return this.more.pipe(
-            startWith(undefined),
-            exhaustMap(() => {
-              this.loading.set(true);
-              this.loadError.set(false);
-              const request = scope.isSubtask
-                ? this.tasks
-                    // Project-wide, not just the current ticket: a subtask can be re-parented to
-                    // any task in the plan, the same way a ticket can move to any milestone.
-                    .getWorkTasks(scope.projectId, {
-                      rootTasksOnly: true,
-                      pageSize: 50,
-                      cursor: this.cursor,
-                    })
-                    .pipe(
-                      map((page) => ({
-                        ...page,
-                        items: page.items
-                          .filter((task) => !task.parentWorkTaskId && !task.isSubtask)
-                          .map(taskParentOption),
-                      })),
-                    )
-                : this.tickets
-                    .getWorkTickets(scope.projectId, {
-                      pageSize: 50,
-                      cursor: this.cursor,
-                    })
-                    .pipe(map((page) => ({ ...page, items: page.items.map(ticketParentOption) })));
-              return request.pipe(
-                catchError(() => {
-                  this.loadError.set(true);
-                  return of(null);
-                }),
-              );
-            }),
-          );
-        }),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe((page) => {
-        this.loading.set(false);
-        if (!page) return;
-        this.options.update((items) => [...items, ...page.items]);
-        this.cursor = page.nextCursor;
-        this.hasMore.set(page.hasMore);
-      });
+    effect(() => {
+      this.load(false);
+    });
+  }
+
+  ngOnDestroy(): void {
+    const requestKey = this.requestKey();
+    this.store.dispatch(
+      this.scope().isSubtask
+        ? WorkTasksStoreActions.clearPage({ requestKey })
+        : WorkTicketsStoreActions.clearPage({ requestKey }),
+    );
   }
 
   /** Group, then milestone, then ticket — the same icons the Plan tab and Location use. */
@@ -143,11 +126,37 @@ export class TaskParentSelectComponent {
 
   loadMore(event: Event): void {
     event.stopPropagation();
-    if (this.hasMore() && !this.loading()) this.more.next();
+    if (this.hasMore() && !this.loading()) this.load(true);
   }
 
   retryLoad(event: Event): void {
     event.stopPropagation();
-    if (!this.loading()) this.retry.next();
+    if (!this.loading()) this.load(false);
+  }
+
+  private load(append: boolean): void {
+    const scope = this.scope();
+    const requestKey = this.requestKey();
+    const cursor = append ? (this.page()?.nextCursor ?? null) : null;
+    if (scope.isSubtask) {
+      this.store.dispatch(
+        WorkTasksStoreActions.loadTasks({
+          requestKey,
+          projectId: scope.projectId,
+          append,
+          filter: { rootTasksOnly: true, pageSize: 50, cursor },
+        }),
+      );
+      return;
+    }
+
+    this.store.dispatch(
+      WorkTicketsStoreActions.loadTickets({
+        requestKey,
+        projectId: scope.projectId,
+        append,
+        filter: { pageSize: 50, cursor },
+      }),
+    );
   }
 }
