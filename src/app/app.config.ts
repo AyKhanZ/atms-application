@@ -43,6 +43,8 @@ import { WorkTasksEffects } from './store/work-tasks/work-tasks.effects';
 import { provideStoreDevtools } from '@ngrx/store-devtools';
 import { NavigationHistoryService } from './core/services/navigation-history.service';
 import { AppRouteReuseStrategy } from './core/routing/app-route-reuse.strategy';
+import { taskBoardReducer } from './store/task-board/task-board.reducer';
+import { TaskBoardEffects } from './store/task-board/task-board.effects';
 
 const BaimTheme = definePreset(Aura, {
   semantic: {
@@ -124,6 +126,7 @@ export const appConfig: ApplicationConfig = {
       [Features.GlobalSearch]: globalSearchReducer,
       [Features.WorkTickets]: workTicketsReducer,
       [Features.WorkTasks]: workTasksReducer,
+      [Features.TaskBoard]: taskBoardReducer,
       [Features.User]: userReducer,
       [Features.Dictionary]: dictionaryReducer,
     }),
@@ -136,6 +139,7 @@ export const appConfig: ApplicationConfig = {
       GlobalSearchEffects,
       WorkTicketsEffects,
       WorkTasksEffects,
+      TaskBoardEffects,
       UserEffects,
       DictionaryEffects,
     ]),

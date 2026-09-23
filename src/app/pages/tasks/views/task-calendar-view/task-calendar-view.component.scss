@@ -1,0 +1,255 @@
+:host {
+  display: grid;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+/* Notion's calendar: a light heading, bare arrows, and lines only between the days. */
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.head__month {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 400;
+}
+
+.head__month strong {
+  font-weight: 650;
+}
+
+.head__year {
+  color: var(--app-muted);
+}
+
+.head__loading {
+  align-self: center;
+  color: var(--gray-icon-muted);
+  font-size: 0.85rem;
+}
+
+.head__nav {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+}
+
+.nav {
+  display: grid;
+  height: 1.9rem;
+  place-items: center;
+  padding: 0 0.55rem;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--gray-text-strong);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.nav--icon {
+  width: 1.9rem;
+  padding: 0;
+  color: var(--gray-icon);
+}
+
+.nav--icon i {
+  font-size: 0.8rem;
+}
+
+.nav:hover {
+  background: var(--gray-hover);
+}
+
+.nav:focus-visible,
+.link:focus-visible,
+.chip:focus-visible,
+.day__more:focus-visible {
+  outline: 2px solid var(--orange-focus-outline);
+}
+
+.note {
+  margin: 0;
+  color: var(--app-muted);
+  font-size: 0.8rem;
+}
+
+.note--error {
+  color: var(--red-hover);
+}
+
+.link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--orange-text-hover);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  /* Tall enough that a month fills the card like the board does; weeks share the height. */
+  grid-template-rows: auto;
+  grid-auto-rows: minmax(7rem, 1fr);
+  min-height: calc(var(--tasks-view-height, 26rem) - 3rem);
+  border-top: 1px solid var(--app-border);
+  border-left: 1px solid var(--app-border);
+}
+
+.grid__weekday {
+  padding: 0.35rem 0.5rem;
+  border-right: 1px solid var(--app-border);
+  border-bottom: 1px solid var(--app-border);
+  color: var(--app-muted);
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-align: left;
+}
+
+.grid__weekday--weekend,
+.day--weekend {
+  background: var(--app-surface-muted);
+}
+
+.day {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+  padding: 0.3rem;
+  border-right: 1px solid var(--app-border);
+  border-bottom: 1px solid var(--app-border);
+}
+
+.day__number {
+  align-self: flex-end;
+  display: grid;
+  min-width: 1.5rem;
+  height: 1.5rem;
+  place-items: center;
+  padding: 0 0.3rem;
+  border-radius: 999px;
+  color: var(--gray-text-strong);
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.day--outside .day__number {
+  color: var(--gray-icon-muted);
+}
+
+.day--today .day__number {
+  background: var(--orange);
+  color: var(--white);
+  font-weight: 700;
+}
+
+.day__more {
+  align-self: flex-start;
+  padding: 0.1rem 0.3rem;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--app-muted);
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.day__more:hover {
+  background: var(--gray-hover);
+  color: var(--app-text);
+}
+
+/* A card is a tinted line, not a boxed widget: the grid is already all lines. */
+.chip {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  width: 100%;
+  min-width: 0;
+  padding: 0.25rem 0.4rem;
+  border: 0;
+  border-radius: 4px;
+  background: var(--app-surface);
+  box-shadow: 0 0 0 1px var(--app-border);
+  color: var(--app-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.chip:hover {
+  background: var(--gray-hover);
+}
+
+.chip app-work-item-ref {
+  flex: none;
+  font-size: 0.72rem;
+}
+
+/* Done steps back; overdue gets a red edge — the one thing on a calendar that needs attention. */
+.chip--done .chip__title {
+  color: var(--app-muted);
+  text-decoration: line-through;
+}
+
+.chip--overdue {
+  box-shadow:
+    inset 2px 0 0 var(--red-hover),
+    0 0 0 1px var(--app-border);
+}
+
+.chip__title {
+  min-width: 0;
+  overflow: hidden;
+  font-size: 0.78rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+:host ::ng-deep .cdk-drag-preview {
+  box-shadow: var(--shadow-card);
+}
+
+:host ::ng-deep .cdk-drag-placeholder {
+  opacity: 0.35;
+}
+
+.agenda {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.agenda__day {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.agenda__date {
+  margin: 0;
+  color: var(--app-muted);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.agenda__day--today .agenda__date {
+  color: var(--orange-text-hover);
+}

@@ -43,7 +43,6 @@ import { validationMessage } from '../../../../core/utils/http-error.utils';
 import {
   TaskTab,
   parseTaskTab,
-  taskDeleteBlockedConfirmation,
   taskDeleteConfirmation,
   taskBreadcrumbTrail,
   taskParentRoute,
@@ -196,11 +195,7 @@ export class TaskDetailsComponent implements OnDestroy {
   confirmDelete(): void {
     const task = this.task();
     if (!task || !this.canDelete() || this.deleting()) return;
-    this.confirmation.confirm(
-      task.subtaskCount > 0
-        ? taskDeleteBlockedConfirmation(task)
-        : taskDeleteConfirmation(task, () => this.delete(task)),
-    );
+    this.confirmation.confirm(taskDeleteConfirmation(task, () => this.delete(task)));
   }
 
   private clearBreadcrumbs(): void {
@@ -234,9 +229,16 @@ export class TaskDetailsComponent implements OnDestroy {
     if (!result) return;
 
     // A task reached through a stale ticket id still resolves; send the user to its real ticket.
-    if (result.task.workTicketId !== this.ticketId) {
+    if (result.task.workTicket.id !== this.ticketId) {
       void this.router.navigate(
-        ['/projects', this.projectId, 'tickets', result.task.workTicketId, 'tasks', result.task.id],
+        [
+          '/projects',
+          this.projectId,
+          'tickets',
+          result.task.workTicket.id,
+          'tasks',
+          result.task.id,
+        ],
         { queryParamsHandling: 'preserve', replaceUrl: true },
       );
       return;

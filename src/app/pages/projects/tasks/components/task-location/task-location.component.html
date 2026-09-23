@@ -18,14 +18,14 @@
       <div class="location-branch">
         <span class="location-level location-level--ticket">
           <i class="pi pi-ticket" aria-hidden="true"></i>
-          <span>#{{ item.workTicketCode }} {{ item.workTicketTitle }}</span>
+          <span>#{{ item.workTicket.code }} {{ item.workTicket.name }}</span>
         </span>
 
         <div class="location-branch">
-          @if (item.parentWorkTaskId) {
+          @if (item.parentWorkTask?.id) {
             <span class="location-level location-level--task">
               <i class="pi pi-check-square" aria-hidden="true"></i>
-              <span>#{{ item.parentWorkTaskCode }} {{ item.parentWorkTaskTitle }}</span>
+              <span>#{{ item.parentWorkTask?.code }} {{ item.parentWorkTask?.name }}</span>
             </span>
 
             @if (allowJump()) {
@@ -36,7 +36,7 @@
                   [kind]="kinds.Subtask"
                   label="Switch subtask"
                   [context]="jumpContext()"
-                  [groupLabel]="item.parentWorkTaskTitle || item.workTicketTitle"
+                  [groupLabel]="item.parentWorkTask?.name || item.workTicket.name"
                   [loading]="jump.loading()"
                   [loadError]="jump.error()"
                   [initialized]="jump.initialized()"
@@ -56,7 +56,7 @@
               [kind]="kinds.Task"
               label="Switch task"
               [context]="jumpContext()"
-              [groupLabel]="item.workTicketTitle"
+              [groupLabel]="item.workTicket.name"
               [loading]="jump.loading()"
               [loadError]="jump.error()"
               [initialized]="jump.initialized()"

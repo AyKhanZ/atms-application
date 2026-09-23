@@ -1,0 +1,68 @@
+<div class="tasks-table-shell">
+  <p-table
+    class="tasks-table management-table"
+    [value]="items()"
+    [lazy]="true"
+    [loading]="loading()"
+    dataKey="id"
+    [sortField]="sortField()"
+    [sortOrder]="sortOrder()"
+    [tableStyle]="{ 'min-width': '52rem' }"
+    (onSort)="changeSort($event)"
+  >
+    <ng-template pTemplate="header"
+      ><tr>
+        <th pSortableColumn="task">Task <p-sortIcon field="task" /></th>
+        <th>State</th>
+        <th pSortableColumn="priority">Priority <p-sortIcon field="priority" /></th>
+        <th pSortableColumn="deadline">Deadline <p-sortIcon field="deadline" /></th>
+        <th>Assignee</th>
+      </tr></ng-template
+    >
+    <ng-template pTemplate="body" let-task
+      ><tr class="clickable-row" (click)="openTask.emit(task)">
+        <td>
+          <div class="task-cell">
+            <app-work-item-ref [type]="kind(task)" [code]="task.code" />
+            <strong class="task-cell__title">{{ task.title }}</strong>
+            <small class="task-cell__location">{{ location(task) }}</small>
+          </div>
+        </td>
+        <td><app-task-status-badge [status]="task.status" /></td>
+        <td><app-work-item-priority [priority]="task.priority" /></td>
+        <td class="deadline-cell" [class.deadline-cell--overdue]="overdue(task)">
+          {{ task.deadline ? (task.deadline | date: 'dd.MM.yyyy') : 'Not set' }}
+        </td>
+        <td>
+          <app-work-item-assignee [assignee]="task.assignee" [compact]="true" [shortName]="true" />
+        </td></tr
+    ></ng-template>
+    <ng-template pTemplate="emptymessage"
+      ><tr>
+        <td colspan="5">
+          @if (page()?.error; as error) {
+            <p class="state state--error" role="alert">{{ error }}</p>
+          } @else if (!loading()) {
+            <app-empty-state icon="pi-list-check" [title]="emptyText()">
+              @if (filtered()) {
+                <app-clear-button (clicked)="clearFilters.emit()" />
+              }
+            </app-empty-state>
+          }
+        </td></tr
+    ></ng-template>
+  </p-table>
+</div>
+
+@if (page()?.hasMore) {
+  <button
+    pButton
+    type="button"
+    outlined="true"
+    class="more"
+    [loading]="loading()"
+    (click)="loadMore()"
+  >
+    Load more
+  </button>
+}

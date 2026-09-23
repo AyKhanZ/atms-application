@@ -1,0 +1,167 @@
+<div class="panel panel-padding filters">
+  <!-- Where and whose on top, wide enough for titles and names; the short lists below. -->
+  <div class="filters__grid">
+    <div class="field field--wide">
+      <label id="taskFilterProjectLabel" appLabelFor="taskFilterProject">Project</label>
+      <p-multiselect
+        inputId="taskFilterProject"
+        ariaLabelledBy="taskFilterProjectLabel"
+        placeholder="All"
+        [options]="projects()"
+        optionLabel="label"
+        optionValue="value"
+        [ngModel]="filter().projectIds"
+        (ngModelChange)="change({ projectIds: $event })"
+        [filter]="true"
+        filterPlaceHolder="Search by code or title"
+        [showToggleAll]="false"
+        [panelStyle]="panelStyle"
+        appendTo="body"
+      >
+        <ng-template #selecteditems let-selected>
+          {{ summary(selected) }}
+        </ng-template>
+        <ng-template #item let-option>
+          <ng-container *ngTemplateOutlet="refOption; context: { $implicit: option }" />
+        </ng-template>
+      </p-multiselect>
+    </div>
+    <div class="field field--wide">
+      <label id="taskFilterTicketLabel" appLabelFor="taskFilterTicket">Ticket</label>
+      <p-multiselect
+        inputId="taskFilterTicket"
+        ariaLabelledBy="taskFilterTicketLabel"
+        [placeholder]="ticketsEnabled() ? 'All' : 'Pick one project first'"
+        [options]="tickets()"
+        optionLabel="label"
+        optionValue="value"
+        [disabled]="!ticketsEnabled()"
+        [ngModel]="filter().workTicketIds"
+        (ngModelChange)="change({ workTicketIds: $event })"
+        [filter]="true"
+        filterPlaceHolder="Search by code or title"
+        [showToggleAll]="false"
+        [panelStyle]="panelStyle"
+        appendTo="body"
+      >
+        <ng-template #selecteditems let-selected>
+          {{ summary(selected) }}
+        </ng-template>
+        <ng-template #item let-option>
+          <ng-container *ngTemplateOutlet="refOption; context: { $implicit: option }" />
+        </ng-template>
+      </p-multiselect>
+    </div>
+    <div class="field field--wide">
+      <label id="taskFilterPeopleLabel" appLabelFor="taskFilterPeople">Assigned to</label>
+      <p-multiselect
+        inputId="taskFilterPeople"
+        ariaLabelledBy="taskFilterPeopleLabel"
+        placeholder="Anyone"
+        [options]="peopleOptions()"
+        optionLabel="label"
+        optionValue="value"
+        [ngModel]="peopleValue()"
+        (ngModelChange)="changePeople($event)"
+        [filter]="true"
+        filterPlaceHolder="Search by name"
+        [showToggleAll]="false"
+        [panelStyle]="panelStyle"
+        appendTo="body"
+      >
+        <ng-template #selecteditems let-selected>
+          {{ summary(selected) }}
+        </ng-template>
+        <ng-template #item let-option>
+          <span class="option" [class.option--divided]="option.divider" [title]="option.label">
+            {{ option.label }}
+          </span>
+        </ng-template>
+      </p-multiselect>
+    </div>
+    <div class="field field--narrow">
+      <label id="taskFilterTypeLabel" appLabelFor="taskFilterType">Type</label>
+      <p-select
+        inputId="taskFilterType"
+        ariaLabelledBy="taskFilterTypeLabel"
+        [options]="types"
+        optionLabel="label"
+        optionValue="value"
+        [ngModel]="filter().kind"
+        (ngModelChange)="change({ kind: $event })"
+        appendTo="body"
+      />
+    </div>
+    <div class="field field--narrow">
+      <label id="taskFilterStateLabel" appLabelFor="taskFilterState">State</label>
+      <p-multiselect
+        inputId="taskFilterState"
+        ariaLabelledBy="taskFilterStateLabel"
+        placeholder="All"
+        [options]="statuses()"
+        optionLabel="label"
+        optionValue="value"
+        [ngModel]="filter().statusIds"
+        (ngModelChange)="change({ statusIds: $event })"
+        [filter]="false"
+        [showHeader]="false"
+        appendTo="body"
+      >
+        <ng-template #selecteditems let-selected>
+          {{ summary(selected) }}
+        </ng-template>
+      </p-multiselect>
+    </div>
+    <div class="field field--narrow">
+      <label id="taskFilterPriorityLabel" appLabelFor="taskFilterPriority">Priority</label>
+      <p-multiselect
+        inputId="taskFilterPriority"
+        ariaLabelledBy="taskFilterPriorityLabel"
+        placeholder="All"
+        [options]="priorities()"
+        optionLabel="label"
+        optionValue="value"
+        [ngModel]="filter().priorityIds"
+        (ngModelChange)="change({ priorityIds: $event })"
+        [filter]="false"
+        [showHeader]="false"
+        appendTo="body"
+      >
+        <ng-template #selecteditems let-selected>
+          {{ summary(selected) }}
+        </ng-template>
+      </p-multiselect>
+    </div>
+    <div class="field field--narrow">
+      <label id="taskFilterDeadlineLabel" appLabelFor="taskFilterDeadline">Deadline</label>
+      <p-select
+        inputId="taskFilterDeadline"
+        ariaLabelledBy="taskFilterDeadlineLabel"
+        [options]="deadlines"
+        optionLabel="label"
+        optionValue="value"
+        [ngModel]="filter().deadline"
+        (ngModelChange)="change({ deadline: $event })"
+        appendTo="body"
+      />
+    </div>
+
+    <div class="filters__actions">
+      @if (canClear()) {
+        <app-clear-button (clicked)="cleared.emit()" />
+      }
+    </div>
+  </div>
+</div>
+
+<!-- A project or ticket as everywhere else: kind icon and code in the kind's colour, then the title. -->
+<ng-template #refOption let-option>
+  @if (option.ref; as ref) {
+    <span class="option option--ref" [title]="option.label">
+      <app-work-item-ref [type]="ref.kind" [code]="ref.code" [labelled]="false" />
+      <span class="option__title">{{ ref.title }}</span>
+    </span>
+  } @else {
+    <span class="option" [title]="option.label">{{ option.label }}</span>
+  }
+</ng-template>

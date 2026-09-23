@@ -37,9 +37,9 @@ export function taskParentOption(task: WorkTaskModel): TaskParentOption {
     code: task.code,
     title: task.title,
     kind: 'task',
-    ticketId: task.workTicketId,
-    ticketCode: task.workTicketCode,
-    ticketTitle: task.workTicketTitle,
+    ticketId: task.workTicket.id,
+    ticketCode: task.workTicket.code,
+    ticketTitle: task.workTicket.name,
     groupId: task.groupId,
     groupTitle: task.groupTitle,
     milestoneId: task.milestoneId,
@@ -58,17 +58,17 @@ export function editedTaskParentOption(
 ): TaskParentOption | null {
   if (!task) return ticket ? ticketParentOption(ticket) : null;
 
-  if (!task.parentWorkTaskId) {
+  if (!task.parentWorkTask?.id) {
     return ticket
       ? ticketParentOption(ticket)
       : {
-          id: task.workTicketId,
-          code: task.workTicketCode,
-          title: task.workTicketTitle,
+          id: task.workTicket.id,
+          code: task.workTicket.code,
+          title: task.workTicket.name,
           kind: 'ticket',
-          ticketId: task.workTicketId,
-          ticketCode: task.workTicketCode,
-          ticketTitle: task.workTicketTitle,
+          ticketId: task.workTicket.id,
+          ticketCode: task.workTicket.code,
+          ticketTitle: task.workTicket.name,
           groupId: task.groupId,
           groupTitle: task.groupTitle,
           milestoneId: task.milestoneId,
@@ -77,13 +77,13 @@ export function editedTaskParentOption(
   }
 
   return {
-    id: task.parentWorkTaskId,
-    code: task.parentWorkTaskCode ?? '',
-    title: task.parentWorkTaskTitle ?? '',
+    id: task.parentWorkTask?.id,
+    code: task.parentWorkTask?.code ?? '',
+    title: task.parentWorkTask?.name ?? '',
     kind: 'task',
-    ticketId: task.workTicketId,
-    ticketCode: task.workTicketCode,
-    ticketTitle: task.workTicketTitle,
+    ticketId: task.workTicket.id,
+    ticketCode: task.workTicket.code,
+    ticketTitle: task.workTicket.name,
     groupId: task.groupId,
     groupTitle: task.groupTitle,
     milestoneId: task.milestoneId,

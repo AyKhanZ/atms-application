@@ -46,9 +46,7 @@ const task: WorkTaskModel = {
   code: '2',
   title: 'Parent A',
   workProjectId: 'p',
-  workTicketId: ticket.id,
-  workTicketCode: ticket.code,
-  workTicketTitle: ticket.title,
+  workTicket: { id: ticket.id, code: ticket.code, name: ticket.title },
   groupId: 'g',
   groupTitle: 'Group',
   milestoneId: 'm',
@@ -174,7 +172,7 @@ describe('TaskFormPageComponent parent selection', () => {
   it('accepts a parent from another ticket and follows it', async () => {
     // A subtask can be re-parented anywhere in the project, and it takes its new parent's ticket.
     const { page } = await setup('create', true);
-    page.selectParent(taskParentOption({ ...task, id: 'other', workTicketId: 'ticket-b' }));
+    page.selectParent(taskParentOption({ ...task, id: 'other', workTicket: { ...task.workTicket, id: 'ticket-b' } }));
     expect(page.form.controls.parentWorkTaskId.value).toBe('other');
     expect(page.form.controls.workTicketId.value).toBe('ticket-b');
   });
@@ -196,7 +194,7 @@ describe('TaskFormPageComponent parent selection', () => {
     const { page, api } = await setup('create', true, {
       ...task,
       isSubtask: true,
-      parentWorkTaskId: 'root',
+      parentWorkTask: { id: 'root', code: '1', name: 'Root' },
     });
     page.submit();
     expect(page.loadError()).toBeTruthy();
@@ -223,9 +221,7 @@ describe('TaskFormPageComponent parent selection', () => {
       ...task,
       id: 'sub-a',
       isSubtask: true,
-      parentWorkTaskId: 'parent-a',
-      parentWorkTaskCode: '2',
-      parentWorkTaskTitle: 'Parent A',
+      parentWorkTask: { id: 'parent-a', code: '2', name: 'Parent A' },
     };
     const { page, api } = await setup('edit', false, subtask);
     page.form.patchValue({ statusId: 1 });
@@ -239,7 +235,7 @@ describe('TaskFormPageComponent parent selection', () => {
   it('follows a task that has moved to another ticket instead of failing', async () => {
     // The details page redirects in this situation; a link kept from before the move used to
     // dead-end here with a "does not belong to this ticket" error.
-    const moved = { ...task, workTicketId: 'ticket-b' };
+    const moved = { ...task, workTicket: { ...task.workTicket, id: 'ticket-b' } };
     const { page, router } = await setup('edit', false, moved);
     expect(router.navigate).toHaveBeenCalledWith(
       ['/projects', 'p', 'tickets', 'ticket-b', 'tasks', task.id, 'edit'],

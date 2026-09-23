@@ -1,0 +1,114 @@
+:host {
+  display: block;
+  min-width: 0;
+  /* The panel, not the window, decides the layout: the sidebar takes a different share of each screen. */
+  container-type: inline-size;
+}
+
+.filters {
+  display: block;
+}
+
+/* Twelve tracks: three wide fields on the first row, four short ones and Clear on the second. */
+.filters__grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  align-items: end;
+  gap: 1rem;
+  min-width: 0;
+}
+
+/* Only the label and the control: a field must not stretch to the row and push its label up. */
+.field {
+  align-content: start;
+}
+
+.field--wide {
+  grid-column: span 4;
+}
+
+.field--narrow {
+  grid-column: span 2;
+}
+
+.field :is(p-multiselect, p-select) {
+  width: 100%;
+  min-width: 0;
+}
+
+.filters__actions {
+  display: flex;
+  grid-column: span 4;
+  justify-content: flex-end;
+}
+
+/* Options live in an overlay appended to the body, so these reach it through ::ng-deep. */
+:host ::ng-deep .option,
+::ng-deep .option {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+::ng-deep .option--ref {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+::ng-deep .option--ref app-work-item-ref {
+  flex: none;
+}
+
+::ng-deep .option__title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Everyone else below Me and Unassigned. The line sits in the option's own padding. */
+::ng-deep .p-multiselect-option:has(.option--divided) {
+  border-top: 1px solid var(--app-border);
+  margin-top: 0.25rem;
+  padding-top: 0.6rem;
+}
+
+::ng-deep .p-multiselect-option:has(.option) {
+  min-width: 0;
+}
+
+::ng-deep .p-multiselect-option > .option,
+::ng-deep .p-multiselect-option > span:has(> .option) {
+  flex: 1 1 auto;
+}
+
+/* Too narrow for three wide fields in a row: two to a row, Project on its own. */
+@container (max-width: 56rem) {
+  .field--wide,
+  .field--narrow {
+    grid-column: span 6;
+  }
+
+  .field--wide:first-child {
+    grid-column: span 12;
+  }
+
+  .filters__actions {
+    grid-column: span 12;
+  }
+}
+
+@container (max-width: 34rem) {
+  .field--wide,
+  .field--narrow,
+  .field--wide:first-child {
+    grid-column: span 12;
+  }
+
+  .filters__actions {
+    justify-content: flex-start;
+  }
+}

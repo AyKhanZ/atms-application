@@ -3,6 +3,15 @@ import { Confirmation } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 
+/**
+ * A question with two answers and a way out: accept, reject, or Cancel that closes with neither.
+ * `reject` receives `ConfirmEventType.REJECT` for the second answer and `CANCEL` for Cancel, the
+ * close button and Escape alike.
+ */
+export interface ChoiceConfirmation extends Confirmation {
+  cancelLabel: string;
+}
+
 /** How loud the dialog is. `danger` is for something that destroys data. */
 export type ConfirmTone = 'warning' | 'danger';
 
@@ -69,6 +78,12 @@ export class ConfirmDialogComponent {
     const [first, ...rest] = (confirmation.message ?? '').split('\n');
 
     return (rest.length > 0 ? rest.join(' ') : first).trim();
+  }
+
+  /** Present only on a ChoiceConfirmation: then Cancel stands apart from the second answer. */
+  cancelLabel(confirmation: Confirmation): string | null {
+    const label = (confirmation as Partial<ChoiceConfirmation>).cancelLabel;
+    return typeof label === 'string' && label.length > 0 ? label : null;
   }
 
   acceptLabel(confirmation: Confirmation): string {

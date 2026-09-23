@@ -69,7 +69,7 @@ export class TaskParentSelectComponent implements OnDestroy {
     if (this.scope().isSubtask) {
       const page = this.taskPages()[this.requestKey()];
       return (page?.items ?? [])
-        .filter((task) => !task.parentWorkTaskId && !task.isSubtask)
+        .filter((task) => !task.parentWorkTask?.id && !task.isSubtask)
         .map(taskParentOption);
     }
 

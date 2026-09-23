@@ -37,13 +37,13 @@ export class TaskLocationComponent {
     const chain: WorkItemJumpContext[] = [
       { icon: 'pi-folder', title: item.groupTitle },
       { icon: 'pi-flag', title: item.milestoneTitle },
-      { icon: 'pi-ticket', title: `#${item.workTicketCode} ${item.workTicketTitle}` },
+      { icon: 'pi-ticket', title: `#${item.workTicket.code} ${item.workTicket.name}` },
     ];
 
-    if (item.parentWorkTaskId) {
+    if (item.parentWorkTask?.id) {
       chain.push({
         icon: 'pi-check-square',
-        title: `#${item.parentWorkTaskCode} ${item.parentWorkTaskTitle}`,
+        title: `#${item.parentWorkTask?.code} ${item.parentWorkTask?.name}`,
       });
     }
 
@@ -61,9 +61,9 @@ export class TaskLocationComponent {
       untracked(() =>
         this.jump.configure((search, cursor) =>
           this.api.getWorkTasks(item.workProjectId, {
-            ...(item.parentWorkTaskId
-              ? { parentWorkTaskId: item.parentWorkTaskId }
-              : { workTicketId: item.workTicketId, rootTasksOnly: true }),
+            ...(item.parentWorkTask?.id
+              ? { parentWorkTaskId: item.parentWorkTask?.id }
+              : { workTicketId: item.workTicket.id, rootTasksOnly: true }),
             pageSize: 50,
             search,
             cursor,
@@ -77,7 +77,7 @@ export class TaskLocationComponent {
     const item = this.task();
     // A sibling stands in for this page: Back returns where the user came from, not to it.
     void this.router.navigate(
-      ['/projects', item.workProjectId, 'tickets', item.workTicketId, 'tasks', id],
+      ['/projects', item.workProjectId, 'tickets', item.workTicket.id, 'tasks', id],
       { state: { replaceHistory: true } },
     );
   }

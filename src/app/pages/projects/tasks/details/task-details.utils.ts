@@ -24,21 +24,21 @@ export function taskBreadcrumbTrail(
   project: Pick<WorkProjectModel, 'code' | 'title'>,
   task: WorkTaskModel,
 ): BreadcrumbItem[] {
-  const ticketPath = `/projects/${task.workProjectId}/tickets/${task.workTicketId}`;
+  const ticketPath = `/projects/${task.workProjectId}/tickets/${task.workTicket.id}`;
   const items: BreadcrumbItem[] = [
     { title: 'Projects', path: '/projects', icon: 'pi-briefcase' },
     { title: `#${project.code} ${project.title}`, path: `/projects/${task.workProjectId}` },
     {
-      title: `#${task.workTicketCode} ${task.workTicketTitle}`,
+      title: `#${task.workTicket.code} ${task.workTicket.name}`,
       path: ticketPath,
       icon: 'pi-ticket',
     },
   ];
 
-  if (task.parentWorkTaskId) {
+  if (task.parentWorkTask?.id) {
     items.push({
-      title: `#${task.parentWorkTaskCode} ${task.parentWorkTaskTitle}`,
-      path: `${ticketPath}/tasks/${task.parentWorkTaskId}`,
+      title: `#${task.parentWorkTask?.code} ${task.parentWorkTask?.name}`,
+      path: `${ticketPath}/tasks/${task.parentWorkTask?.id}`,
       icon: 'pi-check-square',
     });
   }
@@ -54,34 +54,30 @@ export function taskBreadcrumbTrail(
 
 /** Where a task sits: its parent task's Subtasks tab, or its ticket's Tasks tab. */
 export function taskParentRoute(task: WorkTaskModel): { commands: string[]; queryParams: Params } {
-  const ticket = ['/projects', task.workProjectId, 'tickets', task.workTicketId];
-  return task.parentWorkTaskId
-    ? { commands: [...ticket, 'tasks', task.parentWorkTaskId], queryParams: { tab: 'subtasks' } }
+  const ticket = ['/projects', task.workProjectId, 'tickets', task.workTicket.id];
+  return task.parentWorkTask?.id
+    ? { commands: [...ticket, 'tasks', task.parentWorkTask?.id], queryParams: { tab: 'subtasks' } }
     : { commands: ticket, queryParams: { tab: 'tasks' } };
 }
 
-/** A task with subtasks is not deleted: they would be left without a parent. Says what to do. */
-export function taskDeleteBlockedConfirmation(task: WorkTaskModel): Confirmation {
-  const subtasks = task.subtaskCount === 1 ? 'subtask' : 'subtasks';
-  return {
-    key: 'taskDelete',
-    header: "This task can't be deleted yet",
-    message: `#${task.code} ${task.title}
-It still has ${task.subtaskCount} ${subtasks}. Delete them first, then delete the task.`,
-    acceptLabel: 'Got it',
-    rejectVisible: false,
-    acceptButtonProps: confirmTone('warning'),
-  };
-}
-
+/**
+ * A task goes with its subtasks (05-tasks, «Удаление»): a subtask cannot live without its parent,
+ * and deleting them one by one first was the chore this replaced. The dialog says what else goes,
+ * so nothing disappears unannounced. Undo follows in the message after the delete.
+ */
 export function taskDeleteConfirmation(task: WorkTaskModel, accept: () => void): Confirmation {
   const kind = task.isSubtask ? 'subtask' : 'task';
+  const subtasks = task.subtaskCount === 1 ? 'subtask' : 'subtasks';
+  const what =
+    task.subtaskCount > 0
+      ? `It will be deleted together with its ${task.subtaskCount} ${subtasks}.`
+      : `This ${kind} will be deleted.`;
   return {
     key: 'taskDelete',
     header: `Delete ${kind}?`,
     message: `#${task.code} ${task.title}
-This ${kind} will be deleted. This action cannot be undone.`,
-    acceptLabel: 'Delete',
+${what}`,
+    acceptLabel: task.subtaskCount > 0 ? 'Delete task and subtasks' : 'Delete',
     rejectLabel: 'Cancel',
     acceptButtonProps: confirmTone('danger'),
     accept,

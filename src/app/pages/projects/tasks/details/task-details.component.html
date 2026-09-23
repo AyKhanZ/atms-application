@@ -78,7 +78,7 @@
         } @else if (activeTab() === 'subtasks' && !item.isSubtask) {
           <app-work-task-list
             [projectId]="item.workProjectId"
-            [ticketId]="item.workTicketId"
+            [ticketId]="item.workTicket.id"
             [parentTaskId]="item.id"
             [canCreate]="canCreate()"
             [canEdit]="canEdit()"

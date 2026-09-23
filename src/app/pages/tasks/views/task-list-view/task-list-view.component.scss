@@ -1,0 +1,115 @@
+:host {
+  display: grid;
+  align-content: start;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.tasks-table-shell {
+  min-width: 0;
+}
+
+/* The table of the other lists, so a row and a sort arrow behave the same everywhere. */
+:host ::ng-deep .tasks-table {
+  display: block;
+  overflow: visible;
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+  background: var(--white);
+  box-shadow: 0 1px 2px rgb(15 23 42 / 5%);
+}
+
+:host ::ng-deep .tasks-table :is(.p-datatable-wrapper, .p-datatable-table-container) {
+  /* As tall as the board and the calendar, so switching views does not make the card jump. */
+  min-height: var(--tasks-view-height, 26rem);
+  overflow-x: auto;
+  overflow-y: visible;
+  border-radius: 8px 8px 0 0;
+  scrollbar-width: thin;
+}
+
+:host ::ng-deep .tasks-table .p-datatable-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+:host ::ng-deep .tasks-table th {
+  background: var(--white);
+  color: var(--text);
+  white-space: nowrap;
+}
+
+:host ::ng-deep .tasks-table td,
+:host ::ng-deep .tasks-table th {
+  border-width: 0 0 1px;
+  border-color: var(--app-border);
+}
+
+:host ::ng-deep .tasks-table .p-datatable-tbody > tr:last-child > td {
+  border-bottom: 0;
+}
+
+:host ::ng-deep .tasks-table .p-datatable-emptymessage > td {
+  border-bottom: 0;
+  padding: 0;
+}
+
+.clickable-row {
+  cursor: pointer;
+}
+
+:host ::ng-deep .clickable-row:hover td {
+  background: var(--app-surface-muted);
+}
+
+/* Code and kind on the first line, where it lives on the second — the same shape as a task card. */
+.task-cell {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  column-gap: 0.5rem;
+  row-gap: 0.15rem;
+  min-width: 18rem;
+}
+
+.task-cell__title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.task-cell__location {
+  grid-column: 1 / -1;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--app-muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.deadline-cell {
+  white-space: nowrap;
+}
+
+.deadline-cell--overdue {
+  color: var(--red-hover);
+  font-weight: 650;
+}
+
+.state {
+  margin: 0;
+  padding: 1rem;
+  color: var(--app-muted);
+  text-align: center;
+}
+
+.state--error {
+  color: var(--red-hover);
+}
+
+.more {
+  justify-self: center;
+  min-height: 2.1rem;
+  font-size: 0.78rem;
+}

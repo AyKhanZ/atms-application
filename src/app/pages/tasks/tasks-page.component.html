@@ -1,0 +1,81 @@
+<app-confirm-dialog key="taskBoardClose" />
+
+<section class="page tasks-page">
+  <h1 class="page-title">Tasks</h1>
+
+  <div class="tasks-header management-list-header">
+    <app-list-search
+      class="management-list-search"
+      placeholder="Search by code or title"
+      [value]="searchTerm()"
+      (valueChange)="changeSearch($event)"
+    />
+    <div class="page-actions tasks-actions">
+      <app-filter-toggle-button
+        [active]="filtersOpen()"
+        [count]="activeFilterCount()"
+        (clicked)="filtersOpen.set(!filtersOpen())"
+      />
+    </div>
+  </div>
+
+  @if (filtersOpen()) {
+    <app-task-filters
+      [filter]="state().filter"
+      [projects]="projectOptions()"
+      [tickets]="ticketOptions()"
+      [me]="meOption()"
+      [people]="peopleOptions()"
+      [statuses]="statusOptions()"
+      [priorities]="priorityOptions()"
+      (filterChange)="changeFilter($event)"
+      (cleared)="clearFilters()"
+    />
+  }
+
+  <article class="panel tasks-panel">
+    <app-entity-tabs
+      [tabs]="views"
+      [active]="state().view"
+      ariaLabel="Views"
+      (select)="selectView($event)"
+    />
+
+    <div class="tasks-body">
+      @switch (state().view) {
+        @case ('calendar') {
+          <app-task-calendar-view
+            [query]="query()"
+            [month]="state().month"
+            [canMove]="canMove()"
+            [reloadToken]="reloadToken()"
+            (monthChange)="changeMonth($event)"
+            (openTask)="open($event)"
+            (showWithoutDeadline)="showWithoutDeadline()"
+          />
+        }
+        @case ('list') {
+          <app-task-list-view
+            [query]="query()"
+            [showProject]="showProject()"
+            [reloadToken]="reloadToken()"
+            [emptyText]="emptyText()"
+            [filtered]="hasFilters()"
+            (openTask)="open($event)"
+            (clearFilters)="clearAll()"
+          />
+        }
+        @default {
+          <app-task-board-view
+            [query]="query()"
+            [statuses]="statuses()"
+            [canMove]="canMove()"
+            [showProject]="showProject()"
+            [reloadToken]="reloadToken()"
+            (openTask)="open($event)"
+          />
+        }
+      }
+    </div>
+  </article>
+</section>
