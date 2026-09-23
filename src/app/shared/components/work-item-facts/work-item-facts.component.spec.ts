@@ -26,4 +26,23 @@ describe('WorkItemFactsComponent', () => {
       expect(element.textContent).toContain('Not set');
     },
   );
+
+  it.each([
+    [false, true],
+    [true, false],
+  ])('a past deadline with closed=%s shows the overdue pill: %s', async (closed, pill) => {
+    await TestBed.configureTestingModule({ imports: [WorkItemFactsComponent] }).compileComponents();
+    const fixture = TestBed.createComponent(WorkItemFactsComponent);
+    fixture.componentRef.setInput('facts', {
+      priority: { id: 1, name: 'Low', code: 'Low' },
+      deadline: '2020-01-01T00:00:00Z',
+      closed,
+    });
+    fixture.detectChanges();
+    const element: HTMLElement = fixture.nativeElement;
+
+    expect(!!element.querySelector('.overdue-badge')).toBe(pill);
+    // Closed work keeps only its date: no "overdue by", no pill.
+    expect(element.textContent).not.toContain('overdue by');
+  });
 });

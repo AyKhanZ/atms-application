@@ -1,6 +1,7 @@
 <article
   class="card"
-  [class.card--done]="done()"
+  [class.card--subtask]="task().isSubtask"
+  [class.card--overdue]="overdue()"
   role="button"
   tabindex="0"
   [attr.aria-label]="(task().isSubtask ? 'Open subtask ' : 'Open task ') + task().title"
@@ -22,30 +23,34 @@
 
   <p class="card__title" [title]="task().title">{{ task().title }}</p>
 
-  <p class="card__location" [title]="location().text">
-    @if (showProject() && task().workProjectTitle) {
-      <i class="pi pi-briefcase" aria-hidden="true"></i>
-      <span class="card__project">{{ task().workProjectTitle }}</span>
-      <span class="card__separator" aria-hidden="true">›</span>
-    }
-    <i class="pi" [class]="'pi ' + location().icon" aria-hidden="true"></i>
-    <span class="card__parent">{{ location().text }}</span>
-  </p>
+  <app-work-item-assignee class="card__assignee" [assignee]="task().assignee" />
+  <app-task-context [task]="task()" [showProject]="showProject()" />
 
+  <!-- Priority always first, so the eye finds it in the same place on every card. A date only
+       when it asks for action: overdue, due today or tomorrow. The rest is on the task. -->
   <footer class="card__meta">
     <app-work-item-priority [priority]="task().priority" />
-    @if (task().deadline; as deadline) {
-      <span class="card__deadline" [class.card__deadline--overdue]="overdue()">
-        <i class="pi pi-calendar" aria-hidden="true"></i>
-        {{ deadline | date: 'dd.MM' }}
+    @if (!task().isSubtask && task().subtaskCount > 0) {
+      <span
+        class="card__progress"
+        [class.card__progress--done]="task().doneSubtaskCount === task().subtaskCount"
+        [title]="task().doneSubtaskCount + ' of ' + task().subtaskCount + ' subtasks completed'"
+        [attr.aria-label]="
+          task().doneSubtaskCount + ' of ' + task().subtaskCount + ' subtasks completed'
+        "
+      >
+        <i class="pi pi-check-square" aria-hidden="true"></i>
+        {{ task().doneSubtaskCount }}/{{ task().subtaskCount }}
       </span>
     }
-    <app-work-item-assignee
-      class="card__assignee"
-      [assignee]="task().assignee"
-      [compact]="true"
-      [shortName]="true"
-    />
+    @if (overdue()) {
+      <app-overdue-badge class="card__deadline" [deadline]="task().deadline" />
+    } @else if (dueSoon(); as due) {
+      <span class="card__deadline card__deadline--soon">
+        <i class="pi pi-clock" aria-hidden="true"></i>
+        {{ due }}
+      </span>
+    }
   </footer>
 </article>
 <p-menu #actions [model]="menu()" [popup]="true" appendTo="body" />

@@ -60,11 +60,30 @@ describe('taskBoardReducer', () => {
     expect(state.pages['month'].items[1].deadline).toBe('2026-09-21T00:00:00.000Z');
   });
 
-  it('starts a list over on a first page and keeps it on the next ones', () => {
+  it('keeps what a list shows while it is read again, and replaces it with the first page', () => {
     const loaded = withPages({ new: ['1'] });
+    const reading = taskBoardReducer(loaded, loadPage(null));
 
-    expect(ids(taskBoardReducer(loaded, loadPage(null)), 'new')).toEqual([]);
-    expect(ids(taskBoardReducer(loaded, loadPage('next')), 'new')).toEqual(['1']);
+    expect(ids(reading, 'new')).toEqual(['1']);
+    expect(reading.pages['new'].loading).toBe(true);
+    const answered = taskBoardReducer(
+      reading,
+      Actions.loadPageSuccess({
+        key: 'new',
+        append: false,
+        page: { items: [task('2')], hasMore: false, nextCursor: null, pageSize: 20 },
+      }),
+    );
+    expect(ids(answered, 'new')).toEqual(['2']);
+  });
+
+  it('drops every list the view no longer shows', () => {
+    const state = taskBoardReducer(
+      withPages({ old: ['1'], new: ['2'] }),
+      Actions.keepPages({ keys: ['new'] }),
+    );
+
+    expect(Object.keys(state.pages)).toEqual(['new']);
   });
 
   it('forgets everything when the page closes or the session ends', () => {

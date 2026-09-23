@@ -1,0 +1,27 @@
+<!-- One line each, as in Azure DevOps: icon, code and name, cut with "…" at the edge. The code
+     stays: in BAIM people call a ticket by its number. The whole name is in the tooltip. -->
+@if (showProject() && project(); as project) {
+  <span class="label">Project:</span>
+  <a
+    class="link link--project"
+    [routerLink]="project.url"
+    [title]="project.name"
+    (click)="$event.stopPropagation()"
+    (keydown.enter)="$event.stopPropagation()"
+  >
+    <app-work-item-ref [type]="projectKind" [code]="project.code" [labelled]="false" />
+    <span class="link__name">{{ project.name }}</span>
+  </a>
+}
+<span class="label">Parent:</span>
+<a
+  class="link parent"
+  [class.link--task]="parent().kind === taskKind"
+  [routerLink]="parent().url"
+  [title]="parent().name"
+  (click)="$event.stopPropagation()"
+  (keydown.enter)="$event.stopPropagation()"
+>
+  <app-work-item-ref [type]="parent().kind" [code]="parent().code" [labelled]="false" />
+  <span class="link__name">{{ parent().name }}</span>
+</a>

@@ -1,24 +1,17 @@
-@use 'chip';
+@use 'status-dot';
 
 .task-status {
-  @include chip.base;
-
-  background: var(--app-surface-muted);
-  color: var(--app-muted);
+  @include status-dot.base;
 }
 
 .task-status--prominent {
-  @include chip.prominent;
+  @include status-dot.prominent;
 }
 
 .task-status[data-tone='active'] {
-  border-color: var(--orange-border);
-  background: var(--orange-light);
-  color: var(--orange-text-hover);
+  --status-dot: var(--status-dot-progress);
 }
 
 .task-status[data-tone='success'] {
-  border-color: rgb(34 197 94 / 28%);
-  background: rgb(34 197 94 / 9%);
-  color: #15803d;
+  --status-dot: var(--status-dot-done);
 }

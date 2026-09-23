@@ -66,16 +66,35 @@ their own width, not the viewport:
 New code uses these. Existing code migrates when it is touched anyway — do not open a separate
 crusade.
 
-### Chips (status, type, metadata)
+### Status: a dot and text, not a chip
 
-All chips share one geometry — height, padding, radius, border, font size — enforced by the
-`chip` Sass mixin in `src/styles/_chip.scss`:
+Every status — project, ticket, milestone, task — is a coloured dot before plain text, the way
+Azure DevOps, Linear and Jira show it (`src/styles/_status-dot.scss`). A column of tinted pills
+read as a row of empty buttons, and a grey "New" pill looked disabled; a dot keeps a table calm and
+still tells New from Done at a glance, and looks the same on its own. A component sets only the
+dot colour from the `--status-dot-*` tokens:
+
+```scss
+@use 'status-dot';
+
+.my-status { @include status-dot.base; }
+.my-status--prominent { @include status-dot.prominent; }
+.my-status[data-tone='done'] { --status-dot: var(--status-dot-done); }
+```
+
+The board's column headings use the same dots, so a status looks alike everywhere.
+
+### Chips (type, kind, metadata)
+
+Types and kinds — Feature, Bug, One-time — stay chips: they are not a state and carry an icon. All
+chips share one geometry — height, padding, one minimum width that holds the longest label, no
+visible border — enforced by the `chip` Sass mixin in `src/styles/_chip.scss`:
 
 ```scss
 @use 'chip';
 
-.my-status { @include chip.base; }
-.my-status--prominent { @include chip.prominent; }
+.my-type { @include chip.base; }
+.my-type--prominent { @include chip.prominent; }
 ```
 
 **Never copy the declarations.** Six separate copies are exactly how the chips silently drifted
@@ -93,7 +112,19 @@ Two rules that are easy to get wrong:
 - **The priority scale contains no green.** Green already means success and Closed in the status
   scale.
 
-Detail page headers use `chip.prominent` so the entity's own status reads at heading weight.
+Detail page headers use `status-dot.prominent` so the entity's own status reads at heading weight.
+
+### Kind of work and overdue work
+
+- **The left edge means the kind of work**: project, ticket, task, subtask, in the `--kind-*`
+  colours — on the details header (`.kind-stripe`), the board card, the calendar chip, the list
+  row. Never colour that edge by status or anything else: the same edge would mean two things.
+- **Overdue** is open work past its deadline; closed work never is. It is the one loud thing on a
+  screen: a red tint (`--overdue-bg`, `--overdue-bg-strong`) and the solid red pill
+  `app-overdue-badge` — "8d", "3w", "2mo", "1yr" overdue, the exact days in its tooltip. Use that
+  component; do not write "overdue by N days" by hand.
+- **Secondary buttons** such as Clear and Load more are white with a thin border and an orange
+  hover (`src/styles/_quiet-button.scss`); a grey button disappears on a grey surface.
 
 ---
 

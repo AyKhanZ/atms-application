@@ -1,0 +1,29 @@
+<app-work-item-ref [type]="kind()" [code]="task().code" />
+<p class="hover__title">{{ task().title }}</p>
+<dl class="hover__facts">
+  @if (task().workProject; as project) {
+    <dt>Project</dt>
+    <dd class="hover__item">
+      <app-work-item-ref [type]="projectKind" [code]="project.code" [labelled]="false" />
+      <span>{{ project.name }}</span>
+    </dd>
+  }
+  <dt>Parent</dt>
+  <dd class="hover__item">
+    <app-work-item-ref [type]="parent().kind" [code]="parent().code" [labelled]="false" />
+    <span>{{ parent().name }}</span>
+  </dd>
+  <dt>Status</dt>
+  <dd><app-task-status-badge [status]="task().status" /></dd>
+  <dt>Priority</dt>
+  <dd><app-work-item-priority [priority]="task().priority" /></dd>
+  <dt>Assigned to</dt>
+  <dd><app-work-item-assignee [assignee]="task().assignee" /></dd>
+  <dt>Deadline</dt>
+  <dd class="hover__deadline" [class.hover__deadline--overdue]="overdue()">
+    {{ task().deadline ? (task().deadline | date: 'd MMM yyyy') : 'No deadline' }}
+    @if (overdue()) {
+      <app-overdue-badge [deadline]="task().deadline" />
+    }
+  </dd>
+</dl>

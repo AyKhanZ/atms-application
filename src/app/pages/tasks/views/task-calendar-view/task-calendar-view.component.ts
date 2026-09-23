@@ -1,7 +1,6 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
   computed,
   effect,
   inject,
@@ -10,10 +9,9 @@ import {
   signal,
   untracked,
 } from '@angular/core';
-import { DatePipe, NgTemplateOutlet } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { CdkDrag, CdkDragDrop, CdkDropList, CdkDropListGroup } from '@angular/cdk/drag-drop';
 import { Store } from '@ngrx/store';
-import { WorkItemKind } from '../../../../core/models/work-items';
 import { WorkTaskBoardQuery, deadlineOrder } from '../../../../core/models/work-task-board';
 import { WorkTaskModel } from '../../../../core/models/work-tasks';
 import { WorkTaskStatus } from '../../../../core/enums/work-task-status.enum';
@@ -22,8 +20,11 @@ import {
   TaskBoardStoreActions,
   TaskBoardStoreSelectors,
 } from '../../../../store/task-board';
-import { WorkItemRefComponent } from '../../../../shared/components/work-item-ref/work-item-ref.component';
+import { isOverdueTask } from '../../../../core/utils/deadline.utils';
+import { LayoutService } from '../../../../core/services/layout.service';
+import { TaskCalendarChipComponent } from '../../components/task-calendar-chip/task-calendar-chip.component';
 import { filterKey } from '../../tasks-page.utils';
+import { CalendarDayCapacityDirective } from './calendar-day-capacity.directive';
 
 interface Day {
   /** "2026-09-21", the local calendar date. */
@@ -35,27 +36,23 @@ interface Day {
   weekend: boolean;
 }
 
-/** A day shows this many cards; the rest fold into "+ N more". */
-const visiblePerDay = 3;
-
 const dayKey = (date: Date): string =>
   `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 
 /**
  * A month as a grid, the way Notion lays it out: each task on the day of its deadline. Moving a
  * card to another day moves the deadline. Months are paged with the arrows rather than scrolled,
- * so they never blur into each other and exactly one month is loaded. Work without a deadline is
- * not dropped silently: a line above the grid counts it and leads to the list.
+ * so they never blur into each other and exactly one month is loaded.
  */
 @Component({
   selector: 'app-task-calendar-view',
   imports: [
     DatePipe,
-    NgTemplateOutlet,
     CdkDropListGroup,
     CdkDropList,
     CdkDrag,
-    WorkItemRefComponent,
+    CalendarDayCapacityDirective,
+    TaskCalendarChipComponent,
   ],
   templateUrl: './task-calendar-view.component.html',
   styleUrl: './task-calendar-view.component.scss',
@@ -63,25 +60,24 @@ const dayKey = (date: Date): string =>
 })
 export class TaskCalendarViewComponent {
   private readonly store = inject(Store);
-  private readonly phoneQuery =
-    typeof window.matchMedia === 'function' ? window.matchMedia('(max-width: 767px)') : null;
 
   readonly query = input.required<WorkTaskBoardQuery>();
   /** "2026-09". */
   readonly month = input.required<string>();
   readonly canMove = input(false);
+  /** Every task on the page is the viewer's own: an avatar on each would say nothing. */
+  readonly hideAssignee = input(false);
   readonly reloadToken = input(0);
   readonly monthChange = output<string>();
   readonly openTask = output<WorkTaskModel>();
-  readonly showWithoutDeadline = output<void>();
+  readonly showOverdue = output<void>();
 
   readonly weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-  readonly isPhone = signal(this.phoneQuery?.matches ?? false);
-  /** Days opened past their first three cards. */
+  readonly isPhone = inject(LayoutService).isPhone;
+  /** Days expanded beyond the space available in a calendar cell. */
   readonly expanded = signal<ReadonlySet<string>>(new Set());
 
   private readonly pages = this.store.selectSignal(TaskBoardStoreSelectors.getPages);
-  private readonly counts = this.store.selectSignal(TaskBoardStoreSelectors.getCounts);
 
   private readonly firstDay = computed(() => {
     const [year, month] = this.month().split('-').map(Number);
@@ -138,6 +134,9 @@ export class TaskCalendarViewComponent {
       const key = dayKey(new Date(task.deadline));
       days.set(key, [...(days.get(key) ?? []), task]);
     }
+    // Overdue first, done last: when a day is too full, "+N more" hides what is already closed.
+    const weight = (task: WorkTaskModel) => (isOverdueTask(task) ? 0 : task.status.id === WorkTaskStatus.Done ? 2 : 1);
+    for (const [key, tasks] of days) days.set(key, [...tasks].sort((a, b) => weight(a) - weight(b)));
     return days;
   });
 
@@ -148,54 +147,20 @@ export class TaskCalendarViewComponent {
       .filter((day) => day.inMonth && (this.byDay().get(day.key)?.length ?? 0) > 0),
   );
 
-  readonly withoutDeadline = computed(() =>
-    Object.values(this.counts() ?? {}).reduce((sum, count) => sum + count, 0),
-  );
-
   constructor() {
-    const update = (event: MediaQueryListEvent) => this.isPhone.set(event.matches);
-    this.phoneQuery?.addEventListener('change', update);
-    inject(DestroyRef).onDestroy(() => this.phoneQuery?.removeEventListener('change', update));
-
     effect(() => {
       const key = this.key();
       const query = this.monthQuery();
-      const noDeadline = { ...this.query(), noDeadline: true };
       this.reloadToken();
       untracked(() => {
+        this.store.dispatch(TaskBoardStoreActions.keepPages({ keys: [key] }));
         this.store.dispatch(TaskBoardStoreActions.loadAll({ key, query, order: deadlineOrder }));
-        this.store.dispatch(TaskBoardStoreActions.loadCounts({ query: noDeadline }));
       });
     });
   }
 
-  tasksOf(day: Day): WorkTaskModel[] {
-    const tasks = this.byDay().get(day.key) ?? [];
-    return this.expanded().has(day.key) ? tasks : tasks.slice(0, visiblePerDay);
-  }
-
-  hiddenCount(day: Day): number {
-    const total = this.byDay().get(day.key)?.length ?? 0;
-    return this.expanded().has(day.key) ? 0 : Math.max(0, total - visiblePerDay);
-  }
-
   expand(day: Day): void {
     this.expanded.update((days) => new Set([...days, day.key]));
-  }
-
-  kind(task: WorkTaskModel): WorkItemKind {
-    return task.isSubtask ? WorkItemKind.Subtask : WorkItemKind.Task;
-  }
-
-  done(task: WorkTaskModel): boolean {
-    return task.status.id === WorkTaskStatus.Done;
-  }
-
-  overdue(task: WorkTaskModel): boolean {
-    if (!task.deadline || this.done(task)) return false;
-    const end = new Date(task.deadline);
-    end.setHours(23, 59, 59, 999);
-    return end.getTime() < Date.now();
   }
 
   step(months: number): void {

@@ -1,38 +1,25 @@
-@use 'chip';
+@use 'status-dot';
 
 :host {
   display: inline-flex;
 }
 
 .project-status-badge {
-  @include chip.base;
+  @include status-dot.base;
 }
 
 .project-status-badge--prominent {
-  @include chip.prominent;
-}
-
-.project-status-badge--draft,
-.project-status-badge--unknown {
-  border-color: var(--app-border);
-  background: #f1f5f9;
-  color: #475569;
+  @include status-dot.prominent;
 }
 
 .project-status-badge--active {
-  border-color: var(--orange-border);
-  background: var(--orange-light);
-  color: var(--orange-text-hover);
+  --status-dot: var(--status-dot-active);
 }
 
 .project-status-badge--review {
-  border-color: rgb(180 83 9 / 28%);
-  background: #fef3c7;
-  color: #b45309;
+  --status-dot: var(--status-dot-review);
 }
 
 .project-status-badge--closed {
-  border-color: rgb(34 197 94 / 28%);
-  background: #dcfce7;
-  color: #15803d;
+  --status-dot: var(--status-dot-done);
 }

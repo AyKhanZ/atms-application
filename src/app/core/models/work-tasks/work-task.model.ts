@@ -12,7 +12,7 @@ export interface WorkTaskModel {
   groupId: string;
   groupTitle: string;
   workProjectId: string;
-  workProjectTitle?: string | null;
+  workProject?: DictionaryModel<string> | null;
   workTicket: DictionaryModel<string>;
   parentWorkTask?: DictionaryModel<string> | null;
   isSubtask: boolean;

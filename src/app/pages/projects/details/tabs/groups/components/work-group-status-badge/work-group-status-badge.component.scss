@@ -1,28 +1,17 @@
-@use 'chip';
+@use 'status-dot';
 
 :host {
   display: inline-flex;
 }
 
 .work-group-status-badge {
-  @include chip.base;
-}
-
-.work-group-status-badge--planned,
-.work-group-status-badge--unknown {
-  border-color: var(--app-border);
-  background: #f1f5f9;
-  color: #475569;
+  @include status-dot.base;
 }
 
 .work-group-status-badge--active {
-  border-color: var(--orange-border);
-  background: var(--orange-light);
-  color: var(--orange-text-hover);
+  --status-dot: var(--status-dot-active);
 }
 
 .work-group-status-badge--done {
-  border-color: rgb(34 197 94 / 28%);
-  background: #dcfce7;
-  color: #15803d;
+  --status-dot: var(--status-dot-done);
 }

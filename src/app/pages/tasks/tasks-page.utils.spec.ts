@@ -3,6 +3,7 @@ import { WorkItemKind } from '../../core/models/work-items';
 import { emptyWorkTaskBoardFilter } from '../../core/models/work-task-board';
 import {
   TasksPageState,
+  defaultListOrder,
   clearedFilter,
   filterKey,
   hasFilters,
@@ -32,6 +33,7 @@ describe('tasks page address', () => {
     const state: TasksPageState = {
       view: 'calendar',
       month: '2026-10',
+      order: defaultListOrder,
       filter: {
         projectIds: ['p1'],
         workTicketIds: ['t1'],
@@ -53,7 +55,7 @@ describe('tasks page address', () => {
 
   it('writes "me" so a shared link shows the work of whoever opens it', () => {
     const params = tasksPageParams(
-      { view: 'board', month: '2026-09', filter: clearedFilter() },
+      { view: 'board', month: '2026-09', order: defaultListOrder, filter: clearedFilter() },
       meId,
     );
     const state = parseTasksPage(convertToParamMap({ ...params, assignee: 'me' }), 'someone-else');
@@ -71,6 +73,23 @@ describe('tasks page address', () => {
 
   it('counts a deadline choice as a filter', () => {
     expect(hasFilters({ ...clearedFilter(), deadline: 'none' })).toBe(true);
+  });
+
+  it('normalizes a calendar URL with no deadline without losing other filters', () => {
+    const state = parseTasksPage(
+      convertToParamMap({ view: 'calendar', deadline: 'none', project: 'p1', q: 'search' }),
+      meId,
+    );
+    expect(state.filter.deadline).toBe('any');
+    expect(state.filter.projectIds).toEqual(['p1']);
+    expect(state.filter.search).toBe('search');
+    expect(tasksPageParams(state, meId)['deadline']).toBeNull();
+  });
+
+  it.each([3, 4, 5, 6, 7])('round trips list sort %s and direction', (sort) => {
+    const state = parseTasksPage(convertToParamMap({ view: 'list', sort, sortDirection: 2 }), meId);
+    expect(state.order).toEqual({ sort, direction: 2 });
+    expect(parseTasksPage(convertToParamMap(tasksPageParams(state, meId)), meId)).toEqual(state);
   });
 });
 

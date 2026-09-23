@@ -1,0 +1,50 @@
+/* Label and link side by side, one row each: Project (when shown), then Parent. */
+:host {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.2rem 0.4rem;
+  min-width: 0;
+  color: var(--app-muted);
+  font-size: 0.75rem;
+  line-height: 1.5rem;
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-width: 0;
+  color: var(--kind-ticket);
+  text-decoration: none;
+}
+
+.link--task {
+  color: var(--kind-task);
+}
+
+.link--project {
+  color: var(--kind-project);
+}
+
+.link app-work-item-ref {
+  flex: none;
+  font-size: 0.68rem;
+}
+
+.link__name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.link:hover .link__name {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.link:focus-visible {
+  outline: 2px solid var(--orange-focus-outline);
+  outline-offset: 2px;
+}

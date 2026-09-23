@@ -15,17 +15,18 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Actions, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { ConfirmationService } from 'primeng/api';
-import { Subject, debounceTime, of, catchError } from 'rxjs';
-import { DictionaryModel } from '../../core/models/dictionary.model';
-import { WorkTaskBoardFilter, WorkTaskBoardQuery } from '../../core/models/work-task-board';
+import { Subject, debounceTime } from 'rxjs';
+import {
+  WorkTaskBoardFilter,
+  WorkTaskBoardQuery,
+  WorkTaskBoardOrder,
+} from '../../core/models/work-task-board';
 import { WorkItemMutationError } from '../../core/models/work-items';
 import { WorkTaskModel } from '../../core/models/work-tasks';
 import { Permissions } from '../../core/enums/permissions.enum';
-import { DictionaryService } from '../../core/services/dictionary.service';
 import { SnackBarService } from '../../core/services/snack-bar.service';
-import { WorkProjectsService } from '../../core/services/work-projects.service';
-import { WorkTicketsService } from '../../core/services/work-tickets.service';
-import { TaskBoardStoreActions, TaskBoardStoreSelectors } from '../../store/task-board';
+import { VisiblePageRefreshService } from '../../core/services/visible-page-refresh.service';
+import { TaskBoardStoreActions } from '../../store/task-board';
 import { UserStoreSelectors } from '../../store/user';
 import { FilterToggleButtonComponent } from '../../shared/components/filter-toggle-button/filter-toggle-button.component';
 import { ListSearchComponent } from '../../shared/components/list-search/list-search.component';
@@ -34,14 +35,11 @@ import {
   EntityTab,
   EntityTabsComponent,
 } from '../../shared/components/entity-tabs/entity-tabs.component';
-import {
-  FilterOption,
-  TaskFiltersComponent,
-} from './components/task-filters/task-filters.component';
+import { TaskFiltersComponent } from './components/task-filters/task-filters.component';
 import { TaskBoardViewComponent } from './views/task-board-view/task-board-view.component';
 import { TaskCalendarViewComponent } from './views/task-calendar-view/task-calendar-view.component';
 import { TaskListViewComponent } from './views/task-list-view/task-list-view.component';
-import { allProjectOptions, allTicketOptions } from './tasks-page.options';
+import { TaskFilterOptionsService } from './task-filter-options.service';
 import {
   TasksPageState,
   TasksView,
@@ -70,7 +68,7 @@ import {
     TaskCalendarViewComponent,
     TaskListViewComponent,
   ],
-  providers: [ConfirmationService],
+  providers: [ConfirmationService, TaskFilterOptionsService],
   templateUrl: './tasks-page.component.html',
   styleUrl: './tasks-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -82,9 +80,6 @@ export class TasksPageComponent implements OnDestroy {
   private readonly actions$ = inject(Actions);
   private readonly destroyRef = inject(DestroyRef);
   private readonly snackBar = inject(SnackBarService);
-  private readonly dictionaries = inject(DictionaryService);
-  private readonly projectsService = inject(WorkProjectsService);
-  private readonly ticketsService = inject(WorkTicketsService);
   private readonly typing = new Subject<string>();
 
   private readonly me = this.store.selectSignal(UserStoreSelectors.getMe);
@@ -125,7 +120,12 @@ export class TasksPageComponent implements OnDestroy {
   /** Editing is checked per project by the server; this only keeps drag handles from people who
    *  can edit nothing at all, such as the client. */
   readonly canMove = computed(() => this.permissions().includes(Permissions.Project.Edit));
-  readonly hasFilters = computed(() => hasFilters(this.state().filter));
+  /** Assigned to: the viewer and nobody else. */
+  readonly onlyMine = computed(() => {
+    const { assigneeUserIds, unassigned } = this.state().filter;
+    const meId = this.me()?.id;
+    return !!meId && !unassigned && assigneeUserIds.length === 1 && assigneeUserIds[0] === meId;
+  });
   /** What an empty list says: the plain truth for the default "my tasks", else that filters hid it. */
   readonly emptyText = computed(() => {
     const filter = this.state().filter;
@@ -139,7 +139,7 @@ export class TasksPageComponent implements OnDestroy {
       }) &&
       filter.assigneeUserIds.includes(meId);
     if (onlyMe) return 'Nothing is assigned to you';
-    return hasFilters(filter) ? 'No tasks match these filters' : 'No tasks yet';
+    return hasFilters(filter) ? 'No matching tasks' : 'No tasks yet';
   });
 
   /** Cards name their project unless the page is narrowed to one. */
@@ -147,44 +147,22 @@ export class TasksPageComponent implements OnDestroy {
   /** Bumped to make the view reload everything, after the server refused a move. */
   readonly reloadToken = signal(0);
 
-  readonly statuses = signal<DictionaryModel[]>([]);
-  readonly statusOptions = computed<FilterOption<number>[]>(() =>
-    this.statuses().map((status) => ({ value: status.id, label: status.name })),
-  );
-  readonly priorityOptions = signal<FilterOption<number>[]>([]);
-  readonly projectOptions = signal<FilterOption[]>([]);
-  readonly ticketOptions = signal<FilterOption[]>([]);
-  private readonly assignees = this.store.selectSignal(TaskBoardStoreSelectors.getAssignees);
-  readonly meOption = computed<FilterOption | null>(() => {
-    const meId = this.me()?.id;
-    return meId ? { value: meId, label: 'Me' } : null;
-  });
-  readonly peopleOptions = computed<FilterOption[]>(() => {
-    const meId = this.me()?.id;
-    return this.assignees()
-      .filter((person) => person.id !== meId)
-      .map((person) => ({ value: person.id, label: `${person.name} ${person.surname}` }))
-      .sort((a, b) => a.label.localeCompare(b.label));
-  });
+  /** The filter dropdowns' options and the statuses the board builds its columns from. */
+  readonly options = inject(TaskFilterOptionsService);
 
   constructor() {
     this.restoreLastIfEmpty();
-    this.loadDictionaries();
 
-    allProjectOptions(this.projectsService)
-      .pipe(
-        catchError(() => of([])),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe((options) => this.projectOptions.set(options));
-
-    // People and tickets depend on the projects chosen.
     effect(() => {
-      const projectIds = this.state().filter.projectIds;
-      untracked(() => {
-        this.store.dispatch(TaskBoardStoreActions.loadAssignees({ projectIds }));
-        this.loadTickets(projectIds);
-      });
+      if (this.params().get('view') === 'calendar' && this.params().get('deadline') === 'none') {
+        untracked(() => this.navigate({ filter: this.state().filter }));
+      }
+    });
+
+    // People and tickets depend on the projects chosen, and the choices must stay named.
+    effect(() => {
+      const { projectIds, workTicketIds } = this.state().filter;
+      untracked(() => this.options.select(projectIds, workTicketIds));
     });
 
     // The last page used, remembered for the next visit.
@@ -196,6 +174,13 @@ export class TasksPageComponent implements OnDestroy {
     this.typing
       .pipe(debounceTime(300), takeUntilDestroyed(this.destroyRef))
       .subscribe((search) => this.navigate({ filter: { ...this.state().filter, search } }));
+
+    // Someone else may have moved cards meanwhile: coming back to the tab reads the view again, at
+    // most once a minute so switching between two tabs does not flood the server.
+    inject(VisiblePageRefreshService)
+      .onReturn('tasks-page', 60_000)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.reloadToken.update((token) => token + 1));
 
     this.actions$
       .pipe(
@@ -221,7 +206,16 @@ export class TasksPageComponent implements OnDestroy {
   }
 
   selectView(view: TasksView): void {
-    this.navigate({ view });
+    const filter = this.state().filter;
+    this.navigate({
+      view,
+      filter:
+        view === 'calendar' && filter.deadline === 'none' ? { ...filter, deadline: 'any' } : filter,
+    });
+  }
+
+  changeOrder(order: WorkTaskBoardOrder): void {
+    this.navigate({ order });
   }
 
   changeSearch(search: string): void {
@@ -238,17 +232,8 @@ export class TasksPageComponent implements OnDestroy {
     this.navigate({ filter: { ...clearedFilter(), search: this.state().filter.search } });
   }
 
-  /** Everything back to "anyone's work in every project", the search too. */
-  clearAll(): void {
-    this.navigate({ filter: clearedFilter() });
-  }
-
   changeMonth(month: string): void {
     this.navigate({ month });
-  }
-
-  showWithoutDeadline(): void {
-    this.navigate({ view: 'list', filter: { ...this.state().filter, deadline: 'none' } });
   }
 
   open(task: WorkTaskModel): void {
@@ -284,37 +269,6 @@ export class TasksPageComponent implements OnDestroy {
       });
   }
 
-  private loadDictionaries(): void {
-    this.dictionaries
-      .getWorkTaskStatusDictionaries()
-      .pipe(
-        catchError(() => of([])),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe((statuses) => this.statuses.set(statuses));
-    this.dictionaries
-      .getWorkItemPriorityDictionaries()
-      .pipe(
-        catchError(() => of([])),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe((priorities) =>
-        this.priorityOptions.set(priorities.map((item) => ({ value: item.id, label: item.name }))),
-      );
-  }
-
-  private loadTickets(projectIds: readonly string[]): void {
-    if (projectIds.length !== 1) {
-      this.ticketOptions.set([]);
-      return;
-    }
-    allTicketOptions(this.ticketsService, projectIds[0])
-      .pipe(
-        catchError(() => of([])),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe((options) => this.ticketOptions.set(options));
-  }
 }
 
 function moveErrorMessage(error: WorkItemMutationError): string {

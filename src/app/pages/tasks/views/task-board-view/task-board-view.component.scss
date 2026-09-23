@@ -1,3 +1,5 @@
+@use 'quiet-button';
+
 :host {
   display: block;
   min-width: 0;
@@ -17,6 +19,8 @@
   min-width: 0;
 }
 
+/* Columns are one neutral grey, as in Azure and Notion: three tinted columns fought the cards'
+   own colours. The status keeps its colour only in the dot before the title. */
 .column {
   display: flex;
   flex-direction: column;
@@ -32,9 +36,41 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  color: var(--app-text);
+}
+
+.column__head::before {
+  width: 0.55rem;
+  height: 0.55rem;
+  margin-left: 0.25rem;
+  border-radius: 50%;
+  background: var(--column-dot);
+  content: '';
+}
+
+.column,
+.switcher__tab {
+  --column-text: var(--status-new-text);
+  --column-bg: var(--status-new-bg);
+  --column-dot: var(--status-dot-new);
+}
+
+[data-status='InProgress' i] {
+  --column-text: var(--status-active-text);
+  --column-bg: var(--status-active-bg);
+  --column-dot: var(--status-dot-progress);
+}
+
+[data-status='Done' i] {
+  --column-text: var(--status-done-text);
+  --column-bg: var(--status-done-bg);
+  --column-dot: var(--status-dot-done);
 }
 
 .column__title {
+  padding: 0.25rem 0;
+  border-radius: 5px;
+  background: transparent;
   margin: 0;
   font-size: 0.95rem;
   font-weight: 700;
@@ -47,7 +83,7 @@
   place-items: center;
   padding: 0 0.4rem;
   border-radius: 999px;
-  background: var(--app-surface);
+  background: var(--gray-hover);
   color: var(--app-muted);
   font-size: 0.75rem;
   font-weight: 700;
@@ -64,6 +100,15 @@
   padding: 0.1rem;
 }
 
+/* Overdue work above the rest of the column, cut off by a dashed line: sized by its cards, never
+   stretched to the bottom. */
+.column__list--late {
+  flex: none;
+  min-height: 0;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px dashed var(--overdue-border-strong);
+}
+
 /* An empty column says so in the middle of the space a card would take, not in small print on top. */
 .column__empty {
   display: grid;
@@ -75,13 +120,6 @@
   padding: 1rem;
   border: 1px dashed var(--app-border);
   border-radius: var(--radius-card);
-  color: var(--app-muted);
-  font-size: 0.85rem;
-}
-
-.column__empty i {
-  font-size: 1.1rem;
-  color: var(--gray-icon-muted);
 }
 
 .column__state {
@@ -96,10 +134,11 @@
   color: var(--red-hover);
 }
 
+/* White with a thin border like Clear: on the grey column a grey button was lost. */
 .column__more {
-  justify-self: center;
-  min-height: 2.1rem;
-  font-size: 0.78rem;
+  @include quiet-button.base;
+
+  align-self: center;
 }
 
 /* Drag feedback: the lifted card floats, the gap it will land in is a dashed outline. */
@@ -144,9 +183,9 @@
   }
 
   .switcher__tab--active {
-    border-color: var(--orange-border);
-    background: var(--orange-light);
-    color: var(--orange-text-hover);
+    border-color: color-mix(in srgb, var(--column-text) 25%, transparent);
+    background: var(--column-bg);
+    color: var(--column-text);
   }
 
   .switcher__count {

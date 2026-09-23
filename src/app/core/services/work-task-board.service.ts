@@ -9,6 +9,7 @@ import {
 } from '../models/work-task-board';
 import { WorkItemKind } from '../models/work-items';
 import { WorkTaskPageModel } from '../models/work-tasks';
+import { startOfToday } from '../utils/deadline.utils';
 
 /** Server's page size cap; the board asks for less, the calendar for as much as it may. */
 export const workTaskBoardMaxPageSize = 50;
@@ -60,10 +61,9 @@ function toParams(query: WorkTaskBoardQuery): HttpParams {
   if (query.deadlineTo) params = params.set('deadlineTo', query.deadlineTo);
   if (query.noDeadline || query.deadline === 'none') params = params.set('noDeadline', true);
   // A deadline is the user's local midnight; overdue means before the start of their today.
-  if (query.deadline === 'overdue') params = params.set('overdueBefore', startOfToday());
+  if (query.deadline === 'overdue' || query.overdue === true) {
+    params = params.set('overdueBefore', startOfToday().toISOString());
+  }
+  if (query.overdue === false) params = params.set('excludeOverdueBefore', startOfToday().toISOString());
   return params;
-}
-
-function startOfToday(now = new Date()): string {
-  return new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
 }

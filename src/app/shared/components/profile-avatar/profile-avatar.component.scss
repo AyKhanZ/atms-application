@@ -61,7 +61,8 @@
   opacity: 1;
 }
 
-.avatar-button:disabled .avatar::after {
+.avatar-button:disabled .avatar::after,
+.avatar.avatar--static::after {
   display: none;
 }
 

@@ -30,6 +30,9 @@ export const loadPageFailure = createAction(
   props<{ key: string; error: string }>(),
 );
 
+/** The lists a view shows now; every other list is dropped. */
+export const keepPages = createAction(`${key} Keep Pages`, props<{ keys: string[] }>());
+
 /** Every page of a list at once, following the cursor — a calendar month. */
 export const loadAll = createAction(
   `${key} Load All`,
@@ -53,6 +56,7 @@ export const loadAssignees = createAction(
   `${key} Load Assignees`,
   props<{ projectIds: string[] }>(),
 );
+
 export const loadAssigneesSuccess = createAction(
   `${key} Load Assignees Success`,
   props<{ assignees: WorkTaskBoardAssigneeModel[] }>(),

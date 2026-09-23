@@ -1,0 +1,120 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+/* One line per task, as in Notion: the title first, the kind along the left edge (the same edge
+   as the board card and the details header), the assignee as a small avatar. The code, ticket,
+   state and priority live in the hover card, not in the cell. */
+.chip {
+  --kind-color: var(--kind-task);
+
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  width: 100%;
+  height: 1.6rem;
+  min-width: 0;
+  padding: 0 0.35rem 0 0.55rem;
+  border: 0;
+  border-radius: 0 4px 4px 0;
+  background: color-mix(in srgb, var(--kind-color) 7%, var(--app-surface));
+  box-shadow: inset 2px 0 0 var(--kind-color);
+  color: var(--app-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.chip--subtask {
+  --kind-color: var(--kind-subtask);
+}
+
+.chip:hover {
+  background: color-mix(in srgb, var(--kind-color) 14%, var(--app-surface));
+}
+
+.chip app-work-item-ref {
+  flex: none;
+  font-size: 0.72rem;
+}
+
+/* Done steps back; overdue is tinted red — the one thing on a calendar allowed to be loud. */
+.chip--done .chip__title {
+  color: var(--app-muted);
+  text-decoration: line-through;
+}
+
+/* The strong red tint, red bold title and the solid "8d" pill make it the first thing on the
+   month. No red border around it: the border hid the kind stripe on the left. */
+.chip--overdue,
+.chip--overdue:hover {
+  background: var(--overdue-bg-strong);
+}
+
+.chip--overdue .chip__title {
+  color: var(--overdue-text);
+  font-weight: 600;
+}
+
+.chip app-overdue-badge {
+  flex: none;
+}
+
+.chip__title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font-size: 0.78rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chip__assignee {
+  flex: none;
+  max-width: 9rem;
+}
+
+.chip app-work-item-assignee.chip__assignee {
+  --assignee-font-size: 0.65rem;
+  --assignee-gap: 0.2rem;
+  --assignee-avatar-size: 1rem;
+}
+
+/* The agenda has the width for the code and the name: two lines, code and person on top. */
+.chip:focus-visible {
+  outline: 2px solid var(--orange-focus-outline);
+}
+
+/* The phone's agenda has the width for the code and the name: two lines, code and person on top. */
+.chip--phone {
+  flex-wrap: wrap;
+  height: auto;
+  row-gap: 0.2rem;
+  padding: 0.45rem 0.6rem 0.45rem 0.75rem;
+  border-radius: 0 6px 6px 0;
+  background: var(--app-surface);
+  box-shadow:
+    inset 3px 0 0 var(--kind-color),
+    0 0 0 1px var(--app-border);
+}
+
+.chip--phone.chip--overdue {
+  background: var(--overdue-bg-strong);
+}
+
+.chip--phone .chip__title {
+  flex-basis: 100%;
+  order: 2;
+  font-size: 0.85rem;
+}
+
+.chip--phone .chip__assignee {
+  margin-left: auto;
+}
+
+.chip--phone app-work-item-assignee.chip__assignee {
+  --assignee-font-size: 0.8rem;
+  --assignee-gap: 0.35rem;
+  --assignee-avatar-size: 1.25rem;
+}

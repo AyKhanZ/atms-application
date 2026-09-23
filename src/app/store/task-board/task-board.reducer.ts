@@ -35,18 +35,24 @@ function moveCard(
 
 const reducer = createReducer(
   initialTaskBoardState,
+  // A list being read again keeps what it shows until the answer comes: a refresh on returning to
+  // the tab, or after a refused move, must not blank the board into skeletons for a moment.
   on(
     Actions.loadPage,
-    (state, { key, cursor }): TaskBoardState => ({
+    (state, { key }): TaskBoardState => ({
       ...state,
-      pages: {
-        ...state.pages,
-        [key]: {
-          ...(cursor ? pageOf(state, key) : emptyTaskBoardPage),
-          loading: true,
-          error: null,
-        },
-      },
+      pages: { ...state.pages, [key]: { ...pageOf(state, key), loading: true, error: null } },
+    }),
+  ),
+  // Only the lists on screen are kept: every filter and order used to leave its own lists behind
+  // for as long as the page stayed open.
+  on(
+    Actions.keepPages,
+    (state, { keys }): TaskBoardState => ({
+      ...state,
+      pages: Object.fromEntries(
+        Object.entries(state.pages).filter(([key]) => keys.includes(key)),
+      ),
     }),
   ),
   on(

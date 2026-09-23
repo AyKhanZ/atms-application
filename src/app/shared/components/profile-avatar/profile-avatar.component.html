@@ -1,17 +1,30 @@
-<button
-  class="avatar-button"
-  type="button"
-  [disabled]="!previewEnabled() || !canShowImage()"
-  (click)="openPreview()"
->
-  <div class="avatar">
+@if (previewEnabled()) {
+  <button
+    class="avatar-button"
+    type="button"
+    [disabled]="!previewEnabled() || !canShowImage()"
+    (click)="openPreview()"
+  >
+    <ng-container *ngTemplateOutlet="avatarContent" />
+  </button>
+} @else {
+  <ng-container *ngTemplateOutlet="avatarContent" />
+}
+
+<ng-template #avatarContent>
+  <div
+    class="avatar"
+    [class.avatar--static]="!previewEnabled()"
+    role="img"
+    [attr.aria-label]="fullName()"
+  >
     @if (visibleImageUrl(); as imageUrl) {
-      <img [src]="imageUrl" [alt]="fullName()" (error)="onImageError()" />
+      <img [src]="imageUrl" alt="" (error)="onImageError()" />
     } @else {
       <span>{{ initials() }}</span>
     }
   </div>
-</button>
+</ng-template>
 
 <p-dialog
   [(visible)]="previewVisible"

@@ -11,7 +11,8 @@ const group: WorkGroupModel = {
   milestones: [],
 };
 
-describe('WorkGroupDialogComponent', () => {
+// A PrimeNG dialog with its overlays renders slowly: under a busy machine one test can pass 5s.
+describe('WorkGroupDialogComponent', { timeout: 20_000 }, () => {
   let fixture: ComponentFixture<WorkGroupDialogComponent>;
   let component: WorkGroupDialogComponent;
 

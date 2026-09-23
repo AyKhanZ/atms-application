@@ -1,0 +1,91 @@
+/* Shown inside PrimeNG's tooltip, which lives on the body: its frame becomes a white card instead
+   of a dark bubble. Scoped by the style class, so other tooltips keep their look. */
+::ng-deep .p-tooltip.task-hover {
+  max-width: 22rem;
+}
+
+::ng-deep .p-tooltip.task-hover .p-tooltip-text {
+  padding: 0;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-card);
+  background: var(--app-surface);
+  box-shadow: var(--shadow-card);
+  color: var(--app-text);
+}
+
+::ng-deep .p-tooltip.task-hover .p-tooltip-arrow {
+  display: none;
+}
+
+/* The kind along the left edge, as on the chip it opens from and on the details header. */
+:host {
+  --kind-color: var(--kind-task);
+
+  display: grid;
+  gap: 0.35rem;
+  /* One width for every task, whatever its title: the card does not jump from chip to chip. */
+  width: 20rem;
+  max-width: calc(100vw - 2rem);
+  padding: 0.75rem 0.9rem 0.8rem 1.05rem;
+  border-radius: var(--radius-card);
+  box-shadow: inset 4px 0 0 var(--kind-color);
+  font-size: 0.78rem;
+}
+
+:host(.is-subtask) {
+  --kind-color: var(--kind-subtask);
+}
+
+.hover__title {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.hover__facts {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.4rem 0.85rem;
+  margin: 0.2rem 0 0;
+}
+
+.hover__facts dt {
+  color: var(--app-muted);
+}
+
+.hover__facts dd {
+  display: flex;
+  min-width: 0;
+  margin: 0;
+}
+
+/* One line each, like the parent on the board card: icon, code, name cut with "…". */
+.hover__item {
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.hover__item app-work-item-ref {
+  flex: none;
+  font-size: 0.72rem;
+}
+
+.hover__deadline {
+  align-items: center;
+  gap: 0.45rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.hover__deadline--overdue {
+  color: var(--overdue-text);
+  font-weight: 600;
+}
+
+.hover__item span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

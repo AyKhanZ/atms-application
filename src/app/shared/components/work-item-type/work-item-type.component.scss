@@ -7,9 +7,6 @@
 .work-item-type {
   @include chip.base;
   @include chip.with-icon;
-
-  min-width: 4.9rem;
-  border-color: transparent;
 }
 
 .work-item-type__icon {
@@ -31,25 +28,21 @@
 }
 
 .work-item-type--bug {
-  border-color: rgb(185 28 28 / 10%);
   background: #fde8e8;
   color: #a83232;
 }
 
 .work-item-type--feature {
-  border-color: rgb(109 40 217 / 10%);
   background: #eee9ff;
   color: #5141b8;
 }
 
 .work-item-type--project {
-  border-color: rgb(37 99 235 / 10%);
   background: #e4f1fb;
   color: #075f9f;
 }
 
 .work-item-type--default {
-  border-color: var(--app-border);
   background: var(--app-surface-muted);
   color: var(--app-muted);
 }

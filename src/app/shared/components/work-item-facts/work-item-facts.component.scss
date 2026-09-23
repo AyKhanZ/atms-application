@@ -63,6 +63,6 @@ dd {
   font-weight: 600;
 }
 
-.deadline-value small.deadline-value--overdue {
-  color: var(--red-hover);
+.deadline-value--overdue {
+  color: var(--overdue-text);
 }

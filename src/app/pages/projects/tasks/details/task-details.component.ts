@@ -17,6 +17,7 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
 import { catchError, finalize, forkJoin, of, switchMap } from 'rxjs';
 import { ProjectPermissions } from '../../../../core/enums/project-permissions.enum';
 import { WorkItemKind } from '../../../../core/models/work-items';
+import { workTaskKind } from '../../../../core/utils/work-task.utils';
 import { WorkItemRefComponent } from '../../../../shared/components/work-item-ref/work-item-ref.component';
 import { WorkTaskModel } from '../../../../core/models/work-tasks';
 import { WorkProjectModel } from '../../../../core/models/work-projects/work-project.model';
@@ -253,10 +254,7 @@ export class TaskDetailsComponent implements OnDestroy {
       `/projects/${this.projectId}/tickets/${this.ticketId}/tasks/${result.task.id}`,
       taskBreadcrumbTrail(result.project, result.task),
     );
-    this.recent.track(
-      result.task.isSubtask ? WorkItemKind.Subtask : WorkItemKind.Task,
-      result.task.id,
-    );
+    this.recent.track(workTaskKind(result.task), result.task.id);
   }
 
   private applyPermissions(permissions: string[]): void {

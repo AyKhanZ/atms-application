@@ -24,6 +24,9 @@ export class LayoutService {
   /** Below 1280 there is room for the menu but not for its labels. */
   private readonly hasRoomForLabels = this.media('(min-width: 1280px)');
 
+  /** A phone: the width below which the stylesheets switch to their one-column layouts. */
+  readonly isPhone = this.media('(max-width: 767px)');
+
   /** The user's own choice, honoured only where there is room for labels in the first place. */
   collapsed = signal(false);
   readonly drawerOpen = signal(false);
@@ -70,6 +73,8 @@ export class LayoutService {
    * threshold is crossed instead of on every pixel of a drag.
    */
   private media(query: string, onChange?: (matches: boolean) => void): Signal<boolean> {
+    // No media queries outside a browser (the unit tests): the desktop layout.
+    if (typeof window.matchMedia !== 'function') return signal(false).asReadonly();
     const list = window.matchMedia(query);
     const matches = signal(list.matches);
 

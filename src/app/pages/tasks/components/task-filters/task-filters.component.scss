@@ -9,6 +9,51 @@
   display: block;
 }
 
+::ng-deep .task-person-option,
+::ng-deep .task-person-selection,
+::ng-deep .task-deadline-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+::ng-deep .option.task-person-option {
+  display: flex;
+  white-space: normal;
+}
+
+::ng-deep .task-person-option > span {
+  overflow-wrap: anywhere;
+}
+
+::ng-deep .task-person-selection > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+::ng-deep .task-person-option app-work-item-assignee,
+::ng-deep .task-person-selection app-work-item-assignee {
+  flex: none;
+}
+
+::ng-deep .task-deadline-option i,
+::ng-deep .task-deadline-option small {
+  color: var(--app-muted);
+}
+
+::ng-deep .task-deadline-option small {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: 0.75rem;
+}
+
+::ng-deep .task-deadline-option--overdue,
+::ng-deep .task-deadline-option--overdue i {
+  color: var(--red-hover);
+}
+
 /* Twelve tracks: three wide fields on the first row, four short ones and Clear on the second. */
 .filters__grid {
   display: grid;
@@ -31,7 +76,7 @@
   grid-column: span 2;
 }
 
-.field :is(p-multiselect, p-select) {
+.field :is(p-multiselect, p-select, app-ref-multiselect) {
   width: 100%;
   min-width: 0;
 }
@@ -46,23 +91,6 @@
 :host ::ng-deep .option,
 ::ng-deep .option {
   display: block;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-::ng-deep .option--ref {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-::ng-deep .option--ref app-work-item-ref {
-  flex: none;
-}
-
-::ng-deep .option__title {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;

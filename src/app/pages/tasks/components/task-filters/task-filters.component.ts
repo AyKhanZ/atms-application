@@ -10,18 +10,12 @@ import {
   WorkTaskBoardFilter,
 } from '../../../../core/models/work-task-board';
 import { ClearButtonComponent } from '../../../../shared/components/clear-button/clear-button.component';
-import { WorkItemRefComponent } from '../../../../shared/components/work-item-ref/work-item-ref.component';
 import { hasFilters } from '../../tasks-page.utils';
-
-export interface FilterOption<T = string> {
-  value: T;
-  /** What the dropdown searches and what a summary of the choice shows. */
-  label: string;
-  /** Drawn as the kind's icon and code in front of the title, as in details and search. */
-  ref?: { kind: WorkItemKind; code: number | string; title: string };
-  /** A line above this option, separating the special entries from the people. */
-  divider?: boolean;
-}
+import { RefMultiselectComponent } from '../ref-multiselect/ref-multiselect.component';
+import { FilterOption, filterPanelStyle } from './filter-option';
+import { FilterSummaryPipe } from './filter-summary.pipe';
+import { RemoteOptions } from '../../remote-options';
+import { WorkItemAssigneeComponent } from '../../../../shared/components/work-item-assignee/work-item-assignee.component';
 
 /** "Nobody" in the Assigned to list; never a real user id. */
 const unassigned = 'none';
@@ -40,7 +34,9 @@ const unassigned = 'none';
     SelectModule,
     LabelForDirective,
     ClearButtonComponent,
-    WorkItemRefComponent,
+    RefMultiselectComponent,
+    FilterSummaryPipe,
+    WorkItemAssigneeComponent,
   ],
   templateUrl: './task-filters.component.html',
   styleUrl: './task-filters.component.scss',
@@ -48,8 +44,10 @@ const unassigned = 'none';
 })
 export class TaskFiltersComponent {
   readonly filter = input.required<WorkTaskBoardFilter>();
-  readonly projects = input<FilterOption[]>([]);
-  readonly tickets = input<FilterOption[]>([]);
+  readonly calendar = input(false);
+  /** Projects and tickets are searched on the server and read a page at a time. */
+  readonly projects = input<RemoteOptions | null>(null);
+  readonly tickets = input<RemoteOptions | null>(null);
   /** The signed-in user, listed as "Me". */
   readonly me = input<FilterOption | null>(null);
   /** Everyone else who can be assigned, by name. */
@@ -59,8 +57,7 @@ export class TaskFiltersComponent {
   readonly filterChange = output<WorkTaskBoardFilter>();
   readonly cleared = output<void>();
 
-  /** The same width however much the search has narrowed the options; never wider than a phone. */
-  readonly panelStyle = { width: 'min(24rem, calc(100vw - 2rem))' };
+  readonly panelStyle = filterPanelStyle;
 
   readonly types: FilterOption<WorkItemKind.Task | WorkItemKind.Subtask | null>[] = [
     { value: null, label: 'All' },
@@ -68,14 +65,25 @@ export class TaskFiltersComponent {
     { value: WorkItemKind.Subtask, label: 'Subtask' },
   ];
 
-  readonly deadlines: FilterOption<WorkTaskBoardDeadline>[] = [
-    { value: 'any', label: 'All' },
-    { value: 'overdue', label: 'Overdue' },
-    { value: 'none', label: 'No deadline' },
-  ];
+  readonly deadlines = computed(
+    () =>
+      [
+        { value: 'any', label: 'All' },
+        { value: 'overdue', label: 'Overdue' },
+        { value: 'none', label: 'No deadline', disabled: this.calendar() },
+      ] satisfies (FilterOption<WorkTaskBoardDeadline> & { disabled?: boolean })[],
+  );
 
   /** Tickets of different projects in one list mean nothing; one project has to be chosen first. */
   readonly ticketsEnabled = computed(() => this.filter().projectIds.length === 1);
+  /** Says why the field is off and how to turn it on, not just that it is. */
+  readonly ticketPlaceholder = computed(() => {
+    const projects = this.filter().projectIds.length;
+    if (projects === 1) return 'All';
+    return projects === 0
+      ? 'Select a project to filter by ticket'
+      : 'Select only one project to filter by ticket';
+  });
 
   /** Me and Unassigned together at the top — the two picked most — then everyone else. */
   readonly peopleOptions = computed<FilterOption[]>(() => {
@@ -106,16 +114,5 @@ export class TaskFiltersComponent {
       assigneeUserIds: values.filter((value) => value !== unassigned),
       unassigned: values.includes(unassigned),
     });
-  }
-
-  /**
-   * "Payment Gateway +1": the first choice by name, so the field says what it holds. Empty when
-   * nothing is chosen — the placeholder ("All", "Anyone") is drawn by the dropdown itself.
-   */
-  summary(selected: readonly FilterOption<unknown>[] | null): string {
-    if (!selected?.length) return '';
-    const [first] = selected;
-    const name = first.ref?.title ?? first.label;
-    return selected.length > 1 ? `${name} +${selected.length - 1}` : name;
   }
 }

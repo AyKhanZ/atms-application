@@ -10,6 +10,9 @@ export enum WorkTaskBoardSort {
   Deadline = 3,
   /** The priority. */
   Priority = 4,
+  Title = 5,
+  State = 6,
+  Code = 7,
 }
 
 /** An order is a column plus a direction, the same pair the other lists send. */

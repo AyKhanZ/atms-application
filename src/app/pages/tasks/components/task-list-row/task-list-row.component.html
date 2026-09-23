@@ -1,0 +1,22 @@
+<button
+  type="button"
+  class="row"
+  [class.row--subtask]="task().isSubtask"
+  [class.row--overdue]="overdue()"
+  (click)="open.emit()"
+>
+  <span class="row__head">
+    <app-work-item-ref [type]="kind()" [code]="task().code" [labelled]="false" />
+    <strong class="row__title">{{ task().title }}</strong>
+  </span>
+  <span class="row__meta">
+    <app-task-status-badge [status]="task().status" />
+    <app-work-item-priority [priority]="task().priority" />
+    @if (overdue()) {
+      <app-overdue-badge [deadline]="task().deadline" />
+    } @else if (task().deadline; as deadline) {
+      <span class="row__deadline">{{ deadline | date: 'd MMM' }}</span>
+    }
+    <app-work-item-assignee class="row__assignee" [assignee]="task().assignee" [avatarOnly]="true" />
+  </span>
+</button>

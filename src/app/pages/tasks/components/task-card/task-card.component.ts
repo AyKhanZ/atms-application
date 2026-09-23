@@ -1,13 +1,15 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
-import { DatePipe } from '@angular/common';
 import { MenuItem } from 'primeng/api';
 import { MenuModule } from 'primeng/menu';
-import { WorkItemKind } from '../../../../core/models/work-items';
+import { workTaskKind } from '../../../../core/utils/work-task.utils';
 import { WorkTaskModel } from '../../../../core/models/work-tasks';
 import { WorkTaskStatus } from '../../../../core/enums/work-task-status.enum';
 import { WorkItemRefComponent } from '../../../../shared/components/work-item-ref/work-item-ref.component';
 import { WorkItemAssigneeComponent } from '../../../../shared/components/work-item-assignee/work-item-assignee.component';
 import { WorkItemPriorityComponent } from '../../../../shared/components/work-item-priority/work-item-priority.component';
+import { OverdueBadgeComponent } from '../../../../shared/components/overdue-badge/overdue-badge.component';
+import { daysFromToday, isOverdueTask } from '../../../../core/utils/deadline.utils';
+import { TaskContextComponent } from '../task-context/task-context.component';
 
 /**
  * One task or subtask on the board. Says what it is ("SUBTASK #70" in its kind's colour), where it
@@ -17,11 +19,12 @@ import { WorkItemPriorityComponent } from '../../../../shared/components/work-it
 @Component({
   selector: 'app-task-card',
   imports: [
-    DatePipe,
     MenuModule,
     WorkItemRefComponent,
     WorkItemAssigneeComponent,
     WorkItemPriorityComponent,
+    TaskContextComponent,
+    OverdueBadgeComponent,
   ],
   templateUrl: './task-card.component.html',
   styleUrl: './task-card.component.scss',
@@ -37,30 +40,19 @@ export class TaskCardComponent {
   readonly moveTo = output<WorkTaskStatus>();
   readonly moveToTop = output<void>();
 
-  protected readonly kind = computed(() =>
-    this.task().isSubtask ? WorkItemKind.Subtask : WorkItemKind.Task,
-  );
-
-  /** Where it lives, one line: the parent task, or the ticket. */
-  protected readonly location = computed(() => {
-    const task = this.task();
-    return task.isSubtask
-      ? {
-          icon: 'pi-check-square',
-          text: `#${task.parentWorkTask?.code} ${task.parentWorkTask?.name}`,
-        }
-      : { icon: 'pi-ticket', text: `#${task.workTicket.code} ${task.workTicket.name}` };
-  });
+  protected readonly kind = computed(() => workTaskKind(this.task()));
 
   protected readonly done = computed(() => this.task().status.id === WorkTaskStatus.Done);
 
   /** Past its deadline and not done: the one thing on a card that needs attention first. */
-  protected readonly overdue = computed(() => {
-    const task = this.task();
-    if (!task.deadline || task.status.id === WorkTaskStatus.Done) return false;
-    const end = new Date(task.deadline);
-    end.setHours(23, 59, 59, 999);
-    return end.getTime() < Date.now();
+  protected readonly overdue = computed(() => isOverdueTask(this.task()));
+
+  /** "Due today" / "Due tomorrow" for open work; further dates are not worth a place on the card. */
+  protected readonly dueSoon = computed(() => {
+    const { deadline } = this.task();
+    if (!deadline || this.done()) return null;
+    const days = daysFromToday(deadline);
+    return days === 0 ? 'Due today' : days === 1 ? 'Due tomorrow' : null;
   });
 
   protected readonly menu = computed<MenuItem[]>(() => {

@@ -26,6 +26,8 @@ export interface WorkTaskBoardQuery extends WorkTaskBoardFilter {
   deadlineFrom?: string | null;
   deadlineTo?: string | null;
   noDeadline?: boolean;
+  /** One side of the overdue split: true only overdue work, false everything else. */
+  overdue?: boolean;
 }
 
 export const emptyWorkTaskBoardFilter: WorkTaskBoardFilter = {

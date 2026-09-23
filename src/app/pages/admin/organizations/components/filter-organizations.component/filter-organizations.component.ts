@@ -8,6 +8,7 @@ import {
 import { DatePickerModule } from 'primeng/datepicker';
 import { OrganizationListFilter } from '../../../../../core/models/organizations/organizations.models';
 import { ClearButtonComponent } from '../../../../../shared/components/clear-button/clear-button.component';
+import { endOfToday } from '../../../../../core/utils/deadline.utils';
 
 export interface OrganizationsFilterFormValue {
   createdFrom: Date | null;
@@ -100,10 +101,4 @@ function createdDateRangeValidator(control: AbstractControl): ValidationErrors |
   const createdFrom = control.get('createdFrom')?.value as Date | null;
   const createdTo = control.get('createdTo')?.value as Date | null;
   return createdFrom && createdTo && createdFrom > createdTo ? { createdDateRange: true } : null;
-}
-
-function endOfToday(): Date {
-  const today = new Date();
-  today.setHours(23, 59, 59, 999);
-  return today;
 }

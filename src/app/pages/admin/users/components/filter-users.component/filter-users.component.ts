@@ -20,6 +20,7 @@ import { SelectModule } from 'primeng/select';
 import { DictionaryModel } from '../../../../../core/models/dictionary.model';
 import { UserListFilter } from '../../../../../core/models/users/users.models';
 import { ClearButtonComponent } from '../../../../../shared/components/clear-button/clear-button.component';
+import { endOfToday } from '../../../../../core/utils/deadline.utils';
 
 export interface UsersFilterFormValue {
   userStatusId: number | null;
@@ -157,10 +158,4 @@ function createdDateRangeValidator(control: AbstractControl): ValidationErrors |
   }
 
   return null;
-}
-
-function endOfToday(): Date {
-  const today = new Date();
-  today.setHours(23, 59, 59, 999);
-  return today;
 }

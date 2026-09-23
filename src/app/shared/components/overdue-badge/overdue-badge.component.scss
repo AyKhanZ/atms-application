@@ -1,0 +1,29 @@
+:host {
+  display: inline-flex;
+  min-width: 0;
+}
+
+.overdue-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  height: 1.35rem;
+  padding: 0 0.45rem;
+  border-radius: 999px;
+  background: var(--overdue-text);
+  color: var(--white);
+  font-size: 0.72rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.overdue-badge i {
+  font-size: 0.7rem;
+}
+
+:host(.is-compact) .overdue-badge {
+  height: 1rem;
+  padding: 0 0.3rem;
+  font-size: 0.65rem;
+}

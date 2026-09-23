@@ -3,54 +3,25 @@
   <div class="filters__grid">
     <div class="field field--wide">
       <label id="taskFilterProjectLabel" appLabelFor="taskFilterProject">Project</label>
-      <p-multiselect
+      <app-ref-multiselect
         inputId="taskFilterProject"
-        ariaLabelledBy="taskFilterProjectLabel"
-        placeholder="All"
-        [options]="projects()"
-        optionLabel="label"
-        optionValue="value"
-        [ngModel]="filter().projectIds"
-        (ngModelChange)="change({ projectIds: $event })"
-        [filter]="true"
-        filterPlaceHolder="Search by code or title"
-        [showToggleAll]="false"
-        [panelStyle]="panelStyle"
-        appendTo="body"
-      >
-        <ng-template #selecteditems let-selected>
-          {{ summary(selected) }}
-        </ng-template>
-        <ng-template #item let-option>
-          <ng-container *ngTemplateOutlet="refOption; context: { $implicit: option }" />
-        </ng-template>
-      </p-multiselect>
+        labelledBy="taskFilterProjectLabel"
+        [source]="projects()"
+        [value]="filter().projectIds"
+        (valueChange)="change({ projectIds: $event })"
+      />
     </div>
     <div class="field field--wide">
       <label id="taskFilterTicketLabel" appLabelFor="taskFilterTicket">Ticket</label>
-      <p-multiselect
+      <app-ref-multiselect
         inputId="taskFilterTicket"
-        ariaLabelledBy="taskFilterTicketLabel"
-        [placeholder]="ticketsEnabled() ? 'All' : 'Pick one project first'"
-        [options]="tickets()"
-        optionLabel="label"
-        optionValue="value"
+        labelledBy="taskFilterTicketLabel"
+        [placeholder]="ticketPlaceholder()"
+        [source]="tickets()"
         [disabled]="!ticketsEnabled()"
-        [ngModel]="filter().workTicketIds"
-        (ngModelChange)="change({ workTicketIds: $event })"
-        [filter]="true"
-        filterPlaceHolder="Search by code or title"
-        [showToggleAll]="false"
-        [panelStyle]="panelStyle"
-        appendTo="body"
-      >
-        <ng-template #selecteditems let-selected>
-          {{ summary(selected) }}
-        </ng-template>
-        <ng-template #item let-option>
-          <ng-container *ngTemplateOutlet="refOption; context: { $implicit: option }" />
-        </ng-template>
-      </p-multiselect>
+        [value]="filter().workTicketIds"
+        (valueChange)="change({ workTicketIds: $event })"
+      />
     </div>
     <div class="field field--wide">
       <label id="taskFilterPeopleLabel" appLabelFor="taskFilterPeople">Assigned to</label>
@@ -70,11 +41,21 @@
         appendTo="body"
       >
         <ng-template #selecteditems let-selected>
-          {{ summary(selected) }}
+          @if (selected?.length) {
+            <span class="task-person-selection">
+              <app-work-item-assignee [assignee]="selected[0].person" [avatarOnly]="true" />
+              <span>{{ selected | filterSummary }}</span>
+            </span>
+          }
         </ng-template>
         <ng-template #item let-option>
-          <span class="option" [class.option--divided]="option.divider" [title]="option.label">
-            {{ option.label }}
+          <span
+            class="option task-person-option"
+            [class.option--divided]="option.divider"
+            [title]="option.label"
+          >
+            <app-work-item-assignee [assignee]="option.person" [avatarOnly]="true" />
+            <span>{{ option.label }}</span>
           </span>
         </ng-template>
       </p-multiselect>
@@ -93,7 +74,7 @@
       />
     </div>
     <div class="field field--narrow">
-      <label id="taskFilterStateLabel" appLabelFor="taskFilterState">State</label>
+      <label id="taskFilterStateLabel" appLabelFor="taskFilterState">Status</label>
       <p-multiselect
         inputId="taskFilterState"
         ariaLabelledBy="taskFilterStateLabel"
@@ -108,7 +89,7 @@
         appendTo="body"
       >
         <ng-template #selecteditems let-selected>
-          {{ summary(selected) }}
+          {{ selected | filterSummary }}
         </ng-template>
       </p-multiselect>
     </div>
@@ -128,7 +109,7 @@
         appendTo="body"
       >
         <ng-template #selecteditems let-selected>
-          {{ summary(selected) }}
+          {{ selected | filterSummary }}
         </ng-template>
       </p-multiselect>
     </div>
@@ -137,13 +118,21 @@
       <p-select
         inputId="taskFilterDeadline"
         ariaLabelledBy="taskFilterDeadlineLabel"
-        [options]="deadlines"
+        [options]="deadlines()"
+        optionDisabled="disabled"
         optionLabel="label"
         optionValue="value"
         [ngModel]="filter().deadline"
         (ngModelChange)="change({ deadline: $event })"
         appendTo="body"
-      />
+      >
+        <ng-template #selectedItem let-option>
+          <ng-container *ngTemplateOutlet="deadlineOption; context: { $implicit: option }" />
+        </ng-template>
+        <ng-template #item let-option>
+          <ng-container *ngTemplateOutlet="deadlineOption; context: { $implicit: option }" />
+        </ng-template>
+      </p-select>
     </div>
 
     <div class="filters__actions">
@@ -154,14 +143,24 @@
   </div>
 </div>
 
-<!-- A project or ticket as everywhere else: kind icon and code in the kind's colour, then the title. -->
-<ng-template #refOption let-option>
-  @if (option.ref; as ref) {
-    <span class="option option--ref" [title]="option.label">
-      <app-work-item-ref [type]="ref.kind" [code]="ref.code" [labelled]="false" />
-      <span class="option__title">{{ ref.title }}</span>
+<ng-template #deadlineOption let-option>
+  <span
+    class="task-deadline-option"
+    [class.task-deadline-option--overdue]="option.value === 'overdue'"
+  >
+    @if (option.value !== 'any') {
+      <i
+        class="pi"
+        [class.pi-clock]="option.value === 'overdue'"
+        [class.pi-calendar-minus]="option.value === 'none'"
+        aria-hidden="true"
+      ></i>
+    }
+    <span>
+      {{ option.label }}
+      @if (option.disabled) {
+        <small>Available in Board and List</small>
+      }
     </span>
-  } @else {
-    <span class="option" [title]="option.label">{{ option.label }}</span>
-  }
+  </span>
 </ng-template>

@@ -6,15 +6,13 @@ import {
   inject,
   input,
   output,
-  signal,
+  linkedSignal,
   untracked,
 } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { Store } from '@ngrx/store';
-import { ButtonModule } from 'primeng/button';
 import { SortEvent } from 'primeng/api';
 import { TableModule } from 'primeng/table';
-import { WorkItemKind } from '../../../../core/models/work-items';
 import {
   WorkTaskBoardOrder,
   WorkTaskBoardQuery,
@@ -22,27 +20,34 @@ import {
   orderKey,
 } from '../../../../core/models/work-task-board';
 import { SortDirectionEnum } from '../../../../core/enums/sort-direction.enum';
-import { WorkTaskStatus } from '../../../../core/enums/work-task-status.enum';
 import { WorkTaskModel } from '../../../../core/models/work-tasks';
 import {
   TaskBoardPageState,
   TaskBoardStoreActions,
   TaskBoardStoreSelectors,
 } from '../../../../store/task-board';
-import { ClearButtonComponent } from '../../../../shared/components/clear-button/clear-button.component';
 import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
 import { WorkItemAssigneeComponent } from '../../../../shared/components/work-item-assignee/work-item-assignee.component';
 import { WorkItemPriorityComponent } from '../../../../shared/components/work-item-priority/work-item-priority.component';
 import { WorkItemRefComponent } from '../../../../shared/components/work-item-ref/work-item-ref.component';
+import { OverdueBadgeComponent } from '../../../../shared/components/overdue-badge/overdue-badge.component';
+import { IsOverdueTaskPipe, TaskKindPipe } from '../../../../shared/pipes/work-task.pipe';
+import { TaskListRowComponent } from '../../components/task-list-row/task-list-row.component';
 import { TaskStatusBadgeComponent } from '../../../projects/tasks/components/task-status-badge/task-status-badge.component';
-import { filterKey } from '../../tasks-page.utils';
+import { defaultListOrder, filterKey } from '../../tasks-page.utils';
 
 const pageSize = 20;
 
-/** What each sortable column of the table orders by. Task is the board's own order, so one click
- *  on it always leads back to the familiar view. */
+/** One part of the list: overdue work, or everything else. */
+interface ListSource {
+  key: string;
+  overdue: boolean;
+}
+
 const sorts: Record<string, WorkTaskBoardSort> = {
-  task: WorkTaskBoardSort.Rank,
+  code: WorkTaskBoardSort.Code,
+  title: WorkTaskBoardSort.Title,
+  state: WorkTaskBoardSort.State,
   deadline: WorkTaskBoardSort.Deadline,
   priority: WorkTaskBoardSort.Priority,
 };
@@ -57,14 +62,16 @@ const sorts: Record<string, WorkTaskBoardSort> = {
   selector: 'app-task-list-view',
   imports: [
     DatePipe,
-    ButtonModule,
     TableModule,
-    ClearButtonComponent,
     EmptyStateComponent,
     WorkItemAssigneeComponent,
     WorkItemPriorityComponent,
     WorkItemRefComponent,
     TaskStatusBadgeComponent,
+    OverdueBadgeComponent,
+    TaskListRowComponent,
+    TaskKindPipe,
+    IsOverdueTaskPipe,
   ],
   templateUrl: './task-list-view.component.html',
   styleUrl: './task-list-view.component.scss',
@@ -74,77 +81,104 @@ export class TaskListViewComponent {
   private readonly store = inject(Store);
 
   readonly query = input.required<WorkTaskBoardQuery>();
-  readonly showProject = input(false);
   readonly reloadToken = input(0);
   /** What an empty list says, chosen by the page from its filters. */
   readonly emptyText = input('No tasks yet');
-  /** Whether filters are in use, so an empty list offers to clear them. */
-  readonly filtered = input(false);
   readonly openTask = output<WorkTaskModel>();
-  readonly clearFilters = output<void>();
-
-  /** Which column orders the rows; the board's own order to begin with. */
-  readonly sortField = signal('task');
-  readonly sortOrder = signal(1);
-  readonly order = computed<WorkTaskBoardOrder>(() => ({
-    sort: sorts[this.sortField()] ?? WorkTaskBoardSort.Rank,
-    direction: this.sortOrder() === -1 ? SortDirectionEnum.Desc : SortDirectionEnum.Asc,
-  }));
+  readonly order = input<WorkTaskBoardOrder>(defaultListOrder);
+  readonly orderChange = output<WorkTaskBoardOrder>();
+  readonly sortField = computed(
+    () => Object.keys(sorts).find((field) => sorts[field] === this.order().sort) ?? 'title',
+  );
+  readonly sortOrder = computed(() => (this.order().direction === SortDirectionEnum.Desc ? -1 : 1));
 
   private readonly pages = this.store.selectSignal(TaskBoardStoreSelectors.getPages);
   private readonly key = computed(
     () => `list|${filterKey(this.query())}|${orderKey(this.order())}`,
   );
-  /** Undefined until the first request for these filters goes out. */
-  readonly page = computed<TaskBoardPageState | undefined>(() => this.pages()[this.key()]);
-  readonly items = computed(() => this.page()?.items ?? []);
+  /** Overdue work first, then the rest, each in the chosen order — whatever column sorts it.
+   *  A deadline filter leaves only one of the two. */
+  private readonly sources = computed<ListSource[]>(() => {
+    const key = this.key();
+    const deadline = this.query().deadline;
+    const late: ListSource = { key: `${key}|late`, overdue: true };
+    const onTime: ListSource = { key: `${key}|on-time`, overdue: false };
+    return deadline === 'overdue' ? [late] : deadline === 'none' ? [onTime] : [late, onTime];
+  });
+  /** Both sources read as one list: the rest shows only once the overdue part is all loaded.
+   *  Undefined until the first request for these filters goes out. */
+  readonly page = computed<TaskBoardPageState | undefined>(() => {
+    const pages = this.sources().map((source) => this.pages()[source.key]);
+    if (pages.some((page) => !page)) return undefined;
+    const loaded = pages as TaskBoardPageState[];
+    const unfinished = loaded.findIndex((page) => page.hasMore);
+    const shown = unfinished === -1 ? loaded : loaded.slice(0, unfinished + 1);
+    return {
+      items: shown.flatMap((page) => page.items),
+      nextCursor: null,
+      hasMore: loaded.some((page) => page.hasMore),
+      loading: loaded.some((page) => page.loading),
+      error: loaded.find((page) => page.error)?.error ?? null,
+    };
+  });
+  private readonly displayed = linkedSignal<
+    { filter: string; page: TaskBoardPageState | undefined },
+    { filter: string; items: WorkTaskModel[] }
+  >({
+    source: () => ({ filter: filterKey(this.query()), page: this.page() }),
+    computation: ({ filter, page }, previous) => ({
+      filter,
+      // Keep rows only while reordering the same result set, never across a filter/access change.
+      items:
+        page && (!page.loading || page.items.length > 0)
+          ? page.items
+          : previous?.value.filter === filter
+            ? previous.value.items
+            : [],
+    }),
+  });
+  readonly items = computed(() => this.displayed().items);
   readonly loading = computed(() => this.page()?.loading ?? !this.page());
 
   constructor() {
     effect(() => {
       this.key();
       this.reloadToken();
-      untracked(() => this.load(null));
+      untracked(() => this.loadFirst());
     });
   }
 
   changeSort(event: SortEvent): void {
     const field = typeof event.field === 'string' ? event.field : null;
     if (!field || !sorts[field]) return;
-    this.sortField.set(field);
-    this.sortOrder.set(event.order === -1 ? -1 : 1);
+    const direction = event.order === -1 ? SortDirectionEnum.Desc : SortDirectionEnum.Asc;
+    if (sorts[field] !== this.order().sort || direction !== this.order().direction) {
+      this.orderChange.emit({ sort: sorts[field], direction });
+    }
   }
 
-  kind(task: WorkTaskModel): WorkItemKind {
-    return task.isSubtask ? WorkItemKind.Subtask : WorkItemKind.Task;
+  trackRow(_index: number, task: WorkTaskModel): string {
+    return task.id;
   }
 
-  location(task: WorkTaskModel): string {
-    const place = task.isSubtask
-      ? `#${task.parentWorkTask?.code} ${task.parentWorkTask?.name}`
-      : `#${task.workTicket.code} ${task.workTicket.name}`;
-    return this.showProject() && task.workProjectTitle
-      ? `${task.workProjectTitle} › ${place}`
-      : place;
-  }
-
-  overdue(task: WorkTaskModel): boolean {
-    if (!task.deadline || task.status.id === WorkTaskStatus.Done) return false;
-    const end = new Date(task.deadline);
-    end.setHours(23, 59, 59, 999);
-    return end.getTime() < Date.now();
-  }
-
+  /** The next page of the overdue part while it has more, then of the rest. */
   loadMore(): void {
-    const page = this.page();
-    if (page?.nextCursor && !page.loading) this.load(page.nextCursor);
+    const source = this.sources().find((candidate) => this.pages()[candidate.key]?.hasMore);
+    const page = source && this.pages()[source.key];
+    if (source && page?.nextCursor && !page.loading) this.load(source, page.nextCursor);
   }
 
-  private load(cursor: string | null): void {
+  private loadFirst(): void {
+    const keys = this.sources().map((source) => source.key);
+    this.store.dispatch(TaskBoardStoreActions.keepPages({ keys }));
+    for (const source of this.sources()) this.load(source, null);
+  }
+
+  private load(source: ListSource, cursor: string | null): void {
     this.store.dispatch(
       TaskBoardStoreActions.loadPage({
-        key: this.key(),
-        query: this.query(),
+        key: source.key,
+        query: { ...this.query(), overdue: source.overdue },
         order: this.order(),
         pageSize,
         cursor,

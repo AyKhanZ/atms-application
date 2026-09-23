@@ -353,7 +353,14 @@ the point at which they start to drift.
   `OnPush` still means far more often than the data changes. `Intl.*` formatters are expensive
   and must not be constructed this way.
 - Put display formatting in a pipe under `shared/pipes/`. Existing ones: `relativeTime`,
-  `personName`, `personInitials`, `deadlineLabel`, `isOverdue`.
+  `personName`, `personInitials`, `deadlineLabel`, `isOverdue` (`deadline | isOverdue: closed`),
+  `taskKind`, `isOverdueTask`.
+- The pure functions behind them live in `core/utils/`: `deadline.utils` (`daysLate`,
+  `lateLabel`, `isOverdueTask`, `startOfToday`, `endOfToday`) and `work-task.utils`
+  (`workTaskKind`, `workTaskParent`). A component's `computed` uses the function, a template the
+  pipe — never a copy of either.
+- "Is this a phone" is `LayoutService.isPhone`, the same 767px breakpoint the stylesheets use. Do
+  not open another `matchMedia` in a component.
 - Component methods are for event handlers and actions, not for rendering values.
 
 ### File size

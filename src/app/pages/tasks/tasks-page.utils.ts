@@ -3,8 +3,16 @@ import { WorkItemKind } from '../../core/models/work-items';
 import {
   WorkTaskBoardFilter,
   WorkTaskBoardQuery,
+  WorkTaskBoardOrder,
+  WorkTaskBoardSort,
   emptyWorkTaskBoardFilter,
 } from '../../core/models/work-task-board';
+import { SortDirectionEnum } from '../../core/enums/sort-direction.enum';
+
+export const defaultListOrder: WorkTaskBoardOrder = {
+  sort: WorkTaskBoardSort.Title,
+  direction: SortDirectionEnum.Asc,
+};
 
 export type TasksView = 'board' | 'calendar' | 'list';
 
@@ -14,6 +22,7 @@ export interface TasksPageState {
   filter: WorkTaskBoardFilter;
   /** "2026-09" — the calendar's month. */
   month: string;
+  order: WorkTaskBoardOrder;
 }
 
 /** Stand-ins in the address for the signed-in user and for "nobody". */
@@ -36,9 +45,25 @@ export function parseTasksPage(params: ParamMap, meId: string | null): TasksPage
   const type = params.get('type');
   const month = params.get('month');
   const deadline = params.get('deadline');
+  const sort = Number(params.get('sort'));
 
   return {
     view: view === 'calendar' || view === 'list' ? view : 'board',
+    order: {
+      sort: [
+        WorkTaskBoardSort.Title,
+        WorkTaskBoardSort.Code,
+        WorkTaskBoardSort.State,
+        WorkTaskBoardSort.Priority,
+        WorkTaskBoardSort.Deadline,
+      ].includes(sort)
+        ? sort
+        : defaultListOrder.sort,
+      direction:
+        Number(params.get('sortDirection')) === SortDirectionEnum.Desc
+          ? SortDirectionEnum.Desc
+          : SortDirectionEnum.Asc,
+    },
     month: month && /^\d{4}-\d{2}$/.test(month) ? month : currentMonth(),
     filter: {
       projectIds: list('project'),
@@ -50,7 +75,8 @@ export function parseTasksPage(params: ParamMap, meId: string | null): TasksPage
       unassigned: people.includes(none),
       statusIds: list('state').map(Number).filter(Number.isInteger),
       priorityIds: list('priority').map(Number).filter(Number.isInteger),
-      deadline: deadline === none || deadline === 'overdue' ? deadline : 'any',
+      deadline:
+        deadline === 'overdue' || (deadline === none && view !== 'calendar') ? deadline : 'any',
       search: params.get('q') ?? '',
     },
   };
@@ -68,6 +94,8 @@ export function tasksPageParams(state: TasksPageState, meId: string | null): Par
 
   return {
     view: state.view === 'board' ? null : state.view,
+    sort: state.order.sort === defaultListOrder.sort ? null : state.order.sort,
+    sortDirection: state.order.direction === SortDirectionEnum.Asc ? null : state.order.direction,
     month: state.view === 'calendar' ? state.month : null,
     project: join(filter.projectIds),
     ticket: join(filter.workTicketIds),
@@ -120,6 +148,7 @@ export function filterKey(query: WorkTaskBoardQuery): string {
     query.deadlineTo ?? '',
     query.noDeadline ? 'n' : '',
     query.deadline,
+    query.overdue === undefined ? '' : query.overdue ? 'late' : 'on-time',
   ].join('|');
 }
 

@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { TaskLocationComponent } from '../task-location/task-location.component';
 import { WorkTaskModel } from '../../../../../core/models/work-tasks';
+import { WorkTaskStatus } from '../../../../../core/enums/work-task-status.enum';
 import { WorkItemFactsComponent } from '../../../../../shared/components/work-item-facts/work-item-facts.component';
 import { WorkItemFacts } from '../../../../../shared/components/work-item-facts/work-item-facts.model';
 
@@ -19,5 +20,6 @@ export class TaskDetailsTabComponent {
     priority: this.task().priority,
     assignee: this.task().assignee,
     deadline: this.task().deadline,
+    closed: this.task().status.id === WorkTaskStatus.Done,
   }));
 }

@@ -5,6 +5,20 @@
       <i class="pi pi-spin pi-spinner head__loading" role="status" aria-label="Loading"></i>
     }
   </h2>
+  <div class="head__notice" aria-live="polite">
+    @if (
+      query().deadline === 'overdue' &&
+      page() &&
+      !page()?.loading &&
+      !page()?.error &&
+      !page()?.items?.length
+    ) {
+      <span>No overdue tasks this month.</span>
+      <button type="button" class="link" (click)="showOverdue.emit()">
+        View overdue tasks in List
+      </button>
+    }
+  </div>
   <div class="head__nav">
     <button type="button" class="nav nav--icon" aria-label="Previous month" (click)="step(-1)">
       <i class="pi pi-chevron-left" aria-hidden="true"></i>
@@ -15,21 +29,6 @@
     </button>
   </div>
 </header>
-
-@if (query().deadline === 'none') {
-  <p class="note">
-    Tasks without a deadline have no day on the calendar.
-    <button type="button" class="link" (click)="showWithoutDeadline.emit()">
-      Show them in the list
-    </button>
-  </p>
-} @else if (withoutDeadline() > 0) {
-  <p class="note">
-    <button type="button" class="link" (click)="showWithoutDeadline.emit()">
-      {{ withoutDeadline() }} {{ withoutDeadline() === 1 ? 'task' : 'tasks' }} without a deadline
-    </button>
-  </p>
-}
 
 @if (page()?.error; as error) {
   <p class="note note--error" role="alert">{{ error }}</p>
@@ -44,17 +43,24 @@
           {{ day.date | date: 'EEE, d MMM' }}
         </h3>
         @for (task of byDay().get(day.key) ?? []; track task.id) {
-          <ng-container *ngTemplateOutlet="chip; context: { $implicit: task }" />
+          <app-task-calendar-chip
+            [task]="task"
+            [phone]="true"
+            [hideAssignee]="hideAssignee()"
+            (open)="openTask.emit(task)"
+          />
         }
       </section>
     } @empty {
       @if (!page()?.loading) {
-        <p class="state">No deadlines this month.</p>
+        @if (query().deadline !== 'overdue') {
+          <p class="state">No deadlines this month.</p>
+        }
       }
     }
   </div>
 } @else {
-  <div class="grid" cdkDropListGroup>
+  <div class="grid" cdkDropListGroup [style.--calendar-weeks]="weeks().length">
     @for (weekday of weekdays; track weekday) {
       <span class="grid__weekday" [class.grid__weekday--weekend]="$index > 4">{{ weekday }}</span>
     }
@@ -71,32 +77,32 @@
           (cdkDropListDropped)="drop($event)"
         >
           <span class="day__number">{{ day.date.getDate() }}</span>
-          @for (task of tasksOf(day); track task.id) {
-            <div cdkDrag [cdkDragData]="task" [cdkDragDisabled]="!canMove()">
-              <ng-container *ngTemplateOutlet="chip; context: { $implicit: task }" />
-            </div>
-          }
-          @if (hiddenCount(day) > 0) {
-            <button type="button" class="day__more" (click)="expand(day)">
-              + {{ hiddenCount(day) }} more
-            </button>
-          }
+          @let tasks = byDay().get(day.key) ?? [];
+          <div
+            class="day__tasks"
+            appCalendarDayCapacity
+            #capacity="calendarCapacity"
+            [taskCount]="tasks.length"
+            [expanded]="expanded().has(day.key)"
+            [class.day__tasks--expanded]="expanded().has(day.key)"
+          >
+            @for (task of tasks.slice(0, capacity.visibleCount()); track task.id) {
+              <div cdkDrag [cdkDragData]="task" [cdkDragDisabled]="!canMove()">
+                <app-task-calendar-chip
+                  [task]="task"
+                  [hideAssignee]="hideAssignee()"
+                  (open)="openTask.emit(task)"
+                />
+              </div>
+            }
+            @if (tasks.length > capacity.visibleCount()) {
+              <button type="button" class="day__more" (click)="expand(day)">
+                + {{ tasks.length - capacity.visibleCount() }} more
+              </button>
+            }
+          </div>
         </div>
       }
     }
   </div>
 }
-
-<ng-template #chip let-task>
-  <button
-    type="button"
-    class="chip"
-    [class.chip--done]="done(task)"
-    [class.chip--overdue]="overdue(task)"
-    [title]="task.title + ' — ' + task.status.name"
-    (click)="openTask.emit(task)"
-  >
-    <app-work-item-ref [type]="kind(task)" [code]="task.code" [labelled]="false" />
-    <span class="chip__title">{{ task.title }}</span>
-  </button>
-</ng-template>

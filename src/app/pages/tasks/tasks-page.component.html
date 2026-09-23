@@ -22,12 +22,13 @@
   @if (filtersOpen()) {
     <app-task-filters
       [filter]="state().filter"
-      [projects]="projectOptions()"
-      [tickets]="ticketOptions()"
-      [me]="meOption()"
-      [people]="peopleOptions()"
-      [statuses]="statusOptions()"
-      [priorities]="priorityOptions()"
+      [calendar]="state().view === 'calendar'"
+      [projects]="options.projects"
+      [tickets]="options.tickets"
+      [me]="options.meOption()"
+      [people]="options.peopleOptions()"
+      [statuses]="options.statusOptions()"
+      [priorities]="options.priorityOptions()"
       (filterChange)="changeFilter($event)"
       (cleared)="clearFilters()"
     />
@@ -48,27 +49,27 @@
             [query]="query()"
             [month]="state().month"
             [canMove]="canMove()"
+            [hideAssignee]="onlyMine()"
             [reloadToken]="reloadToken()"
             (monthChange)="changeMonth($event)"
             (openTask)="open($event)"
-            (showWithoutDeadline)="showWithoutDeadline()"
+            (showOverdue)="selectView('list')"
           />
         }
         @case ('list') {
           <app-task-list-view
             [query]="query()"
-            [showProject]="showProject()"
+            [order]="state().order"
+            (orderChange)="changeOrder($event)"
             [reloadToken]="reloadToken()"
             [emptyText]="emptyText()"
-            [filtered]="hasFilters()"
             (openTask)="open($event)"
-            (clearFilters)="clearAll()"
           />
         }
         @default {
           <app-task-board-view
             [query]="query()"
-            [statuses]="statuses()"
+            [statuses]="options.statuses()"
             [canMove]="canMove()"
             [showProject]="showProject()"
             [reloadToken]="reloadToken()"
