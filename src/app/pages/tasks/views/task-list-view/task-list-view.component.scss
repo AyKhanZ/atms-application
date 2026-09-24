@@ -184,7 +184,7 @@
 
 /* Phone: the table gives way to two-line rows. */
 .rows {
-  display: none;
+  display: grid;
   gap: 0.5rem;
   margin: 0;
   padding: 0;
@@ -192,14 +192,6 @@
 }
 
 @media (max-width: 767px) {
-  :host ::ng-deep .tasks-table {
-    display: none;
-  }
-
-  .rows {
-    display: grid;
-  }
-
   .more {
     justify-self: stretch;
   }

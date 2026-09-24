@@ -5,8 +5,8 @@ import {
   effect,
   inject,
   input,
+  linkedSignal,
   output,
-  signal,
   untracked,
 } from '@angular/core';
 import { CdkDrag, CdkDragDrop, CdkDropList, CdkDropListGroup } from '@angular/cdk/drag-drop';
@@ -99,9 +99,6 @@ export class TaskBoardViewComponent {
   private readonly pages = this.store.selectSignal(TaskBoardStoreSelectors.getPages);
   readonly counts = this.store.selectSignal(TaskBoardStoreSelectors.getCounts);
 
-  /** On a phone one column at a time; this is which. */
-  readonly phoneColumn = signal<number>(WorkTaskStatus.New);
-
   /** A column for every status, shown or not: a card can be moved into one the filter hides. */
   private readonly allColumns = computed<Column[]>(() => {
     const filter = filterKey(this.query());
@@ -137,6 +134,16 @@ export class TaskBoardViewComponent {
     );
   });
 
+  /** On a phone one column at a time; this is which. A column the Status filter hides gives way to
+   *  the first one shown, so the phone never shows a board with nothing on it. */
+  readonly phoneColumn = linkedSignal<Column[], number>({
+    source: () => this.columns(),
+    computation: (columns, previous) =>
+      previous && columns.some((column) => column.status.id === previous.value)
+        ? previous.value
+        : (columns[0]?.status.id ?? WorkTaskStatus.New),
+  });
+
   /** An overdue card only goes among overdue cards, anything else only below them. A column with
    *  no overdue work has no place above the line, so there an overdue card drops anywhere and
    *  goes on top after the drop. */
@@ -167,10 +174,13 @@ export class TaskBoardViewComponent {
     return this.pages()[lane.key];
   }
 
-  /** The lanes drawn: the overdue one only in a column that has overdue work. */
+  /** The lanes drawn: the overdue one only in a column that has overdue work, or that could not
+   *  be read — its error must show, not an empty-looking column. */
   shownLanes(column: Column): Lane[] {
     return column.lanes.length > 1
-      ? column.lanes.filter((lane) => !lane.overdue || this.hasLate(column))
+      ? column.lanes.filter(
+          (lane) => !lane.overdue || this.hasLate(column) || !!this.page(lane)?.error,
+        )
       : column.lanes;
   }
 
@@ -203,7 +213,12 @@ export class TaskBoardViewComponent {
   drop(event: CdkDragDrop<Drop, Drop, WorkTaskModel>): void {
     const from = event.previousContainer.data;
     const to = event.container.data;
-    if (from.lane.key === to.lane.key && event.previousIndex === event.currentIndex) return;
+    // Done is ordered by close date: reordering within it would show an order nobody saves.
+    if (
+      from.lane.key === to.lane.key &&
+      (to.lane.overdue === null || event.previousIndex === event.currentIndex)
+    )
+      return;
     void this.move(event.item.data, from.lane, to.column, to.lane, event.currentIndex);
   }
 

@@ -23,6 +23,11 @@
   color: var(--app-muted);
   font-size: 0.75rem;
 }
+.head__cut {
+  color: var(--orange-text-hover);
+  font-weight: 600;
+  text-align: right;
+}
 @media (max-width: 767px) {
   .head {
     grid-template-columns: minmax(0, 1fr) auto;

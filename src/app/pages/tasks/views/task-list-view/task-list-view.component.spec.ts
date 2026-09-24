@@ -7,6 +7,7 @@ import {
   WorkTaskBoardSort,
 } from '../../../../core/models/work-task-board';
 import { WorkTaskModel } from '../../../../core/models/work-tasks';
+import { LayoutService } from '../../../../core/services/layout.service';
 import { TaskBoardPageState, TaskBoardStoreActions } from '../../../../store/task-board';
 import { taskFixture } from '../../testing/task-fixture';
 import { TaskListViewComponent } from './task-list-view.component';
@@ -22,7 +23,7 @@ const pageOf = (items: WorkTaskModel[], nextCursor: string | null = null): TaskB
 });
 
 describe('TaskListViewComponent', () => {
-  function setup() {
+  function setup(phone = false) {
     const pages = signal<Record<string, TaskBoardPageState>>({});
     const dispatch = vi.fn();
     TestBed.configureTestingModule({
@@ -30,6 +31,7 @@ describe('TaskListViewComponent', () => {
       providers: [
         provideRouter([]),
         { provide: Store, useValue: { selectSignal: () => pages, dispatch } },
+        { provide: LayoutService, useValue: { isPhone: signal(phone) } },
       ],
     });
     const fixture = TestBed.createComponent(TaskListViewComponent);
@@ -117,14 +119,21 @@ describe('TaskListViewComponent', () => {
     expect(fixture.nativeElement.querySelector('.code-cell').textContent.trim()).toBe('#34');
   });
 
+  it('draws the table and not the phone rows on a wide screen', () => {
+    const { fixture } = setup();
+    expect(fixture.nativeElement.querySelector('p-table')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('.rows')).toBeNull();
+  });
+
   it('draws a two-line row per task for the phone, overdue marked the same way', () => {
-    const { fixture, answer } = setup();
+    const { fixture, answer } = setup(true);
     answer(
       pageOf([taskFixture({ id: 'late', deadline: '2020-01-01T00:00:00Z' })]),
       pageOf([taskFixture({ id: 'rest' })]),
     );
     const rows = fixture.nativeElement.querySelectorAll('.rows .row');
 
+    expect(fixture.nativeElement.querySelector('p-table')).toBeNull();
     expect(rows.length).toBe(2);
     expect(rows[0].classList).toContain('row--overdue');
     expect(rows[0].querySelector('.overdue-badge')).not.toBeNull();

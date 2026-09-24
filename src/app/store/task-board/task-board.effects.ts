@@ -2,14 +2,18 @@ import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import {
   EMPTY,
+  Observable,
   catchError,
   concatMap,
   expand,
+  filter,
   groupBy,
   map,
+  merge,
   mergeMap,
   of,
   reduce,
+  startWith,
   switchMap,
   takeUntil,
 } from 'rxjs';
@@ -39,7 +43,7 @@ export class TaskBoardEffects {
   loadPage$ = createEffect(() =>
     this.actions$.pipe(
       ofType(ActionsStore.loadPage),
-      groupBy(({ key }) => key),
+      groupBy(({ key }) => key, { duration: (group) => this.dropped(group.key) }),
       mergeMap((requests) =>
         requests.pipe(
           switchMap(({ key, query, order, pageSize, cursor }) =>
@@ -48,7 +52,7 @@ export class TaskBoardEffects {
               catchError(() =>
                 of(ActionsStore.loadPageFailure({ key, error: 'Tasks could not be loaded.' })),
               ),
-              takeUntil(this.stopped$),
+              takeUntil(this.dropped(key)),
             ),
           ),
         ),
@@ -59,7 +63,7 @@ export class TaskBoardEffects {
   loadAll$ = createEffect(() =>
     this.actions$.pipe(
       ofType(ActionsStore.loadAll),
-      groupBy(({ key }) => key),
+      groupBy(({ key }) => key, { duration: (group) => this.dropped(group.key) }),
       mergeMap((requests) =>
         requests.pipe(
           switchMap(({ key, query, order }) => {
@@ -70,12 +74,18 @@ export class TaskBoardEffects {
                   ? this.board.getPage(query, order, page.nextCursor, workTaskBoardMaxPageSize)
                   : EMPTY,
               ),
-              reduce((items: WorkTaskModel[], page) => [...items, ...page.items], []),
-              map((items) => ActionsStore.loadAllSuccess({ key, items })),
+              reduce(
+                (month: { items: WorkTaskModel[]; hasMore: boolean }, page) => ({
+                  items: [...month.items, ...page.items],
+                  hasMore: page.hasMore,
+                }),
+                { items: [], hasMore: false },
+              ),
+              map(({ items, hasMore }) => ActionsStore.loadAllSuccess({ key, items, hasMore })),
               catchError(() =>
                 of(ActionsStore.loadPageFailure({ key, error: 'Tasks could not be loaded.' })),
               ),
-              takeUntil(this.stopped$),
+              takeUntil(this.dropped(key)),
             );
           }),
         ),
@@ -110,39 +120,71 @@ export class TaskBoardEffects {
     ),
   );
 
-  /** Moves run one after another, in the order they were made: each depends on the last. */
+  /**
+   * Moves run one after another, in the order they were made: each depends on the last. Leaving
+   * the page does not stop them — the card was already dropped — but signing out drops the queue:
+   * what is left must not be sent under whoever signs in next.
+   */
   moveTask$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(ActionsStore.moveTask),
-      concatMap(({ task, status, previousWorkTaskId, nextWorkTaskId, completeSubtasks }) =>
-        this.tasks
-          .moveWorkTask(task.workProjectId, task.id, {
-            statusId: status.id,
-            previousWorkTaskId,
-            nextWorkTaskId,
-            completeSubtasks,
-          })
-          .pipe(
-            map(() => ActionsStore.moveTaskSuccess({ taskId: task.id, completeSubtasks })),
-            catchError((error: unknown) =>
-              of(ActionsStore.moveTaskFailure({ error: toMutationError(error) })),
-            ),
-          ),
+    this.untilLogout(() =>
+      this.actions$.pipe(
+        ofType(ActionsStore.moveTask),
+        concatMap(
+          ({ task, from, to, status, previousWorkTaskId, nextWorkTaskId, completeSubtasks }) =>
+            this.tasks
+              .moveWorkTask(task.workProjectId, task.id, {
+                statusId: status.id,
+                previousWorkTaskId,
+                nextWorkTaskId,
+                completeSubtasks,
+              })
+              .pipe(
+                map(() => ActionsStore.moveTaskSuccess({ taskId: task.id, completeSubtasks })),
+                catchError((error: unknown) =>
+                  of(ActionsStore.moveTaskFailure({ error: toMutationError(error), from, to })),
+                ),
+              ),
+        ),
       ),
     ),
   );
 
   changeDeadline$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(ActionsStore.changeDeadline),
-      concatMap(({ task, deadline }) =>
-        this.tasks.updateWorkTaskDeadline(task.workProjectId, task.id, deadline).pipe(
-          map(() => ActionsStore.changeDeadlineSuccess({ taskId: task.id })),
-          catchError((error: unknown) =>
-            of(ActionsStore.changeDeadlineFailure({ error: toMutationError(error) })),
+    this.untilLogout(() =>
+      this.actions$.pipe(
+        ofType(ActionsStore.changeDeadline),
+        concatMap(({ task, from, to, deadline }) =>
+          this.tasks.updateWorkTaskDeadline(task.workProjectId, task.id, deadline).pipe(
+            map(() => ActionsStore.changeDeadlineSuccess({ taskId: task.id })),
+            catchError((error: unknown) =>
+              of(ActionsStore.changeDeadlineFailure({ error: toMutationError(error), from, to })),
+            ),
           ),
         ),
       ),
     ),
   );
+
+  /**
+   * A list load stops when the view no longer shows the list, the page closes or the session
+   * ends: a late answer would otherwise put back a list nobody shows any more.
+   */
+  private dropped(key: string) {
+    return merge(
+      this.stopped$,
+      this.actions$.pipe(
+        ofType(ActionsStore.keepPages),
+        filter(({ keys }) => !keys.includes(key)),
+      ),
+    );
+  }
+
+  /** Runs `work` afresh after every sign-out, with whatever it had queued thrown away. */
+  private untilLogout<T>(work: () => Observable<T>): Observable<T> {
+    return this.actions$.pipe(
+      ofType(AuthStoreActions.logoutCompleted),
+      startWith(null),
+      switchMap(work),
+    );
+  }
 }

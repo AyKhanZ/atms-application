@@ -13,7 +13,11 @@ describe('TaskFilterOptionsService', () => {
   function setup() {
     const dispatch = vi.fn();
     const getWorkTickets = vi.fn(() =>
-      of({ items: [{ id: 't1', code: '28', title: 'Payments' }], hasMore: false, nextCursor: null }),
+      of({
+        items: [{ id: 't1', code: '28', title: 'Payments' }],
+        hasMore: false,
+        nextCursor: null,
+      }),
     );
     TestBed.configureTestingModule({
       providers: [
@@ -76,6 +80,21 @@ describe('TaskFilterOptionsService', () => {
 
     service.select(['p'], []);
     expect(service.tickets.options().map((option) => option.label)).toEqual(['#28 Payments']);
+  });
+
+  it('reads people again only when the chosen projects change', () => {
+    const { service, dispatch } = setup();
+    const assigneeLoads = () =>
+      dispatch.mock.calls.filter(
+        ([action]) => action.type === TaskBoardStoreActions.loadAssignees.type,
+      );
+
+    service.select(['p'], []);
+    service.select(['p'], []);
+    expect(assigneeLoads().length).toBe(1);
+
+    service.select(['p', 'q'], []);
+    expect(assigneeLoads().length).toBe(2);
   });
 
   it('keeps a chosen project named even when it is not on the first page', () => {

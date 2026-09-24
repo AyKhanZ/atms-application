@@ -38,8 +38,13 @@
           cdkDropList
           [cdkDropListData]="{ column, lane }"
           [cdkDropListDisabled]="!canMove()"
+          [cdkDropListSortingDisabled]="lane.overdue === null"
           [cdkDropListEnterPredicate]="
-            lane.overdue === true ? acceptsLate : lane.overdue === false ? acceptsOnTime : acceptsAny
+            lane.overdue === true
+              ? acceptsLate
+              : lane.overdue === false
+                ? acceptsOnTime
+                : acceptsAny
           "
           (cdkDropListDropped)="drop($event)"
         >

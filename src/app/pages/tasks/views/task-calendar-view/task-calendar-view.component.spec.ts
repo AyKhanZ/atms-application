@@ -49,3 +49,40 @@ describe('TaskCalendarViewComponent', () => {
     expect(fixture.nativeElement.textContent).not.toContain('Without deadline');
   });
 });
+
+describe('TaskCalendarViewComponent month limit', () => {
+  it.each([
+    [true, true],
+    [false, false],
+  ])('a month cut at the limit (%s) says so: %s', (hasMore, shown) => {
+    const pages = signal<Record<string, unknown>>({});
+    const dispatch = vi.fn();
+    TestBed.configureTestingModule({
+      imports: [TaskCalendarViewComponent],
+      providers: [
+        {
+          provide: Store,
+          useValue: {
+            selectSignal: (selector: unknown) =>
+              selector === TaskBoardStoreSelectors.getPages ? pages : signal(null),
+            dispatch,
+          },
+        },
+      ],
+    });
+    const fixture = TestBed.createComponent(TaskCalendarViewComponent);
+    fixture.componentRef.setInput('query', emptyWorkTaskBoardFilter);
+    fixture.componentRef.setInput('month', '2026-09');
+    fixture.detectChanges();
+    const month = dispatch.mock.calls
+      .map(([action]) => action)
+      .find((action) => action.type === TaskBoardStoreActions.loadAll.type);
+
+    pages.set({
+      [month.key]: { items: [], hasMore, nextCursor: null, loading: false, error: null },
+    });
+    fixture.detectChanges();
+
+    expect(!!fixture.nativeElement.querySelector('.head__cut')).toBe(shown);
+  });
+});

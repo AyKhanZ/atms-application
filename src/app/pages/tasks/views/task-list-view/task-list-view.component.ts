@@ -20,6 +20,7 @@ import {
   orderKey,
 } from '../../../../core/models/work-task-board';
 import { SortDirectionEnum } from '../../../../core/enums/sort-direction.enum';
+import { LayoutService } from '../../../../core/services/layout.service';
 import { WorkTaskModel } from '../../../../core/models/work-tasks';
 import {
   TaskBoardPageState,
@@ -79,6 +80,8 @@ const sorts: Record<string, WorkTaskBoardSort> = {
 })
 export class TaskListViewComponent {
   private readonly store = inject(Store);
+  /** A phone has no room for six columns: two-line rows instead of the table. */
+  readonly isPhone = inject(LayoutService).isPhone;
 
   readonly query = input.required<WorkTaskBoardQuery>();
   readonly reloadToken = input(0);

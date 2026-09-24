@@ -123,15 +123,62 @@ describe('TaskBoardViewComponent', () => {
       status: statuses[2],
     });
 
-    fixture.componentInstance.moveTo(
-      reopened,
-      { key: 'done', overdue: null },
-      WorkTaskStatus.New,
-    );
+    fixture.componentInstance.moveTo(reopened, { key: 'done', overdue: null }, WorkTaskStatus.New);
 
     expect(moves().at(-1)).toEqual(
-      expect.objectContaining({ to: late, index: 0, previousWorkTaskId: null, nextWorkTaskId: 'waiting' }),
+      expect.objectContaining({
+        to: late,
+        index: 0,
+        previousWorkTaskId: null,
+        nextWorkTaskId: 'waiting',
+      }),
     );
+  });
+
+  it('shows the overdue part of a column when it could not be read, with its error', () => {
+    const { fixture, pages, loads } = setup();
+    answer(pages, loads, []);
+    const late = loads().find(
+      (load) => load.query.statusIds[0] === WorkTaskStatus.New && load.query.overdue === true,
+    )!.key;
+    pages.update((all) => ({
+      ...all,
+      [late]: { ...all[late], error: 'Tasks could not be loaded.' },
+    }));
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('[role="alert"]')?.textContent).toContain(
+      'Tasks could not be loaded.',
+    );
+  });
+
+  it('switches the phone to the first column shown when the Status filter hides its column', () => {
+    const { fixture } = setup();
+    expect(fixture.componentInstance.phoneColumn()).toBe(WorkTaskStatus.New);
+
+    fixture.componentRef.setInput('query', {
+      ...emptyWorkTaskBoardFilter,
+      statusIds: [WorkTaskStatus.InProgress],
+    });
+    expect(fixture.componentInstance.phoneColumn()).toBe(WorkTaskStatus.InProgress);
+  });
+
+  it('does not reorder cards within Done: it is ordered by close date', () => {
+    const { fixture, moves } = setup();
+    const done = fixture.componentInstance
+      .columns()
+      .find((c) => c.status.id === WorkTaskStatus.Done)!;
+    const lane = { column: done, lane: done.lanes[0] };
+
+    fixture.componentInstance.drop({
+      item: { data: taskFixture({ status: statuses[2] }) },
+      previousContainer: { data: lane },
+      container: { data: lane },
+      previousIndex: 2,
+      currentIndex: 0,
+    } as never);
+
+    expect(moves()).toEqual([]);
   });
 
   it('keeps cards on their side of the overdue line while dragging', () => {
@@ -139,7 +186,9 @@ describe('TaskBoardViewComponent', () => {
     const board = fixture.componentInstance;
     const drag = (deadline: string) => ({ data: taskFixture({ deadline }) }) as never;
     const into = (status: WorkTaskStatus) =>
-      ({ data: { column: { lanes: board.columns().find((c) => c.status.id === status)!.lanes } } }) as never;
+      ({
+        data: { column: { lanes: board.columns().find((c) => c.status.id === status)!.lanes } },
+      }) as never;
     answer(pages, loads, [taskFixture({ id: 'late', deadline: past })]);
 
     expect(board.acceptsLate(drag(past))).toBe(true);

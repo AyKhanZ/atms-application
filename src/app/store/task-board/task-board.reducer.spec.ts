@@ -86,6 +86,81 @@ describe('taskBoardReducer', () => {
     expect(Object.keys(state.pages)).toEqual(['new']);
   });
 
+  it('ignores an answer for a list the view dropped while it was being read', () => {
+    const dropped = taskBoardReducer(
+      taskBoardReducer(withPages({ new: ['1'] }), loadPage(null)),
+      Actions.keepPages({ keys: [] }),
+    );
+    const late = taskBoardReducer(
+      dropped,
+      Actions.loadPageSuccess({
+        key: 'new',
+        append: false,
+        page: { items: [task('2')], hasMore: false, nextCursor: null, pageSize: 20 },
+      }),
+    );
+
+    expect(late.pages).toEqual({});
+  });
+
+  it('empties both lists a refused move touched, so they do not go on showing it', () => {
+    const moved = taskBoardReducer(
+      withPages({ new: ['1', '2'], done: ['3'], other: ['4'] }),
+      Actions.moveTask({
+        task: task('1'),
+        from: 'new',
+        to: 'done',
+        index: 0,
+        status: done,
+        previousWorkTaskId: null,
+        nextWorkTaskId: null,
+        completeSubtasks: false,
+      }),
+    );
+    const refused = taskBoardReducer(
+      moved,
+      Actions.moveTaskFailure({ error: { status: 500 } as never, from: 'new', to: 'done' }),
+    );
+
+    expect(ids(refused, 'new')).toEqual([]);
+    expect(ids(refused, 'done')).toEqual([]);
+    expect(ids(refused, 'other')).toEqual(['4']);
+  });
+
+  it("counts a closed or reopened subtask on its parent's card", () => {
+    const parent = { ...task('parent'), subtaskCount: 3, doneSubtaskCount: 1 };
+    const subtask = { ...task('sub'), parentWorkTask: { id: 'parent', code: 'P', name: 'Parent' } };
+    const state = {
+      ...initialTaskBoardState,
+      pages: {
+        new: { ...emptyTaskBoardPage, items: [parent, subtask] },
+        done: { ...emptyTaskBoardPage, items: [] },
+      },
+    };
+    const move = (from: string, to: string, what: WorkTaskModel, status: typeof done) =>
+      Actions.moveTask({
+        task: what,
+        from,
+        to,
+        index: 0,
+        status,
+        previousWorkTaskId: null,
+        nextWorkTaskId: null,
+        completeSubtasks: false,
+      });
+
+    const closed = taskBoardReducer(state, move('new', 'done', subtask, done));
+    expect(closed.pages['new'].items[0].doneSubtaskCount).toBe(2);
+
+    const reopened = taskBoardReducer(
+      closed,
+      move('done', 'new', { ...subtask, status: done }, task('x').status),
+    );
+    expect(reopened.pages['new'].items.find((item) => item.id === 'parent')?.doneSubtaskCount).toBe(
+      1,
+    );
+  });
+
   it('forgets everything when the page closes or the session ends', () => {
     const loaded = withPages({ new: ['1'] });
 

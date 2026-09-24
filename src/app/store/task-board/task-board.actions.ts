@@ -40,7 +40,8 @@ export const loadAll = createAction(
 );
 export const loadAllSuccess = createAction(
   `${key} Load All Success`,
-  props<{ key: string; items: WorkTaskModel[] }>(),
+  /** `hasMore`: the month has more than the pages read — it was cut at the limit. */
+  props<{ key: string; items: WorkTaskModel[]; hasMore: boolean }>(),
 );
 
 export const loadCounts = createAction(
@@ -85,7 +86,8 @@ export const moveTaskSuccess = createAction(
 );
 export const moveTaskFailure = createAction(
   `${key} Move Task Failure`,
-  props<{ error: WorkItemMutationError }>(),
+  /** `from`, `to`: the lists the card left and went to; they no longer show the truth. */
+  props<{ error: WorkItemMutationError; from: string; to: string }>(),
 );
 
 /** A card dropped on another day of the calendar. Same optimistic move as the board. */
@@ -99,7 +101,8 @@ export const changeDeadlineSuccess = createAction(
 );
 export const changeDeadlineFailure = createAction(
   `${key} Change Deadline Failure`,
-  props<{ error: WorkItemMutationError }>(),
+  /** `from`, `to`: the lists the card left and went to; they no longer show the truth. */
+  props<{ error: WorkItemMutationError; from: string; to: string }>(),
 );
 
 /** Leaving the page: nothing it loaded is kept. */

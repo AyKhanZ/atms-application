@@ -17,6 +17,12 @@
       <button type="button" class="link" (click)="showOverdue.emit()">
         View overdue tasks in List
       </button>
+    } @else if (page()?.hasMore && !page()?.loading) {
+      <!-- A month is read up to a limit; past it the rest is left out, and the page says so. -->
+      <span class="head__cut" role="status">
+        Showing the first {{ page()?.items?.length }} tasks of this month. Narrow the filters to see
+        the rest.
+      </span>
     }
   </div>
   <div class="head__nav">

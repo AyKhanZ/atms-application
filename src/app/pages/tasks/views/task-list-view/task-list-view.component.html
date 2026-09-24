@@ -7,84 +7,86 @@
   @if (page()?.error; as error) {
     <p class="state state--error" role="alert">{{ error }}</p>
   }
-  <p-table
-    class="tasks-table management-table"
-    [value]="items()"
-    [lazy]="true"
-    [rowTrackBy]="trackRow"
-    dataKey="id"
-    [sortField]="sortField()"
-    [sortOrder]="sortOrder()"
-    [tableStyle]="{ 'min-width': '60rem' }"
-    (onSort)="changeSort($event)"
-  >
-    <ng-template pTemplate="header"
-      ><tr>
-        <th pSortableColumn="code">Code <p-sortIcon field="code" /></th>
-        <th pSortableColumn="title">Title <p-sortIcon field="title" /></th>
-        <th pSortableColumn="state">Status <p-sortIcon field="state" /></th>
-        <th pSortableColumn="priority">Priority <p-sortIcon field="priority" /></th>
-        <th pSortableColumn="deadline">Deadline <p-sortIcon field="deadline" /></th>
-        <th>Assignee</th>
-      </tr></ng-template
-    >
-    <ng-template pTemplate="body" let-task
-      ><tr
-        class="clickable-row"
-        [class.overdue-row]="task | isOverdueTask"
-        (click)="openTask.emit(task)"
-      >
-        <td class="code-cell" [class.code-cell--subtask]="task.isSubtask">#{{ task.code }}</td>
-        <td>
-          <div class="task-cell">
-            <app-work-item-ref
-              [type]="task | taskKind"
-              [code]="task.code"
-              [showCode]="false"
-              [labelled]="false"
-              [title]="task.isSubtask ? 'Subtask' : 'Task'"
-              [attr.aria-label]="task.isSubtask ? 'Subtask' : 'Task'"
-            />
-            <strong class="task-cell__title" [title]="task.title">{{ task.title }}</strong>
-          </div>
-        </td>
-        <td><app-task-status-badge [status]="task.status" /></td>
-        <td><app-work-item-priority [priority]="task.priority" /></td>
-        <td
-          class="deadline-cell"
-          [class.deadline-cell--overdue]="task | isOverdueTask"
-          [class.deadline-cell--empty]="!task.deadline"
-        >
-          {{ task.deadline ? (task.deadline | date: 'd MMM yyyy') : 'No deadline' }}
-          @if (task | isOverdueTask) {
-            <app-overdue-badge class="deadline-cell__late" [deadline]="task.deadline" />
-          }
-        </td>
-        <td>
-          <app-work-item-assignee [assignee]="task.assignee" />
-        </td></tr
-    ></ng-template>
-    <ng-template pTemplate="emptymessage"
-      ><tr>
-        <td colspan="6" class="empty-cell">
-          @if (!loading() && !page()?.error) {
-            <app-empty-state icon="pi-list-check" [title]="emptyText()" />
-          }
-        </td></tr
-    ></ng-template>
-  </p-table>
-
-  <!-- A phone has no room for six columns: two lines per task, as in a ticket's Tasks tab — what
-       and which on top, status, priority, deadline and person below. Same order, same overdue. -->
-  <ul class="rows" aria-label="Tasks">
-    @for (task of items(); track task.id) {
-      <li><app-task-list-row [task]="task" (open)="openTask.emit(task)" /></li>
-    } @empty {
-      @if (!loading() && !page()?.error) {
-        <li><app-empty-state icon="pi-list-check" [title]="emptyText()" /></li>
+  @if (isPhone()) {
+    <!-- A phone has no room for six columns: two lines per task, as in a ticket's Tasks tab — what
+         and which on top, status, priority, deadline and person below. Same order, same overdue. -->
+    <ul class="rows" aria-label="Tasks">
+      @for (task of items(); track task.id) {
+        <li><app-task-list-row [task]="task" (open)="openTask.emit(task)" /></li>
+      } @empty {
+        @if (!loading() && !page()?.error) {
+          <li><app-empty-state icon="pi-list-check" [title]="emptyText()" /></li>
+        }
       }
-    }
-  </ul>
+    </ul>
+  } @else {
+    <p-table
+      class="tasks-table management-table"
+      [value]="items()"
+      [lazy]="true"
+      [rowTrackBy]="trackRow"
+      dataKey="id"
+      [sortField]="sortField()"
+      [sortOrder]="sortOrder()"
+      [tableStyle]="{ 'min-width': '60rem' }"
+      (onSort)="changeSort($event)"
+    >
+      <ng-template pTemplate="header"
+        ><tr>
+          <th pSortableColumn="code">Code <p-sortIcon field="code" /></th>
+          <th pSortableColumn="title">Title <p-sortIcon field="title" /></th>
+          <th pSortableColumn="state">Status <p-sortIcon field="state" /></th>
+          <th pSortableColumn="priority">Priority <p-sortIcon field="priority" /></th>
+          <th pSortableColumn="deadline">Deadline <p-sortIcon field="deadline" /></th>
+          <th>Assignee</th>
+        </tr></ng-template
+      >
+      <ng-template pTemplate="body" let-task
+        ><tr
+          class="clickable-row"
+          [class.overdue-row]="task | isOverdueTask"
+          (click)="openTask.emit(task)"
+        >
+          <td class="code-cell" [class.code-cell--subtask]="task.isSubtask">#{{ task.code }}</td>
+          <td>
+            <div class="task-cell">
+              <app-work-item-ref
+                [type]="task | taskKind"
+                [code]="task.code"
+                [showCode]="false"
+                [labelled]="false"
+                [title]="task.isSubtask ? 'Subtask' : 'Task'"
+                [attr.aria-label]="task.isSubtask ? 'Subtask' : 'Task'"
+              />
+              <strong class="task-cell__title" [title]="task.title">{{ task.title }}</strong>
+            </div>
+          </td>
+          <td><app-task-status-badge [status]="task.status" /></td>
+          <td><app-work-item-priority [priority]="task.priority" /></td>
+          <td
+            class="deadline-cell"
+            [class.deadline-cell--overdue]="task | isOverdueTask"
+            [class.deadline-cell--empty]="!task.deadline"
+          >
+            {{ task.deadline ? (task.deadline | date: 'd MMM yyyy') : 'No deadline' }}
+            @if (task | isOverdueTask) {
+              <app-overdue-badge class="deadline-cell__late" [deadline]="task.deadline" />
+            }
+          </td>
+          <td>
+            <app-work-item-assignee [assignee]="task.assignee" />
+          </td></tr
+      ></ng-template>
+      <ng-template pTemplate="emptymessage"
+        ><tr>
+          <td colspan="6" class="empty-cell">
+            @if (!loading() && !page()?.error) {
+              <app-empty-state icon="pi-list-check" [title]="emptyText()" />
+            }
+          </td></tr
+      ></ng-template>
+    </p-table>
+  }
 </div>
 
 @if (page()?.hasMore) {

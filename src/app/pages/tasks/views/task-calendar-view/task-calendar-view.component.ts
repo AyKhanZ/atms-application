@@ -132,11 +132,14 @@ export class TaskCalendarViewComponent {
     for (const task of this.page()?.items ?? []) {
       if (!task.deadline) continue;
       const key = dayKey(new Date(task.deadline));
-      days.set(key, [...(days.get(key) ?? []), task]);
+      const day = days.get(key);
+      if (day) day.push(task);
+      else days.set(key, [task]);
     }
     // Overdue first, done last: when a day is too full, "+N more" hides what is already closed.
-    const weight = (task: WorkTaskModel) => (isOverdueTask(task) ? 0 : task.status.id === WorkTaskStatus.Done ? 2 : 1);
-    for (const [key, tasks] of days) days.set(key, [...tasks].sort((a, b) => weight(a) - weight(b)));
+    const weight = (task: WorkTaskModel) =>
+      isOverdueTask(task) ? 0 : task.status.id === WorkTaskStatus.Done ? 2 : 1;
+    for (const tasks of days.values()) tasks.sort((a, b) => weight(a) - weight(b));
     return days;
   });
 

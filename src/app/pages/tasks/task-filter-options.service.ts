@@ -45,6 +45,9 @@ export class TaskFilterOptionsService {
   private readonly assignees = this.store.selectSignal(TaskBoardStoreSelectors.getAssignees);
   /** The project whose tickets the Ticket filter offers; null unless exactly one is chosen. */
   private ticketProjectId: string | null = null;
+  /** The projects people were last read for: the page calls `select` on every change of its
+   *  address, and most of them — a page, a month, the view — leave the projects as they were. */
+  private assigneesFor: string | null = null;
 
   readonly projects = new RemoteOptions(
     (term, next) => this.projectPage(term, next),
@@ -90,7 +93,11 @@ export class TaskFilterOptionsService {
 
   /** People and tickets depend on the projects chosen; the choices themselves must stay named. */
   select(projectIds: readonly string[], workTicketIds: readonly string[]): void {
-    this.store.dispatch(TaskBoardStoreActions.loadAssignees({ projectIds: [...projectIds] }));
+    const assigneesFor = projectIds.join();
+    if (assigneesFor !== this.assigneesFor) {
+      this.assigneesFor = assigneesFor;
+      this.store.dispatch(TaskBoardStoreActions.loadAssignees({ projectIds: [...projectIds] }));
+    }
     this.projects.choose(projectIds);
 
     const ticketProjectId = projectIds.length === 1 ? projectIds[0] : null;
