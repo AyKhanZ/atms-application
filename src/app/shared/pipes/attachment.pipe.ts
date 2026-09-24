@@ -2,7 +2,6 @@ import { Pipe, PipeTransform } from '@angular/core';
 import {
   attachmentIcon,
   attachmentTone,
-  canPreviewAttachment,
   formatFileSize,
 } from '../../core/utils/attachment.utils';
 
@@ -27,13 +26,5 @@ export class AttachmentIconPipe implements PipeTransform {
 export class AttachmentTonePipe implements PipeTransform {
   transform(fileName: string): string {
     return attachmentTone(fileName);
-  }
-}
-
-/** Images and PDF can be shown in the browser. */
-@Pipe({ name: 'canPreviewAttachment' })
-export class CanPreviewAttachmentPipe implements PipeTransform {
-  transform(contentType: string): boolean {
-    return canPreviewAttachment(contentType);
   }
 }

@@ -43,7 +43,8 @@ describe('attachmentsReducer', () => {
         listKey: 'task:1',
         projectId: 'p',
         workTaskId: '1',
-        file: new File(['x'], 'b.pdf'),
+        fileName: 'b.pdf',
+        size: 1,
       }),
     );
     expect(uploading.uploads).toEqual([
@@ -70,7 +71,7 @@ describe('attachmentsReducer', () => {
   it('keeps a failed upload with its reason until it is dismissed', () => {
     let state = attachmentsReducer(
       initialAttachmentsState,
-      Actions.upload({ uploadId: 'u1', listKey: 'task:1', projectId: 'p', workTaskId: '1', file: new File(['x'], 'b.pdf') }),
+      Actions.upload({ uploadId: 'u1', listKey: 'task:1', projectId: 'p', workTaskId: '1', fileName: 'b.pdf', size: 1 }),
     );
     state = attachmentsReducer(state, Actions.uploadFailure({ uploadId: 'u1', error: 'Too big', retryable: false }));
     expect(state.uploads[0].error).toBe('Too big');

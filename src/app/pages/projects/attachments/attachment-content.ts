@@ -37,7 +37,10 @@ export function csvSeparator(text: string): string {
   const firstLine = text.slice(0, text.indexOf('\n') === -1 ? undefined : text.indexOf('\n'));
   const count = (separator: string) => firstLine.split(separator).length - 1;
   const candidates = [';', ',', '\t'];
-  return candidates.reduce((best, separator) => (count(separator) > count(best) ? separator : best), ',');
+  return candidates.reduce(
+    (best, separator) => (count(separator) > count(best) ? separator : best),
+    ',',
+  );
 }
 
 export function columnLetter(index: number): string {
@@ -78,21 +81,58 @@ export async function readSheets(buffer: ArrayBuffer, csv: boolean): Promise<She
       name,
       rows,
       columns: Array.from({ length: width }, (_, column) => columnLetter(column)),
-      truncated:
-        all.length > MAX_SHEET_ROWS || all.some((row) => row.length > MAX_SHEET_COLUMNS),
+      truncated: all.length > MAX_SHEET_ROWS || all.some((row) => row.length > MAX_SHEET_COLUMNS),
     };
   });
 }
 
 /**
- * Draws a .docx into `container`. Links the document carries are kept only when they go to a web
- * page or an e-mail address: a `javascript:` link inside a Word file is how such a preview would
- * be turned against the person looking at it.
+ * The page a document is drawn into: its own document inside a sandboxed iframe, so whatever the
+ * file contains cannot run a script, reach the app's storage or restyle the app. Drawing is done
+ * from here, by the app; the frame itself never runs code. Colours come from the app's tokens,
+ * read once, since the frame cannot see the app's stylesheet.
  */
-export async function renderDocument(blob: Blob, container: HTMLElement, narrow: boolean): Promise<void> {
-  const { renderAsync } = await import('docx-preview');
-  container.replaceChildren();
-  await renderAsync(blob, container, undefined, {
+function documentFrame(frame: HTMLIFrameElement): Promise<Document> {
+  const tokens = getComputedStyle(document.documentElement);
+  const backdrop = tokens.getPropertyValue('--app-surface-muted').trim() || '#f7f8fa';
+  const html = `<!doctype html><html><head><meta charset="utf-8"><style>
+    html, body { margin: 0; background: ${backdrop}; }
+    .docx-wrapper { align-items: safe center; padding: 1.25rem; background: ${backdrop}; }
+    .docx-wrapper > section.docx { max-width: 100%; margin-bottom: 1.25rem; box-shadow: 0 1px 3px rgb(15 23 42 / 12%); }
+    @media (max-width: 767px) {
+      .docx-wrapper { padding: 0.5rem; }
+      .docx-wrapper > section.docx { padding: 1rem !important; }
+    }
+  </style></head><body><div id="docx-styles"></div><div id="docx-body"></div></body></html>`;
+
+  return new Promise((resolve, reject) => {
+    frame.addEventListener(
+      'load',
+      () =>
+        frame.contentDocument
+          ? resolve(frame.contentDocument)
+          : reject(new Error('No frame document.')),
+      { once: true },
+    );
+    frame.srcdoc = html;
+  });
+}
+
+/**
+ * Draws a .docx into a sandboxed frame. Links the document carries are kept only when they go to
+ * a web page or an e-mail address, and open in a new tab.
+ */
+export async function renderDocument(
+  blob: Blob,
+  frame: HTMLIFrameElement,
+  narrow: boolean,
+): Promise<void> {
+  const [{ renderAsync }, page] = await Promise.all([import('docx-preview'), documentFrame(frame)]);
+  const styles = page.getElementById('docx-styles');
+  const body = page.getElementById('docx-body');
+  if (!styles || !body) throw new Error('The document frame did not load.');
+
+  await renderAsync(blob, body, styles, {
     className: 'docx',
     inWrapper: true,
     // On a phone the page reflows to the screen instead of being a 21 cm sheet to pan around.
@@ -102,11 +142,15 @@ export async function renderDocument(blob: Blob, container: HTMLElement, narrow:
     renderHeaders: true,
     renderFooters: true,
     renderFootnotes: true,
+    // A Word file can carry a piece of raw HTML ("altChunk"); docx-preview would put it in an
+    // iframe of its own with our origin and no sandbox — a script in a .docx would run as the
+    // signed-in user. It is not shown at all.
+    renderAltChunks: false,
     experimental: false,
     useBase64URL: false,
   });
 
-  container.querySelectorAll('a[href]').forEach((link) => {
+  body.querySelectorAll('a[href]').forEach((link) => {
     const href = link.getAttribute('href') ?? '';
     if (href.startsWith('#')) return;
     if (!/^(https?:|mailto:)/i.test(href)) {

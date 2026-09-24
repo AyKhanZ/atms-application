@@ -1,5 +1,6 @@
 import {
   MAX_ATTACHMENT_SIZE_BYTES,
+  MAX_OFFICE_PREVIEW_BYTES,
   attachmentFileError,
   attachmentIcon,
   attachmentListKey,
@@ -56,13 +57,24 @@ describe('attachment utils', () => {
     ['application/vnd.openxmlformats-officedocument.presentationml.presentation', null],
     ['application/zip', null],
   ])('opens %s as %s', (contentType, kind) => {
-    expect(attachmentPreviewKind(contentType)).toBe(kind);
+    expect(attachmentPreviewKind({ contentType, size: 1024 })).toBe(kind);
   });
 
   it('previews everything that has a kind, and nothing else', () => {
-    expect(canPreviewAttachment('application/pdf')).toBe(true);
-    expect(canPreviewAttachment('application/msword')).toBe(false);
-    expect(canPreviewAttachment('application/zip')).toBe(false);
+    expect(canPreviewAttachment({ contentType: 'application/pdf', size: 1 })).toBe(true);
+    expect(canPreviewAttachment({ contentType: 'application/msword', size: 1 })).toBe(false);
+    expect(canPreviewAttachment({ contentType: 'application/zip', size: 1 })).toBe(false);
+  });
+
+  /* A Word or Excel file is a zip unpacked in the browser; a crafted big one could hang the tab. */
+  it.each([
+    ['application/vnd.openxmlformats-officedocument.wordprocessingml.document', null],
+    ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', null],
+    ['application/vnd.ms-excel', null],
+    ['text/csv', 'sheet'],
+    ['application/pdf', 'pdf'],
+  ])('past 10 MB opens %s as %s', (contentType, kind) => {
+    expect(attachmentPreviewKind({ contentType, size: MAX_OFFICE_PREVIEW_BYTES + 1 })).toBe(kind);
   });
 
   it('keys each scope apart', () => {

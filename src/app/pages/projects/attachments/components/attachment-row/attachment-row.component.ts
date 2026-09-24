@@ -44,7 +44,7 @@ export class AttachmentRowComponent {
   readonly rename = output<AttachmentModel>();
   readonly remove = output<AttachmentModel>();
 
-  readonly canPreview = computed(() => canPreviewAttachment(this.attachment().contentType));
+  readonly canPreview = computed(() => canPreviewAttachment(this.attachment()));
 
   /**
    * Everything the row offers. On a phone the eye and the arrow give way to this menu, so it holds

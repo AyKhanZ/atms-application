@@ -16,6 +16,10 @@ import { renderDocument } from '../../attachment-content';
 /**
  * A .docx drawn as pages, the way Word shows it. A page wider than the dialog — a landscape A4 —
  * narrows to fit and its text wraps; on a phone the page reflows to the screen.
+ *
+ * The pages live in a sandboxed iframe: no scripts (`allow-scripts` is not given), so nothing a
+ * document carries can run as the signed-in user. `allow-same-origin` only lets the app draw into
+ * the frame; `allow-popups` lets a link in the document open in a new tab, outside the sandbox.
  */
 @Component({
   selector: 'app-attachment-document-view',
@@ -26,7 +30,13 @@ import { renderDocument } from '../../attachment-content';
         <span>Opening the document...</span>
       </div>
     }
-    <div #page class="document" [class.document--hidden]="rendering()"></div>
+    <iframe
+      #frame
+      class="document-frame"
+      [class.document-frame--hidden]="rendering()"
+      title="Document preview"
+      sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox"
+    ></iframe>
   `,
   styleUrl: './attachment-document-view.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -38,15 +48,15 @@ export class AttachmentDocumentViewComponent {
   readonly failed = output<string>();
 
   readonly rendering = signal(true);
-  private readonly page = viewChild.required<ElementRef<HTMLElement>>('page');
+  private readonly frame = viewChild.required<ElementRef<HTMLIFrameElement>>('frame');
 
   constructor() {
     effect(() => {
       const blob = this.blob();
-      const container = this.page().nativeElement;
+      const frame = this.frame().nativeElement;
       untracked(() => {
         this.rendering.set(true);
-        renderDocument(blob, container, this.layout.isPhone())
+        renderDocument(blob, frame, this.layout.isPhone())
           .then(() => this.rendering.set(false))
           .catch(() =>
             this.failed.emit('This document could not be shown. Download it to open it in Word.'),

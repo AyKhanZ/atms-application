@@ -1,7 +1,20 @@
 import { HttpErrorResponse, HttpEventType } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { catchError, filter, groupBy, map, merge, mergeMap, of, switchMap, takeUntil } from 'rxjs';
+import {
+  EMPTY,
+  catchError,
+  filter,
+  groupBy,
+  map,
+  merge,
+  mergeMap,
+  of,
+  switchMap,
+  takeUntil,
+  tap,
+} from 'rxjs';
+import { AttachmentUploadFilesService } from '../../core/services/attachment-upload-files.service';
 import { AttachmentsService } from '../../core/services/attachments.service';
 import { toMutationError, validationMessage } from '../../core/utils/http-error.utils';
 import { MAX_ATTACHMENT_SIZE_MB } from '../../core/utils/attachment.utils';
@@ -15,6 +28,7 @@ const PARALLEL_UPLOADS = 3;
 export class AttachmentsEffects {
   private readonly actions$ = inject(Actions);
   private readonly attachments = inject(AttachmentsService);
+  private readonly uploadFiles = inject(AttachmentUploadFilesService);
   private readonly reset$ = this.actions$.pipe(
     ofType(ActionsStore.reset, AuthStoreActions.logoutCompleted),
   );
@@ -29,9 +43,7 @@ export class AttachmentsEffects {
             this.attachments.getAttachments(projectId, scope).pipe(
               map((list) => ActionsStore.loadListSuccess({ listKey, list })),
               catchError(() =>
-                of(
-                  ActionsStore.loadListFailure({ listKey, error: 'Files could not be loaded.' }),
-                ),
+                of(ActionsStore.loadListFailure({ listKey, error: 'Files could not be loaded.' })),
               ),
               takeUntil(
                 merge(
@@ -82,42 +94,59 @@ export class AttachmentsEffects {
   upload$ = createEffect(() =>
     this.actions$.pipe(
       ofType(ActionsStore.upload),
-      mergeMap(
-        ({ uploadId, listKey, projectId, workTaskId, file }) =>
-          this.attachments.upload(projectId, workTaskId, file).pipe(
-            map((event) => {
-              if (event.type === HttpEventType.UploadProgress) {
-                const progress = event.total ? Math.round((event.loaded / event.total) * 100) : 0;
-                return ActionsStore.uploadProgress({ uploadId, progress });
-              }
-              if (event.type === HttpEventType.Response && event.body) {
-                return ActionsStore.uploadSuccess({ uploadId, listKey, attachment: event.body });
-              }
-              return null;
-            }),
-            filter((action) => action !== null),
-            catchError((error: unknown) =>
-              of(
-                ActionsStore.uploadFailure({
-                  uploadId,
-                  error: uploadErrorMessage(error),
-                  retryable: isTransient(error),
-                }),
-              ),
-            ),
-            takeUntil(
-              merge(
-                this.reset$,
-                this.actions$.pipe(
-                  ofType(ActionsStore.dismissUpload),
-                  filter((action) => action.uploadId === uploadId),
-                ),
+      mergeMap(({ uploadId, listKey, projectId, workTaskId }) => {
+        // Only three files go at once; the rest wait here, where the cancel below cannot hear
+        // them yet. A file cancelled while waiting is already gone from the registry, so its
+        // turn comes and nothing is sent.
+        const file = this.uploadFiles.get(uploadId);
+        if (!file) return EMPTY;
+
+        return this.attachments.upload(projectId, workTaskId, file).pipe(
+          map((event) => {
+            if (event.type === HttpEventType.UploadProgress) {
+              const progress = event.total ? Math.round((event.loaded / event.total) * 100) : 0;
+              return ActionsStore.uploadProgress({ uploadId, progress });
+            }
+            if (event.type === HttpEventType.Response && event.body) {
+              this.uploadFiles.delete(uploadId);
+              return ActionsStore.uploadSuccess({ uploadId, listKey, attachment: event.body });
+            }
+            return null;
+          }),
+          filter((action) => action !== null),
+          catchError((error: unknown) => {
+            const retryable = isTransient(error);
+            // Kept only while Retry can use it; a refused file will not be sent again.
+            if (!retryable) this.uploadFiles.delete(uploadId);
+            return of(
+              ActionsStore.uploadFailure({ uploadId, error: uploadErrorMessage(error), retryable }),
+            );
+          }),
+          takeUntil(
+            merge(
+              this.reset$,
+              this.actions$.pipe(
+                ofType(ActionsStore.dismissUpload),
+                filter((action) => action.uploadId === uploadId),
               ),
             ),
           ),
-        PARALLEL_UPLOADS,
-      ),
+        );
+      }, PARALLEL_UPLOADS),
     ),
+  );
+
+  /** A dismissed or cancelled upload, or the end of the session, lets go of the files it held. */
+  releaseFiles$ = createEffect(
+    () =>
+      merge(
+        this.actions$.pipe(
+          ofType(ActionsStore.dismissUpload),
+          tap(({ uploadId }) => this.uploadFiles.delete(uploadId)),
+        ),
+        this.reset$.pipe(tap(() => this.uploadFiles.clear())),
+      ),
+    { dispatch: false },
   );
 
   rename$ = createEffect(() =>

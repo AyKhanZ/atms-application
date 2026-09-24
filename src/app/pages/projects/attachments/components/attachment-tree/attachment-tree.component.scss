@@ -177,15 +177,7 @@ strong.node-title {
 }
 
 .file-list {
-  display: grid;
-  min-width: 0;
-  overflow: hidden;
-  border: 1px solid var(--app-border);
-  border-radius: var(--radius-card);
-}
-
-.file-list > app-attachment-row + app-attachment-row {
-  border-top: 1px solid var(--app-border);
+  @include attachments-tab.file-list;
 }
 
 .skeleton-row {

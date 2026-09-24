@@ -95,15 +95,15 @@ const reducer = createReducer(
   }),
   on(
     Actions.upload,
-    (state, { uploadId, listKey, file }): AttachmentsState => ({
+    (state, { uploadId, listKey, fileName, size }): AttachmentsState => ({
       ...state,
       uploads: [
         ...state.uploads,
         {
           uploadId,
           listKey,
-          fileName: file.name,
-          size: file.size,
+          fileName,
+          size,
           progress: 0,
           error: null,
           retryable: false,

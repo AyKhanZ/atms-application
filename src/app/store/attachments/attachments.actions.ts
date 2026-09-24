@@ -36,12 +36,19 @@ export const loadTreeFailure = createAction(
 export const clearTree = createAction(`${key} Clear Tree`, props<{ projectId: string }>());
 
 /**
- * One file. The File itself rides in the action only as far as the effect: it never lands in the
- * state, which keeps a name, a size and the progress.
+ * One file. The file itself waits in `AttachmentUploadFilesService` under `uploadId`: an action
+ * carries plain data only.
  */
 export const upload = createAction(
   `${key} Upload`,
-  props<{ uploadId: string; listKey: string; projectId: string; workTaskId: string; file: File }>(),
+  props<{
+    uploadId: string;
+    listKey: string;
+    projectId: string;
+    workTaskId: string;
+    fileName: string;
+    size: number;
+  }>(),
 );
 export const uploadProgress = createAction(
   `${key} Upload Progress`,

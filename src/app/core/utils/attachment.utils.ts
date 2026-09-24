@@ -29,7 +29,9 @@ export const ATTACHMENT_EXTENSIONS: readonly string[] = [
   'zip',
 ];
 
-export const ATTACHMENT_ACCEPT = ATTACHMENT_EXTENSIONS.map((extension) => `.${extension}`).join(',');
+export const ATTACHMENT_ACCEPT = ATTACHMENT_EXTENSIONS.map((extension) => `.${extension}`).join(
+  ',',
+);
 
 /** Size first: it is the rule people run into. Office types by the names clients know them by. */
 export const ATTACHMENT_HINT = `Up to ${MAX_ATTACHMENT_SIZE_MB} MB each · PDF, Word, Excel, PowerPoint, images, text, ZIP`;
@@ -134,15 +136,26 @@ export function attachmentTone(fileName: string): string {
 }
 
 /**
+ * A .docx or a spreadsheet is a zip unpacked in the browser to be drawn. Past this size it is only
+ * downloaded: a crafted 25 MB archive can unpack to gigabytes and take the tab down with it.
+ */
+export const MAX_OFFICE_PREVIEW_BYTES = 10 * 1024 * 1024;
+
+/**
  * Images, PDF and text the browser shows itself; .docx and Excel are drawn from the file in the
  * browser. The old binary .doc and PowerPoint have no such reader and are downloaded.
  */
-export function attachmentPreviewKind(contentType: string): AttachmentPreviewKind | null {
-  return PREVIEW_KINDS[contentType] ?? null;
+export function attachmentPreviewKind(file: {
+  contentType: string;
+  size: number;
+}): AttachmentPreviewKind | null {
+  const kind = PREVIEW_KINDS[file.contentType] ?? null;
+  const unpacked = kind === 'document' || (kind === 'sheet' && file.contentType !== 'text/csv');
+  return unpacked && file.size > MAX_OFFICE_PREVIEW_BYTES ? null : kind;
 }
 
-export function canPreviewAttachment(contentType: string): boolean {
-  return attachmentPreviewKind(contentType) !== null;
+export function canPreviewAttachment(file: { contentType: string; size: number }): boolean {
+  return attachmentPreviewKind(file) !== null;
 }
 
 /** Why the file cannot be sent, or null. The server checks the content as well. */

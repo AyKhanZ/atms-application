@@ -51,7 +51,7 @@ export class AttachmentPreviewDialogComponent {
 
   readonly kind = computed(() => {
     const file = this.attachment();
-    return file ? attachmentPreviewKind(file.contentType) : null;
+    return file ? attachmentPreviewKind(file) : null;
   });
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);

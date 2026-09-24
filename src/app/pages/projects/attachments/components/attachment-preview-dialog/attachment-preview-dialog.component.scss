@@ -1,14 +1,24 @@
+/* One size for every kind of file, the way Drive and Teams open a file: nearly the whole screen.
+   The window does not jump between a small picture and a wide sheet, a landscape page and a
+   40-column table get the room they need, and there is one layout to get right instead of five. */
 :host ::ng-deep .attachment-preview-dialog {
-  width: min(64rem, calc(100vw - 2rem));
-  max-height: calc(100vh - 2rem);
+  width: min(96rem, 95vw);
+  height: 90vh;
+  max-height: 90vh;
 }
 
 :host ::ng-deep .attachment-preview-dialog .p-dialog-header {
   padding: 1rem 1.25rem 0.75rem;
 }
 
+/* The body takes whatever the header and footer leave, and each kind fills it. */
 :host ::ng-deep .attachment-preview-dialog .p-dialog-content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
   padding: 0 1.25rem;
+  overflow: hidden;
 }
 
 :host ::ng-deep .attachment-preview-dialog .p-dialog-footer {
@@ -34,44 +44,49 @@
   font-size: 0.78rem;
 }
 
-/* A checkered-free neutral backdrop: a photo with white edges must still show where it ends. */
+/* A neutral backdrop: a photo with white edges must still show where it ends. */
 .preview-body {
   display: grid;
+  flex: 1;
   /* One column exactly as wide as the body: an auto track grows to its widest child. */
   grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
   min-width: 0;
-  min-height: 16rem;
+  min-height: 0;
   place-items: center;
-  overflow: auto;
+  overflow: hidden;
   border: 1px solid var(--app-border);
   border-radius: var(--radius-card);
   background: var(--app-surface-muted);
 }
 
-.preview-body[data-kind='pdf'] {
-  height: min(78vh, 60rem);
-}
-
+/* A picture is shown whole, as large as the window allows, never stretched past its own size. */
 .preview-body img {
   display: block;
   max-width: 100%;
-  max-height: 72vh;
+  max-height: 100%;
   object-fit: contain;
 }
 
+.preview-body iframe {
+  place-self: stretch;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
 /* Text reads from the top-left like a document, not centred like a picture. */
-.preview-body[data-kind='text'],
-.preview-body[data-kind='document'],
-.preview-body[data-kind='sheet'] {
+.preview-body[data-kind='text'] {
   display: block;
-  max-height: 72vh;
+  overflow: auto;
   background: var(--app-surface);
 }
 
-/* A document and a sheet scroll inside themselves; a second scrollbar here would fight theirs. */
-.preview-body[data-kind='document'],
-.preview-body[data-kind='sheet'] {
-  overflow: hidden;
+/* A document and a sheet fill the body and scroll inside themselves. */
+.preview-body[data-kind='document'] > app-attachment-document-view,
+.preview-body[data-kind='sheet'] > app-attachment-sheet-view {
+  place-self: stretch;
+  height: 100%;
 }
 
 .preview-text {
@@ -97,14 +112,6 @@
   font-size: 0.78rem;
 }
 
-.preview-body iframe {
-  width: 100%;
-  height: 100%;
-  border: 0;
-}
-
-/* Its own height and centring: for a document or a sheet the body is a block, not a centring
-   grid, and the spinner used to sit at the top of an empty box. */
 .preview-state {
   display: grid;
   min-height: 16rem;
@@ -114,6 +121,11 @@
   padding: 2rem 1rem;
   color: var(--app-muted);
   text-align: center;
+}
+
+/* In the text body, which is a block, the spinner fills it rather than sitting at the top. */
+.preview-body[data-kind='text'] > .preview-state {
+  height: 100%;
 }
 
 .preview-state i {
@@ -129,20 +141,13 @@
 @media (max-width: 767px) {
   :host ::ng-deep .attachment-preview-dialog {
     width: 100vw;
-    max-height: 100dvh;
     height: 100dvh;
+    max-height: 100dvh;
     border-radius: 0;
   }
 
   :host ::ng-deep .attachment-preview-dialog .p-dialog-content {
-    display: grid;
-    flex: 1;
     padding: 0 0.75rem;
-  }
-
-  .preview-body,
-  .preview-body[data-kind='pdf'] {
-    height: 100%;
   }
 
   :host ::ng-deep .attachment-preview-dialog .p-dialog-footer button {

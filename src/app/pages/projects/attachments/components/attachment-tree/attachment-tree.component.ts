@@ -23,6 +23,11 @@ import {
 } from '../../attachment-tree-expansion.service';
 import { AttachmentRowComponent } from '../attachment-row/attachment-row.component';
 
+/** A lazy branch whose files have not been read: opening it costs a request. */
+function isUnread(node: AttachmentTreeNode): boolean {
+  return node.lazy && node.children.length === 0 && (node.loading || node.error);
+}
+
 /** Expand all / Collapse all only pays for itself past this many branches, as in Plan. */
 const EXPANSION_CONTROLS_FROM = 4;
 
@@ -66,9 +71,21 @@ export class AttachmentTreeComponent {
   readonly fileCount = computed(() => this.nodes().reduce((sum, item) => sum + item.fileCount, 0));
   readonly keys = computed(() => nodeKeys(this.nodes()));
   readonly showExpansionControls = computed(() => this.keys().length >= EXPANSION_CONTROLS_FROM);
+  /**
+   * What Expand all opens: everything already on the page. A ticket whose files are not read yet
+   * stays shut — opening every one would fire a request per ticket at once, two hundred in a big
+   * project. It opens, and loads, when the user opens it.
+   */
+  readonly expandableKeys = computed(() => {
+    const keys: string[] = [];
+    this.forEachNode(this.nodes(), (node) => {
+      if (!isUnread(node)) keys.push(node.key);
+    });
+    return keys;
+  });
   readonly allExpanded = computed(() => {
     const expanded = this.expanded();
-    return this.keys().every((key) => expanded.has(key));
+    return this.expandableKeys().every((key) => expanded.has(key));
   });
 
   private state: AttachmentTreeExpansion = { expanded: new Set(), seen: new Set() };
@@ -107,8 +124,7 @@ export class AttachmentTreeComponent {
       this.save(new Set());
       return;
     }
-    this.save(new Set(this.keys()));
-    this.forEachNode(this.nodes(), (node) => this.requestFiles(node));
+    this.save(new Set([...this.expanded(), ...this.expandableKeys()]));
   }
 
   private applyDefaults(

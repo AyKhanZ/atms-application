@@ -7,15 +7,15 @@
     <app-attachment-upload-zone [kind]="kind" (filesChosen)="add($event)" />
   }
 
-  @if (refused().length) {
-    <app-attachment-refused [items]="refused()" (dismiss)="dismissRefused()" />
+  @if (uploads.refused().length) {
+    <app-attachment-refused [items]="uploads.refused()" (dismiss)="uploads.dismissRefused()" />
   }
 
-  @if (uploadRows().length) {
+  @if (uploads.rows().length) {
     <app-attachment-upload-list
-      [rows]="uploadRows()"
-      (retry)="retry($event)"
-      (dismiss)="dismiss($event)"
+      [rows]="uploads.rows()"
+      (retry)="uploads.retry($event)"
+      (dismiss)="uploads.dismiss($event)"
     />
   }
 
@@ -46,7 +46,7 @@
         }
       </div>
     </section>
-  } @else if (!uploadRows().length) {
+  } @else if (!uploads.rows().length) {
     @if (subtaskNodes().length) {
       <!-- The subtasks below hold files, so a full-size empty panel here would bury them. -->
       <p class="inline-empty">No files on this {{ kind }} itself.</p>
