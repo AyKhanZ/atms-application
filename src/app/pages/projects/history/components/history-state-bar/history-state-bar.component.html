@@ -1,0 +1,46 @@
+@if (steps().length) {
+  <!-- Focusable so the keyboard can scroll it; the steps themselves are not interactive. -->
+  <ol
+    #track
+    class="state-track"
+    tabindex="0"
+    aria-label="Status changes"
+    [class.is-expanded]="expanded()"
+  >
+    <!-- First in the markup, last on a phone: the column there runs from the newest down. -->
+    @if (hiddenOnPhone() > 0) {
+      <li class="state-more">
+        <button type="button" class="state-more__button" (click)="expanded.set(true)">
+          Show {{ hiddenOnPhone() }} earlier
+        </button>
+      </li>
+    }
+    @for (step of steps(); track $index; let count = $count) {
+      <li class="state-step" [class.is-early]="$index < count - phoneStates">
+        <span class="state-step__label" [title]="step.label">{{ step.label }}</span>
+        <span class="state-step__arrow" aria-hidden="true"></span>
+        <span class="state-step__status" [class.is-current]="step.current">
+          <app-history-value
+            [field]="statusField"
+            [value]="step.state.status"
+            [entityType]="entityType()"
+            [projectId]="projectId()"
+          />
+        </span>
+        @if (step.state.changedAt; as changedAt) {
+          <span class="state-step__who">
+            <app-history-author-avatar [author]="step.state.changedBy" />
+            <span class="state-step__person">
+              <span class="state-step__name">{{
+                step.state.changedBy | personName: 'System'
+              }}</span>
+              <time [attr.datetime]="changedAt" [title]="changedAt | historyTime: 'full'">
+                {{ changedAt | historyTime }}
+              </time>
+            </span>
+          </span>
+        }
+      </li>
+    }
+  </ol>
+}

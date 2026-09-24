@@ -1,0 +1,22 @@
+:host {
+  display: inline-flex;
+  flex: 0 0 auto;
+}
+
+:host ::ng-deep .avatar {
+  --avatar-size: var(--history-avatar-size, 2rem);
+  --avatar-radius: 999px;
+  --avatar-font-size: 0.7rem;
+
+  box-shadow: none;
+}
+
+.system-avatar {
+  display: inline-grid;
+  place-items: center;
+  width: var(--history-avatar-size, 2rem);
+  height: var(--history-avatar-size, 2rem);
+  color: var(--gray-icon);
+  background: var(--app-surface-muted);
+  border-radius: 50%;
+}

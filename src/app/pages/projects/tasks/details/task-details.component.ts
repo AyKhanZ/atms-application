@@ -29,7 +29,7 @@ import { SnackBarService } from '../../../../core/services/snack-bar.service';
 import { WorkProjectsService } from '../../../../core/services/work-projects.service';
 import { WorkTasksService } from '../../../../core/services/work-tasks.service';
 import { BackButtonComponent } from '../../../../shared/components/back-button/back-button.component';
-import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
+import { HistoryTabComponent } from '../../history/history-tab/history-tab.component';
 import { TaskAttachmentsTabComponent } from '../../attachments/task-attachments-tab/task-attachments-tab.component';
 import { AttachmentTreeExpansionService } from '../../attachments/attachment-tree-expansion.service';
 import {
@@ -65,7 +65,7 @@ interface TaskPageData {
     ButtonModule,
     ConfirmDialogComponent,
     BackButtonComponent,
-    EmptyStateComponent,
+    HistoryTabComponent,
     TaskAttachmentsTabComponent,
     EntityTabsComponent,
     PersonNamePipe,

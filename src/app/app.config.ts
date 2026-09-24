@@ -42,6 +42,8 @@ import { workTasksReducer } from './store/work-tasks/work-tasks.reducer';
 import { WorkTasksEffects } from './store/work-tasks/work-tasks.effects';
 import { attachmentsReducer } from './store/attachments/attachments.reducer';
 import { AttachmentsEffects } from './store/attachments/attachments.effects';
+import { historyReducer } from './store/history/history.reducer';
+import { HistoryEffects } from './store/history/history.effects';
 import { provideStoreDevtools } from '@ngrx/store-devtools';
 import { NavigationHistoryService } from './core/services/navigation-history.service';
 import { AppRouteReuseStrategy } from './core/routing/app-route-reuse.strategy';
@@ -129,6 +131,7 @@ export const appConfig: ApplicationConfig = {
       [Features.WorkTickets]: workTicketsReducer,
       [Features.WorkTasks]: workTasksReducer,
       [Features.Attachments]: attachmentsReducer,
+      [Features.History]: historyReducer,
       [Features.TaskBoard]: taskBoardReducer,
       [Features.User]: userReducer,
       [Features.Dictionary]: dictionaryReducer,
@@ -143,6 +146,7 @@ export const appConfig: ApplicationConfig = {
       WorkTicketsEffects,
       WorkTasksEffects,
       AttachmentsEffects,
+      HistoryEffects,
       TaskBoardEffects,
       UserEffects,
       DictionaryEffects,

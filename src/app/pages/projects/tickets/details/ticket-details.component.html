@@ -98,10 +98,11 @@
         } @else if (activeTab() === 'attachments') {
           <app-ticket-attachments-tab [projectId]="item.workProjectId" [ticketId]="item.id" />
         } @else {
-          <app-empty-state
-            icon="pi-history"
-            title="No activity yet"
-            description="Every change will be recorded here."
+          <app-history-tab
+            [projectId]="item.workProjectId"
+            [scope]="{ kind: 'ticket', workTicketId: item.id }"
+            subject="ticket"
+            [currentStatus]="item.workTicketStatus"
           />
         }
       </div>

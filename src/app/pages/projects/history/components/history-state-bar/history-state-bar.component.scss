@@ -1,0 +1,200 @@
+:host {
+  display: block;
+  min-width: 0;
+  container-type: inline-size;
+}
+
+// One line, scrolled sideways when it is longer than the tab.
+.state-track {
+  display: flex;
+  align-items: flex-start;
+  margin: 0;
+  // Room between the names and the scrollbar, which otherwise sits right under them.
+  padding: 0 0 1.25rem;
+  overflow-x: auto;
+  list-style: none;
+  scrollbar-width: thin;
+
+  &:focus-visible {
+    outline: 2px solid var(--orange-focus-outline);
+    outline-offset: 2px;
+    border-radius: 0.45rem;
+  }
+}
+
+// As Azure DevOps draws it: what happened above the arrow, who and when under it, the status it
+// led to at its point.
+.state-step {
+  display: grid;
+  flex: none;
+  grid-template-columns: 10rem auto;
+  grid-template-areas:
+    'label .'
+    'arrow status'
+    'who .';
+  align-items: center;
+  column-gap: 0.4rem;
+  row-gap: 0.35rem;
+  padding-right: 0.6rem;
+}
+
+.state-step__label {
+  grid-area: label;
+  overflow: hidden;
+  color: var(--app-muted);
+  font-size: 0.8rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// Grey, like the guide lines of Plan and Location: the arrows are structure, not an accent.
+.state-step__arrow {
+  position: relative;
+  grid-area: arrow;
+  height: 2px;
+  margin-right: 7px;
+  background: var(--app-guide-line);
+
+  &::after {
+    position: absolute;
+    top: -4px;
+    right: -7px;
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+    border-left: 7px solid var(--app-guide-line);
+    content: '';
+  }
+}
+
+// A status is a dot and its name, as everywhere. Only the current one sits on the current-item
+// background, the one accent of the graph.
+.state-step__status {
+  grid-area: status;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.7rem;
+  border-radius: var(--radius-card);
+
+  &.is-current {
+    background: var(--orange-light);
+  }
+}
+
+.state-step__who {
+  --history-avatar-size: 1.5rem;
+
+  display: flex;
+  grid-area: who;
+  align-items: flex-start;
+  gap: 0.4rem;
+  min-width: 0;
+  max-width: 10rem;
+}
+
+.state-step__person {
+  display: grid;
+  min-width: 0;
+  font-size: 0.8rem;
+  line-height: 1.25;
+
+  time {
+    color: var(--app-muted);
+    font-size: 0.75rem;
+  }
+}
+
+.state-step__name {
+  overflow: hidden;
+  color: var(--app-text);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// Only a phone folds the earlier statuses; a wide tab scrolls to them.
+.state-more {
+  display: none;
+}
+
+// Phone: a column from the newest down, the way a phone scrolls anyway. A sideways line hid half the
+// statuses from anyone who did not think to swipe it. The arrow becomes a grey rail with a ring at
+// each status; the newest three show, the rest wait behind "Show N earlier".
+@container (max-width: 34rem) {
+  .state-track {
+    flex-direction: column-reverse;
+    align-items: stretch;
+    padding: 0;
+    overflow: visible;
+  }
+
+  .state-step {
+    grid-template-columns: 1.5rem minmax(0, 1fr);
+    grid-template-areas:
+      'rail status'
+      'rail who'
+      'rail .';
+    grid-template-rows: auto auto 0.75rem;
+    justify-items: start;
+    row-gap: 0.4rem;
+    padding: 0;
+  }
+
+  .state-track:not(.is-expanded) .state-step.is-early {
+    display: none;
+  }
+
+  // "Moved to Closed" says what the box beside it already shows.
+  .state-step__label {
+    display: none;
+  }
+
+  .state-step__arrow {
+    grid-area: rail;
+    align-self: stretch;
+    justify-self: center;
+    width: 2px;
+    height: auto;
+    margin: 0;
+
+    // A small hollow ring at each status, grey like the rail.
+    &::after {
+      top: 0.95rem;
+      right: auto;
+      left: 50%;
+      width: 0.6rem;
+      height: 0.6rem;
+      background: var(--app-surface);
+      border: 2px solid var(--app-guide-line);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+    }
+  }
+
+  .state-step__who {
+    max-width: none;
+  }
+
+  .state-more {
+    display: flex;
+    padding-left: 2rem;
+  }
+}
+
+.state-more__button {
+  padding: 0.35rem 0.65rem;
+  color: var(--orange-text-hover);
+  font: inherit;
+  font-size: 0.8rem;
+  background: transparent;
+  border: 1px solid var(--app-border);
+  border-radius: 0.45rem;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--orange-light-hover);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--orange-focus-outline);
+    outline-offset: 1px;
+  }
+}

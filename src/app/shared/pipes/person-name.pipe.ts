@@ -1,10 +1,7 @@
 import { Pipe, PipeTransform } from '@angular/core';
+import { NamedPerson, personFullName, personShortName } from '../../core/utils/person-name.utils';
 
-/** Anything in the app that carries a person's name: assignee, participant, audit user. */
-export interface NamedPerson {
-  name?: string | null;
-  surname?: string | null;
-}
+export type { NamedPerson } from '../../core/utils/person-name.utils';
 
 /**
  * "Diana Zeynalova", or the given fallback when there is nobody.
@@ -15,8 +12,7 @@ export interface NamedPerson {
 @Pipe({ name: 'personName' })
 export class PersonNamePipe implements PipeTransform {
   transform(person?: NamedPerson | null, fallback = 'Unassigned'): string {
-    if (!person) return fallback;
-    return `${person.name ?? ''} ${person.surname ?? ''}`.trim() || fallback;
+    return personFullName(person, fallback);
   }
 }
 
@@ -24,12 +20,7 @@ export class PersonNamePipe implements PipeTransform {
 @Pipe({ name: 'personShortName' })
 export class PersonShortNamePipe implements PipeTransform {
   transform(person?: NamedPerson | null): string {
-    if (!person) return 'Unassigned';
-    const name = person.name?.trim() ?? '';
-    const surname = person.surname?.trim() ?? '';
-    return name
-      ? `${name}${surname ? ` ${Array.from(surname)[0]}.` : ''}`
-      : surname || 'Unassigned';
+    return personShortName(person);
   }
 }
 

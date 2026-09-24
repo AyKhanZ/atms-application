@@ -64,6 +64,7 @@ function toParams(query: WorkTaskBoardQuery): HttpParams {
   if (query.deadline === 'overdue' || query.overdue === true) {
     params = params.set('overdueBefore', startOfToday().toISOString());
   }
-  if (query.overdue === false) params = params.set('excludeOverdueBefore', startOfToday().toISOString());
+  if (query.overdue === false)
+    params = params.set('excludeOverdueBefore', startOfToday().toISOString());
   return params;
 }

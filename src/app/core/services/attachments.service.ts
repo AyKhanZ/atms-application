@@ -23,7 +23,11 @@ export class AttachmentsService {
   }
 
   /** One file per request, with progress events, so every file has its own bar and error. */
-  upload(projectId: string, workTaskId: string, file: File): Observable<HttpEvent<AttachmentModel>> {
+  upload(
+    projectId: string,
+    workTaskId: string,
+    file: File,
+  ): Observable<HttpEvent<AttachmentModel>> {
     const body = new FormData();
     body.append('file', file, file.name);
     return this.http.post<AttachmentModel>(

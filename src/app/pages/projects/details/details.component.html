@@ -120,11 +120,14 @@
             <app-project-attachments-tab [projectId]="item.id" />
           </ng-container>
         } @else {
-          <app-empty-state
-            icon="pi-history"
-            title="No activity yet"
-            description="Every change will be recorded here."
-          />
+          <ng-container *hasProjectAccess="ProjectPermissions.Project.View; projectId: item.id">
+            <app-history-tab
+              [projectId]="item.id"
+              [scope]="{ kind: 'project' }"
+              subject="project"
+              [currentStatus]="item.projectStatus"
+            />
+          </ng-container>
         }
       </div>
     </article>

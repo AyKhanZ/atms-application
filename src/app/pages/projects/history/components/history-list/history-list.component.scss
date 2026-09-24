@@ -1,0 +1,159 @@
+:host {
+  display: grid;
+  align-content: start;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.history-group__head {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  width: 100%;
+  padding: 0.45rem 0.5rem;
+  color: var(--app-muted);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-align: left;
+  background: var(--app-surface-muted);
+  border: 0;
+  border-radius: 0.45rem;
+  cursor: pointer;
+
+  .pi {
+    font-size: 0.7rem;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--orange-focus-outline);
+    outline-offset: 1px;
+  }
+}
+
+.history-rows {
+  display: grid;
+  margin: 0.25rem 0 0.5rem;
+  padding: 0;
+  list-style: none;
+}
+
+.history-rows li + li {
+  border-top: 1px solid var(--app-border);
+}
+
+.history-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 0.65rem;
+  width: 100%;
+  padding: 0.65rem 0.6rem 0.65rem 0.75rem;
+  color: var(--app-text);
+  font: inherit;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  border-radius: 0.45rem;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--orange-light-hover);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--orange-focus-outline);
+    outline-offset: -2px;
+  }
+
+  // The entry on the right: the selected-row background and the accent bar, as elsewhere.
+  &.is-selected {
+    background: var(--orange-light);
+  }
+
+  &.is-selected::before {
+    position: absolute;
+    top: 0.4rem;
+    bottom: 0.4rem;
+    left: 0;
+    width: 3px;
+    background: var(--orange);
+    border-radius: 3px;
+    content: '';
+  }
+}
+
+.history-row__text {
+  display: grid;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.history-row__summary {
+  display: -webkit-box;
+  overflow: hidden;
+  font-size: 0.875rem;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+
+  strong {
+    font-weight: 600;
+  }
+}
+
+.history-row__fields {
+  overflow: hidden;
+  color: var(--app-muted);
+  font-size: 0.8rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// The mark above the time, as Azure DevOps puts it: the colour of the status it set, or an icon.
+// Two fixed rows, so the time sits on the same line in every row: a row without a mark keeps the
+// mark's row empty instead of letting the time climb into it.
+.history-row__side {
+  display: grid;
+  grid-template-rows: 1rem auto;
+  justify-items: end;
+  gap: 0.3rem;
+  padding-top: 0.1rem;
+}
+
+.history-marker {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1rem;
+  height: 1rem;
+  color: var(--gray-icon);
+
+  .pi {
+    font-size: 0.8rem;
+  }
+}
+
+// Only the dot of the status badge: its colour is the status, its name is in the tooltip.
+.history-marker__dot ::ng-deep span {
+  gap: 0;
+  font-size: 0;
+}
+
+.history-row__time {
+  grid-row: 2;
+  color: var(--app-muted);
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.history-more {
+  display: grid;
+  justify-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0 0.25rem;
+}
+
+.history-more__error {
+  color: var(--app-danger);
+}
