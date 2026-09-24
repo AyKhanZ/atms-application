@@ -1,0 +1,42 @@
+<div
+  class="upload-zone"
+  [class.upload-zone--dragging]="dragging()"
+  (dragenter)="dragEnter($event)"
+  (dragover)="dragOver($event)"
+  (dragleave)="dragLeave()"
+  (drop)="drop($event)"
+>
+  <span class="upload-zone__icon" aria-hidden="true">
+    <i class="pi pi-cloud-upload"></i>
+  </span>
+  <div class="upload-zone__text">
+    <strong>
+      @if (dragging()) {
+        Drop to upload
+      } @else {
+        <span class="upload-zone__drop">Drop files here or use Upload</span>
+        <span class="upload-zone__pick">Add files to this {{ kind() }}</span>
+      }
+    </strong>
+    <span id="attachmentUploadHint" class="upload-zone__hint" [title]="typesTitle">{{ hint }}</span>
+  </div>
+  <button
+    pButton
+    type="button"
+    class="upload-zone__button"
+    aria-describedby="attachmentUploadHint"
+    (click)="input.click()"
+  >
+    <i class="pi pi-upload" aria-hidden="true"></i><span>Upload files</span>
+  </button>
+  <input
+    #input
+    type="file"
+    class="upload-zone__input"
+    multiple
+    tabindex="-1"
+    aria-hidden="true"
+    [accept]="accept"
+    (change)="picked(input)"
+  />
+</div>

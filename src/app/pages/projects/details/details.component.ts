@@ -30,6 +30,8 @@ import { ProjectPermissionsRefreshService } from '../../../core/services/project
 import { VisiblePageRefreshService } from '../../../core/services/visible-page-refresh.service';
 import { BackButtonComponent } from '../../../shared/components/back-button/back-button.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
+import { ProjectAttachmentsTabComponent } from '../attachments/project-attachments-tab/project-attachments-tab.component';
+import { AttachmentTreeExpansionService } from '../attachments/attachment-tree-expansion.service';
 import {
   EntityTab,
   EntityTabsComponent,
@@ -56,6 +58,7 @@ type ProjectTab = 'details' | 'stakeholders' | 'groups' | 'attachments' | 'histo
     HasRoleDirective,
     BackButtonComponent,
     EmptyStateComponent,
+    ProjectAttachmentsTabComponent,
     EntityTabsComponent,
     ProjectStatusBadgeComponent,
     GroupsTabComponent,
@@ -63,7 +66,7 @@ type ProjectTab = 'details' | 'stakeholders' | 'groups' | 'attachments' | 'histo
     PersonNamePipe,
     RelativeTimePipe,
   ],
-  providers: [ConfirmationService, WorkGroupExpansionStateService],
+  providers: [ConfirmationService, WorkGroupExpansionStateService, AttachmentTreeExpansionService],
   templateUrl: './details.component.html',
   styleUrl: './details.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

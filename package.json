@@ -25,10 +25,12 @@
     "@ngrx/store": "^21.1.0",
     "@ngrx/store-devtools": "^21.1.0",
     "@primeuix/themes": "^2.0.3",
+    "docx-preview": "^0.4.1",
     "primeicons": "^7.0.0",
     "primeng": "^21.1.9",
     "rxjs": "~7.8.0",
-    "tslib": "^2.3.0"
+    "tslib": "^2.3.0",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   },
   "devDependencies": {
     "@angular/build": "^21.2.10",

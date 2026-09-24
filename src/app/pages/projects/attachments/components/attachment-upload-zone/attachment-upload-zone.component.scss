@@ -1,0 +1,106 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.upload-zone {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1rem;
+  min-width: 0;
+  padding: 1rem 1.25rem;
+  border: 1.5px dashed var(--orange-border);
+  border-radius: var(--radius-card);
+  background: var(--white-soft);
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease;
+}
+
+.upload-zone--dragging {
+  border-color: var(--orange);
+  background: var(--orange-light);
+}
+
+.upload-zone__icon {
+  display: grid;
+  width: 2.75rem;
+  height: 2.75rem;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--orange-light);
+  color: var(--orange);
+}
+
+.upload-zone--dragging .upload-zone__icon {
+  background: var(--white);
+}
+
+.upload-zone__icon i {
+  font-size: 1.25rem;
+}
+
+.upload-zone__text {
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.upload-zone__text strong {
+  color: var(--app-text);
+  font-size: 0.92rem;
+}
+
+.upload-zone__text > span {
+  color: var(--app-muted);
+  font-size: 0.78rem;
+}
+
+.upload-zone__pick {
+  display: none;
+}
+
+.upload-zone__button {
+  gap: 0.45rem;
+  white-space: nowrap;
+}
+
+.upload-zone__input {
+  display: none;
+}
+
+/* A phone has no pointer to drag with: the zone becomes a plain full-width button with the rules
+   under it. */
+@container (max-width: 34rem) {
+  .upload-zone {
+    grid-template-columns: 1fr;
+    gap: 0.6rem;
+    padding: 0.85rem;
+    border-style: solid;
+    border-color: var(--app-border);
+    background: var(--app-surface);
+  }
+
+  .upload-zone__icon {
+    display: none;
+  }
+
+  .upload-zone__drop {
+    display: none;
+  }
+
+  .upload-zone__pick {
+    display: inline;
+  }
+
+  .upload-zone__button {
+    grid-row: 1;
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+.upload-zone__hint {
+  cursor: help;
+}

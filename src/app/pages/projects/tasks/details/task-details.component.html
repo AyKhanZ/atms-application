@@ -84,11 +84,7 @@
             [canEdit]="canEdit()"
           />
         } @else if (activeTab() === 'attachments') {
-          <app-empty-state
-            icon="pi-paperclip"
-            title="No attachments yet"
-            description="Files added here will be listed in this tab."
-          />
+          <app-task-attachments-tab [task]="item" [canEdit]="canEdit()" />
         } @else {
           <app-empty-state
             icon="pi-history"

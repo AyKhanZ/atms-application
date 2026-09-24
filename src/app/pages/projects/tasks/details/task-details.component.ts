@@ -30,6 +30,8 @@ import { WorkProjectsService } from '../../../../core/services/work-projects.ser
 import { WorkTasksService } from '../../../../core/services/work-tasks.service';
 import { BackButtonComponent } from '../../../../shared/components/back-button/back-button.component';
 import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
+import { TaskAttachmentsTabComponent } from '../../attachments/task-attachments-tab/task-attachments-tab.component';
+import { AttachmentTreeExpansionService } from '../../attachments/attachment-tree-expansion.service';
 import {
   EntityTab,
   EntityTabsComponent,
@@ -64,6 +66,7 @@ interface TaskPageData {
     ConfirmDialogComponent,
     BackButtonComponent,
     EmptyStateComponent,
+    TaskAttachmentsTabComponent,
     EntityTabsComponent,
     PersonNamePipe,
     RelativeTimePipe,
@@ -71,7 +74,7 @@ interface TaskPageData {
     TaskDetailsTabComponent,
     WorkTaskListComponent,
   ],
-  providers: [ConfirmationService],
+  providers: [ConfirmationService, AttachmentTreeExpansionService],
   templateUrl: './task-details.component.html',
   styleUrl: './task-details.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -1,0 +1,51 @@
+@let current = sheet();
+
+@if (current && current.rows.length) {
+  <div class="sheet-scroll">
+    <table class="sheet">
+      <thead>
+        <tr>
+          <th class="corner" scope="col"></th>
+          @for (column of current.columns; track column) {
+            <th scope="col">{{ column }}</th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of current.rows; track $index) {
+          <tr>
+            <th scope="row">{{ $index + 1 }}</th>
+            @for (cell of row; track $index) {
+              <td [title]="cell">{{ cell }}</td>
+            }
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+} @else {
+  <p class="sheet-empty">This sheet is empty.</p>
+}
+
+@if (current?.truncated) {
+  <p class="sheet-note">
+    Showing the first {{ maxRows }} rows and {{ maxColumns }} columns. Download the file to see all
+    of it.
+  </p>
+}
+
+@if (sheets().length > 1) {
+  <nav class="sheet-tabs" aria-label="Sheets">
+    @for (item of sheets(); track $index) {
+      <button
+        type="button"
+        class="sheet-tab"
+        [class.sheet-tab--active]="$index === selected()"
+        [attr.aria-pressed]="$index === selected()"
+        (click)="selected.set($index)"
+      >
+        {{ item.name }}
+      </button>
+    }
+  </nav>
+}

@@ -30,6 +30,8 @@ import { WorkProjectsService } from '../../../../core/services/work-projects.ser
 import { WorkTicketsService } from '../../../../core/services/work-tickets.service';
 import { BackButtonComponent } from '../../../../shared/components/back-button/back-button.component';
 import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
+import { TicketAttachmentsTabComponent } from '../../attachments/ticket-attachments-tab/ticket-attachments-tab.component';
+import { AttachmentTreeExpansionService } from '../../attachments/attachment-tree-expansion.service';
 import {
   EntityTab,
   EntityTabsComponent,
@@ -60,6 +62,7 @@ import {
     ConfirmDialogComponent,
     BackButtonComponent,
     EmptyStateComponent,
+    TicketAttachmentsTabComponent,
     EntityTabsComponent,
     WorkItemFactsComponent,
     TicketLocationComponent,
@@ -68,7 +71,7 @@ import {
     PersonNamePipe,
     RelativeTimePipe,
   ],
-  providers: [ConfirmationService],
+  providers: [ConfirmationService, AttachmentTreeExpansionService],
   templateUrl: './ticket-details.component.html',
   styleUrl: './ticket-details.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -1,0 +1,90 @@
+<app-confirm-dialog key="attachmentDelete" />
+
+@let kind = task().isSubtask ? 'subtask' : 'task';
+
+<section class="attachments-tab">
+  @if (canEdit()) {
+    <app-attachment-upload-zone [kind]="kind" (filesChosen)="add($event)" />
+  }
+
+  @if (refused().length) {
+    <app-attachment-refused [items]="refused()" (dismiss)="dismissRefused()" />
+  }
+
+  @if (uploadRows().length) {
+    <app-attachment-upload-list
+      [rows]="uploadRows()"
+      (retry)="retry($event)"
+      (dismiss)="dismiss($event)"
+    />
+  }
+
+  @if (ownLoading()) {
+    <app-attachment-list-skeleton />
+  } @else if (ownError()) {
+    <div class="tab-error" role="alert">
+      <i class="pi pi-exclamation-circle" aria-hidden="true"></i>
+      <span>Files could not be loaded.</span>
+      <button pButton type="button" text="true" (click)="reload()">Retry</button>
+    </div>
+  } @else if (ownItems().length) {
+    <section class="own-files" aria-labelledby="ownFilesHeading">
+      <h3 id="ownFilesHeading">
+        Files <span class="count">{{ ownItems().length }}</span>
+      </h3>
+      <div class="file-list">
+        @for (file of ownItems(); track file.id) {
+          <app-attachment-row
+            [attachment]="file"
+            [editable]="canEdit()"
+            [pending]="pending().has(file.id)"
+            (preview)="previewing.set($event)"
+            (download)="save($event)"
+            (rename)="renaming.set($event)"
+            (remove)="confirmRemove($event)"
+          />
+        }
+      </div>
+    </section>
+  } @else if (!uploadRows().length) {
+    @if (subtaskNodes().length) {
+      <!-- The subtasks below hold files, so a full-size empty panel here would bury them. -->
+      <p class="inline-empty">No files on this {{ kind }} itself.</p>
+    } @else {
+      <app-empty-state
+        icon="pi-paperclip"
+        title="No files yet"
+        [description]="
+          canEdit()
+            ? 'Drop files above or use Upload files.'
+            : 'Files added to this ' + kind + ' will appear here.'
+        "
+      />
+    }
+  }
+
+  @if (subtaskNodes().length) {
+    <app-attachment-tree
+      heading="From subtasks"
+      [nodes]="subtaskNodes()"
+      [stateKey]="'subtasks:' + task().id"
+      [defaultOpen]="subtasksOpenByDefault"
+      (preview)="previewing.set($event)"
+      (download)="save($event)"
+    />
+  }
+</section>
+
+<app-attachment-preview-dialog
+  [projectId]="projectId()"
+  [attachment]="previewing()"
+  (closed)="previewing.set(null)"
+  (download)="save($event)"
+/>
+
+<app-attachment-rename-dialog
+  [attachment]="renaming()"
+  [saving]="renameSaving()"
+  (renamed)="rename($event)"
+  (closed)="renaming.set(null)"
+/>

@@ -1,0 +1,53 @@
+/* The width of the dialog, never of the document. Left to size itself, a centring parent let a
+   1123px landscape page stretch this box past the dialog, and the page was cut on both sides. */
+:host {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  max-height: 72vh;
+  overflow: auto;
+  background: var(--app-surface-muted);
+}
+
+.document--hidden {
+  display: none;
+}
+
+.document-state {
+  display: grid;
+  min-height: 16rem;
+  align-content: center;
+  justify-items: center;
+  gap: 0.6rem;
+  padding: 3rem 1rem;
+  color: var(--app-muted);
+}
+
+.document-state i {
+  color: var(--orange);
+  font-size: 1.6rem;
+}
+
+.document ::ng-deep .docx-wrapper {
+  align-items: safe center;
+  padding: 1.25rem;
+  background: var(--app-surface-muted);
+}
+
+/* A page keeps its real width when it fits and narrows to the dialog when it does not; its text
+   wraps inside. Pure layout — nothing is measured, so nothing can be measured at the wrong time. */
+.document ::ng-deep .docx-wrapper > section.docx {
+  max-width: 100%;
+  margin-bottom: 1.25rem;
+  box-shadow: 0 1px 3px rgb(15 23 42 / 12%);
+}
+
+@media (max-width: 767px) {
+  .document ::ng-deep .docx-wrapper {
+    padding: 0.5rem;
+  }
+
+  .document ::ng-deep .docx-wrapper > section.docx {
+    padding: 1rem !important;
+  }
+}

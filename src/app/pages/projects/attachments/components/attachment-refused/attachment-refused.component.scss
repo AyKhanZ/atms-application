@@ -1,0 +1,79 @@
+@use 'icon-button';
+
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.refused {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 0.75rem;
+  padding: 0.75rem 0.5rem 0.75rem 0.9rem;
+  border: 1px solid var(--overdue-border);
+  border-radius: var(--radius-card);
+  background: var(--overdue-bg);
+}
+
+.refused__icon {
+  margin-top: 0.15rem;
+  color: var(--red-hover);
+  font-size: 1rem;
+}
+
+.refused__body {
+  display: grid;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.refused__body strong {
+  color: var(--red-hover);
+  font-size: 0.9rem;
+}
+
+.refused ul {
+  display: grid;
+  gap: 0.3rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.refused li {
+  display: grid;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+/* The reason leads: it is what the person has to act on. The files follow as a row of names. */
+.refused__reason {
+  color: var(--app-text);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.refused__names {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.refused__name {
+  max-width: 16rem;
+  padding: 0.15rem 0.5rem;
+  overflow: hidden;
+  border: 1px solid var(--overdue-border);
+  border-radius: 999px;
+  background: var(--app-surface);
+  color: var(--app-muted);
+  font-size: 0.76rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.icon-button {
+  @include icon-button.base(2rem);
+}

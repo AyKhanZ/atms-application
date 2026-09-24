@@ -1,0 +1,79 @@
+/// The body of an Attachments tab — task, ticket and project alike: padding like the Tasks tab, a
+/// stack of blocks, an empty state that fills the tab, and the bordered list of file rows.
+///
+/// Usage:
+///   @use 'attachments-tab';
+///   @include attachments-tab.layout;
+@mixin layout {
+  :host {
+    display: grid;
+    min-width: 0;
+  }
+
+  .attachments-tab {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    min-width: 0;
+    padding: 1.5rem;
+  }
+
+  .attachments-tab > app-empty-state {
+    flex: 1;
+  }
+
+  .file-list {
+    display: grid;
+    min-width: 0;
+    overflow: hidden;
+    border: 1px solid var(--app-border);
+    border-radius: var(--radius-card);
+  }
+
+  .file-list > app-attachment-row + app-attachment-row {
+    border-top: 1px solid var(--app-border);
+  }
+
+  .tab-error {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.7rem 0.8rem;
+    border: 1px solid rgb(239 68 68 / 28%);
+    border-radius: var(--radius-card);
+    background: var(--red-hover-bg);
+    color: var(--app-text);
+    font-size: 0.85rem;
+  }
+
+  .tab-error > i {
+    color: var(--red-hover);
+  }
+
+  .tab-note {
+    margin: 0;
+    color: var(--app-muted);
+    font-size: 0.8rem;
+  }
+
+  @container (max-width: 34rem) {
+    .attachments-tab {
+      gap: 1rem;
+      padding: 1rem;
+    }
+  }
+}
+
+/// The number next to a heading: "Files 3", "From subtasks 4".
+@mixin count {
+  display: inline-grid;
+  min-width: 1.5rem;
+  height: 1.35rem;
+  place-items: center;
+  padding: 0 0.45rem;
+  border-radius: 999px;
+  background: var(--orange-light);
+  color: var(--orange-text-hover);
+  font-size: 0.75rem;
+  font-weight: 700;
+}

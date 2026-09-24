@@ -1,0 +1,50 @@
+<p-dialog
+  header="Rename file"
+  [visible]="!!attachment()"
+  (visibleChange)="!$event && close()"
+  [modal]="true"
+  [closable]="!saving()"
+  [closeOnEscape]="!saving()"
+  [draggable]="false"
+  [resizable]="false"
+  styleClass="attachment-rename-dialog"
+>
+  <form class="rename-form" (ngSubmit)="submit()">
+    <label class="form-field" for="attachmentName">
+      <span>Name <b>*</b></span>
+      <span class="name-input">
+        <input
+          pInputText
+          id="attachmentName"
+          name="attachmentName"
+          autocomplete="off"
+          [maxlength]="maxLength"
+          [ngModel]="baseName()"
+          (ngModelChange)="baseName.set($event); touched.set(true)"
+          [attr.aria-invalid]="touched() && !!error()"
+          [attr.aria-describedby]="touched() && error() ? 'attachmentNameError' : null"
+        />
+        @if (extension()) {
+          <span class="extension" aria-hidden="true">{{ extension() }}</span>
+        }
+      </span>
+      <small id="attachmentNameError" [class.visible]="touched() && !!error()">
+        {{ (touched() && error()) || ' ' }}
+      </small>
+    </label>
+
+    <div class="dialog-actions">
+      <button
+        pButton
+        type="button"
+        severity="secondary"
+        outlined="true"
+        [disabled]="saving()"
+        (click)="close()"
+      >
+        Cancel
+      </button>
+      <button pButton type="submit" [loading]="saving()">Save</button>
+    </div>
+  </form>
+</p-dialog>

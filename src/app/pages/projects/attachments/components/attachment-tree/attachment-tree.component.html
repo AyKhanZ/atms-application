@@ -1,0 +1,128 @@
+<section class="attachment-tree">
+  <header class="tree-toolbar">
+    <h3>
+      {{ heading() }}
+      <span class="tree-count">{{ fileCount() }}</span>
+    </h3>
+    @if (showExpansionControls()) {
+      <button pButton type="button" outlined="true" class="tree-expansion" (click)="toggleAll()">
+        <i
+          class="pi"
+          [class.pi-chevron-up]="allExpanded()"
+          [class.pi-chevron-down]="!allExpanded()"
+          aria-hidden="true"
+        ></i>
+        <span>{{ allExpanded() ? 'Collapse all' : 'Expand all' }}</span>
+      </button>
+    }
+  </header>
+
+  <ng-container *ngTemplateOutlet="branch; context: { $implicit: nodes(), root: true }" />
+</section>
+
+<ng-template #branch let-nodes let-root="root">
+  <ul class="tree-level" [attr.role]="root ? 'tree' : 'group'" [class.tree-level--root]="root">
+    @for (node of nodes; track node.key) {
+      @let open = expanded().has(node.key);
+      <li
+        class="tree-node"
+        role="treeitem"
+        [attr.aria-expanded]="open"
+        [attr.data-kind]="node.kind"
+      >
+        <div class="node-row">
+          <button
+            type="button"
+            class="node-toggle"
+            [attr.aria-label]="(open ? 'Collapse ' : 'Expand ') + node.title"
+            (click)="toggle(node)"
+          >
+            <i
+              class="pi"
+              [class.pi-chevron-down]="open"
+              [class.pi-chevron-right]="!open"
+              aria-hidden="true"
+            ></i>
+          </button>
+
+          @if (node.link; as link) {
+            <a
+              class="node-label node-label--link"
+              [routerLink]="link"
+              [queryParams]="{ tab: 'attachments' }"
+              [title]="node.title"
+            >
+              @if (node.itemKind; as itemKind) {
+                <app-work-item-ref [type]="itemKind" [code]="node.code ?? ''" />
+              }
+              <span class="node-title">{{ node.title }}</span>
+            </a>
+          } @else {
+            <button
+              type="button"
+              class="node-label"
+              [attr.aria-expanded]="open"
+              [title]="node.title"
+              (click)="toggle(node)"
+            >
+              <i
+                class="pi structure-icon"
+                [class.pi-folder]="node.kind === 'group'"
+                [class.pi-flag]="node.kind === 'milestone'"
+                aria-hidden="true"
+              ></i>
+              <strong class="node-title">{{ node.title }}</strong>
+            </button>
+          }
+
+          <span
+            class="node-count"
+            [attr.aria-label]="node.fileCount + (node.fileCount === 1 ? ' file' : ' files')"
+          >
+            <i class="pi pi-paperclip" aria-hidden="true"></i>
+            {{ node.fileCount }}
+            <span class="node-count__unit">{{ node.fileCount === 1 ? 'file' : 'files' }}</span>
+          </span>
+        </div>
+
+        @if (open) {
+          <div class="node-body">
+            @if (node.files.length) {
+              <div class="file-list">
+                @for (file of node.files; track file.id) {
+                  <app-attachment-row
+                    [attachment]="file"
+                    (preview)="preview.emit($event)"
+                    (download)="download.emit($event)"
+                  />
+                }
+              </div>
+            }
+
+            @if (node.loading) {
+              <div class="file-list file-list--loading" role="status" aria-label="Loading files">
+                @for (row of [1, 2]; track row) {
+                  <div class="skeleton-row">
+                    <p-skeleton width="2.25rem" height="2.25rem" borderRadius="8px" />
+                    <p-skeleton width="60%" height="0.85rem" />
+                  </div>
+                }
+              </div>
+            } @else if (node.error) {
+              <div class="node-error" role="alert">
+                <span>Files could not be loaded.</span>
+                <button pButton type="button" text="true" (click)="retry.emit(node)">Retry</button>
+              </div>
+            }
+
+            @if (node.children.length) {
+              <ng-container
+                *ngTemplateOutlet="branch; context: { $implicit: node.children, root: false }"
+              />
+            }
+          </div>
+        }
+      </li>
+    }
+  </ul>
+</ng-template>
