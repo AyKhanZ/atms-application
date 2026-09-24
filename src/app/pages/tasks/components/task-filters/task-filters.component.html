@@ -1,0 +1,166 @@
+<div class="panel panel-padding filters">
+  <!-- Where and whose on top, wide enough for titles and names; the short lists below. -->
+  <div class="filters__grid">
+    <div class="field field--wide">
+      <label id="taskFilterProjectLabel" appLabelFor="taskFilterProject">Project</label>
+      <app-ref-multiselect
+        inputId="taskFilterProject"
+        labelledBy="taskFilterProjectLabel"
+        [source]="projects()"
+        [value]="filter().projectIds"
+        (valueChange)="change({ projectIds: $event })"
+      />
+    </div>
+    <div class="field field--wide">
+      <label id="taskFilterTicketLabel" appLabelFor="taskFilterTicket">Ticket</label>
+      <app-ref-multiselect
+        inputId="taskFilterTicket"
+        labelledBy="taskFilterTicketLabel"
+        [placeholder]="ticketPlaceholder()"
+        [source]="tickets()"
+        [disabled]="!ticketsEnabled()"
+        [value]="filter().workTicketIds"
+        (valueChange)="change({ workTicketIds: $event })"
+      />
+    </div>
+    <div class="field field--wide">
+      <label id="taskFilterPeopleLabel" appLabelFor="taskFilterPeople">Assigned to</label>
+      <p-multiselect
+        inputId="taskFilterPeople"
+        ariaLabelledBy="taskFilterPeopleLabel"
+        placeholder="Anyone"
+        [options]="peopleOptions()"
+        optionLabel="label"
+        optionValue="value"
+        [ngModel]="peopleValue()"
+        (ngModelChange)="changePeople($event)"
+        [filter]="true"
+        filterPlaceHolder="Search by name"
+        [showToggleAll]="false"
+        [panelStyle]="panelStyle"
+        appendTo="body"
+      >
+        <ng-template #selecteditems let-selected>
+          @if (selected?.length) {
+            <span class="task-person-selection">
+              <app-work-item-assignee [assignee]="selected[0].person" [avatarOnly]="true" />
+              <span>{{ selected | filterSummary }}</span>
+            </span>
+          }
+        </ng-template>
+        <ng-template #item let-option>
+          <span
+            class="option task-person-option"
+            [class.option--divided]="option.divider"
+            [title]="option.label"
+          >
+            <app-work-item-assignee [assignee]="option.person" [avatarOnly]="true" />
+            <span>{{ option.label }}</span>
+          </span>
+        </ng-template>
+      </p-multiselect>
+    </div>
+    <div class="field field--narrow">
+      <label id="taskFilterTypeLabel" appLabelFor="taskFilterType">Type</label>
+      <p-select
+        inputId="taskFilterType"
+        ariaLabelledBy="taskFilterTypeLabel"
+        [options]="types"
+        optionLabel="label"
+        optionValue="value"
+        [ngModel]="filter().kind"
+        (ngModelChange)="change({ kind: $event })"
+        appendTo="body"
+      />
+    </div>
+    <div class="field field--narrow">
+      <label id="taskFilterStateLabel" appLabelFor="taskFilterState">Status</label>
+      <p-multiselect
+        inputId="taskFilterState"
+        ariaLabelledBy="taskFilterStateLabel"
+        placeholder="All"
+        [options]="statuses()"
+        optionLabel="label"
+        optionValue="value"
+        [ngModel]="filter().statusIds"
+        (ngModelChange)="change({ statusIds: $event })"
+        [filter]="false"
+        [showHeader]="false"
+        appendTo="body"
+      >
+        <ng-template #selecteditems let-selected>
+          {{ selected | filterSummary }}
+        </ng-template>
+      </p-multiselect>
+    </div>
+    <div class="field field--narrow">
+      <label id="taskFilterPriorityLabel" appLabelFor="taskFilterPriority">Priority</label>
+      <p-multiselect
+        inputId="taskFilterPriority"
+        ariaLabelledBy="taskFilterPriorityLabel"
+        placeholder="All"
+        [options]="priorities()"
+        optionLabel="label"
+        optionValue="value"
+        [ngModel]="filter().priorityIds"
+        (ngModelChange)="change({ priorityIds: $event })"
+        [filter]="false"
+        [showHeader]="false"
+        appendTo="body"
+      >
+        <ng-template #selecteditems let-selected>
+          {{ selected | filterSummary }}
+        </ng-template>
+      </p-multiselect>
+    </div>
+    <div class="field field--narrow">
+      <label id="taskFilterDeadlineLabel" appLabelFor="taskFilterDeadline">Deadline</label>
+      <p-select
+        inputId="taskFilterDeadline"
+        ariaLabelledBy="taskFilterDeadlineLabel"
+        [options]="deadlines()"
+        optionDisabled="disabled"
+        optionLabel="label"
+        optionValue="value"
+        [ngModel]="filter().deadline"
+        (ngModelChange)="change({ deadline: $event })"
+        appendTo="body"
+      >
+        <ng-template #selectedItem let-option>
+          <ng-container *ngTemplateOutlet="deadlineOption; context: { $implicit: option }" />
+        </ng-template>
+        <ng-template #item let-option>
+          <ng-container *ngTemplateOutlet="deadlineOption; context: { $implicit: option }" />
+        </ng-template>
+      </p-select>
+    </div>
+
+    <div class="filters__actions">
+      @if (canClear()) {
+        <app-clear-button (clicked)="cleared.emit()" />
+      }
+    </div>
+  </div>
+</div>
+
+<ng-template #deadlineOption let-option>
+  <span
+    class="task-deadline-option"
+    [class.task-deadline-option--overdue]="option.value === 'overdue'"
+  >
+    @if (option.value !== 'any') {
+      <i
+        class="pi"
+        [class.pi-clock]="option.value === 'overdue'"
+        [class.pi-calendar-minus]="option.value === 'none'"
+        aria-hidden="true"
+      ></i>
+    }
+    <span>
+      {{ option.label }}
+      @if (option.disabled) {
+        <small>Available in Board and List</small>
+      }
+    </span>
+  </span>
+</ng-template>

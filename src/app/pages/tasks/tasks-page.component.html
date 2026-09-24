@@ -1,0 +1,82 @@
+<app-confirm-dialog key="taskBoardClose" />
+
+<section class="page tasks-page">
+  <h1 class="page-title">Tasks</h1>
+
+  <div class="tasks-header management-list-header">
+    <app-list-search
+      class="management-list-search"
+      placeholder="Search by code or title"
+      [value]="searchTerm()"
+      (valueChange)="changeSearch($event)"
+    />
+    <div class="page-actions tasks-actions">
+      <app-filter-toggle-button
+        [active]="filtersOpen()"
+        [count]="activeFilterCount()"
+        (clicked)="filtersOpen.set(!filtersOpen())"
+      />
+    </div>
+  </div>
+
+  @if (filtersOpen()) {
+    <app-task-filters
+      [filter]="state().filter"
+      [calendar]="state().view === 'calendar'"
+      [projects]="options.projects"
+      [tickets]="options.tickets"
+      [me]="options.meOption()"
+      [people]="options.peopleOptions()"
+      [statuses]="options.statusOptions()"
+      [priorities]="options.priorityOptions()"
+      (filterChange)="changeFilter($event)"
+      (cleared)="clearFilters()"
+    />
+  }
+
+  <article class="panel tasks-panel">
+    <app-entity-tabs
+      [tabs]="views"
+      [active]="state().view"
+      ariaLabel="Views"
+      (select)="selectView($event)"
+    />
+
+    <div class="tasks-body">
+      @switch (state().view) {
+        @case ('calendar') {
+          <app-task-calendar-view
+            [query]="query()"
+            [month]="state().month"
+            [canMove]="canMove()"
+            [hideAssignee]="onlyMine()"
+            [reloadToken]="reloadToken()"
+            (monthChange)="changeMonth($event)"
+            (openTask)="open($event)"
+            (showOverdue)="selectView('list')"
+          />
+        }
+        @case ('list') {
+          <app-task-list-view
+            [query]="query()"
+            [order]="state().order"
+            (orderChange)="changeOrder($event)"
+            [reloadToken]="reloadToken()"
+            [emptyText]="emptyText()"
+            (openTask)="open($event)"
+          />
+        }
+        @default {
+          <app-task-board-view
+            [query]="query()"
+            [statuses]="options.statuses()"
+            [canMove]="canMove()"
+            [showProject]="showProject()"
+            [reloadToken]="reloadToken()"
+            (openTask)="open($event)"
+          />
+        }
+      }
+    </div>
+  </article>
+</section>

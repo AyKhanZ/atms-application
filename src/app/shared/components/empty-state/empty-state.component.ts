@@ -18,6 +18,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
       @if (description(); as text) {
         <p>{{ text }}</p>
       }
+      <ng-content />
     </section>
   `,
   styleUrl: './empty-state.component.scss',

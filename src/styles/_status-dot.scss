@@ -1,0 +1,44 @@
+/// A status as a coloured dot and plain text, the way Azure DevOps, Linear and Jira show it. Used
+/// for every status in the app — project, ticket, milestone, task. A column of tinted pills read
+/// as a row of empty buttons; a dot keeps a table calm and still tells New from Done at a glance,
+/// and looks the same on its own. Each component sets only `--status-dot`.
+///
+/// Types and kinds (Feature, Bug, One-time) stay pills: they are not a state and carry an icon.
+///
+/// Usage:
+///   @use 'status-dot';
+///   .ticket-status { @include status-dot.base; --status-dot: var(--status-dot-new); }
+///   .ticket-status--prominent { @include status-dot.prominent; }
+
+@mixin base {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 0;
+  color: var(--app-text);
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+
+  &::before {
+    width: 0.5rem;
+    height: 0.5rem;
+    flex: none;
+    border-radius: 50%;
+    background: var(--status-dot, var(--status-dot-new));
+    content: '';
+  }
+}
+
+/// Page-header size, for the single status that states the entity's own state.
+@mixin prominent {
+  gap: 0.55rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+
+  &::before {
+    width: 0.65rem;
+    height: 0.65rem;
+  }
+}

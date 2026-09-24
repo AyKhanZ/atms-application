@@ -31,22 +31,22 @@ export class TaskFormBreadcrumbsService implements OnDestroy {
       { title: 'Projects', path: '/projects', icon: 'pi-briefcase' },
       { title: '#' + project.code + ' ' + project.title, path: projectPath },
     ];
-    const ticketId = task?.workTicketId ?? parent?.ticketId;
+    const ticketId = task?.workTicket.id ?? parent?.ticketId;
     if (ticketId) {
       const ticketPath = projectPath + '/tickets/' + ticketId;
       items.push({
         title:
           '#' +
-          (task?.workTicketCode ?? parent?.ticketCode) +
+          (task?.workTicket.code ?? parent?.ticketCode) +
           ' ' +
-          (task?.workTicketTitle ?? parent?.ticketTitle),
+          (task?.workTicket.name ?? parent?.ticketTitle),
         path: ticketPath,
       });
       if (task) {
-        if (task.parentWorkTaskId) {
+        if (task.parentWorkTask?.id) {
           items.push({
-            title: '#' + task.parentWorkTaskCode + ' ' + task.parentWorkTaskTitle,
-            path: ticketPath + '/tasks/' + task.parentWorkTaskId,
+            title: '#' + task.parentWorkTask?.code + ' ' + task.parentWorkTask?.name,
+            path: ticketPath + '/tasks/' + task.parentWorkTask?.id,
           });
         }
         items.push({

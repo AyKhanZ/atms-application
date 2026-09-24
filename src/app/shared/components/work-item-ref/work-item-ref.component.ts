@@ -11,13 +11,17 @@ import { workItemKinds } from './work-item-kinds';
   host: {
     '[attr.data-kind]': 'kind().tone',
   },
-  template: `<i class="pi" [class]="'pi ' + kind().icon" aria-hidden="true"></i
-    ><span>
-      @if (labelled()) {
-        {{ kind().label }}
-      }
-      #{{ code() }}</span
-    >`,
+  template: `<i class="pi" [class]="'pi ' + kind().icon" aria-hidden="true"></i>
+    @if (labelled() || showCode()) {
+      <span>
+        @if (labelled()) {
+          {{ kind().label }}
+        }
+        @if (showCode()) {
+          #{{ code() }}
+        }
+      </span>
+    }`,
   styleUrl: './work-item-ref.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -29,6 +33,7 @@ export class WorkItemRefComponent {
    * would only take width. Icon, colour and type of the code stay, so the row still looks alike.
    */
   readonly labelled = input(true);
+  readonly showCode = input(true);
 
   readonly kind = computed(() => workItemKinds[this.type()]);
 }

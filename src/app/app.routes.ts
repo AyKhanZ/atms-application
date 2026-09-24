@@ -58,6 +58,13 @@ export const routes: Routes = [
           import('./pages/search/search.component').then((c) => c.SearchComponent),
       },
       {
+        path: 'tasks',
+        data: { breadcrumb: { title: 'Tasks', icon: 'pi-list-check' } },
+        canActivate: [permissionGuard(Permissions.Project.View)],
+        loadComponent: () =>
+          import('./pages/tasks/tasks-page.component').then((c) => c.TasksPageComponent),
+      },
+      {
         path: 'users',
         data: { breadcrumb: { title: 'Users', icon: 'pi-users' } },
         loadChildren: () => import('./pages/admin/users/users.routes').then((r) => r.USERS_ROUTES),

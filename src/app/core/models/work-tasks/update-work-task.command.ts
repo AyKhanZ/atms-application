@@ -9,4 +9,6 @@ export interface UpdateWorkTaskCommand {
   workTicketId: string;
   /** Parent task for a subtask; null makes the item a top-level task. */
   parentWorkTaskId?: string | null;
+  /** Saving as Done: close the task's open subtasks too ("Mark all as done"). */
+  completeSubtasks?: boolean;
 }

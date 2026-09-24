@@ -1,0 +1,105 @@
+<!-- On a phone the columns become a switcher: one column fills the screen. -->
+<div class="switcher" role="tablist" aria-label="Board columns">
+  @for (column of columns(); track column.key) {
+    <button
+      type="button"
+      role="tab"
+      class="switcher__tab"
+      [attr.data-status]="column.status.code"
+      [class.switcher__tab--active]="phoneColumn() === column.status.id"
+      [attr.aria-selected]="phoneColumn() === column.status.id"
+      (click)="phoneColumn.set(column.status.id)"
+    >
+      {{ column.status.name }}
+      <span class="switcher__count">{{ counts()?.[column.status.id] ?? 0 }}</span>
+    </button>
+  }
+</div>
+
+<div class="board" cdkDropListGroup [style.--columns]="columns().length || 3">
+  @for (column of columns(); track column.key) {
+    <section
+      class="column"
+      [attr.data-status]="column.status.code"
+      [class.column--phone-active]="phoneColumn() === column.status.id"
+      [attr.aria-label]="column.status.name"
+    >
+      <header class="column__head">
+        <h2 class="column__title">{{ column.status.name }}</h2>
+        <span class="column__count">{{ counts()?.[column.status.id] ?? 0 }}</span>
+      </header>
+
+      @for (lane of shownLanes(column); track lane.key) {
+        <!-- Overdue work sits on top, cut off by a dashed line, with no heading of its own: the
+             red cards already say what they are. Absent from a column that has none. -->
+        <div
+          class="column__list"
+          [class.column__list--late]="lane.overdue && grouped(column)"
+          cdkDropList
+          [cdkDropListData]="{ column, lane }"
+          [cdkDropListDisabled]="!canMove()"
+          [cdkDropListSortingDisabled]="lane.overdue === null"
+          [cdkDropListEnterPredicate]="
+            lane.overdue === true
+              ? acceptsLate
+              : lane.overdue === false
+                ? acceptsOnTime
+                : acceptsAny
+          "
+          (cdkDropListDropped)="drop($event)"
+        >
+          @for (task of page(lane)?.items ?? []; track task.id) {
+            <app-task-card
+              cdkDrag
+              [cdkDragData]="task"
+              [task]="task"
+              [canMove]="canMove()"
+              [showProject]="showProject()"
+              (open)="openTask.emit(task)"
+              (moveTo)="moveTo(task, lane, $event)"
+              (moveToTop)="moveToTop(task, column, lane)"
+            />
+          } @empty {
+            @if (loading(column)) {
+              <ng-container *ngTemplateOutlet="skeletonCards" />
+            } @else if (empty(column)) {
+              <app-empty-state class="column__empty" icon="pi-inbox" title="No tasks here" />
+            }
+          }
+
+          @if (page(lane)?.error; as error) {
+            <p class="column__state column__state--error" role="alert">{{ error }}</p>
+          }
+        </div>
+
+        @if (page(lane)?.hasMore) {
+          <button
+            type="button"
+            class="column__more"
+            [disabled]="page(lane)?.loading"
+            (click)="loadMore(column, lane)"
+          >
+            @if (page(lane)?.loading) {
+              <i class="pi pi-spin pi-spinner" aria-hidden="true"></i>
+            }
+            Load more
+          </button>
+        }
+      }
+    </section>
+  } @empty {
+    <!-- Statuses still loading: the board's outline, so it does not appear out of nothing. -->
+    @for (placeholder of [1, 2, 3]; track placeholder) {
+      <section class="column" aria-hidden="true">
+        <header class="column__head"><p-skeleton width="7rem" height="1.25rem" /></header>
+        <div class="column__list"><ng-container *ngTemplateOutlet="skeletonCards" /></div>
+      </section>
+    }
+  }
+</div>
+
+<ng-template #skeletonCards>
+  @for (placeholder of [1, 2, 3]; track placeholder) {
+    <p-skeleton height="5.5rem" borderRadius="8px" />
+  }
+</ng-template>

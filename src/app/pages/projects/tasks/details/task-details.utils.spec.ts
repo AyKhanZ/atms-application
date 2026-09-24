@@ -11,9 +11,7 @@ const task = (extra: Partial<WorkTaskModel> = {}): WorkTaskModel => ({
   code: '71',
   title: 'Subtask',
   workProjectId: 'p',
-  workTicketId: 't',
-  workTicketCode: '20',
-  workTicketTitle: 'Ticket',
+  workTicket: { id: 't', code: '20', name: 'Ticket' },
   groupId: 'g',
   groupTitle: 'Group',
   milestoneId: 'm',
@@ -49,7 +47,7 @@ describe('task details helpers', () => {
   });
 
   it("leads a subtask up to its parent task's subtasks", () => {
-    const subtask = task({ isSubtask: true, parentWorkTaskId: 'parent' });
+    const subtask = task({ isSubtask: true, parentWorkTask: { id: 'parent', code: '34', name: 'Parent' } });
 
     expect(taskParentRoute(subtask)).toEqual({
       commands: ['/projects', 'p', 'tickets', 't', 'tasks', 'parent'],
@@ -61,9 +59,7 @@ describe('task details helpers', () => {
   it('keeps the parent task in the trail of a subtask', () => {
     const subtask = task({
       isSubtask: true,
-      parentWorkTaskId: 'parent',
-      parentWorkTaskCode: '34',
-      parentWorkTaskTitle: 'Parent',
+      parentWorkTask: { id: 'parent', code: '34', name: 'Parent' },
     });
     const project = { code: '7', title: 'Payments' };
 

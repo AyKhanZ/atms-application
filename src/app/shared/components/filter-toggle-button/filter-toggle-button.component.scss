@@ -61,13 +61,20 @@
   display: grid;
   min-width: 1.25rem;
   height: 1.25rem;
+  flex: 0 0 auto;
   place-items: center;
   padding-inline: 0.35rem;
   border-radius: 999px;
   background: var(--orange);
   color: var(--white);
   font-size: 0.75rem;
-  font-weight: 800;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.filter-count > span {
+  transform: translateY(0.5px);
 }
 
 button {

@@ -1,0 +1,36 @@
+:host {
+  display: block;
+}
+
+.tasks-header {
+  --management-search-max: 48rem;
+}
+
+.tasks-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.tasks-panel {
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* All three views reach the bottom of the screen: an empty board, a short list and a month all
+   fill the same card, so switching between them does not make it jump. */
+.tasks-body {
+  --tasks-view-height: max(26rem, calc(100dvh - 20rem));
+  display: grid;
+  min-width: 0;
+  padding: 1.25rem;
+}
+
+@media (max-width: 767px) {
+  .tasks-body {
+    padding: 0.75rem;
+  }
+
+  .tasks-actions > * {
+    width: 100%;
+  }
+}

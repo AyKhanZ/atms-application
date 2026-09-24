@@ -14,6 +14,9 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ConfirmationService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ConfirmDialogComponent } from '../../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { askToCloseOpenWork } from '../../../../../shared/components/confirm-dialog/close-open-work';
+import { WorkTaskStatus } from '../../../../../core/enums/work-task-status.enum';
 import { catchError, finalize, of, take } from 'rxjs';
 import { Actions, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
@@ -47,6 +50,7 @@ interface TaskFormNavigationState {
   imports: [
     ButtonModule,
     ConfirmDialogModule,
+    ConfirmDialogComponent,
     BackButtonComponent,
     TaskFormFieldsComponent,
     TaskParentSelectComponent,
@@ -139,8 +143,8 @@ export class TaskFormPageComponent {
         // A task can be moved to another ticket, so a link kept from before the move points at
         // the wrong one. The details page quietly sends the user to the real ticket; this form
         // used to stop with an error instead, for the same situation.
-        if (result.task && result.task.workTicketId !== this.ticketId) {
-          this.redirectToOwningTicket(result.task.workTicketId);
+        if (result.task && result.task.workTicket.id !== this.ticketId) {
+          this.redirectToOwningTicket(result.task.workTicket.id);
           return;
         }
         if (!editing && this.parentTaskId && result.task?.isSubtask) {
@@ -208,6 +212,33 @@ export class TaskFormPageComponent {
 
     const value = this.form.getRawValue();
     if (value.priorityId === null || !value.workTicketId) return;
+
+    // Saved as Done with subtasks still open: asked, not refused and not done silently.
+    const task = this.contextTask();
+    const openSubtasks = task ? task.subtaskCount - task.doneSubtaskCount : 0;
+    const closing =
+      this.isEdit() &&
+      value.statusId === WorkTaskStatus.Done &&
+      task?.status.id !== WorkTaskStatus.Done;
+    if (task && closing && openSubtasks > 0) {
+      void askToCloseOpenWork(this.confirmation, {
+        key: 'taskClose',
+        itemRef: `TASK #${task.code}`,
+        title: task.title,
+        openCount: openSubtasks,
+        childLabel: 'subtask',
+      }).then((choice) => {
+        if (choice !== 'cancel') this.save(choice === 'all');
+      });
+      return;
+    }
+
+    this.save(false);
+  }
+
+  private save(completeSubtasks: boolean): void {
+    const value = this.form.getRawValue();
+    if (value.priorityId === null || !value.workTicketId || !this.projectId) return;
     const common = {
       title: (value.title ?? '').trim(),
       description: (value.description ?? '').trim() || null,
@@ -269,6 +300,7 @@ export class TaskFormPageComponent {
               statusId: value.statusId,
               workTicketId: value.workTicketId,
               parentWorkTaskId: value.parentWorkTaskId,
+              completeSubtasks,
             },
           })
         : WorkTasksStoreActions.createTask({

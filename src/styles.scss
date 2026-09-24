@@ -26,6 +26,19 @@
   --green: #22c55e;
   --green-text: #256f45;
   --blue: #3b82f6;
+  --status-new-bg: #f1f5f9;
+  --status-new-text: #475569;
+  --status-active-bg: #eff6ff;
+  --status-active-text: #1d4ed8;
+  --status-done-bg: #edf8f1;
+  --status-done-text: #256f45;
+  /* The dot before a status name: the only colour a status carries (styles/_status-dot.scss). */
+  --status-dot-new: #94a3b8;
+  --status-dot-active: var(--orange);
+  --status-dot-progress: #2563eb;
+  --status-dot-review: #d97706;
+  --status-dot-done: #16a34a;
+  --status-dot-danger: var(--red-hover);
   --red: #ef4444;
   --red-hover: #dc2626;
   --red-hover-bg: #fff6f6;
@@ -82,6 +95,15 @@
   --kind-ticket: #2563eb;
   --kind-task: #a16207;
   --kind-subtask: #be185d;
+  /* Open work past its deadline — the one thing on the Tasks page allowed to be loud. A tint and a
+     pill, never a stripe: the left edge already means the kind of work. */
+  --overdue-text: var(--red-hover);
+  --overdue-bg: #fef2f2;
+  --overdue-border: #fecaca;
+  /* A one-line calendar chip has little surface: it needs the stronger tint. The strong border
+     marks an overdue board card and the line under the overdue cards. */
+  --overdue-bg-strong: #fee2e2;
+  --overdue-border-strong: #f87171;
 }
 
 html,

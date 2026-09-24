@@ -1,0 +1,36 @@
+<ng-template #details><app-task-hover [task]="task()" /></ng-template>
+<button
+  type="button"
+  class="chip"
+  [class.chip--phone]="phone()"
+  [class.chip--subtask]="task().isSubtask"
+  [class.chip--done]="done()"
+  [class.chip--overdue]="overdue()"
+  [pTooltip]="details"
+  [tooltipDisabled]="phone()"
+  tooltipPosition="right"
+  tooltipStyleClass="task-hover"
+  appendTo="body"
+  [showDelay]="300"
+  [attr.aria-label]="label() + ', ' + (task().assignee | personName)"
+  (click)="open.emit()"
+>
+  <!-- On the grid the left edge says the kind and the hover says the code; the agenda has room. -->
+  @if (phone()) {
+    <app-work-item-ref [type]="kind()" [code]="task().code" />
+  }
+  <span class="chip__title">{{ task().title }}</span>
+  @if (overdue()) {
+    <app-overdue-badge [deadline]="task().deadline" [compact]="!phone()" />
+  }
+  <!-- Always a person or the empty-person icon, like the hover card: never a silent gap. -->
+  @if (!hideAssignee()) {
+    <app-work-item-assignee
+      class="chip__assignee"
+      [assignee]="task().assignee"
+      [compact]="true"
+      [avatarOnly]="!phone()"
+      [shortName]="true"
+    />
+  }
+</button>

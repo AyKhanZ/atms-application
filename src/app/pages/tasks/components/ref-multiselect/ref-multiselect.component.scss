@@ -1,0 +1,28 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+:host ::ng-deep .p-multiselect {
+  width: 100%;
+}
+
+/* The options live in a panel on the body, outside this component. */
+::ng-deep .ref-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+::ng-deep .ref-option app-work-item-ref {
+  flex: none;
+}
+
+::ng-deep .ref-option__title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

@@ -6,11 +6,18 @@
       [initials]="assignee | personInitials"
       [previewEnabled]="false"
     />
-    <span>{{ shortName() ? (assignee | personShortName) : (assignee | personName) }}</span>
+    @if (!avatarOnly()) {
+      <span>{{ shortName() ? (assignee | personShortName) : (assignee | personName) }}</span>
+    }
   </span>
 } @else {
-  <span class="assignee-chip assignee-chip--unassigned">
+  <span
+    class="assignee-chip assignee-chip--unassigned"
+    [attr.aria-label]="avatarOnly() ? 'Unassigned' : null"
+  >
     <i class="pi pi-user" aria-hidden="true"></i>
-    <span>Unassigned</span>
+    @if (!avatarOnly()) {
+      <span>Unassigned</span>
+    }
   </span>
 }

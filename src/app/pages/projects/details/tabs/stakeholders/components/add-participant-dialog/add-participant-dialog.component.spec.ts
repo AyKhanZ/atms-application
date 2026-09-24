@@ -5,7 +5,8 @@ import { projectRoleIds } from '../../../../../../../core/constants/project-role
 import { WorkProjectRoleModel } from '../../../../../../../core/models/work-projects';
 import { AddParticipantDialogComponent } from './add-participant-dialog.component';
 
-describe('AddParticipantDialogComponent', () => {
+// A PrimeNG dialog with its overlays renders slowly: under a busy machine one test can pass 5s.
+describe('AddParticipantDialogComponent', { timeout: 20_000 }, () => {
   let fixture: ComponentFixture<AddParticipantDialogComponent>;
   let component: AddParticipantDialogComponent;
   const originalMatchMedia = window.matchMedia;

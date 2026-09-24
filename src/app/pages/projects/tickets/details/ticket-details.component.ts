@@ -18,6 +18,7 @@ import { catchError, finalize, forkJoin, map, of, switchMap } from 'rxjs';
 import { ProjectPermissions } from '../../../../core/enums/project-permissions.enum';
 import { WorkProjectModel } from '../../../../core/models/work-projects';
 import { WorkTicketModel } from '../../../../core/models/work-tickets';
+import { WorkTicketStatus } from '../../../../core/enums/work-ticket-status.enum';
 import { BreadcrumbOverrideService } from '../../../../core/services/breadcrumb-override.service';
 import { WorkItemKind } from '../../../../core/models/work-items';
 import { WorkItemRefComponent } from '../../../../shared/components/work-item-ref/work-item-ref.component';
@@ -112,6 +113,9 @@ export class TicketDetailsComponent implements OnDestroy {
       priority: ticket.priority,
       assignee: ticket.assignee,
       deadline: ticket.deadline,
+      closed: [WorkTicketStatus.Closed, WorkTicketStatus.Rejected].includes(
+        ticket.workTicketStatus.id,
+      ),
     };
   });
   readonly tabs = computed<readonly EntityTab<TicketTab>[]>(() => {

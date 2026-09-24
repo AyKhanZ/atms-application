@@ -1,0 +1,75 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+/* One task on a phone: what and which on top, status, priority, deadline and person below. */
+.row {
+  --kind-color: var(--kind-task);
+
+  display: grid;
+  gap: 0.45rem;
+  width: 100%;
+  min-width: 0;
+  padding: 0.65rem 0.75rem 0.65rem 0.95rem;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-card);
+  background: var(--app-surface);
+  box-shadow: inset 3px 0 0 var(--kind-color);
+  color: var(--app-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.row--subtask {
+  --kind-color: var(--kind-subtask);
+}
+
+.row--overdue {
+  border-color: var(--overdue-border-strong);
+  background: var(--overdue-bg);
+}
+
+.row:focus-visible {
+  outline: 2px solid var(--orange-focus-outline);
+}
+
+.row__head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.row__head app-work-item-ref {
+  flex: none;
+  font-size: 0.75rem;
+}
+
+.row__title {
+  min-width: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.row__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.8rem;
+  min-width: 0;
+  font-size: 0.78rem;
+}
+
+.row__deadline {
+  color: var(--app-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.row__assignee {
+  margin-left: auto;
+}
+

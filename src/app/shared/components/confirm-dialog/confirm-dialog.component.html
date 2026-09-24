@@ -1,4 +1,4 @@
-<p-confirmDialog [key]="key()" styleClass="app-confirm-dialog">
+<p-confirmDialog #dialog [key]="key()" styleClass="app-confirm-dialog">
   <ng-template #headless let-confirmation let-onAccept="onAccept" let-onReject="onReject">
     <section class="confirm" [attr.data-tone]="tone(confirmation)">
       <header class="confirm__head">
@@ -19,6 +19,10 @@
       </div>
 
       <footer class="confirm__actions">
+        @if (cancelLabel(confirmation); as label) {
+          <!-- A third way out: neither answer, the dialog just closes. -->
+          <button pButton type="button" text="true" (click)="dialog.close()">{{ label }}</button>
+        }
         @if (!isNotice(confirmation)) {
           <button pButton type="button" outlined="true" (click)="onReject()">
             {{ confirmation.rejectLabel || 'Cancel' }}

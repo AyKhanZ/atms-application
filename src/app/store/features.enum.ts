@@ -8,5 +8,6 @@ export enum Features {
   GlobalSearch = 'globalSearch',
   WorkTickets = 'workTickets',
   WorkTasks = 'workTasks',
+  TaskBoard = 'taskBoard',
   Dictionary = 'dictionary',
 }

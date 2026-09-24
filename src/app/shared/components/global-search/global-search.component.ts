@@ -8,6 +8,7 @@ import {
   afterNextRender,
   computed,
   inject,
+  linkedSignal,
   signal,
   viewChild,
 } from '@angular/core';
@@ -15,6 +16,7 @@ import { NavigationEnd, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { filter } from 'rxjs';
 import { Store } from '@ngrx/store';
+import { LayoutService } from '../../../core/services/layout.service';
 import { GlobalSearchGroupModel, GlobalSearchItemModel } from '../../../core/models/global-search';
 import { WorkItemKind } from '../../../core/models/work-items';
 import { GlobalSearchStoreActions, GlobalSearchStoreSelectors } from '../../../store/global-search';
@@ -43,16 +45,16 @@ export class GlobalSearchComponent {
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly layout = inject(LayoutService);
   private readonly input = viewChild(SearchInputComponent);
-  private readonly mobileQuery =
-    typeof window.matchMedia === 'function' ? window.matchMedia('(max-width: 767px)') : null;
   private restoringFocus = false;
   private lastPointer = { x: -1, y: -1 };
 
   readonly open = signal(false);
   /** Width from the field's left edge to the window's, less a margin; null until measured. */
   readonly room = signal<number | null>(null);
-  readonly isMobile = signal(this.mobileQuery?.matches ?? false);
+  /** Follows the layout's phone breakpoint; writable so a test can pin it. */
+  readonly isMobile = linkedSignal(() => this.layout.isPhone());
   readonly query = this.store.selectSignal(GlobalSearchStoreSelectors.getPopupQuery);
   readonly loading = this.store.selectSignal(GlobalSearchStoreSelectors.isPopupLoading);
   readonly error = this.store.selectSignal(GlobalSearchStoreSelectors.getPopupError);
@@ -126,12 +128,6 @@ export class GlobalSearchComponent {
       observer.observe(this.host.nativeElement);
       this.destroyRef.onDestroy(() => observer.disconnect());
     }
-
-    const updateViewport = (event: MediaQueryListEvent): void => this.isMobile.set(event.matches);
-    this.mobileQuery?.addEventListener('change', updateViewport);
-    this.destroyRef.onDestroy(() =>
-      this.mobileQuery?.removeEventListener('change', updateViewport),
-    );
 
     this.router.events
       .pipe(

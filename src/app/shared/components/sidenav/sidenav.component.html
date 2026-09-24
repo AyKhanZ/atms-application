@@ -49,6 +49,14 @@
           <span>Projects</span>
         }
       </a>
+
+      <a routerLink="/tasks" routerLinkActive="active">
+        <i class="pi pi-list-check"></i>
+
+        @if (layout.showLabels()) {
+          <span>Tasks</span>
+        }
+      </a>
     </ng-container>
 
     <ng-container *hasPermission="Permissions.User.View">

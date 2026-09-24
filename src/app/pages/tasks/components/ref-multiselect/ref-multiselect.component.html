@@ -1,0 +1,35 @@
+<p-multiselect
+  [inputId]="inputId()"
+  [ariaLabelledBy]="labelledBy()"
+  [placeholder]="placeholder()"
+  [options]="options()"
+  [loading]="loading()"
+  optionLabel="label"
+  optionValue="value"
+  [disabled]="disabled()"
+  [ngModel]="value()"
+  (ngModelChange)="valueChange.emit($event)"
+  [filter]="true"
+  filterPlaceHolder="Search by code or title"
+  [showToggleAll]="false"
+  [panelStyle]="panelStyle"
+  [panelStyleClass]="panelClass()"
+  (onFilter)="search($event)"
+  (onPanelShow)="startWatching()"
+  (onPanelHide)="stopWatching()"
+  appendTo="body"
+>
+  <ng-template #selecteditems let-selected>
+    {{ selected | filterSummary }}
+  </ng-template>
+  <ng-template #item let-option>
+    @if (option.ref; as ref) {
+      <span class="ref-option" [title]="option.label">
+        <app-work-item-ref [type]="ref.kind" [code]="ref.code" [labelled]="false" />
+        <span class="ref-option__title">{{ ref.title }}</span>
+      </span>
+    } @else {
+      <span class="ref-option" [title]="option.label">{{ option.label }}</span>
+    }
+  </ng-template>
+</p-multiselect>

@@ -1,0 +1,114 @@
+<header class="head">
+  <h2 class="head__month">
+    <strong>{{ monthName() }}</strong> <span class="head__year">{{ year() }}</span>
+    @if (page()?.loading) {
+      <i class="pi pi-spin pi-spinner head__loading" role="status" aria-label="Loading"></i>
+    }
+  </h2>
+  <div class="head__notice" aria-live="polite">
+    @if (
+      query().deadline === 'overdue' &&
+      page() &&
+      !page()?.loading &&
+      !page()?.error &&
+      !page()?.items?.length
+    ) {
+      <span>No overdue tasks this month.</span>
+      <button type="button" class="link" (click)="showOverdue.emit()">
+        View overdue tasks in List
+      </button>
+    } @else if (page()?.hasMore && !page()?.loading) {
+      <!-- A month is read up to a limit; past it the rest is left out, and the page says so. -->
+      <span class="head__cut" role="status">
+        Showing the first {{ page()?.items?.length }} tasks of this month. Narrow the filters to see
+        the rest.
+      </span>
+    }
+  </div>
+  <div class="head__nav">
+    <button type="button" class="nav nav--icon" aria-label="Previous month" (click)="step(-1)">
+      <i class="pi pi-chevron-left" aria-hidden="true"></i>
+    </button>
+    <button type="button" class="nav" (click)="today()">Today</button>
+    <button type="button" class="nav nav--icon" aria-label="Next month" (click)="step(1)">
+      <i class="pi pi-chevron-right" aria-hidden="true"></i>
+    </button>
+  </div>
+</header>
+
+@if (page()?.error; as error) {
+  <p class="note note--error" role="alert">{{ error }}</p>
+}
+
+@if (isPhone()) {
+  <!-- A month grid does not fit a phone: the days that have work, one after another. -->
+  <div class="agenda">
+    @for (day of agenda(); track day.key) {
+      <section class="agenda__day" [class.agenda__day--today]="day.today">
+        <h3 class="agenda__date">
+          {{ day.date | date: 'EEE, d MMM' }}
+        </h3>
+        @for (task of byDay().get(day.key) ?? []; track task.id) {
+          <app-task-calendar-chip
+            [task]="task"
+            [phone]="true"
+            [hideAssignee]="hideAssignee()"
+            (open)="openTask.emit(task)"
+          />
+        }
+      </section>
+    } @empty {
+      @if (!page()?.loading) {
+        @if (query().deadline !== 'overdue') {
+          <p class="state">No deadlines this month.</p>
+        }
+      }
+    }
+  </div>
+} @else {
+  <div class="grid" cdkDropListGroup [style.--calendar-weeks]="weeks().length">
+    @for (weekday of weekdays; track weekday) {
+      <span class="grid__weekday" [class.grid__weekday--weekend]="$index > 4">{{ weekday }}</span>
+    }
+    @for (week of weeks(); track week[0].key) {
+      @for (day of week; track day.key) {
+        <div
+          class="day"
+          [class.day--outside]="!day.inMonth"
+          [class.day--today]="day.today"
+          [class.day--weekend]="day.weekend"
+          cdkDropList
+          [cdkDropListData]="day"
+          [cdkDropListDisabled]="!canMove() || !day.inMonth"
+          (cdkDropListDropped)="drop($event)"
+        >
+          <span class="day__number">{{ day.date.getDate() }}</span>
+          @let tasks = byDay().get(day.key) ?? [];
+          <div
+            class="day__tasks"
+            appCalendarDayCapacity
+            #capacity="calendarCapacity"
+            [taskCount]="tasks.length"
+            [expanded]="expanded().has(day.key)"
+            [class.day__tasks--expanded]="expanded().has(day.key)"
+          >
+            @for (task of tasks.slice(0, capacity.visibleCount()); track task.id) {
+              <div cdkDrag [cdkDragData]="task" [cdkDragDisabled]="!canMove()">
+                <app-task-calendar-chip
+                  [task]="task"
+                  [hideAssignee]="hideAssignee()"
+                  (open)="openTask.emit(task)"
+                />
+              </div>
+            }
+            @if (tasks.length > capacity.visibleCount()) {
+              <button type="button" class="day__more" (click)="expand(day)">
+                + {{ tasks.length - capacity.visibleCount() }} more
+              </button>
+            }
+          </div>
+        </div>
+      }
+    }
+  </div>
+}

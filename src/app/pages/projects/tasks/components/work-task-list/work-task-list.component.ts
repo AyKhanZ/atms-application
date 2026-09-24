@@ -114,7 +114,7 @@ export class WorkTaskListComponent implements OnDestroy {
       '/projects',
       this.projectId(),
       'tickets',
-      task.workTicketId,
+      task.workTicket.id,
       'tasks',
       task.id,
     ]);
@@ -123,7 +123,7 @@ export class WorkTaskListComponent implements OnDestroy {
   edit(task: WorkTaskModel): void {
     if (!this.canEdit()) return;
     void this.router.navigate(
-      ['/projects', this.projectId(), 'tickets', task.workTicketId, 'tasks', task.id, 'edit'],
+      ['/projects', this.projectId(), 'tickets', task.workTicket.id, 'tasks', task.id, 'edit'],
       { state: { returnUrl: this.router.url } },
     );
   }

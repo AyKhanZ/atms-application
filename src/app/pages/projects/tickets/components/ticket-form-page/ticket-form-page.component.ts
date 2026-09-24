@@ -28,6 +28,9 @@ import { Store } from '@ngrx/store';
 import { ConfirmationService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ConfirmDialogComponent } from '../../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { askToCloseOpenWork } from '../../../../../shared/components/confirm-dialog/close-open-work';
+import { WorkTicketStatus } from '../../../../../core/enums/work-ticket-status.enum';
 import { DatePickerModule } from 'primeng/datepicker';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
@@ -76,6 +79,7 @@ interface TicketFormNavigationState {
     ReactiveFormsModule,
     ButtonModule,
     ConfirmDialogModule,
+    ConfirmDialogComponent,
     DatePickerModule,
     InputTextModule,
     SelectModule,
@@ -267,6 +271,33 @@ export class TicketFormPageComponent implements OnDestroy {
       return;
     }
 
+    // Saved as Closed with tasks still open: asked, not refused and not done silently.
+    const ticket = this.ticket();
+    const openTasks = (ticket?.totalTaskCount ?? 0) - (ticket?.doneTaskCount ?? 0);
+    const closing =
+      statusId === WorkTicketStatus.Closed &&
+      ticket?.workTicketStatus.id !== WorkTicketStatus.Closed;
+    if (ticket && closing && openTasks > 0) {
+      void askToCloseOpenWork(this.confirmation, {
+        key: 'ticketClose',
+        itemRef: `TICKET #${ticket.code}`,
+        title: ticket.title,
+        openCount: openTasks,
+        childLabel: 'task',
+      }).then((choice) => {
+        if (choice !== 'cancel') this.save(choice === 'all');
+      });
+      return;
+    }
+
+    this.save(false);
+  }
+
+  private save(completeTasks: boolean): void {
+    const createCommand = this.createCommand();
+    const statusId = this.form.controls.workTicketStatusId.value;
+    if (!createCommand || !this.projectId) return;
+
     // The request goes through the store, like a project's. The answer is the next success or
     // failure of this kind: only one save can be under way, the button is disabled meanwhile.
     this.actions$
@@ -305,6 +336,7 @@ export class TicketFormPageComponent implements OnDestroy {
             command: {
               ...createCommand,
               workTicketStatusId: statusId,
+              completeTasks,
             } satisfies UpdateWorkTicketCommand,
           })
         : WorkTicketsStoreActions.createTicket({

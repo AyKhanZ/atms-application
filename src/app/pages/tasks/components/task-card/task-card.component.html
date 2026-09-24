@@ -1,0 +1,56 @@
+<article
+  class="card"
+  [class.card--subtask]="task().isSubtask"
+  [class.card--overdue]="overdue()"
+  role="button"
+  tabindex="0"
+  [attr.aria-label]="(task().isSubtask ? 'Open subtask ' : 'Open task ') + task().title"
+  (click)="open.emit()"
+  (keydown.enter)="open.emit()"
+>
+  <header class="card__head">
+    <app-work-item-ref [type]="kind()" [code]="task().code" />
+    <button
+      type="button"
+      class="card__menu"
+      [attr.aria-label]="'Actions for ' + task().title"
+      (click)="$event.stopPropagation(); actions.toggle($event)"
+      (keydown.enter)="$event.stopPropagation()"
+    >
+      <i class="pi pi-ellipsis-v" aria-hidden="true"></i>
+    </button>
+  </header>
+
+  <p class="card__title" [title]="task().title">{{ task().title }}</p>
+
+  <app-work-item-assignee class="card__assignee" [assignee]="task().assignee" />
+  <app-task-context [task]="task()" [showProject]="showProject()" />
+
+  <!-- Priority always first, so the eye finds it in the same place on every card. A date only
+       when it asks for action: overdue, due today or tomorrow. The rest is on the task. -->
+  <footer class="card__meta">
+    <app-work-item-priority [priority]="task().priority" />
+    @if (!task().isSubtask && task().subtaskCount > 0) {
+      <span
+        class="card__progress"
+        [class.card__progress--done]="task().doneSubtaskCount === task().subtaskCount"
+        [title]="task().doneSubtaskCount + ' of ' + task().subtaskCount + ' subtasks completed'"
+        [attr.aria-label]="
+          task().doneSubtaskCount + ' of ' + task().subtaskCount + ' subtasks completed'
+        "
+      >
+        <i class="pi pi-check-square" aria-hidden="true"></i>
+        {{ task().doneSubtaskCount }}/{{ task().subtaskCount }}
+      </span>
+    }
+    @if (overdue()) {
+      <app-overdue-badge class="card__deadline" [deadline]="task().deadline" />
+    } @else if (dueSoon(); as due) {
+      <span class="card__deadline card__deadline--soon">
+        <i class="pi pi-clock" aria-hidden="true"></i>
+        {{ due }}
+      </span>
+    }
+  </footer>
+</article>
+<p-menu #actions [model]="menu()" [popup]="true" appendTo="body" />

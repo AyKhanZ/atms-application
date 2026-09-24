@@ -23,11 +23,16 @@
       <dt>Deadline</dt>
       <dd>
         @if (item.deadline; as deadline) {
-          <span class="deadline-value">
+          <!-- Overdue gets the same solid pill as the Tasks board, calendar and list; open work
+               otherwise says how far away it is, closed work only its date. -->
+          @let overdue = deadline | isOverdue: item.closed;
+          <span class="deadline-value" [class.deadline-value--overdue]="overdue">
             {{ deadline | date: 'dd.MM.yyyy' }}
-            <small [class.deadline-value--overdue]="deadline | isOverdue">
-              {{ deadline | deadlineLabel }}
-            </small>
+            @if (overdue) {
+              <app-overdue-badge [deadline]="deadline" />
+            } @else if (!item.closed) {
+              <small>{{ deadline | deadlineLabel }}</small>
+            }
           </span>
         } @else {
           <span class="fact-empty">Not set</span>

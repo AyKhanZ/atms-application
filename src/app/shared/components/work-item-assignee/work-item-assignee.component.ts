@@ -8,7 +8,7 @@ import {
 } from '../../pipes/person-name.pipe';
 @Component({
   selector: 'app-work-item-assignee',
-  host: { '[class.compact]': 'compact()' },
+  host: { '[class.compact]': 'compact()', '[class.avatar-only]': 'avatarOnly()' },
   imports: [ProfileAvatarComponent, PersonNamePipe, PersonInitialsPipe, PersonShortNamePipe],
   templateUrl: './work-item-assignee.component.html',
   styleUrl: './work-item-assignee.component.scss',
@@ -17,5 +17,6 @@ import {
 export class WorkItemAssigneeComponent {
   readonly compact = input(false);
   readonly shortName = input(false);
+  readonly avatarOnly = input(false);
   readonly assignee = input<WorkItemAssigneeModel | null | undefined>(null);
 }

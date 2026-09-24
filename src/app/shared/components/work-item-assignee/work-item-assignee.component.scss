@@ -12,7 +12,7 @@
   gap: var(--assignee-gap, 0.4rem);
   overflow: hidden;
   color: var(--assignee-color, var(--app-text));
-  font-size: var(--assignee-font-size, 0.82rem);
+  font-size: var(--assignee-font-size, 0.875rem);
   white-space: nowrap;
 }
 
@@ -30,8 +30,8 @@
 
 .assignee-chip--unassigned i {
   display: grid;
-  width: var(--assignee-avatar-size, 1.375rem);
-  height: var(--assignee-avatar-size, 1.375rem);
+  width: var(--assignee-avatar-size, 1.5rem);
+  height: var(--assignee-avatar-size, 1.5rem);
   flex: 0 0 auto;
   place-items: center;
   border-radius: 999px;
@@ -41,7 +41,7 @@
 }
 
 :host ::ng-deep .assignee-chip .avatar {
-  --avatar-size: var(--assignee-avatar-size, 1.375rem);
+  --avatar-size: var(--assignee-avatar-size, 1.5rem);
   --avatar-radius: 999px;
   --avatar-font-size: var(--assignee-initials-size, 0.56rem);
 
@@ -57,10 +57,15 @@
 /* List rows. The numbers come from the ticket row, which is the reference for both lists. */
 :host.compact {
   --assignee-gap: 0.35rem;
-  --assignee-font-size: 0.74rem;
-  --assignee-color: var(--app-muted);
+  --assignee-font-size: 0.8rem;
+  --assignee-color: var(--app-text);
   --assignee-empty-color: var(--gray-icon);
-  --assignee-avatar-size: 1rem;
-  --assignee-initials-size: 0.42rem;
+  --assignee-avatar-size: 1.25rem;
+  --assignee-initials-size: 0.5rem;
   --assignee-empty-icon-size: 0.58rem;
+}
+
+.assignee-chip app-profile-avatar {
+  display: flex;
+  flex: 0 0 auto;
 }

@@ -1,4 +1,5 @@
-/// Shared geometry for every status/type/priority chip in the app.
+/// Shared geometry for every type and kind chip in the app (Feature, Bug, One-time). Statuses are
+/// not chips any more: they are a dot and text, see _status-dot.scss.
 ///
 /// The same pill appears on Project details, Ticket details, the Plan rows and the ticket
 /// switcher. Those used to each carry their own copy of these declarations, which is how they
@@ -10,14 +11,17 @@
 ///   .ticket-status { @include chip.base; }
 ///   .ticket-status--prominent { @include chip.prominent; }
 
+/// No border: the tint alone says it is a chip, and a grey frame made New look like a disabled
+/// button. The border stays, transparent, so a chip keeps its size. One minimum width that holds
+/// the longest label ("In Progress"), so a column of chips lines up whatever each one says.
 @mixin base {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 4rem;
+  min-width: 6rem;
   min-height: 1.5rem;
   padding: 0.16rem 0.55rem;
-  border: 1px solid var(--app-border);
+  border: 1px solid transparent;
   border-radius: 0.45rem;
   font-size: 0.72rem;
   font-weight: 700;
@@ -27,7 +31,7 @@
 
 /// Page-header size, for the single chip that states the entity's own status.
 @mixin prominent {
-  min-width: 4.75rem;
+  min-width: 7.5rem;
   min-height: 2rem;
   padding: 0.5rem 0.75rem;
   font-size: 0.9rem;

@@ -1,10 +1,11 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
 import { DialogModule } from 'primeng/dialog';
+import { NgTemplateOutlet } from '@angular/common';
 import { ImageUrlService } from '../../../core/services/image-url.service';
 
 @Component({
   selector: 'app-profile-avatar',
-  imports: [DialogModule],
+  imports: [DialogModule, NgTemplateOutlet],
   templateUrl: './profile-avatar.component.html',
   styleUrl: './profile-avatar.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -1,0 +1,254 @@
+:host {
+  display: grid;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+/* Notion's calendar: a light heading, bare arrows, and lines only between the days. */
+.head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  min-height: 3rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.head__notice {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  height: 3rem;
+  min-width: 0;
+  color: var(--app-muted);
+  font-size: 0.75rem;
+}
+.head__cut {
+  color: var(--orange-text-hover);
+  font-weight: 600;
+  text-align: right;
+}
+@media (max-width: 767px) {
+  .head {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0;
+  }
+  .head__notice {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    align-items: flex-start;
+  }
+}
+
+.head__month {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 400;
+}
+
+.head__month strong {
+  font-weight: 650;
+}
+
+.head__year {
+  color: var(--app-muted);
+}
+
+.head__loading {
+  align-self: center;
+  color: var(--gray-icon-muted);
+  font-size: 0.85rem;
+}
+
+.head__nav {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+}
+
+.nav {
+  display: grid;
+  height: 1.9rem;
+  place-items: center;
+  padding: 0 0.55rem;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--gray-text-strong);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.nav--icon {
+  width: 1.9rem;
+  padding: 0;
+  color: var(--gray-icon);
+}
+
+.nav--icon i {
+  font-size: 0.8rem;
+}
+
+.nav:hover {
+  background: var(--gray-hover);
+}
+
+.nav:focus-visible,
+.link:focus-visible,
+.day__more:focus-visible {
+  outline: 2px solid var(--orange-focus-outline);
+}
+
+.note {
+  margin: 0;
+  color: var(--app-muted);
+  font-size: 0.8rem;
+}
+
+.note--error {
+  color: var(--red-hover);
+}
+
+.link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--orange-text-hover);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+.grid {
+  --calendar-day-height: max(
+    12rem,
+    calc((var(--tasks-view-height, 26rem) - 5rem) / var(--calendar-weeks, 5))
+  );
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  /* Tall enough that a month fills the card like the board does; weeks share the height. */
+  grid-template-rows: auto;
+  grid-auto-rows: auto;
+  min-height: calc(var(--tasks-view-height, 26rem) - 3rem);
+  border-top: 1px solid var(--app-border);
+  border-left: 1px solid var(--app-border);
+}
+
+.grid__weekday {
+  padding: 0.35rem 0.5rem;
+  border-right: 1px solid var(--app-border);
+  border-bottom: 1px solid var(--app-border);
+  color: var(--app-muted);
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-align: left;
+}
+
+.grid__weekday--weekend,
+.day--weekend {
+  background: var(--app-surface-muted);
+}
+
+.day {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+  padding: 0.3rem;
+  border-right: 1px solid var(--app-border);
+  border-bottom: 1px solid var(--app-border);
+}
+
+.day__number {
+  align-self: flex-start;
+  display: grid;
+  min-width: 1.5rem;
+  height: 1.5rem;
+  place-items: center;
+  padding: 0 0.3rem;
+  border-radius: 999px;
+  color: var(--gray-text-strong);
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+.day__tasks {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  height: calc(var(--calendar-day-height) - 2.2rem);
+  font-size: 1rem;
+}
+.day__tasks > * {
+  flex: none;
+}
+.day__tasks--expanded {
+  height: auto;
+  min-height: calc(var(--calendar-day-height) - 2.2rem);
+}
+
+.day--outside .day__number {
+  color: var(--gray-icon-muted);
+}
+
+.day--today .day__number {
+  background: var(--orange);
+  color: var(--white);
+  font-weight: 700;
+}
+
+.day__more {
+  height: 1.75rem;
+  align-self: flex-start;
+  padding: 0.1rem 0.3rem;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--app-muted);
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.day__more:hover {
+  background: var(--gray-hover);
+  color: var(--app-text);
+}
+
+:host ::ng-deep .cdk-drag-preview {
+  box-shadow: var(--shadow-card);
+}
+
+:host ::ng-deep .cdk-drag-placeholder {
+  opacity: 0.35;
+}
+
+.agenda {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.agenda__day {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.agenda__date {
+  margin: 0;
+  color: var(--app-muted);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.agenda__day--today .agenda__date {
+  color: var(--orange-text-hover);
+}

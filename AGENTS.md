@@ -136,6 +136,30 @@ This applies regardless of who wrote the code — including commits an agent aut
 - Do not create a shared abstraction for code that is genuinely page-specific.
 - Prefer composition over large configurable components with many unrelated flags.
 
+## The list-page kit — use it, do not redraw it
+
+Decided in review after the Tasks page was built by hand and had to be redone.
+
+- Search plus filters above the content: `app-list-search`, then `app-filter-toggle-button` with the number
+  of active filters, and the filters themselves in a `panel panel-padding` block that the button opens.
+  Never a row of naked dropdowns glued to the content.
+- Clearing filters is `app-clear-button`. Empty states are `app-empty-state`. Never a hand-rolled button or
+  message with the same job.
+- Anything tabular is `p-table` with `class="… management-table"`, styled like the Projects and Users tables:
+  white header, a line between rows, grey row hover, horizontal scroll on a narrow screen. Do not build a
+  grid of `div`s that looks like a table.
+- Sorting is a click on the column header (`pSortableColumn` + `p-sortIcon`), not a separate dropdown. If a
+  list has an order of its own, make that order one of the sortable columns so a click can return to it —
+  PrimeNG has no "unsorted" third state.
+- Every filter control has a label above it. A placeholder alone does not say what the control filters.
+- The empty value of a filter reads `All` (`Anyone` for people), not a list of the options.
+- A dropdown over a dictionary of a few values has no search box; PrimeNG MultiSelect turns its filter on by
+  default, so pass `[filter]="false"` and `[showHeader]="false"`.
+- Give overlay panels a fixed width (`[panelStyle]`), otherwise the panel resizes while the user types in its
+  search box.
+- With a `#selecteditems` template PrimeNG still draws the placeholder underneath, and the template receives
+  the selected **options**, not their values. Return an empty string when nothing is selected.
+
 ---
 
 # Redux and state cleanup
@@ -329,7 +353,14 @@ the point at which they start to drift.
   `OnPush` still means far more often than the data changes. `Intl.*` formatters are expensive
   and must not be constructed this way.
 - Put display formatting in a pipe under `shared/pipes/`. Existing ones: `relativeTime`,
-  `personName`, `personInitials`, `deadlineLabel`, `isOverdue`.
+  `personName`, `personInitials`, `deadlineLabel`, `isOverdue` (`deadline | isOverdue: closed`),
+  `taskKind`, `isOverdueTask`.
+- The pure functions behind them live in `core/utils/`: `deadline.utils` (`daysLate`,
+  `lateLabel`, `isOverdueTask`, `startOfToday`, `endOfToday`) and `work-task.utils`
+  (`workTaskKind`, `workTaskParent`). A component's `computed` uses the function, a template the
+  pipe — never a copy of either.
+- "Is this a phone" is `LayoutService.isPhone`, the same 767px breakpoint the stylesheets use. Do
+  not open another `matchMedia` in a component.
 - Component methods are for event handlers and actions, not for rendering values.
 
 ### File size
