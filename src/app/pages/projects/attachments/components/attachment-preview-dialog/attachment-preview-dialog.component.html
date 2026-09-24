@@ -1,0 +1,56 @@
+@let file = attachment();
+
+<p-dialog
+  [visible]="!!file"
+  (visibleChange)="!$event && close()"
+  [modal]="true"
+  [dismissableMask]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [blockScroll]="true"
+  styleClass="attachment-preview-dialog"
+>
+  <ng-template #header>
+    @if (file) {
+      <div class="preview-title">
+        <strong [title]="file.fileName">{{ file.fileName }}</strong>
+        <span>{{ file.size | fileSize }}</span>
+      </div>
+    }
+  </ng-template>
+
+  <div class="preview-body" [attr.data-kind]="kind()">
+    @if (loading()) {
+      <div class="preview-state" role="status">
+        <i class="pi pi-spin pi-spinner" aria-hidden="true"></i>
+        <span>Opening the file...</span>
+      </div>
+    } @else if (error(); as message) {
+      <div class="preview-state preview-state--error" role="alert">
+        <i class="pi pi-exclamation-circle" aria-hidden="true"></i>
+        <span>{{ message }}</span>
+      </div>
+    } @else if (text(); as preview) {
+      <pre class="preview-text">{{ preview.text }}</pre>
+      @if (preview.truncated) {
+        <p class="preview-note">Showing the first 1 MB. Download the file to see all of it.</p>
+      }
+    } @else if (document(); as blob) {
+      <app-attachment-document-view [blob]="blob" (failed)="documentFailed($event)" />
+    } @else if (sheets(); as workbook) {
+      <app-attachment-sheet-view [sheets]="workbook" />
+    } @else if (frameUrl(); as frame) {
+      <iframe [src]="frame" [title]="file?.fileName ?? 'File preview'"></iframe>
+    } @else if (url(); as image) {
+      <img [src]="image" [alt]="file?.fileName ?? ''" />
+    }
+  </div>
+
+  <ng-template #footer>
+    @if (file) {
+      <button pButton type="button" outlined="true" (click)="download.emit(file)">
+        <i class="pi pi-download" aria-hidden="true"></i><span>Download</span>
+      </button>
+    }
+  </ng-template>
+</p-dialog>

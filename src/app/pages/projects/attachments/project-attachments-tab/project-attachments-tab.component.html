@@ -1,0 +1,35 @@
+<section class="attachments-tab">
+  @if (loading()) {
+    <app-attachment-list-skeleton [rows]="4" />
+  } @else if (error()) {
+    <div class="tab-error" role="alert">
+      <i class="pi pi-exclamation-circle" aria-hidden="true"></i>
+      <span>Files could not be loaded.</span>
+      <button pButton type="button" text="true" (click)="reload()">Retry</button>
+    </div>
+  } @else if (!nodes().length) {
+    <app-empty-state
+      icon="pi-paperclip"
+      title="No files in this project"
+      description="Files are added in tasks and subtasks."
+    />
+  } @else {
+    <app-attachment-tree
+      heading="Files"
+      [nodes]="nodes()"
+      [stateKey]="'project:' + projectId()"
+      [defaultOpen]="openByDefault"
+      (opened)="loadTicket($event)"
+      (retry)="loadTicket($event, true)"
+      (preview)="previewing.set($event)"
+      (download)="save($event)"
+    />
+  }
+</section>
+
+<app-attachment-preview-dialog
+  [projectId]="projectId()"
+  [attachment]="previewing()"
+  (closed)="previewing.set(null)"
+  (download)="save($event)"
+/>

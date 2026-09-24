@@ -95,6 +95,14 @@
   --kind-ticket: #2563eb;
   --kind-task: #a16207;
   --kind-subtask: #be185d;
+  /* Kind of file, on the icon tile of an attachment: the colours people already know a PDF, a
+     Word and an Excel file by, so the type reads before the name does. */
+  --file-pdf: #dc2626;
+  --file-document: #2563eb;
+  --file-sheet: #16a34a;
+  --file-image: #7c3aed;
+  --file-archive: #b45309;
+  --file-other: #64748b;
   /* Open work past its deadline — the one thing on the Tasks page allowed to be loud. A tint and a
      pill, never a stripe: the left edge already means the kind of work. */
   --overdue-text: var(--red-hover);
@@ -915,7 +923,15 @@ app-onboarding .confetti i:nth-child(5n) {
    keep clear of both edges at once, so on a phone it stops trying and comes up from the bottom —
    which is also where the thumb is. These rules only shape that sheet; the switch itself is a
    PrimeNG option, not a CSS trick. */
-.p-overlay-modal > .p-overlay-content {
+/* PrimeNG 21 puts its animation wrapper `p-motion` between the backdrop and the content. The
+   wrapper is inline, so a rule on a direct child no longer matched and the sheet shrank to the
+   width of its longest option, floating in the middle of the screen. */
+.p-overlay-modal > p-motion {
+  display: block;
+  width: 100%;
+}
+
+.p-overlay-modal .p-overlay-content {
   width: 100%;
 }
 

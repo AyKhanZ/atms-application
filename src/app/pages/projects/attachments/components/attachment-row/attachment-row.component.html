@@ -1,0 +1,84 @@
+@let file = attachment();
+
+<article
+  class="file-row"
+  [class.file-row--editable]="editable()"
+  [class.file-row--pending]="pending()"
+  [attr.aria-busy]="pending()"
+>
+  <span class="file-tile" [attr.data-tone]="file.fileName | attachmentTone" aria-hidden="true">
+    <i class="pi" [class]="'pi ' + (file.fileName | attachmentIcon)"></i>
+  </span>
+
+  <button
+    type="button"
+    class="file-name"
+    [title]="file.fileName"
+    [attr.aria-label]="(canPreview() ? 'Preview ' : 'Download ') + file.fileName"
+    (click)="open()"
+  >
+    <span class="file-name__text">{{ file.fileName }}</span>
+    <!-- The columns do not fit on a phone; their facts move under the name as one quiet line. -->
+    <span class="file-name__meta">
+      {{ file.size | fileSize }} · {{ file.createdBy | personShortName }} ·
+      {{ file.createdAt | date: 'd MMM' }}
+    </span>
+  </button>
+
+  <span class="file-size">{{ file.size | fileSize }}</span>
+
+  <app-work-item-assignee
+    class="file-author"
+    [assignee]="file.createdBy"
+    [compact]="true"
+    [shortName]="true"
+  />
+
+  <time class="file-date" [attr.datetime]="file.createdAt" [title]="file.createdAt | date: 'd MMM y, HH:mm'">
+    {{ file.createdAt | date: 'd MMM' }}<span class="file-date__year">
+      {{ file.createdAt | date: 'y' }}</span
+    >
+  </time>
+
+  <div class="file-actions">
+    @if (canPreview()) {
+      <button
+        type="button"
+        class="icon-button file-actions__quick"
+        aria-label="Preview"
+        pTooltip="Preview"
+        tooltipPosition="top"
+        (click)="preview.emit(file)"
+      >
+        <i class="pi pi-eye" aria-hidden="true"></i>
+      </button>
+    } @else {
+      <span class="file-actions__quick file-actions__gap" aria-hidden="true"></span>
+    }
+    <button
+      type="button"
+      class="icon-button file-actions__quick"
+      aria-label="Download"
+      pTooltip="Download"
+      tooltipPosition="top"
+      (click)="download.emit(file)"
+    >
+      <i class="pi pi-download" aria-hidden="true"></i>
+    </button>
+    <button
+      type="button"
+      class="icon-button file-actions__menu"
+      [attr.aria-label]="'Options for ' + file.fileName"
+      [disabled]="pending()"
+      (click)="openMenu($event, menu)"
+    >
+      @if (pending()) {
+        <i class="pi pi-spin pi-spinner" aria-hidden="true"></i>
+      } @else {
+        <i class="pi pi-ellipsis-v" aria-hidden="true"></i>
+      }
+    </button>
+  </div>
+</article>
+
+<p-menu #menu [popup]="true" [model]="menuItems()" appendTo="body" />

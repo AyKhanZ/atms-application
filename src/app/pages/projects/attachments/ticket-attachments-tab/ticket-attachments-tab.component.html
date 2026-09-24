@@ -1,0 +1,36 @@
+<section class="attachments-tab">
+  @if (loading()) {
+    <app-attachment-list-skeleton />
+  } @else if (error()) {
+    <div class="tab-error" role="alert">
+      <i class="pi pi-exclamation-circle" aria-hidden="true"></i>
+      <span>Files could not be loaded.</span>
+      <button pButton type="button" text="true" (click)="reload()">Retry</button>
+    </div>
+  } @else if (!nodes().length) {
+    <app-empty-state
+      icon="pi-paperclip"
+      title="No files in this ticket"
+      description="Files are added in its tasks and subtasks."
+    />
+  } @else {
+    <app-attachment-tree
+      heading="Files"
+      [nodes]="nodes()"
+      [stateKey]="listKey()"
+      [defaultOpen]="openByDefault"
+      (preview)="previewing.set($event)"
+      (download)="save($event)"
+    />
+    @if (hasMore()) {
+      <p class="tab-note">Showing the first 1000 files.</p>
+    }
+  }
+</section>
+
+<app-attachment-preview-dialog
+  [projectId]="projectId()"
+  [attachment]="previewing()"
+  (closed)="previewing.set(null)"
+  (download)="save($event)"
+/>

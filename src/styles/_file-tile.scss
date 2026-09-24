@@ -1,0 +1,41 @@
+/// The square in front of a file name: the file's type icon on a light wash of the type's colour
+/// (`--file-*`). One definition for stored files and uploads in flight, so a row does not change
+/// its look when an upload lands in the list.
+///
+/// The element carries `data-tone` = pdf | document | sheet | image | archive | other.
+@mixin tile($size: 2.25rem) {
+  --tone: var(--file-other);
+
+  display: grid;
+  width: $size;
+  height: $size;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: var(--radius-card);
+  background: color-mix(in srgb, var(--tone) 10%, var(--app-surface));
+  color: var(--tone);
+
+  i {
+    font-size: 1.05rem;
+  }
+
+  &[data-tone='pdf'] {
+    --tone: var(--file-pdf);
+  }
+
+  &[data-tone='document'] {
+    --tone: var(--file-document);
+  }
+
+  &[data-tone='sheet'] {
+    --tone: var(--file-sheet);
+  }
+
+  &[data-tone='image'] {
+    --tone: var(--file-image);
+  }
+
+  &[data-tone='archive'] {
+    --tone: var(--file-archive);
+  }
+}

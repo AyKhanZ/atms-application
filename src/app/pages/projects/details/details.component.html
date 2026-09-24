@@ -116,11 +116,9 @@
             <app-groups-tab [projectId]="item.id" [focusedMilestoneId]="focusedMilestoneId()" />
           </ng-container>
         } @else if (activeTab() === 'attachments') {
-          <app-empty-state
-            icon="pi-paperclip"
-            title="No attachments yet"
-            description="Files added here will be listed in this tab."
-          />
+          <ng-container *hasProjectAccess="ProjectPermissions.Project.View; projectId: item.id">
+            <app-project-attachments-tab [projectId]="item.id" />
+          </ng-container>
         } @else {
           <app-empty-state
             icon="pi-history"

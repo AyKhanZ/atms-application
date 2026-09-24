@@ -1,0 +1,33 @@
+/// A square button that is only an icon — the eye, the arrow, the ⋮ of a row. Borderless until
+/// hovered, so a column of them does not read as a row of boxes.
+///
+/// Usage:
+///   @use 'icon-button';
+///   .icon-button { @include icon-button.base; }
+@mixin base($size: 2.25rem) {
+  display: grid;
+  width: $size;
+  height: $size;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid transparent;
+  border-radius: var(--radius-btn);
+  background: transparent;
+  color: var(--app-muted);
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    border-color: var(--app-border);
+    background: var(--app-surface);
+    color: var(--orange-text-hover);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--orange-focus-outline);
+    outline-offset: 1px;
+  }
+}

@@ -1,0 +1,51 @@
+<ul class="upload-list" aria-label="Uploads">
+  @for (row of rows(); track row.id) {
+    <li class="upload-row" [class.upload-row--failed]="!!row.error">
+      <span class="file-tile" [attr.data-tone]="row.fileName | attachmentTone" aria-hidden="true">
+        <i class="pi" [class]="'pi ' + (row.fileName | attachmentIcon)"></i>
+      </span>
+
+      <div class="upload-main">
+        <span class="upload-name" [title]="row.fileName">{{ row.fileName }}</span>
+        @if (row.error; as error) {
+          <span class="upload-error" role="alert">{{ error }}</span>
+        } @else {
+          <span
+            class="upload-progress"
+            role="progressbar"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            [attr.aria-valuenow]="row.progress"
+            [attr.aria-label]="'Uploading ' + row.fileName"
+          >
+            <span class="upload-progress__bar" [style.width.%]="row.progress"></span>
+          </span>
+        }
+      </div>
+
+      <span class="upload-meta">
+        @if (row.error) {
+          {{ row.size | fileSize }}
+        } @else {
+          {{ row.progress }}%
+        }
+      </span>
+
+      <div class="upload-actions">
+        @if (row.error && row.retryable) {
+          <button pButton type="button" text="true" size="small" (click)="retry.emit(row.id)">
+            Retry
+          </button>
+        }
+        <button
+          type="button"
+          class="icon-button"
+          [attr.aria-label]="(row.error ? 'Dismiss ' : 'Cancel upload of ') + row.fileName"
+          (click)="dismiss.emit(row.id)"
+        >
+          <i class="pi pi-times" aria-hidden="true"></i>
+        </button>
+      </div>
+    </li>
+  }
+</ul>

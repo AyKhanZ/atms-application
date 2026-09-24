@@ -1,0 +1,36 @@
+/* The width of the dialog, never of the document: the frame scrolls the pages inside itself. */
+:host {
+  display: grid;
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  background: var(--app-surface-muted);
+}
+
+.document-frame {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+/* Kept in the layout while it loads, only unseen: a frame out of the layout may not load. */
+.document-frame--hidden {
+  height: 0;
+  visibility: hidden;
+}
+
+.document-state {
+  display: grid;
+  min-height: 16rem;
+  align-content: center;
+  justify-items: center;
+  gap: 0.6rem;
+  padding: 3rem 1rem;
+  color: var(--app-muted);
+}
+
+.document-state i {
+  color: var(--orange);
+  font-size: 1.6rem;
+}

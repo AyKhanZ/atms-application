@@ -40,6 +40,8 @@ import { workTicketsReducer } from './store/work-tickets/work-tickets.reducer';
 import { WorkTicketsEffects } from './store/work-tickets/work-tickets.effects';
 import { workTasksReducer } from './store/work-tasks/work-tasks.reducer';
 import { WorkTasksEffects } from './store/work-tasks/work-tasks.effects';
+import { attachmentsReducer } from './store/attachments/attachments.reducer';
+import { AttachmentsEffects } from './store/attachments/attachments.effects';
 import { provideStoreDevtools } from '@ngrx/store-devtools';
 import { NavigationHistoryService } from './core/services/navigation-history.service';
 import { AppRouteReuseStrategy } from './core/routing/app-route-reuse.strategy';
@@ -126,6 +128,7 @@ export const appConfig: ApplicationConfig = {
       [Features.GlobalSearch]: globalSearchReducer,
       [Features.WorkTickets]: workTicketsReducer,
       [Features.WorkTasks]: workTasksReducer,
+      [Features.Attachments]: attachmentsReducer,
       [Features.TaskBoard]: taskBoardReducer,
       [Features.User]: userReducer,
       [Features.Dictionary]: dictionaryReducer,
@@ -139,6 +142,7 @@ export const appConfig: ApplicationConfig = {
       GlobalSearchEffects,
       WorkTicketsEffects,
       WorkTasksEffects,
+      AttachmentsEffects,
       TaskBoardEffects,
       UserEffects,
       DictionaryEffects,

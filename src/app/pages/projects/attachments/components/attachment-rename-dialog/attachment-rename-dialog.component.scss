@@ -1,0 +1,109 @@
+:host ::ng-deep .attachment-rename-dialog {
+  width: min(32rem, calc(100vw - 2rem));
+}
+
+:host ::ng-deep .attachment-rename-dialog .p-dialog-header {
+  padding: 1.35rem 1.5rem 0.7rem;
+}
+
+:host ::ng-deep .attachment-rename-dialog .p-dialog-content {
+  overflow: visible;
+  padding: 0.65rem 1.5rem 1.35rem;
+}
+
+:host ::ng-deep .attachment-rename-dialog .p-dialog-title {
+  color: var(--app-text);
+  font-size: 1.3rem;
+  font-weight: 780;
+}
+
+.rename-form {
+  display: grid;
+  gap: 1.1rem;
+}
+
+.form-field {
+  display: grid;
+  gap: 0.38rem;
+  min-width: 0;
+  margin: 0;
+}
+
+.form-field > span:first-child {
+  color: var(--app-text);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.form-field b {
+  color: var(--orange);
+}
+
+/* The extension sits inside the field, greyed, so it reads as part of the name that stays. */
+.name-input {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  min-width: 0;
+}
+
+.name-input input {
+  width: 100%;
+  min-height: 2.75rem;
+}
+
+.name-input:has(.extension) input {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.extension {
+  display: grid;
+  min-height: 2.75rem;
+  place-items: center;
+  padding: 0 0.8rem;
+  border: 1px solid var(--app-border);
+  border-left: 0;
+  border-radius: 0 var(--radius-btn) var(--radius-btn) 0;
+  background: var(--app-surface-muted);
+  color: var(--app-muted);
+  font-size: 0.9rem;
+}
+
+.form-field small {
+  min-height: 1.05rem;
+  color: transparent;
+  font-size: 0.76rem;
+  line-height: 1.05rem;
+}
+
+.form-field small.visible {
+  color: var(--red-hover);
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.dialog-actions button {
+  min-width: 8.75rem;
+  justify-content: center;
+}
+
+@media (max-width: 30rem) {
+  :host ::ng-deep .attachment-rename-dialog .p-dialog-header,
+  :host ::ng-deep .attachment-rename-dialog .p-dialog-content {
+    padding-inline: 1rem;
+  }
+
+  .dialog-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dialog-actions button {
+    width: 100%;
+  }
+}
