@@ -58,16 +58,18 @@ const reducer = createReducer(
   on(
     Actions.loadMoreSuccess,
     (state, { historyKey, page }): HistoryState =>
-      update(state, historyKey, (list) => ({
-        ...list,
-        items: [
-          ...list.items,
-          ...page.items.filter((item) => !list.items.some((known) => known.id === item.id)),
-        ],
-        nextCursor: page.nextCursor,
-        hasMore: page.hasMore,
-        loadingMore: false,
-      })),
+      update(state, historyKey, (list) => {
+        // A set, not a search of the whole list for every new row: after many pages that was
+        // thousands of comparisons per page.
+        const known = new Set(list.items.map((item) => item.id));
+        return {
+          ...list,
+          items: [...list.items, ...page.items.filter((item) => !known.has(item.id))],
+          nextCursor: page.nextCursor,
+          hasMore: page.hasMore,
+          loadingMore: false,
+        };
+      }),
   ),
   on(
     Actions.loadMoreFailure,

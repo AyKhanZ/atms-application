@@ -10,6 +10,7 @@ import { workItemKinds } from './work-item-kinds';
   selector: 'app-work-item-ref',
   host: {
     '[attr.data-kind]': 'kind().tone',
+    '[class.muted]': 'muted()',
   },
   template: `<i class="pi" [class]="'pi ' + kind().icon" aria-hidden="true"></i>
     @if (labelled() || showCode()) {
@@ -34,6 +35,8 @@ export class WorkItemRefComponent {
    */
   readonly labelled = input(true);
   readonly showCode = input(true);
+  /** A work item that was replaced, as the history shows an old parent or ticket. */
+  readonly muted = input(false);
 
   readonly kind = computed(() => workItemKinds[this.type()]);
 }

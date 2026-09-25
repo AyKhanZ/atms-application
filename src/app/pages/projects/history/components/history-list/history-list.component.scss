@@ -1,3 +1,5 @@
+@use 'quiet-button';
+
 :host {
   display: grid;
   align-content: start;
@@ -134,12 +136,6 @@
   }
 }
 
-// Only the dot of the status badge: its colour is the status, its name is in the tooltip.
-.history-marker__dot ::ng-deep span {
-  gap: 0;
-  font-size: 0;
-}
-
 .history-row__time {
   grid-row: 2;
   color: var(--app-muted);
@@ -152,6 +148,10 @@
   justify-items: center;
   gap: 0.4rem;
   padding: 0.5rem 0 0.25rem;
+}
+
+.history-more__button {
+  @include quiet-button.base;
 }
 
 .history-more__error {

@@ -29,7 +29,9 @@ export class HistoryEffects {
   load$ = createEffect(() =>
     this.actions$.pipe(
       ofType(ActionsStore.load),
-      groupBy(({ historyKey }) => historyKey),
+      // One stream per history on screen, closed when it leaves: a group that never closed stayed in
+      // memory for every ticket and task opened until the page was reloaded.
+      groupBy(({ historyKey }) => historyKey, { duration: (group) => this.gone(group.key) }),
       mergeMap((requests) =>
         requests.pipe(
           switchMap(({ historyKey, projectId, scope }) =>
@@ -53,7 +55,7 @@ export class HistoryEffects {
   loadMore$ = createEffect(() =>
     this.actions$.pipe(
       ofType(ActionsStore.loadMore),
-      groupBy(({ historyKey }) => historyKey),
+      groupBy(({ historyKey }) => historyKey, { duration: (group) => this.gone(group.key) }),
       mergeMap((requests) =>
         requests.pipe(
           exhaustMap(({ historyKey, projectId, scope, cursor }) =>

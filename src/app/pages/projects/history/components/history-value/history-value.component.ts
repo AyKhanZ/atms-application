@@ -43,4 +43,8 @@ export class HistoryValueComponent {
   readonly value = input.required<HistoryValueModel>();
   readonly entityType = input.required<HistoryEntityType>();
   readonly projectId = input.required<string>();
+  /** Only the dot of a status: for a mark whose status is named elsewhere. */
+  readonly dotOnly = input(false);
+  /** A value that was replaced: every kind of value draws itself grey and struck through. */
+  readonly muted = input(false);
 }

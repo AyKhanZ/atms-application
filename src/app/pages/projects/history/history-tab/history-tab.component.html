@@ -88,7 +88,12 @@
         </button>
       </h3>
       @if (sections.entriesOpen()) {
-        <div id="historyEntries" class="history-columns" [class.is-details-open]="detailsOpen()">
+        <div
+          id="historyEntries"
+          class="history-columns"
+          appHistoryPaneHeight
+          [class.is-details-open]="detailsOpen()"
+        >
           <div class="history-pane history-pane--list">
             <app-history-list
               [groups]="groups()"

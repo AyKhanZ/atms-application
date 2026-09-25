@@ -1,72 +1,115 @@
 @let item = value();
 @if (!item.name) {
-  <span class="history-value history-value--unknown">Unknown</span>
+  <span class="history-value history-value--unknown" [class.history-value--muted]="muted()"
+    >Unknown</span
+  >
 } @else {
   @switch (field()) {
     @case (fields.Status) {
       @switch (entityType()) {
         @case (entityTypes.Project) {
-          <app-project-status-badge [status]="item | historyDictionary" />
+          <app-project-status-badge
+            [status]="item | historyDictionary"
+            [dotOnly]="dotOnly()"
+            [muted]="muted()"
+          />
         }
         @case (entityTypes.WorkTicket) {
-          <app-ticket-status-badge [status]="item | historyDictionary" />
+          <app-ticket-status-badge
+            [status]="item | historyDictionary"
+            [dotOnly]="dotOnly()"
+            [muted]="muted()"
+          />
         }
         @case (entityTypes.WorkTask) {
-          <app-task-status-badge [status]="item | historyDictionary" />
+          <app-task-status-badge
+            [status]="item | historyDictionary"
+            [dotOnly]="dotOnly()"
+            [muted]="muted()"
+          />
         }
         @default {
-          <app-work-group-status-badge [status]="item | historyDictionary" />
+          <app-work-group-status-badge
+            [status]="item | historyDictionary"
+            [dotOnly]="dotOnly()"
+            [muted]="muted()"
+          />
         }
       }
     }
     @case (fields.Priority) {
-      <app-work-item-priority [priority]="item | historyDictionary" />
+      <app-work-item-priority [priority]="item | historyDictionary" [muted]="muted()" />
     }
     @case (fields.Type) {
       @if (entityType() === entityTypes.WorkTicket) {
-        <app-work-item-type [type]="item | historyDictionary" />
+        <app-work-item-type [type]="item | historyDictionary" [muted]="muted()" />
       } @else {
-        <span class="history-value">{{ item.name }}</span>
+        <span class="history-value" [class.history-value--muted]="muted()">{{ item.name }}</span>
       }
     }
     @case (fields.Assignee) {
-      <app-work-item-assignee [assignee]="item.person" />
+      <app-work-item-assignee [assignee]="item.person" [muted]="muted()" />
     }
     @case (fields.WorkTicket) {
       <a
         class="history-value history-value--ref"
         [routerLink]="['/projects', projectId(), 'tickets', item.id]"
       >
-        <app-work-item-ref [type]="kinds.Ticket" [code]="item.code" [labelled]="false" />
-        <span class="history-value__title">{{ item.name }}</span>
+        <app-work-item-ref
+          [type]="kinds.Ticket"
+          [code]="item.code"
+          [labelled]="false"
+          [muted]="muted()"
+        />
+        <span class="history-value__title" [class.history-value--muted]="muted()">{{
+          item.name
+        }}</span>
       </a>
     }
     @case (fields.ParentWorkTask) {
       <span class="history-value history-value--ref">
-        <app-work-item-ref [type]="kinds.Task" [code]="item.code" [labelled]="false" />
-        <span class="history-value__title">{{ item.name }}</span>
+        <app-work-item-ref
+          [type]="kinds.Task"
+          [code]="item.code"
+          [labelled]="false"
+          [muted]="muted()"
+        />
+        <span class="history-value__title" [class.history-value--muted]="muted()">{{
+          item.name
+        }}</span>
       </span>
     }
     @case (fields.Deadline) {
-      <span class="history-value">{{ item.id | historyDate }}</span>
+      <span class="history-value" [class.history-value--muted]="muted()">{{
+        item.id | historyDate
+      }}</span>
     }
     @case (fields.StartDate) {
-      <span class="history-value">{{ item.id | historyDate }}</span>
+      <span class="history-value" [class.history-value--muted]="muted()">{{
+        item.id | historyDate
+      }}</span>
     }
     @case (fields.EndDate) {
-      <span class="history-value">{{ item.id | historyDate }}</span>
+      <span class="history-value" [class.history-value--muted]="muted()">{{
+        item.id | historyDate
+      }}</span>
     }
     @case (fields.Description) {
+      <!-- No space around the text: the paragraph keeps its white space as written. -->
       <p class="history-value history-value--text">{{ item.name }}</p>
     }
     @case (fields.Attachment) {
       <span class="history-value history-value--file">
         <i class="pi pi-file" aria-hidden="true"></i>
-        <span class="history-value__title">{{ item.name }}</span>
+        <span class="history-value__title" [class.history-value--muted]="muted()">{{
+          item.name
+        }}</span>
       </span>
     }
     @default {
-      <span class="history-value history-value--wrap">{{ item.name }}</span>
+      <span class="history-value history-value--wrap" [class.history-value--muted]="muted()">{{
+        item.name
+      }}</span>
     }
   }
 }

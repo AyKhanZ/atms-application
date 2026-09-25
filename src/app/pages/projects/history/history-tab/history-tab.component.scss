@@ -74,12 +74,11 @@
   min-width: 0;
 }
 
-// Each column scrolls on its own, so a long list does not carry the details off the screen. The
-// columns reach down to the bottom of the window — about 45rem sits above them (top bar, header,
-// tabs, the status graph and both titles) — so a tall monitor is not left half empty; 36rem at least.
+// Each column scrolls on its own, so a long list does not carry the details off the screen. How
+// tall they may get is measured by `appHistoryPaneHeight`: down to the bottom of the page.
 .history-pane {
   min-width: 0;
-  max-height: max(36rem, calc(100dvh - 45rem));
+  max-height: var(--history-pane-height, 36rem);
   overflow-y: auto;
   padding-top: 1rem;
 }

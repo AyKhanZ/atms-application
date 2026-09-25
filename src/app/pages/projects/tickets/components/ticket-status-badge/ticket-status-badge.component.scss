@@ -1,3 +1,4 @@
+@use 'replaced-value';
 @use 'status-dot';
 
 .ticket-status {
@@ -6,6 +7,10 @@
 
 .ticket-status--prominent {
   @include status-dot.prominent;
+}
+
+.ticket-status--muted {
+  @include replaced-value.muted;
 }
 
 .ticket-status[data-tone='active'] {

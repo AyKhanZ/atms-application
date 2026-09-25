@@ -1,3 +1,5 @@
+@use 'replaced-value';
+
 :host {
   display: inline-flex;
   min-width: 0;
@@ -68,4 +70,13 @@
 .assignee-chip app-profile-avatar {
   display: flex;
   flex: 0 0 auto;
+}
+
+/* A replaced person: the name grey and struck through, the avatar faded. */
+:host.muted .assignee-chip span {
+  @include replaced-value.muted;
+}
+
+:host.muted app-profile-avatar {
+  opacity: 0.6;
 }

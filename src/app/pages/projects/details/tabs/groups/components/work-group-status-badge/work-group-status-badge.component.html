@@ -1,9 +1,13 @@
 <span
   class="work-group-status-badge"
+  [class.work-group-status-badge--muted]="muted()"
   [class.work-group-status-badge--planned]="tone() === 'planned'"
   [class.work-group-status-badge--active]="tone() === 'active'"
   [class.work-group-status-badge--done]="tone() === 'done'"
   [class.work-group-status-badge--unknown]="tone() === 'unknown'"
+  [attr.aria-label]="dotOnly() ? status().name : null"
 >
-  {{ status().name }}
+  @if (!dotOnly()) {
+    {{ status().name }}
+  }
 </span>

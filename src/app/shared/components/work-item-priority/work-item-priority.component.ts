@@ -16,7 +16,12 @@ export type WorkItemPriorityTone = 'low' | 'medium' | 'high' | 'critical';
 @Component({
   selector: 'app-work-item-priority',
   template: `
-    <span class="work-item-priority" [attr.data-tone]="tone()" [attr.aria-label]="ariaLabel()">
+    <span
+      class="work-item-priority"
+      [class.work-item-priority--muted]="muted()"
+      [attr.data-tone]="tone()"
+      [attr.aria-label]="ariaLabel()"
+    >
       <span class="work-item-priority__meter" aria-hidden="true">
         @for (step of steps; track step) {
           <span class="work-item-priority__bar" [class.is-filled]="step <= level()"></span>
@@ -30,6 +35,8 @@ export type WorkItemPriorityTone = 'low' | 'medium' | 'high' | 'critical';
 })
 export class WorkItemPriorityComponent {
   readonly priority = input.required<DictionaryModel>();
+  /** A priority that was replaced: grey and struck through. */
+  readonly muted = input(false);
 
   protected readonly steps = [1, 2, 3] as const;
   readonly tone = computed(() => workItemPriorityTone(this.priority().code));

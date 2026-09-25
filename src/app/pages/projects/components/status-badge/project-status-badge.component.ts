@@ -12,6 +12,10 @@ export type ProjectStatusTone = 'draft' | 'active' | 'review' | 'closed' | 'unkn
 export class ProjectStatusBadgeComponent {
   readonly status = input.required<DictionaryModel>();
   readonly prominent = input(false);
+  /** Only the dot: for a mark whose status is named elsewhere. */
+  readonly dotOnly = input(false);
+  /** A status that was replaced: grey and struck through. */
+  readonly muted = input(false);
   readonly tone = computed(() => projectStatusTone(this.status().code));
 }
 

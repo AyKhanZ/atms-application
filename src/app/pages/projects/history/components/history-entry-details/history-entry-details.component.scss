@@ -93,18 +93,9 @@
   background: var(--history-new-bg);
 }
 
-// A badge is inline-flex, and a line-through on its parent does not reach the text inside; it also
-// sets its own dark colour. So the line and the muted colour are put on every element inside.
+// The marker only; the value inside draws itself grey and struck through (`muted`).
 .change-value--old {
   background: var(--app-surface-muted);
-}
-
-.change-value--old,
-.change-value--old ::ng-deep * {
-  color: var(--app-muted);
-  text-decoration: line-through;
-  text-decoration-color: currentColor;
-  text-decoration-thickness: 1.5px;
 }
 
 // At creation every value is new: nothing to tell apart, so no marker.
@@ -117,10 +108,6 @@
 .change-value--chip {
   padding: 0;
   background: none;
-}
-
-.change-value--old.change-value--chip {
-  opacity: 0.6;
 }
 
 .change-value--empty {

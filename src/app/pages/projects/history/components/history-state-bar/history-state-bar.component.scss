@@ -1,3 +1,5 @@
+@use 'quiet-button';
+
 :host {
   display: block;
   min-width: 0;
@@ -179,22 +181,7 @@
   }
 }
 
+// The same button as Load more under a list.
 .state-more__button {
-  padding: 0.35rem 0.65rem;
-  color: var(--orange-text-hover);
-  font: inherit;
-  font-size: 0.8rem;
-  background: transparent;
-  border: 1px solid var(--app-border);
-  border-radius: 0.45rem;
-  cursor: pointer;
-
-  &:hover {
-    background: var(--orange-light-hover);
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--orange-focus-outline);
-    outline-offset: 1px;
-  }
+  @include quiet-button.base;
 }

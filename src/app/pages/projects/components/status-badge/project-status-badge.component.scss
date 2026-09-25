@@ -1,3 +1,4 @@
+@use 'replaced-value';
 @use 'status-dot';
 
 :host {
@@ -10,6 +11,10 @@
 
 .project-status-badge--prominent {
   @include status-dot.prominent;
+}
+
+.project-status-badge--muted {
+  @include replaced-value.muted;
 }
 
 .project-status-badge--active {

@@ -1,3 +1,4 @@
+@use 'replaced-value';
 @use 'status-dot';
 
 :host {
@@ -6,6 +7,10 @@
 
 .work-group-status-badge {
   @include status-dot.base;
+}
+
+.work-group-status-badge--muted {
+  @include replaced-value.muted;
 }
 
 .work-group-status-badge--active {

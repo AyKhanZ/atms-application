@@ -26,6 +26,7 @@ import { HistoryEntryDetailsComponent } from '../components/history-entry-detail
 import { HistoryListComponent } from '../components/history-list/history-list.component';
 import { HistoryStateBarComponent } from '../components/history-state-bar/history-state-bar.component';
 import { HistorySectionsService } from '../history-sections.service';
+import { HistoryPaneHeightDirective } from '../history-pane-height.directive';
 
 /**
  * The History tab of a project, ticket, task or subtask: how the status went on top, the entries on
@@ -38,6 +39,7 @@ import { HistorySectionsService } from '../history-sections.service';
     EmptyStateComponent,
     HistoryEntryDetailsComponent,
     HistoryListComponent,
+    HistoryPaneHeightDirective,
     HistoryStateBarComponent,
     SkeletonModule,
   ],

@@ -1,3 +1,5 @@
+@use 'replaced-value';
+
 :host {
   display: inline-flex;
   min-width: 0;
@@ -52,4 +54,8 @@ a.history-value--ref:focus-visible .history-value__title {
   line-height: 1.5;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
+}
+
+.history-value--muted {
+  @include replaced-value.muted;
 }

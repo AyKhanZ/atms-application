@@ -1,3 +1,5 @@
+@use 'replaced-value';
+
 /* One look wherever an item is named — above a details title, in search, in the recent list — so
    "TASK #34" reads the same everywhere. The whole line takes the kind's colour. */
 :host {
@@ -27,4 +29,13 @@
 
 i {
   font-size: 0.8rem;
+}
+
+// After the kinds: a replaced item is grey instead of its kind's colour, the code struck through.
+:host(.muted) {
+  --kind-color: var(--app-muted);
+}
+
+:host(.muted) span {
+  @include replaced-value.muted;
 }

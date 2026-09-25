@@ -51,11 +51,11 @@
                   >
                     @if (marker.kind === 'status') {
                       <app-history-value
-                        class="history-marker__dot"
                         [field]="statusField"
                         [value]="marker.status"
                         [entityType]="entry.entityType"
                         [projectId]="projectId()"
+                        [dotOnly]="true"
                       />
                     } @else {
                       <i class="pi" [class]="'pi ' + marker.icon"></i>
@@ -84,14 +84,15 @@
       <small class="history-more__error" role="alert">{{ error }}</small>
     }
     <button
-      pButton
       type="button"
-      severity="secondary"
-      outlined="true"
-      [loading]="loadingMore()"
+      class="history-more__button"
+      [disabled]="loadingMore()"
       (click)="loadMore.emit()"
     >
-      <span>Load more</span>
+      @if (loadingMore()) {
+        <i class="pi pi-spin pi-spinner" aria-hidden="true"></i>
+      }
+      Load more
     </button>
   </div>
 }

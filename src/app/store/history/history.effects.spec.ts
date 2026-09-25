@@ -80,6 +80,20 @@ describe('HistoryEffects', () => {
     expect(emitted).toEqual([]);
   });
 
+  /* A history that left the screen closes its stream; opening it again must start a new one. */
+  it('reads a history again after it was cleared', () => {
+    effects.load$.subscribe((action) => emitted.push(action));
+    actions.next(Actions.load({ historyKey, projectId: 'p', scope }));
+    actions.next(Actions.clear({ historyKey }));
+
+    pageResponse = new Subject<HistoryPageModel>();
+    statesResponse = new Subject<HistoryStateModel[]>();
+    actions.next(Actions.load({ historyKey, projectId: 'p', scope }));
+    respond([]);
+
+    expect(emitted).toEqual([Actions.loadSuccess({ historyKey, page, states: [] })]);
+  });
+
   it('drops a next page of the old list once the list is read again', () => {
     effects.loadMore$.subscribe((action) => emitted.push(action));
     actions.next(Actions.loadMore({ historyKey, projectId: 'p', scope, cursor: 'c' }));

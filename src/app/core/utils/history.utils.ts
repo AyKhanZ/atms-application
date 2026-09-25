@@ -91,7 +91,9 @@ export function groupHistory(entries: HistoryEntryModel[], now = new Date()): Hi
             : days <= 30
               ? 'Last 30 days'
               : 'Older';
-    groups.set(label, [...(groups.get(label) ?? []), entry]);
+    const group = groups.get(label);
+    if (group) group.push(entry);
+    else groups.set(label, [entry]);
   }
 
   return groupOrder

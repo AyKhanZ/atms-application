@@ -8,7 +8,6 @@ import {
   output,
   signal,
 } from '@angular/core';
-import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { HistoryField } from '../../../../../core/enums/history-field.enum';
 import { HistoryEntryModel } from '../../../../../core/models/history';
@@ -31,7 +30,6 @@ import { HistoryValueComponent } from '../history-value/history-value.component'
 @Component({
   selector: 'app-history-list',
   imports: [
-    ButtonModule,
     HistoryAuthorAvatarComponent,
     HistoryFieldListPipe,
     HistoryMarkerPipe,

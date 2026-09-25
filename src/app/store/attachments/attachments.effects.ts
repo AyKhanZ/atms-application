@@ -3,6 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import {
   EMPTY,
+  Observable,
   catchError,
   filter,
   groupBy,
@@ -36,7 +37,8 @@ export class AttachmentsEffects {
   loadList$ = createEffect(() =>
     this.actions$.pipe(
       ofType(ActionsStore.loadList),
-      groupBy(({ listKey }) => listKey),
+      // One stream per list on screen, closed when it leaves, not kept for every list ever opened.
+      groupBy(({ listKey }) => listKey, { duration: (group) => this.listGone(group.key) }),
       mergeMap((requests) =>
         requests.pipe(
           switchMap(({ listKey, projectId, scope }) =>
@@ -45,15 +47,7 @@ export class AttachmentsEffects {
               catchError(() =>
                 of(ActionsStore.loadListFailure({ listKey, error: 'Files could not be loaded.' })),
               ),
-              takeUntil(
-                merge(
-                  this.reset$,
-                  this.actions$.pipe(
-                    ofType(ActionsStore.clearList),
-                    filter((action) => action.listKey === listKey),
-                  ),
-                ),
-              ),
+              takeUntil(this.listGone(listKey)),
             ),
           ),
         ),
@@ -64,7 +58,7 @@ export class AttachmentsEffects {
   loadTree$ = createEffect(() =>
     this.actions$.pipe(
       ofType(ActionsStore.loadTree),
-      groupBy(({ projectId }) => projectId),
+      groupBy(({ projectId }) => projectId, { duration: (group) => this.treeGone(group.key) }),
       mergeMap((requests) =>
         requests.pipe(
           switchMap(({ projectId }) =>
@@ -75,15 +69,7 @@ export class AttachmentsEffects {
                   ActionsStore.loadTreeFailure({ projectId, error: 'Files could not be loaded.' }),
                 ),
               ),
-              takeUntil(
-                merge(
-                  this.reset$,
-                  this.actions$.pipe(
-                    ofType(ActionsStore.clearTree),
-                    filter((action) => action.projectId === projectId),
-                  ),
-                ),
-              ),
+              takeUntil(this.treeGone(projectId)),
             ),
           ),
         ),
@@ -176,6 +162,27 @@ export class AttachmentsEffects {
       ),
     ),
   );
+
+  /** The list left the screen: its load is cancelled and its stream closed. */
+  private listGone(listKey: string): Observable<unknown> {
+    return merge(
+      this.reset$,
+      this.actions$.pipe(
+        ofType(ActionsStore.clearList),
+        filter((action) => action.listKey === listKey),
+      ),
+    );
+  }
+
+  private treeGone(projectId: string): Observable<unknown> {
+    return merge(
+      this.reset$,
+      this.actions$.pipe(
+        ofType(ActionsStore.clearTree),
+        filter((action) => action.projectId === projectId),
+      ),
+    );
+  }
 }
 
 function uploadErrorMessage(error: unknown): string {

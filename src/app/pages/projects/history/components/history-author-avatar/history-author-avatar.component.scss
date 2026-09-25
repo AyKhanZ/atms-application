@@ -1,14 +1,13 @@
+// The avatar reads its size, shape and shadow from these; custom properties pass into it, so there
+// is no reaching into its markup.
 :host {
-  display: inline-flex;
-  flex: 0 0 auto;
-}
-
-:host ::ng-deep .avatar {
   --avatar-size: var(--history-avatar-size, 2rem);
   --avatar-radius: 999px;
   --avatar-font-size: 0.7rem;
+  --avatar-shadow: none;
 
-  box-shadow: none;
+  display: inline-flex;
+  flex: 0 0 auto;
 }
 
 .system-avatar {

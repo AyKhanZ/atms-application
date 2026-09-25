@@ -10,6 +10,7 @@ import { DictionaryModel } from '../../../core/models/dictionary.model';
       [class.work-item-type--feature]="appearance() === 'feature'"
       [class.work-item-type--project]="appearance() === 'project'"
       [class.work-item-type--default]="appearance() === 'default'"
+      [class.work-item-type--muted]="muted()"
     >
       @if (appearance() === 'bug') {
         <svg
@@ -37,6 +38,8 @@ import { DictionaryModel } from '../../../core/models/dictionary.model';
 })
 export class WorkItemTypeComponent {
   readonly type = input.required<DictionaryModel>();
+  /** A type that was replaced: faded and struck through. */
+  readonly muted = input(false);
   readonly appearance = computed(() => normalizeCode(this.type().code));
   readonly icon = computed(() => {
     switch (this.appearance()) {
