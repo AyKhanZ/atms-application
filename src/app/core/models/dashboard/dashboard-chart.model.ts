@@ -1,5 +1,5 @@
 export interface DashboardSeriesModel {
-  key: 'created' | 'done';
+  key: 'created' | 'started' | 'done';
   data: number[];
 }
 

@@ -4,17 +4,21 @@ import { dashboardReducer } from './dashboard.reducer';
 import { initialDashboardState } from './dashboard.state';
 import { DashboardModel } from '../../core/models/dashboard';
 
-const query = { projectId: null, period: 30 } as const;
-const otherQuery = { projectId: 'project-1', period: 7 } as const;
+const query = { projectId: null, period: '30d', from: null, to: null } as const;
+const otherQuery = { projectId: 'project-1', period: '7d', from: null, to: null } as const;
 const model: DashboardModel = {
   generatedAt: '2026-09-25T10:00:00Z',
-  period: 30,
+  period: '30d',
+  from: '2026-08-27',
+  to: '2026-09-25',
+  granularity: 'day',
   kpis: [],
   mainChart: { labels: [], series: [] },
   donuts: [],
   workload: null,
   secondaryChart: { key: 'byProject', segments: [] },
   deadlines: [],
+  deadlineCount: 0,
   activities: [],
 };
 

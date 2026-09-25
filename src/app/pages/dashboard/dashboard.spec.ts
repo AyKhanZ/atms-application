@@ -12,7 +12,10 @@ import { Dashboard } from './dashboard';
 
 const model: DashboardModel = {
   generatedAt: '2026-09-25T10:00:00Z',
-  period: 30,
+  period: '30d',
+  from: '2026-08-27',
+  to: '2026-09-25',
+  granularity: 'day',
   kpis: [{ key: 'done', value: 3 }],
   mainChart: { labels: [], series: [] },
   donuts: [
@@ -31,6 +34,7 @@ const model: DashboardModel = {
     segments: [{ id: 'ticket-1', code: '7', label: 'Ticket', value: 3 }],
   },
   deadlines: [],
+  deadlineCount: 0,
   activities: [],
 };
 
@@ -54,7 +58,7 @@ describe('Dashboard navigation', () => {
           provide: ActivatedRoute,
           useValue: {
             snapshot: {
-              queryParamMap: convertToParamMap({ projectId: 'project-1', period: '30' }),
+              queryParamMap: convertToParamMap({ projectId: 'project-1', period: '30d' }),
             },
             queryParamMap: NEVER,
           },
@@ -81,6 +85,66 @@ describe('Dashboard navigation', () => {
         state: '3',
       },
     });
+  });
+
+  it('opens open tasks without an assignee from the Unassigned card', () => {
+    fixture.componentInstance.openKpi('unassigned');
+    expect(navigate).toHaveBeenCalledWith(['/tasks'], {
+      queryParams: {
+        view: 'list',
+        assignee: 'none',
+        project: 'project-1',
+        state: '1,2',
+      },
+    });
+  });
+
+  it('opens the date fields for a custom range and loads nothing until Apply', () => {
+    const page = fixture.componentInstance;
+
+    page.changePeriod('custom');
+
+    expect(navigate).not.toHaveBeenCalled();
+    expect(page.selectedPeriod()).toBe('custom');
+    expect(page.customFrom()).toEqual(new Date(2026, 7, 27));
+    expect(page.customTo()).toEqual(new Date(2026, 8, 25));
+  });
+
+  it('puts an applied custom range in the address', () => {
+    const page = fixture.componentInstance;
+    page.changePeriod('custom');
+    page.customFrom.set(new Date(2026, 8, 1));
+    page.customTo.set(new Date(2026, 8, 10));
+
+    page.applyCustom();
+
+    expect(navigate).toHaveBeenCalledWith([], expect.objectContaining({
+      queryParams: { projectId: 'project-1', period: 'custom', from: '2026-09-01', to: '2026-09-10' },
+    }));
+  });
+
+  it('does not apply a reversed range', () => {
+    const page = fixture.componentInstance;
+    page.changePeriod('custom');
+    page.customFrom.set(new Date(2026, 8, 10));
+    page.customTo.set(new Date(2026, 8, 1));
+
+    page.applyCustom();
+
+    expect(page.customError()).toBe("The start date can't be after the end date");
+    expect(navigate).not.toHaveBeenCalled();
+  });
+
+  it('switches back from the custom fields to a named period', () => {
+    const page = fixture.componentInstance;
+    page.changePeriod('custom');
+
+    page.changePeriod('7d');
+
+    expect(page.editingCustom()).toBe(false);
+    expect(navigate).toHaveBeenCalledWith([], expect.objectContaining({
+      queryParams: { projectId: 'project-1', period: '7d', from: null, to: null },
+    }));
   });
 
   it('opens priority and status segments with their filters', () => {

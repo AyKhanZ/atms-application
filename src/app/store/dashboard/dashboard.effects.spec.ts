@@ -107,17 +107,17 @@ describe('DashboardEffects realtime', () => {
   it('refreshes after reconnect and switches project groups', () => {
     reconnects.next();
     expect(emitted).toEqual([Actions.refresh()]);
-    actions.next(Actions.enter({ query: { projectId: null, period: 30 } }));
+    actions.next(Actions.enter({ query: { projectId: null, period: '30d', from: null, to: null } }));
     expect(joinProject).toHaveBeenCalledWith('project-1');
     store.setState({
       [Features.Dashboard]: {
         ...initialDashboardState,
         active: true,
-        query: { projectId: 'project-2', period: 30 },
+        query: { projectId: 'project-2', period: '30d', from: null, to: null },
         groupProjectIds: ['project-1'],
       },
     });
-    actions.next(Actions.load({ query: { projectId: 'project-2', period: 30 } }));
+    actions.next(Actions.load({ query: { projectId: 'project-2', period: '30d', from: null, to: null } }));
     expect(leaveProject).toHaveBeenCalledWith('project-1');
     expect(joinProject).toHaveBeenCalledWith('project-2');
   });

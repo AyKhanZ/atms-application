@@ -3,90 +3,146 @@
   min-width: 0;
 }
 
+// Every block reacts to the width of the page, not of the window: the sidebar takes a different
+// share of the window on every screen.
 .dashboard-page {
+  container-type: inline-size;
   display: grid;
   gap: 1rem;
   width: 100%;
   min-width: 0;
 }
+
+// ─── Header ────────────────────────────────────────────────────────────────────────────────────
+
 .dashboard-header {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
-  align-items: end;
-  flex-wrap: wrap;
-  gap: 1rem;
+  align-items: center;
+  gap: 0.75rem 1.5rem;
+  min-width: 0;
 }
-.dashboard-header h1 {
+.dashboard-heading {
+  min-width: 0;
+}
+.dashboard-heading h1 {
   margin: 0;
-  font-size: 1.55rem;
+  font-size: 1.5rem;
 }
-.dashboard-controls {
-  display: flex;
-  align-items: end;
-  flex-wrap: wrap;
-  gap: 0.8rem;
-}
-.dashboard-project-field,
-.dashboard-period-field {
-  display: grid;
-  gap: 0.35rem;
-}
-.dashboard-project-field label,
-.dashboard-period-field > span {
+.dashboard-heading p {
+  margin: 0.25rem 0 0;
+  overflow: hidden;
   color: var(--app-muted);
-  font-size: 0.78rem;
-  font-weight: 600;
+  font-size: 0.875rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-.dashboard-project-field p-select {
-  width: min(17rem, 100%);
+
+// Controls keep a fixed width, so picking a project with a long title does not move anything.
+// On a wide page they sit in one row on the right; narrower, they stack from the left (see below).
+.dashboard-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  min-width: 0;
 }
-.dashboard-period-buttons {
-  display: inline-flex;
-  padding: 0.18rem;
-  border: 1px solid var(--app-border);
-  border-radius: var(--radius-btn);
-  background: var(--app-surface);
+.dashboard-project {
+  width: 26rem;
+  max-width: 100%;
+  min-width: 0;
 }
-.dashboard-period-buttons button {
-  min-width: 2.65rem;
-  min-height: 2.1rem;
-  padding: 0.35rem 0.55rem;
+// The period and its two dates are one choice and are never split apart.
+.dashboard-period-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+.dashboard-period {
+  width: 11.5rem;
+  min-width: 0;
+}
+.dashboard-period-group p-datepicker {
+  width: 9.5rem;
+  min-width: 0;
+}
+:host ::ng-deep .dashboard-datepicker,
+:host ::ng-deep .dashboard-datepicker .p-inputtext {
+  width: 100%;
+}
+.dashboard-range__dash {
+  color: var(--app-muted);
+  text-align: center;
+}
+.dashboard-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+.dashboard-apply {
+  height: 2.5rem;
+  padding: 0 1.25rem;
   border: 0;
-  border-radius: calc(var(--radius-btn) - 2px);
-  background: transparent;
-  color: var(--app-text);
-  cursor: pointer;
-}
-.dashboard-period-buttons button.is-active {
+  border-radius: var(--radius-btn);
   background: var(--orange);
   color: var(--white);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
 }
-.dashboard-period-buttons button:focus-visible,
-.dashboard-kpi:focus-visible,
-.dashboard-segments button:focus-visible,
-.dashboard-bar-legend button:focus-visible {
-  outline: 3px solid var(--orange-focus-outline);
-  outline-offset: 2px;
+.dashboard-apply:hover:not(:disabled) {
+  background: var(--orange-hover);
 }
-.dashboard-updated {
-  align-self: end;
-  padding-bottom: 0.6rem;
+.dashboard-apply:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.dashboard-refresh {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
   color: var(--app-muted);
   font-size: 0.8rem;
   white-space: nowrap;
 }
+.dashboard-refresh__button {
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 0;
+  border-radius: var(--radius-btn);
+  background: transparent;
+  color: var(--gray-icon);
+  cursor: pointer;
+}
+.dashboard-refresh__button:hover:not(:disabled) {
+  background: var(--orange-light-hover);
+  color: var(--orange-text-hover);
+}
+.dashboard-refresh__button:disabled {
+  cursor: default;
+}
+
 .dashboard-error {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
+  gap: 0.75rem;
   padding: 0.75rem 1rem;
-  border: 1px solid var(--app-danger);
-  border-radius: var(--radius-card);
+  border-color: var(--app-danger);
   color: var(--app-danger);
+  font-weight: 600;
+}
+.dashboard-error span {
+  flex: 1;
+  min-width: 0;
 }
 .dashboard-error button {
-  padding: 0.45rem 0.9rem;
+  padding: 0.5rem 1rem;
   border: 1px solid var(--app-danger);
   border-radius: var(--radius-btn);
   background: var(--app-surface);
@@ -94,285 +150,325 @@
   cursor: pointer;
 }
 
+// ─── KPI ───────────────────────────────────────────────────────────────────────────────────────
+
 .dashboard-kpis {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0.75rem;
 }
 .dashboard-kpi {
+  --tone: var(--orange);
+
   display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 0.35rem;
-  min-height: 7.3rem;
-  padding: 1rem;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-areas:
+    'icon label delta'
+    'icon hint  delta'
+    'value value value';
+  align-items: center;
+  gap: 0.125rem 0.75rem;
+  min-height: 6.25rem;
+  padding: 0.75rem 1rem;
+  border-top: 3px solid var(--tone);
   color: var(--app-text);
+  font: inherit;
   text-align: left;
   cursor: pointer;
 }
-.dashboard-kpi:hover {
+.dashboard-kpi:hover:not(:disabled) {
   border-color: var(--orange-border);
+  border-top-color: var(--tone);
 }
-.dashboard-kpi__title {
-  grid-column: 1 / -1;
-  color: var(--app-muted);
+.dashboard-kpi:disabled {
+  cursor: default;
+  opacity: 1;
+}
+.dashboard-kpi:focus-visible,
+.dashboard-range__apply:focus-visible,
+.dashboard-refresh__button:focus-visible {
+  outline: 3px solid var(--orange-focus-outline);
+  outline-offset: 2px;
+}
+.dashboard-kpi__icon {
+  grid-area: icon;
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: var(--radius-btn);
+  background: color-mix(in srgb, var(--tone) 12%, transparent);
+  color: var(--tone);
+}
+.dashboard-kpi__label {
+  grid-area: label;
+  overflow: hidden;
+  font-size: 0.875rem;
   font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dashboard-kpi__hint {
+  grid-area: hint;
+  overflow: hidden;
+  color: var(--app-muted);
+  font-size: 0.75rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .dashboard-kpi__value {
-  align-self: center;
-  font-size: clamp(1.7rem, 2.6vw, 2.4rem);
+  grid-area: value;
+  margin-top: 0.5rem;
+  font-size: clamp(1.5rem, 2.2cqi, 2rem);
   font-weight: 700;
   line-height: 1;
 }
-.dashboard-kpi--danger .dashboard-kpi__value {
+.dashboard-kpi__value.is-alert {
   color: var(--app-danger);
 }
-.dashboard-kpi__scope {
-  grid-column: 1;
-  align-self: end;
-  color: var(--app-muted);
-  font-size: 0.78rem;
-}
 .dashboard-kpi__delta {
-  grid-column: 2;
-  grid-row: 2 / 4;
-  align-self: center;
+  grid-area: delta;
+  align-self: start;
+  padding: 0.125rem 0.5rem;
+  border-radius: 0.45rem;
+  background: color-mix(in srgb, var(--app-success) 12%, transparent);
   color: var(--app-success);
-  font-weight: 700;
+  font-size: 0.75rem;
+  font-weight: 600;
   white-space: nowrap;
 }
 .dashboard-kpi__delta.is-down {
+  background: color-mix(in srgb, var(--app-danger) 12%, transparent);
   color: var(--app-danger);
+}
+
+// ─── Cards with charts ─────────────────────────────────────────────────────────────────────────
+
+// A card has a fixed height and the chart fills what is left under the header. The chart never
+// decides the height — that is what kept growing the chart on every resize.
+.dashboard-card {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 0.75rem;
+  min-width: 0;
+  min-height: 0;
+  padding: 1rem;
+  overflow: hidden;
+}
+.dashboard-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 0.75rem;
+  min-width: 0;
+}
+.dashboard-card__header h2 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+.dashboard-card__header small {
+  display: block;
+  margin-top: 0.125rem;
+  color: var(--app-muted);
+  font-size: 0.75rem;
+}
+.dashboard-card__chart {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+}
+.dashboard-card__chart app-dashboard-chart {
+  position: absolute;
+  inset: 0;
 }
 
 .dashboard-focus {
   display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(17rem, 1fr);
+  grid-template-columns: minmax(0, 1fr) minmax(20rem, 27rem);
   gap: 1rem;
+  height: clamp(28rem, 52vh, 36rem);
+  min-width: 0;
 }
-.dashboard-donuts {
+.dashboard-rail {
   display: grid;
+  grid-template-rows: repeat(2, minmax(0, 1fr));
   gap: 1rem;
   min-width: 0;
-}
-.dashboard-card {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  padding: 1rem;
-}
-.dashboard-card header {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 0.7rem;
-}
-.dashboard-card h2 {
-  margin: 0;
-  font-size: 1rem;
-}
-.dashboard-card small {
-  color: var(--app-muted);
-  white-space: nowrap;
-}
-.dashboard-card__chart {
-  min-width: 0;
-}
-.dashboard-card__chart--main {
-  flex: 1;
-  height: 22rem;
-  min-height: 22rem;
-  padding-top: 1rem;
-}
-.dashboard-card__chart--donut {
-  height: 9.5rem;
-  padding-top: 0.55rem;
-}
-.dashboard-card__chart--bar {
-  height: 14rem;
-  padding-top: 0.75rem;
-}
-.dashboard-segments {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.2rem 0.65rem;
-  padding-top: 0.4rem;
-}
-.dashboard-segments button {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-  padding: 0.25rem;
-  border: 0;
-  border-radius: var(--radius-btn);
-  background: transparent;
-  color: var(--app-text);
-  font-size: 0.78rem;
-  cursor: pointer;
-}
-.dashboard-segments button:hover,
-.dashboard-bar-legend button:hover {
-  color: var(--orange-text-hover);
-}
-.dashboard-segments__dot {
-  width: 0.55rem;
-  height: 0.55rem;
-  border-radius: 50%;
-}
-.dashboard-segments strong {
-  margin-left: 0.12rem;
+  min-height: 0;
 }
 
 .dashboard-lower {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-auto-rows: 20rem;
   gap: 1rem;
-  align-items: stretch;
+  min-width: 0;
 }
 .dashboard-lower--client {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
-.dashboard-bar-legend {
-  display: grid;
-  gap: 0.1rem;
-  padding-top: 0.55rem;
+
+.dashboard-activity-card {
+  display: block;
+  height: 24rem;
 }
-.dashboard-bar-legend button,
-.dashboard-bar-legend span {
-  display: flex;
-  justify-content: space-between;
-  gap: 0.5rem;
-  width: 100%;
-  padding: 0.3rem 0.2rem;
-  border: 0;
-  background: transparent;
-  color: var(--app-text);
-  text-align: left;
-  font-size: 0.78rem;
-}
-.dashboard-bar-legend button {
-  cursor: pointer;
-}
-.dashboard-bar-legend span {
-  color: var(--app-muted);
-  cursor: default;
-}
-.dashboard-bar-legend strong {
-  flex-shrink: 0;
-}
+
+// ─── Skeleton ──────────────────────────────────────────────────────────────────────────────────
 
 .dashboard-skeleton {
   display: grid;
   gap: 1rem;
 }
-.dashboard-skeleton__kpis {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 1rem;
-}
-.dashboard-skeleton__lower {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1rem;
-}
-.dashboard-skeleton__card {
-  height: 7.3rem;
-}
-.dashboard-skeleton__main {
-  height: 26rem;
-}
-.dashboard-skeleton__lower .dashboard-skeleton__card {
-  height: 18rem;
-}
-.dashboard-skeleton__card,
-.dashboard-skeleton__main {
+.dashboard-skeleton__block {
   position: relative;
   overflow: hidden;
 }
-.dashboard-skeleton__card::after,
-.dashboard-skeleton__main::after {
+.dashboard-skeleton__kpi {
+  height: 6.25rem;
+}
+.dashboard-skeleton__block::after {
   position: absolute;
   inset: 0;
   background: var(--app-surface-muted);
-  opacity: 0.65;
   content: '';
-  animation: pulse 1.3s ease-in-out infinite alternate;
+  opacity: 0.65;
+  animation: dashboard-pulse 1.3s ease-in-out infinite alternate;
 }
-@keyframes pulse {
+@keyframes dashboard-pulse {
   to {
     opacity: 0.25;
   }
 }
 
-@media (min-width: 768px) and (max-width: 1199px) {
-  .dashboard-kpis,
-  .dashboard-skeleton__kpis {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .dashboard-focus {
-    grid-template-columns: 1fr;
-  }
-  .dashboard-donuts {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .dashboard-lower,
-  .dashboard-lower--client,
-  .dashboard-skeleton__lower {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+// ─── Narrower pages ────────────────────────────────────────────────────────────────────────────
+
+@container (max-width: 80rem) {
+  .dashboard-kpis {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
-@media (max-width: 767px) {
-  .dashboard-header {
-    align-items: start;
+// The side column moves under the main chart; both keep a fixed height of their own.
+@container (max-width: 64rem) {
+  .dashboard-focus {
+    grid-template-columns: minmax(0, 1fr);
+    height: auto;
   }
-  .dashboard-controls {
-    width: 100%;
+  .dashboard-card--main {
+    height: 24rem;
   }
-  .dashboard-project-field {
+  .dashboard-rail {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: 16rem;
+  }
+  .dashboard-lower,
+  .dashboard-lower--client {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  // An odd card left alone on the last row takes the full width.
+  .dashboard-lower > :last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+  .dashboard-activity-card {
+    height: 28rem;
+  }
+}
+
+// The controls move under the title and start from the left, in rows that fill the width:
+//   project
+//   period                     updated · refresh
+// and with a custom range:
+//   project
+//   period   from  –  to
+//   Apply                      updated · refresh
+@container (max-width: 72rem) {
+  .dashboard-toolbar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'project project'
+      'period  actions';
     flex: 1 1 100%;
   }
-  .dashboard-project-field p-select {
+  .dashboard-toolbar--custom {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      'project'
+      'period'
+      'actions';
+  }
+  .dashboard-project {
+    grid-area: project;
     width: 100%;
   }
-  .dashboard-period-field {
+  .dashboard-period-group {
+    grid-area: period;
+    display: grid;
+    grid-template-columns: minmax(0, 18rem);
+  }
+  .dashboard-toolbar--custom .dashboard-period-group {
+    grid-template-columns: minmax(10rem, 1.2fr) minmax(0, 1fr) auto minmax(0, 1fr);
+  }
+  .dashboard-period,
+  .dashboard-period-group p-datepicker {
+    width: 100%;
+  }
+  .dashboard-actions {
+    grid-area: actions;
+    justify-content: flex-end;
+  }
+  // Apply takes the whole row, the way every form of the product ends.
+  .dashboard-apply {
     flex: 1;
   }
-  .dashboard-period-buttons {
-    width: fit-content;
-  }
-  .dashboard-period-buttons button,
-  .dashboard-segments button,
-  .dashboard-bar-legend button {
-    min-height: 2.75rem;
-  }
-  .dashboard-updated {
-    margin-left: auto;
-  }
-  .dashboard-kpis,
-  .dashboard-skeleton__kpis {
+}
+
+@container (max-width: 42rem) {
+  .dashboard-kpis {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.6rem;
+    gap: 0.5rem;
   }
   .dashboard-kpi {
-    min-height: 6.5rem;
+    min-height: 5.75rem;
     padding: 0.75rem;
   }
-  .dashboard-kpi__value {
-    font-size: 1.7rem;
+  .dashboard-card--main {
+    height: 20rem;
   }
-  .dashboard-focus,
-  .dashboard-donuts,
+  .dashboard-rail {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: repeat(2, 15rem);
+  }
   .dashboard-lower,
-  .dashboard-lower--client,
-  .dashboard-skeleton__lower {
-    grid-template-columns: 1fr;
+  .dashboard-lower--client {
+    grid-template-columns: minmax(0, 1fr);
+    grid-auto-rows: 18rem;
   }
-  .dashboard-card__chart--main {
-    height: 17rem;
-    min-height: 17rem;
+  // The period on its own row, the two dates under it.
+  .dashboard-toolbar--custom .dashboard-period-group {
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   }
-  .dashboard-card__chart--bar {
-    height: 13rem;
+  .dashboard-toolbar--custom .dashboard-period {
+    grid-column: 1 / -1;
+  }
+  .dashboard-period-group {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@container (max-width: 30rem) {
+  .dashboard-kpi__icon {
+    display: none;
+  }
+  .dashboard-kpi {
+    grid-template-areas:
+      'label delta'
+      'hint  delta'
+      'value value';
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .dashboard-card {
+    padding: 0.75rem;
   }
 }

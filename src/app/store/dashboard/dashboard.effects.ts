@@ -1,4 +1,5 @@
 import { DOCUMENT } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
@@ -22,6 +23,7 @@ import { DashboardService } from '../../core/services/dashboard.service';
 import { DictionaryService } from '../../core/services/dictionary.service';
 import { RealtimeService } from '../../core/services/realtime.service';
 import { WorkProjectsService } from '../../core/services/work-projects.service';
+import { isServerUnavailable, validationMessage } from '../../core/utils/http-error.utils';
 import { AuthStoreActions } from '../auth';
 import * as ActionsStore from './dashboard.actions';
 import * as Selectors from './dashboard.selectors';
@@ -57,8 +59,8 @@ export class DashboardEffects {
       switchMap(({ query }) =>
         this.dashboard.getDashboard(query).pipe(
           map((model) => ActionsStore.loadSuccess({ query, model })),
-          catchError(() =>
-            of(ActionsStore.loadFailure({ query, error: "Couldn't load dashboard. Try again." })),
+          catchError((error: unknown) =>
+            of(ActionsStore.loadFailure({ query, error: loadErrorText(error) })),
           ),
           takeUntil(this.exit$),
         ),
@@ -206,4 +208,11 @@ export class DashboardEffects {
       ),
     { dispatch: false },
   );
+}
+
+/** A refused range says what to fix; a lost connection and anything else say so plainly. */
+function loadErrorText(error: unknown): string {
+  if (isServerUnavailable(error)) return "Can't reach the server. Check the connection and try again.";
+  const message = error instanceof HttpErrorResponse ? validationMessage(error) : null;
+  return message ?? "Couldn't load the dashboard. Try again.";
 }

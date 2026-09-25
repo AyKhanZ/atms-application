@@ -1,6 +1,7 @@
 import { Action, createReducer, on } from '@ngrx/store';
 import { AuthStoreActions } from '../auth';
 import * as Actions from './dashboard.actions';
+import { sameDashboardQuery } from '../../core/utils/dashboard-query.utils';
 import { DashboardState, initialDashboardState } from './dashboard.state';
 
 const reducer = createReducer(
@@ -12,7 +13,7 @@ const reducer = createReducer(
       ...state,
       query,
       model:
-        state.query.projectId === query.projectId && state.query.period === query.period
+        sameDashboardQuery(state.query, query)
           ? state.model
           : null,
       loading: true,
@@ -24,8 +25,7 @@ const reducer = createReducer(
     Actions.loadSuccess,
     (state, { query, model }): DashboardState =>
       state.active &&
-      state.query.projectId === query.projectId &&
-      state.query.period === query.period
+      sameDashboardQuery(state.query, query)
         ? { ...state, model, loading: false, error: null }
         : state,
   ),
@@ -33,8 +33,7 @@ const reducer = createReducer(
     Actions.loadFailure,
     (state, { query, error }): DashboardState =>
       state.active &&
-      state.query.projectId === query.projectId &&
-      state.query.period === query.period
+      sameDashboardQuery(state.query, query)
         ? { ...state, loading: false, error }
         : state,
   ),

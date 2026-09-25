@@ -1,4 +1,5 @@
 import { DictionaryModel } from '../../core/models/dictionary.model';
+import { DEFAULT_DASHBOARD_QUERY } from '../../core/utils/dashboard-query.utils';
 import {
   DashboardModel,
   DashboardProjectOptionModel,
@@ -19,7 +20,7 @@ export interface DashboardState {
 
 export const initialDashboardState: DashboardState = {
   active: false,
-  query: { projectId: null, period: 30 },
+  query: DEFAULT_DASHBOARD_QUERY,
   model: null,
   loading: false,
   error: null,

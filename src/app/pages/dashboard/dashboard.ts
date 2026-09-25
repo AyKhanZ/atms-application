@@ -1,4 +1,4 @@
-import { DOCUMENT } from '@angular/common';
+import { DOCUMENT, formatDate } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -8,32 +8,72 @@ import {
   effect,
   inject,
   signal,
+  untracked,
 } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Actions, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
+import { DatePickerModule } from 'primeng/datepicker';
 import { SelectModule } from 'primeng/select';
-import { DashboardRefModel, DashboardQuery } from '../../core/models/dashboard';
+import {
+  DashboardGranularity,
+  DashboardKpiModel,
+  DashboardPeriod,
+  DashboardQuery,
+  DashboardRefModel,
+} from '../../core/models/dashboard';
 import { WorkTaskStatus } from '../../core/enums/work-task-status.enum';
 import { workItemPriorityTone } from '../../shared/components/work-item-priority/work-item-priority.component';
-import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { personShortName } from '../../core/utils/person-name.utils';
+import {
+  DASHBOARD_PERIOD_OPTIONS,
+  dashboardQueryFromParams,
+  dashboardQueryParams,
+  fromIsoDate,
+  toIsoDate,
+} from '../../core/utils/dashboard-query.utils';
 import { VisiblePageRefreshService } from '../../core/services/visible-page-refresh.service';
 import { DashboardStoreActions, DashboardStoreSelectors } from '../../store/dashboard';
 import { DashboardActivityComponent } from './components/dashboard-activity.component';
-import { DashboardChartComponent } from './components/dashboard-chart.component';
+import {
+  DashboardChartComponent,
+  DashboardChartSeries,
+} from './components/dashboard-chart.component';
 import { DashboardDeadlinesComponent } from './components/dashboard-deadlines.component';
 
 const refreshSafetyMs = 300_000;
+const maxRangeDays = 366;
+const dayMs = 86_400_000;
+
+interface KpiCard {
+  key: DashboardKpiModel['key'];
+  label: string;
+  hint: string;
+  value: number;
+  icon: string;
+  tone: string;
+  alert: boolean;
+  delta: number | null;
+  clickable: boolean;
+}
+
+const kpiLooks: Record<DashboardKpiModel['key'], { label: string; icon: string; tone: string }> = {
+  open: { label: 'Not done', icon: 'pi-inbox', tone: '--orange' },
+  inProgress: { label: 'In progress', icon: 'pi-sync', tone: '--status-dot-progress' },
+  overdue: { label: 'Overdue', icon: 'pi-exclamation-circle', tone: '--app-danger' },
+  unassigned: { label: 'Unassigned', icon: 'pi-user-minus', tone: '--app-muted' },
+  created: { label: 'New tasks', icon: 'pi-plus-circle', tone: '--status-dot-new' },
+  done: { label: 'Done', icon: 'pi-check-circle', tone: '--status-dot-done' },
+};
 
 @Component({
   selector: 'app-dashboard',
   imports: [
     FormsModule,
     SelectModule,
-    EmptyStateComponent,
+    DatePickerModule,
     DashboardActivityComponent,
     DashboardChartComponent,
     DashboardDeadlinesComponent,
@@ -56,6 +96,8 @@ export class Dashboard implements OnDestroy {
   private ageTimer: ReturnType<typeof setInterval> | null = null;
   private entered = false;
 
+  readonly periodOptions = DASHBOARD_PERIOD_OPTIONS;
+  readonly today = new Date();
   readonly model = this.store.selectSignal(DashboardStoreSelectors.getModel);
   readonly loading = this.store.selectSignal(DashboardStoreSelectors.getLoading);
   readonly error = this.store.selectSignal(DashboardStoreSelectors.getError);
@@ -64,13 +106,27 @@ export class Dashboard implements OnDestroy {
   readonly priorities = this.store.selectSignal(DashboardStoreSelectors.getPriorities);
   readonly now = signal(Date.now());
 
-  readonly query = computed<DashboardQuery>(() => {
-    const period = Number(this.params().get('period'));
-    return {
-      projectId: this.params().get('projectId') || null,
-      period: period === 7 || period === 90 ? period : 30,
-    };
+  /** Picking "Custom range" opens the date fields; nothing is loaded until Apply. */
+  readonly editingCustom = signal(false);
+  readonly customFrom = signal<Date | null>(null);
+  readonly customTo = signal<Date | null>(null);
+
+  readonly query = computed<DashboardQuery>(() => dashboardQueryFromParams(this.params()));
+  readonly selectedPeriod = computed<DashboardPeriod>(() =>
+    this.editingCustom() ? 'custom' : this.query().period,
+  );
+  readonly customError = computed(() => {
+    const from = this.customFrom();
+    const to = this.customTo();
+    if (!from || !to) return 'Pick both a start and an end date';
+    if (from > to) return "The start date can't be after the end date";
+    if (to > this.today) return 'Pick dates up to today';
+    if (Math.round((to.getTime() - from.getTime()) / dayMs) + 1 > maxRangeDays) {
+      return 'Pick a range of one year or less';
+    }
+    return null;
   });
+
   readonly projectOptions = computed(() => {
     const options = this.projects();
     const selected = this.selectedProject();
@@ -83,18 +139,80 @@ export class Dashboard implements OnDestroy {
       ...entries.map((item) => ({ id: item.id, label: `#${item.code} ${item.title}` })),
     ];
   });
-  readonly updatedMinutes = computed(() => {
+
+  readonly periodText = computed(() => {
+    const data = this.model();
+    if (!data) return '';
+    if (data.period === 'custom') return rangeText(data.from, data.to);
+    return DASHBOARD_PERIOD_OPTIONS.find((option) => option.value === data.period)?.label ?? '';
+  });
+  /**
+   * The dates behind the chosen period — the one thing the controls do not already show. The project
+   * and the period name are in the fields right beside it; a custom range shows its dates itself.
+   */
+  readonly scopeText = computed(() => {
+    const data = this.model();
+    return data && data.period !== 'custom' ? rangeText(data.from, data.to) : '';
+  });
+  readonly updatedText = computed(() => {
     const generatedAt = this.model()?.generatedAt;
-    return generatedAt
-      ? Math.max(0, Math.floor((this.now() - Date.parse(generatedAt)) / 60_000))
-      : 0;
+    if (!generatedAt) return '';
+    const minutes = Math.max(0, Math.floor((this.now() - Date.parse(generatedAt)) / 60_000));
+    return minutes === 0 ? 'Updated just now' : `Updated ${minutes} min ago`;
   });
-  readonly kpis = computed(() => {
-    const list = this.model()?.kpis ?? [];
-    return (['open', 'inProgress', 'overdue', 'done'] as const)
-      .map((key) => list.find((item) => item.key === key))
-      .filter((item) => item !== undefined);
+
+  readonly kpiCards = computed<KpiCard[]>(() => {
+    const kpis = this.model()?.kpis ?? [];
+    const period = this.periodText();
+    const hints: Record<DashboardKpiModel['key'], string> = {
+      open: 'New and in progress',
+      inProgress: 'Being worked on',
+      overdue: 'Past the deadline',
+      unassigned: 'Not done, nobody assigned',
+      created: period,
+      done: period,
+    };
+    return (['open', 'inProgress', 'overdue', 'unassigned', 'created', 'done'] as const)
+      .map((key) => kpis.find((kpi) => kpi.key === key))
+      .filter((kpi) => kpi !== undefined)
+      .map((kpi) => ({
+        key: kpi.key,
+        ...kpiLooks[kpi.key],
+        hint: hints[kpi.key],
+        value: kpi.value,
+        alert: kpi.key === 'overdue' && kpi.value > 0,
+        delta: kpi.changePercent ?? null,
+        // The task list has no filter by creation date, so Created has nowhere honest to lead.
+        clickable: kpi.key !== 'created',
+      }));
   });
+
+  readonly granularityText = computed(() => {
+    const granularity = this.model()?.granularity;
+    return granularity ? `per ${granularity}` : '';
+  });
+  readonly mainLabels = computed(() => {
+    const data = this.model();
+    return data ? data.mainChart.labels.map((label) => bucketLabel(label, data.granularity)) : [];
+  });
+  readonly mainTooltipLabels = computed(() => {
+    const data = this.model();
+    return data
+      ? data.mainChart.labels.map((label) => bucketTooltip(label, data.granularity))
+      : [];
+  });
+  readonly mainSeries = computed<DashboardChartSeries[]>(() => {
+    const series = this.model()?.mainChart.series ?? [];
+    const values = (key: 'created' | 'started' | 'done') =>
+      series.find((item) => item.key === key)?.data ?? [];
+    return [
+      // Named and coloured as the statuses the tasks moved into, the way every status dot is.
+      { label: 'New', values: values('created'), color: '--status-dot-new' },
+      { label: 'In progress', values: values('started'), color: '--status-dot-progress' },
+      { label: 'Done', values: values('done'), color: '--status-dot-done' },
+    ];
+  });
+
   readonly statusChart = computed(() =>
     this.model()?.donuts.find((item) => item.key === 'byStatus'),
   );
@@ -104,26 +222,13 @@ export class Dashboard implements OnDestroy {
   readonly statusLabels = computed(
     () => this.statusChart()?.segments.map((item) => item.label) ?? [],
   );
-  readonly statusValues = computed(
-    () => this.statusChart()?.segments.map((item) => item.value) ?? [],
-  );
-  readonly priorityLabels = computed(
-    () => this.priorityChart()?.segments.map((item) => item.label) ?? [],
-  );
-  readonly priorityValues = computed(
-    () => this.priorityChart()?.segments.map((item) => item.value) ?? [],
-  );
-  readonly createdSeries = computed(
-    () => this.model()?.mainChart.series.find((item) => item.key === 'created')?.data ?? [],
-  );
-  readonly doneSeries = computed(
-    () => this.model()?.mainChart.series.find((item) => item.key === 'done')?.data ?? [],
-  );
-  readonly mainHasData = computed(() =>
-    [...this.createdSeries(), ...this.doneSeries()].some((value) => value > 0),
-  );
-  readonly statusHasData = computed(() => this.statusValues().some((value) => value > 0));
-  readonly priorityHasData = computed(() => this.priorityValues().some((value) => value > 0));
+  readonly statusSeries = computed<DashboardChartSeries[]>(() => [
+    {
+      label: 'Tasks',
+      values: this.statusChart()?.segments.map((item) => item.value) ?? [],
+      color: '--orange',
+    },
+  ]);
   readonly statusColors = computed(
     () =>
       this.statusChart()?.segments.map((item) =>
@@ -134,6 +239,16 @@ export class Dashboard implements OnDestroy {
             : '--status-dot-done',
       ) ?? [],
   );
+  readonly priorityLabels = computed(
+    () => this.priorityChart()?.segments.map((item) => item.label) ?? [],
+  );
+  readonly prioritySeries = computed<DashboardChartSeries[]>(() => [
+    {
+      label: 'Tasks not done',
+      values: this.priorityChart()?.segments.map((item) => item.value) ?? [],
+      color: '--orange',
+    },
+  ]);
   readonly priorityColors = computed(
     () =>
       this.priorityChart()?.segments.map((item) => {
@@ -149,6 +264,7 @@ export class Dashboard implements OnDestroy {
               : '--app-muted';
       }) ?? [],
   );
+
   readonly workloadSegments = computed(
     () => this.model()?.workload?.segments.filter((item) => item.value > 0) ?? [],
   );
@@ -161,33 +277,51 @@ export class Dashboard implements OnDestroy {
           : 'Unassigned',
     ),
   );
-  readonly workloadValues = computed(() => this.workloadSegments().map((item) => item.value));
+  readonly workloadTooltips = computed(() =>
+    this.workloadSegments().map((item, index) =>
+      item.kind === 'others' ? 'Other people' : this.workloadLabels()[index],
+    ),
+  );
+  readonly workloadSeries = computed<DashboardChartSeries[]>(() => [
+    { label: 'Tasks not done', values: this.workloadSegments().map((item) => item.value), color: '--orange' },
+  ]);
   readonly workloadDisabledIndices = computed(() =>
     this.workloadSegments().flatMap((item, index) => (item.kind === 'others' ? [index] : [])),
   );
   readonly workloadColors = computed(() =>
     this.workloadSegments().map((item) => (item.kind === 'user' ? '--orange' : '--app-muted')),
   );
-  readonly secondaryColors = computed(
-    () => this.model()?.secondaryChart.segments.map(() => '--orange') ?? [],
-  );
+
   readonly secondaryLabels = computed(
     () => this.model()?.secondaryChart.segments.map((item) => `#${item.code} ${item.label}`) ?? [],
   );
-  readonly secondaryValues = computed(
-    () => this.model()?.secondaryChart.segments.map((item) => item.value) ?? [],
+  readonly secondarySeries = computed<DashboardChartSeries[]>(() => [
+    {
+      label: 'Tasks not done',
+      values: this.model()?.secondaryChart.segments.map((item) => item.value) ?? [],
+      color: '--orange',
+    },
+  ]);
+  readonly secondaryColors = computed(
+    () => this.model()?.secondaryChart.segments.map(() => '--orange') ?? [],
   );
 
   constructor() {
     effect(() => {
       const query = this.query();
-      if (
-        !this.params().has('projectId') ||
-        !this.params().has('period') ||
-        ![7, 30, 90].includes(Number(this.params().get('period')))
-      ) {
+      const params = this.params();
+      const wanted = dashboardQueryParams(query);
+      const normalized =
+        params.has('projectId') &&
+        Object.entries(wanted).every(([key, value]) => (params.get(key) ?? null) === value);
+      if (!normalized) {
         this.navigate(query);
         return;
+      }
+      // A link or a reload with a custom range shows its dates in the fields.
+      if (query.period === 'custom' && !untracked(this.editingCustom)) {
+        this.customFrom.set(fromIsoDate(query.from));
+        this.customTo.set(fromIsoDate(query.to));
       }
       if (!this.entered) {
         this.entered = true;
@@ -224,23 +358,53 @@ export class Dashboard implements OnDestroy {
     this.navigate({ ...this.query(), projectId: projectId || null });
   }
 
-  changePeriod(period: 7 | 30 | 90): void {
-    this.navigate({ ...this.query(), period });
+  changePeriod(period: DashboardPeriod): void {
+    if (period === 'custom') {
+      const query = this.query();
+      const data = this.model();
+      this.customFrom.set(fromIsoDate(query.from ?? data?.from ?? null));
+      this.customTo.set(fromIsoDate(query.to ?? data?.to ?? null));
+      this.editingCustom.set(true);
+      return;
+    }
+    this.editingCustom.set(false);
+    this.navigate({ ...this.query(), period, from: null, to: null });
+  }
+
+  applyCustom(): void {
+    const from = this.customFrom();
+    const to = this.customTo();
+    if (this.customError() || !from || !to) return;
+    this.editingCustom.set(false);
+    this.navigate({ ...this.query(), period: 'custom', from: toIsoDate(from), to: toIsoDate(to) });
   }
 
   searchProjects(event: { filter?: string }): void {
     this.store.dispatch(DashboardStoreActions.searchProjects({ search: event.filter ?? '' }));
   }
 
-  retry(): void {
+  refresh(): void {
     this.store.dispatch(DashboardStoreActions.refresh());
   }
 
-  openKpi(key: string): void {
-    if (key === 'overdue') this.openTasks({ deadline: 'overdue' });
-    else if (key === 'done') this.openTasks({ state: String(WorkTaskStatus.Done), view: 'board' });
-    else
-      this.openTasks({ state: key === 'inProgress' ? String(WorkTaskStatus.InProgress) : '1,2' });
+  openKpi(key: DashboardKpiModel['key']): void {
+    switch (key) {
+      case 'overdue':
+        this.openTasks({ deadline: 'overdue' });
+        break;
+      case 'done':
+        this.openTasks({ state: String(WorkTaskStatus.Done), view: 'board' });
+        break;
+      case 'unassigned':
+        this.openTasks({ state: '1,2', assignee: 'none' });
+        break;
+      case 'inProgress':
+        this.openTasks({ state: String(WorkTaskStatus.InProgress) });
+        break;
+      case 'open':
+        this.openTasks({ state: '1,2' });
+        break;
+    }
   }
 
   openStatus(index: number): void {
@@ -272,6 +436,11 @@ export class Dashboard implements OnDestroy {
     });
   }
 
+  /** Every deadline, not only the nearest ten the card lists. */
+  openCalendar(): void {
+    this.openTasks({ view: 'calendar', state: '1,2' });
+  }
+
   openRef(ref: DashboardRefModel): void {
     const route = ['/projects', ref.projectId];
     if (ref.workTicketId) route.push('tickets', ref.workTicketId);
@@ -282,7 +451,7 @@ export class Dashboard implements OnDestroy {
   private navigate(query: DashboardQuery): void {
     void this.router.navigate([], {
       relativeTo: this.route,
-      queryParams: { projectId: query.projectId ?? '', period: query.period },
+      queryParams: dashboardQueryParams(query),
       replaceUrl: true,
     });
   }
@@ -305,4 +474,34 @@ export class Dashboard implements OnDestroy {
         this.store.dispatch(DashboardStoreActions.refresh());
     }, refreshSafetyMs);
   }
+}
+
+// Angular's formatter, as in History and Attachments: `Intl` writes September as "Sept" in en-GB.
+const date = (value: Date, format: string) => formatDate(value, format, 'en-US');
+
+function rangeText(from: string, to: string): string {
+  const start = fromIsoDate(from);
+  const end = fromIsoDate(to);
+  if (!start || !end) return '';
+  if (from === to) return date(start, 'd MMM');
+  const format = start.getFullYear() !== end.getFullYear() ? 'd MMM y' : 'd MMM';
+  return `${date(start, format)} – ${date(end, format)}`;
+}
+
+/** Axis label of a bucket the API names as yyyy-MM-ddTHH:mm, yyyy-MM-dd or yyyy-MM. */
+function bucketLabel(label: string, granularity: DashboardGranularity): string {
+  if (granularity === 'hour') return label.slice(11, 16);
+  if (granularity === 'month') return date(monthDate(label), 'MMM y');
+  return date(fromIsoDate(label) ?? new Date(label), 'd MMM');
+}
+
+function bucketTooltip(label: string, granularity: DashboardGranularity): string {
+  if (granularity === 'hour') return `${label.slice(11, 16)} – ${label.slice(11, 13)}:59`;
+  if (granularity === 'month') return date(monthDate(label), 'MMMM y');
+  return date(fromIsoDate(label) ?? new Date(label), 'EEE, d MMM y');
+}
+
+function monthDate(label: string): Date {
+  const [year, month] = label.split('-').map(Number);
+  return new Date(year, month - 1, 1);
 }

@@ -26,7 +26,9 @@ describe('DashboardActivityComponent', () => {
     fixture.detectChanges();
 
     const row = fixture.nativeElement.querySelector('button') as HTMLButtonElement;
-    expect(row.textContent).toContain('TASK #41 Payment form');
+    expect(row.textContent).toContain('41');
+    expect(row.textContent).toContain('Payment form');
+    expect(row.querySelector('app-work-item-ref')).not.toBeNull();
     expect(row.disabled).toBe(true);
     row.click();
     expect(selected).not.toHaveBeenCalled();
