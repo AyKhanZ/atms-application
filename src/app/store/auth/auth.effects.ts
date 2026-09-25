@@ -11,6 +11,7 @@ import { Router } from '@angular/router';
 import { TokenStorageService } from '../../core/services/token-storage.service';
 import { AuthSessionService } from '../../core/services/auth-session.service';
 import { ProjectAccessService } from '../../core/services/project-access.service';
+import { RealtimeService } from '../../core/services/realtime.service';
 
 @Injectable()
 export class AuthEffects {
@@ -20,6 +21,7 @@ export class AuthEffects {
   private readonly authSession = inject(AuthSessionService);
   private readonly tokenStorage = inject(TokenStorageService);
   private readonly projectAccess = inject(ProjectAccessService);
+  private readonly realtime = inject(RealtimeService);
   private readonly snackBar = inject(SnackBarService);
 
   login$ = createEffect(() =>
@@ -124,6 +126,36 @@ export class AuthEffects {
       this.actions$.pipe(
         ofType(AuthStoreActions.restoreSession, AuthStoreActions.refreshTokenSuccess),
         tap(({ accessModel }) => this.tokenStorage.save(accessModel)),
+      ),
+    { dispatch: false },
+  );
+
+  realtimeConnection$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(
+          AuthStoreActions.loginSuccess,
+          AuthStoreActions.restoreSession,
+          AuthStoreActions.refreshTokenSuccess,
+        ),
+        tap(() => {
+          void this.realtime.start();
+        }),
+      ),
+    { dispatch: false },
+  );
+
+  realtimeDisconnection$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(
+          AuthStoreActions.logout,
+          AuthStoreActions.logoutCompleted,
+          AuthStoreActions.refreshTokenFailure,
+        ),
+        tap(() => {
+          void this.realtime.stop();
+        }),
       ),
     { dispatch: false },
   );

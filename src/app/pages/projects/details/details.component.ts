@@ -44,6 +44,7 @@ import { GroupsTabComponent } from './tabs/groups/groups-tab.component';
 import { WorkGroupExpansionStateService } from './tabs/groups/work-group-expansion-state.service';
 import { StakeholdersTabComponent } from './tabs/stakeholders/stakeholders-tab.component';
 import { NavigationHistoryService } from '../../../core/services/navigation-history.service';
+import { RealtimeService } from '../../../core/services/realtime.service';
 
 type ProjectTab = 'details' | 'stakeholders' | 'groups' | 'attachments' | 'history';
 
@@ -83,6 +84,7 @@ export class ProjectDetailsComponent implements OnDestroy {
   private readonly workGroupExpansionState = inject(WorkGroupExpansionStateService);
   private readonly projectPermissionsRefresh = inject(ProjectPermissionsRefreshService);
   private readonly visiblePageRefresh = inject(VisiblePageRefreshService);
+  private readonly realtime = inject(RealtimeService);
   private readonly breadcrumbOverride = inject(BreadcrumbOverrideService);
   private breadcrumbPath = '';
 
@@ -109,6 +111,7 @@ export class ProjectDetailsComponent implements OnDestroy {
   readonly id = this.route.snapshot.paramMap.get('projectId') ?? '';
 
   constructor() {
+    void this.realtime.joinProject(this.id).catch(() => undefined);
     this.breadcrumbPath = `/projects/${this.id}`;
     // Placeholder so the trail does not visibly grow a segment once the project loads.
     this.breadcrumbOverride.set(this.breadcrumbPath, 'Project');
@@ -179,6 +182,7 @@ export class ProjectDetailsComponent implements OnDestroy {
   }
 
   ngOnDestroy(): void {
+    void this.realtime.leaveProject(this.id).catch(() => undefined);
     this.store.dispatch(WorkProjectsStoreActions.clearItem());
     this.breadcrumbOverride.clear(this.breadcrumbPath);
   }
