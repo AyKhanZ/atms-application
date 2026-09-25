@@ -14,6 +14,7 @@ import { GlobalSearchItemModel } from '../../core/models/global-search';
 import { WorkItemKind } from '../../core/models/work-items';
 import { GlobalSearchStoreActions, GlobalSearchStoreSelectors } from '../../store/global-search';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
+import { LoadMoreButtonComponent } from '../../shared/components/load-more-button/load-more-button.component';
 import { SearchResultRowComponent } from '../../shared/components/global-search/search-result-row.component';
 import {
   SearchFilterChip,
@@ -37,6 +38,7 @@ import {
     SearchResultRowComponent,
     ScrollSentinelDirective,
     EmptyStateComponent,
+    LoadMoreButtonComponent,
     BackButtonComponent,
   ],
   templateUrl: './search.component.html',

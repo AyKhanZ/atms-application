@@ -52,16 +52,11 @@
       <i class="pi pi-spin pi-spinner" aria-hidden="true"></i> Loading tickets...
     </div>
   } @else if (ticketPage.hasMore) {
-    <button
-      pButton
-      type="button"
+    <app-load-more-button
       class="milestone-tickets-load-more"
-      [outlined]="true"
       [loading]="ticketPage.loading"
-      (click)="loadMore.emit()"
-    >
-      Load more
-    </button>
+      (clicked)="loadMore.emit()"
+    />
   }
 }
 

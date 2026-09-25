@@ -83,16 +83,6 @@
     @if (loadMoreError(); as error) {
       <small class="history-more__error" role="alert">{{ error }}</small>
     }
-    <button
-      type="button"
-      class="history-more__button"
-      [disabled]="loadingMore()"
-      (click)="loadMore.emit()"
-    >
-      @if (loadingMore()) {
-        <i class="pi pi-spin pi-spinner" aria-hidden="true"></i>
-      }
-      Load more
-    </button>
+    <app-load-more-button [loading]="loadingMore()" (clicked)="loadMore.emit()" />
   </div>
 }

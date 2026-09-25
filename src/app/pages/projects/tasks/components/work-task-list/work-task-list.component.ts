@@ -16,6 +16,7 @@ import { Menu, MenuModule } from 'primeng/menu';
 import { WorkTaskFilter, WorkTaskModel } from '../../../../../core/models/work-tasks';
 import { WorkTasksStoreActions, WorkTasksStoreSelectors } from '../../../../../store/work-tasks';
 import { EmptyStateComponent } from '../../../../../shared/components/empty-state/empty-state.component';
+import { LoadMoreButtonComponent } from '../../../../../shared/components/load-more-button/load-more-button.component';
 import { WorkItemAssigneeComponent } from '../../../../../shared/components/work-item-assignee/work-item-assignee.component';
 import { TaskStatusBadgeComponent } from '../task-status-badge/task-status-badge.component';
 import { WorkItemRefComponent } from '../../../../../shared/components/work-item-ref/work-item-ref.component';
@@ -28,6 +29,7 @@ import { WorkItemKind } from '../../../../../core/models/work-items';
     ButtonModule,
     MenuModule,
     EmptyStateComponent,
+    LoadMoreButtonComponent,
     WorkItemAssigneeComponent,
     TaskStatusBadgeComponent,
   ],

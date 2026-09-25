@@ -1,5 +1,4 @@
 @use 'entity-code';
-@use 'quiet-button';
 
 :host {
   display: grid;
@@ -177,8 +176,6 @@
 }
 
 .more {
-  @include quiet-button.base;
-
   justify-self: center;
 }
 

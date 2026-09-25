@@ -25,11 +25,19 @@ import {
   ticketParentOption,
 } from './task-parent-option';
 import { WorkItemRefComponent } from '../../../../../shared/components/work-item-ref/work-item-ref.component';
+import { LoadMoreButtonComponent } from '../../../../../shared/components/load-more-button/load-more-button.component';
 import { WorkItemKind } from '../../../../../core/models/work-items';
 
 @Component({
   selector: 'app-task-parent-select',
-  imports: [WorkItemRefComponent, FormsModule, SelectModule, ButtonModule, LabelForDirective],
+  imports: [
+    WorkItemRefComponent,
+    FormsModule,
+    SelectModule,
+    ButtonModule,
+    LabelForDirective,
+    LoadMoreButtonComponent,
+  ],
   templateUrl: './task-parent-select.component.html',
   styleUrl: './task-parent-select.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

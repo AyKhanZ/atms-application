@@ -32,6 +32,7 @@ import {
 import { askToCloseOpenWork } from '../../../../shared/components/confirm-dialog/close-open-work';
 import { TaskCardComponent } from '../../components/task-card/task-card.component';
 import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
+import { LoadMoreButtonComponent } from '../../../../shared/components/load-more-button/load-more-button.component';
 import { filterKey } from '../../tasks-page.utils';
 
 const pageSize = 20;
@@ -77,6 +78,7 @@ interface Drop {
     SkeletonModule,
     TaskCardComponent,
     EmptyStateComponent,
+    LoadMoreButtonComponent,
   ],
   templateUrl: './task-board-view.component.html',
   styleUrl: './task-board-view.component.scss',

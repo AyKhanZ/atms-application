@@ -90,10 +90,5 @@
 </div>
 
 @if (page()?.hasMore) {
-  <button type="button" class="more" [disabled]="loading()" (click)="loadMore()">
-    @if (loading()) {
-      <i class="pi pi-spin pi-spinner" aria-hidden="true"></i>
-    }
-    Load more
-  </button>
+  <app-load-more-button class="more" [loading]="loading()" (clicked)="loadMore()" />
 }

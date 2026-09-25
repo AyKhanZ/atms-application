@@ -73,17 +73,11 @@
         </div>
 
         @if (page(lane)?.hasMore) {
-          <button
-            type="button"
+          <app-load-more-button
             class="column__more"
-            [disabled]="page(lane)?.loading"
-            (click)="loadMore(column, lane)"
-          >
-            @if (page(lane)?.loading) {
-              <i class="pi pi-spin pi-spinner" aria-hidden="true"></i>
-            }
-            Load more
-          </button>
+            [loading]="page(lane)?.loading ?? false"
+            (clicked)="loadMore(column, lane)"
+          />
         }
       }
     </section>

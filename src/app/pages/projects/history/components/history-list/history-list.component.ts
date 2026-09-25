@@ -24,6 +24,7 @@ import {
 } from '../../../../../shared/pipes/history.pipe';
 import { PersonNamePipe } from '../../../../../shared/pipes/person-name.pipe';
 import { HistoryAuthorAvatarComponent } from '../history-author-avatar/history-author-avatar.component';
+import { LoadMoreButtonComponent } from '../../../../../shared/components/load-more-button/load-more-button.component';
 import { HistoryValueComponent } from '../history-value/history-value.component';
 
 /** The entries, newest first, in groups by day. One of them is the one shown on the right. */
@@ -36,6 +37,7 @@ import { HistoryValueComponent } from '../history-value/history-value.component'
     HistorySummaryPipe,
     HistoryTimePipe,
     HistoryValueComponent,
+    LoadMoreButtonComponent,
     PersonNamePipe,
     TooltipModule,
   ],

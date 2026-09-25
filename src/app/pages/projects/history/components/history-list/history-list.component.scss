@@ -1,5 +1,3 @@
-@use 'quiet-button';
-
 :host {
   display: grid;
   align-content: start;
@@ -148,10 +146,6 @@
   justify-items: center;
   gap: 0.4rem;
   padding: 0.5rem 0 0.25rem;
-}
-
-.history-more__button {
-  @include quiet-button.base;
 }
 
 .history-more__error {

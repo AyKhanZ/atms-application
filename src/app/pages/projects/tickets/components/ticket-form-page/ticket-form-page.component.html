@@ -117,16 +117,12 @@
               </ng-template>
               <ng-template #footer>
                 @if (milestonesHaveMore()) {
-                  <button
-                    pButton
-                    type="button"
-                    [text]="true"
+                  <app-load-more-button
                     class="milestones-load-more"
+                    [compact]="true"
                     [loading]="milestonesLoading()"
-                    (click)="loadMoreMilestones($event)"
-                  >
-                    Load more
-                  </button>
+                    (clicked)="loadMoreMilestones($event)"
+                  />
                 }
               </ng-template>
             </p-select>

@@ -15,12 +15,13 @@ import { WorkItemJumpItem } from './work-item-jump-item';
 import { WorkItemJumpContext } from './work-item-jump-context';
 import { workItemJumpPosition } from './work-item-jump-position';
 import { InputClearComponent } from '../input-clear/input-clear.component';
+import { LoadMoreButtonComponent } from '../load-more-button/load-more-button.component';
 import { WorkItemRefComponent } from '../work-item-ref/work-item-ref.component';
 import { WorkItemKind } from '../../../core/models/work-items';
 
 @Component({
   selector: 'app-work-item-jump',
-  imports: [InputClearComponent, WorkItemRefComponent],
+  imports: [InputClearComponent, LoadMoreButtonComponent, WorkItemRefComponent],
   templateUrl: './work-item-jump.component.html',
   styleUrl: './work-item-jump.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

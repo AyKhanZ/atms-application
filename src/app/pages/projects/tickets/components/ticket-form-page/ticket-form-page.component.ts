@@ -54,6 +54,7 @@ import { projectNavigationUrl } from '../../../../../core/utils/project-navigati
 import { formatDateInput, parseDisplayDate } from '../../../../../core/utils/date-input.utils';
 import { BackButtonComponent } from '../../../../../shared/components/back-button/back-button.component';
 import { ProfileAvatarComponent } from '../../../../../shared/components/profile-avatar/profile-avatar.component';
+import { LoadMoreButtonComponent } from '../../../../../shared/components/load-more-button/load-more-button.component';
 import { LabelForDirective } from '../../../../../core/directives/label-for.directive';
 import {
   MilestoneOption,
@@ -86,6 +87,7 @@ interface TicketFormNavigationState {
     TextareaModule,
     BackButtonComponent,
     ProfileAvatarComponent,
+    LoadMoreButtonComponent,
     LabelForDirective,
   ],
   providers: [ConfirmationService],

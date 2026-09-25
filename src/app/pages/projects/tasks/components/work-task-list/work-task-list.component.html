@@ -73,16 +73,7 @@
     </div>
   }
   @if (hasMore()) {
-    <button
-      class="load-more"
-      pButton
-      type="button"
-      outlined
-      [loading]="loadingMore()"
-      (click)="loadMore()"
-    >
-      Load more
-    </button>
+    <app-load-more-button class="load-more" [loading]="loadingMore()" (clicked)="loadMore()" />
   }
 </section>
 <p-menu #taskMenu [model]="taskActions()" [popup]="true" appendTo="body" />

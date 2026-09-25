@@ -166,10 +166,7 @@ app-task-status-badge {
 .load-more {
   display: flex;
   width: max-content;
-  min-height: 2.1rem;
   margin: 0.75rem auto 0;
-  color: var(--gray-text-strong);
-  font-size: 0.78rem;
 }
 
 @container (max-width: 34rem) {

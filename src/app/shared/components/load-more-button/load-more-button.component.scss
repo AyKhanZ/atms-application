@@ -1,0 +1,16 @@
+@use 'quiet-button';
+
+:host {
+  display: inline-flex;
+}
+
+.load-more {
+  @include quiet-button.base;
+}
+
+.load-more--compact {
+  min-width: 0;
+  height: 2rem;
+  padding-inline: 0.75rem;
+  font-size: 0.8rem;
+}
