@@ -11,5 +11,6 @@ export enum Features {
   Attachments = 'attachments',
   History = 'history',
   TaskBoard = 'taskBoard',
+  Dashboard = 'dashboard',
   Dictionary = 'dictionary',
 }

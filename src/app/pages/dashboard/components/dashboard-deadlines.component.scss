@@ -1,0 +1,31 @@
+@use './dashboard-list' as list;
+
+@include list.base;
+
+.dashboard-list__main {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 0;
+  flex: 1;
+}
+.dashboard-list__title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dashboard-list__meta {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-shrink: 0;
+}
+
+@media (max-width: 767px) {
+  .dashboard-list__main {
+    flex-basis: 100%;
+  }
+  .dashboard-list__meta {
+    margin-left: auto;
+  }
+}

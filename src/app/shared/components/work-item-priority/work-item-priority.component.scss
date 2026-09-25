@@ -51,7 +51,7 @@
    even before the bars are counted. Red is reserved for Critical — giving it to High as well
    would flatten the top of the scale. */
 .work-item-priority[data-tone='medium'] {
-  color: #b45309;
+  color: var(--priority-medium);
 }
 
 .work-item-priority[data-tone='high'] {

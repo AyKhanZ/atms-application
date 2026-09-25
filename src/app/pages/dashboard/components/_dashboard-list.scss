@@ -1,0 +1,64 @@
+@mixin base {
+  :host {
+    display: block;
+    min-width: 0;
+  }
+
+  .dashboard-list {
+    height: 100%;
+    overflow: hidden;
+  }
+  .dashboard-list header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 0.75rem;
+    padding: 1rem 1.1rem 0.6rem;
+  }
+  .dashboard-list h2 {
+    margin: 0;
+    font-size: 1rem;
+  }
+  .dashboard-list small {
+    color: var(--app-muted);
+  }
+  .dashboard-list ul {
+    list-style: none;
+    padding: 0 0.4rem 0.5rem;
+    margin: 0;
+  }
+  .dashboard-list li + li {
+    border-top: 1px solid var(--app-border);
+  }
+  .dashboard-list button {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    width: 100%;
+    min-height: 3.3rem;
+    padding: 0.55rem 0.7rem;
+    border: 0;
+    border-radius: var(--radius-card);
+    background: transparent;
+    color: var(--app-text);
+    text-align: left;
+    cursor: pointer;
+  }
+  .dashboard-list button:hover {
+    background: var(--app-surface-muted);
+  }
+  .dashboard-list button:focus-visible {
+    outline: 3px solid var(--orange-focus-outline);
+  }
+  .dashboard-list time {
+    flex-shrink: 0;
+    color: var(--app-muted);
+    font-size: 0.78rem;
+  }
+
+  @media (max-width: 767px) {
+    .dashboard-list button {
+      flex-wrap: wrap;
+    }
+  }
+}

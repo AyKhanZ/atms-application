@@ -1,0 +1,41 @@
+<section class="panel dashboard-list dashboard-list--activity">
+  <header><h2>Recent activity</h2></header>
+  @if (rows().length) {
+    <ul>
+      @for (row of rows(); track row.item.entry.id) {
+        <li>
+          <button
+            type="button"
+            [disabled]="row.item.subject.isDeleted"
+            (click)="selected.emit(row.item.ref)"
+          >
+            @if (row.item.entry.createdBy; as person) {
+              <app-profile-avatar
+                [imageUrl]="person.avatarPath"
+                [fullName]="person | personName"
+                [initials]="person | personInitials"
+                [previewEnabled]="false"
+              />
+            } @else {
+              <span class="dashboard-list__system" aria-hidden="true"
+                ><i class="pi pi-cog"></i
+              ></span>
+            }
+            <span class="dashboard-list__main">
+              <span
+                ><strong>{{ row.item.entry.createdBy | personName: 'System' }}</strong>
+                {{ row.text.before }} <strong>{{ row.text.subject }}</strong>
+                {{ row.text.after }}</span
+              >
+            </span>
+            <time [attr.datetime]="row.item.entry.createdAt">{{
+              row.item.entry.createdAt | historyTime
+            }}</time>
+          </button>
+        </li>
+      }
+    </ul>
+  } @else {
+    <app-empty-state icon="pi-history" title="No recent activity" />
+  }
+</section>

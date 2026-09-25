@@ -1,0 +1,34 @@
+@use './dashboard-list' as list;
+
+@include list.base;
+
+.dashboard-list button:disabled {
+  cursor: default;
+  opacity: 1;
+}
+.dashboard-list button:disabled:hover {
+  background: transparent;
+}
+.dashboard-list__main {
+  display: block;
+  min-width: 0;
+  flex: 1;
+  line-height: 1.4;
+}
+.dashboard-list__system {
+  width: 2rem;
+  text-align: center;
+  color: var(--app-muted);
+}
+app-profile-avatar {
+  flex-shrink: 0;
+}
+
+@media (max-width: 767px) {
+  .dashboard-list__main {
+    flex-basis: calc(100% - 3rem);
+  }
+  .dashboard-list time {
+    margin-left: 2.8rem;
+  }
+}
