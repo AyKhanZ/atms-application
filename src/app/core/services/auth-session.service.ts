@@ -18,6 +18,7 @@ import { AuthService } from './auth.service';
 import { TokenStorageService } from './token-storage.service';
 import { isServerUnavailable, isTerminalRefreshError } from '../utils/http-error.utils';
 import { hasCompletedOnboarding } from '../utils/jwt-claims.utils';
+import { shouldRefreshAccessToken } from '../utils/access-token-expiry.utils';
 
 @Injectable({ providedIn: 'root' })
 export class AuthSessionService {
@@ -170,11 +171,4 @@ export class RefreshTokenMissingError extends Error {
   constructor() {
     super('Refresh token is missing.');
   }
-}
-
-function shouldRefreshAccessToken(expiresAt: string): boolean {
-  const expiresAtMs = new Date(expiresAt).getTime();
-  const refreshBeforeMs = 60_000;
-
-  return !Number.isFinite(expiresAtMs) || expiresAtMs - Date.now() <= refreshBeforeMs;
 }

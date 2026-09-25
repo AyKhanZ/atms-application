@@ -4,6 +4,7 @@ import { provideMockActions } from '@ngrx/effects/testing';
 import { of, ReplaySubject } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
 import { AuthSessionService } from '../../core/services/auth-session.service';
+import { RealtimeService } from '../../core/services/realtime.service';
 import { SnackBarService } from '../../core/services/snack-bar.service';
 import { TokenStorageService } from '../../core/services/token-storage.service';
 import { AuthEffects } from './auth.effects';
@@ -14,11 +15,13 @@ describe('AuthEffects', () => {
   let effects: AuthEffects;
   let authSession: { refreshAccessToken: ReturnType<typeof vi.fn> };
   let authService: { refresh: ReturnType<typeof vi.fn> };
+  let realtime: { start: ReturnType<typeof vi.fn>; stop: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
     actions$ = new ReplaySubject<unknown>(1);
     authSession = { refreshAccessToken: vi.fn() };
     authService = { refresh: vi.fn() };
+    realtime = { start: vi.fn().mockResolvedValue(undefined), stop: vi.fn().mockResolvedValue(undefined) };
 
     TestBed.configureTestingModule({
       providers: [
@@ -26,6 +29,7 @@ describe('AuthEffects', () => {
         provideMockActions(() => actions$),
         { provide: AuthSessionService, useValue: authSession },
         { provide: AuthService, useValue: authService },
+        { provide: RealtimeService, useValue: realtime },
         {
           provide: Router,
           useValue: { url: '/', parseUrl: vi.fn(), navigate: vi.fn(), navigateByUrl: vi.fn() },
@@ -56,6 +60,33 @@ describe('AuthEffects', () => {
     expect(authSession.refreshAccessToken).toHaveBeenCalledTimes(1);
     expect(authService.refresh).not.toHaveBeenCalled();
     expect(emittedAction).not.toHaveBeenCalled();
+    subscription.unsubscribe();
+  });
+
+  it('starts realtime after login, session restoration and token refresh', () => {
+    const accessModel = {
+      accessToken: 'access-token',
+      refreshToken: 'refresh-token',
+      accessTokenExpireTime: new Date(Date.now() + 60_000).toISOString(),
+    };
+    const subscription = effects.realtimeConnection$.subscribe();
+
+    actions$.next(AuthStoreActions.loginSuccess({ accessModel }));
+    actions$.next(AuthStoreActions.restoreSession({ accessModel }));
+    actions$.next(AuthStoreActions.refreshTokenSuccess({ accessModel }));
+
+    expect(realtime.start).toHaveBeenCalledTimes(3);
+    subscription.unsubscribe();
+  });
+
+  it('stops realtime when the session ends', () => {
+    const subscription = effects.realtimeDisconnection$.subscribe();
+
+    actions$.next(AuthStoreActions.logout());
+    actions$.next(AuthStoreActions.logoutCompleted());
+    actions$.next(AuthStoreActions.refreshTokenFailure());
+
+    expect(realtime.stop).toHaveBeenCalledTimes(3);
     subscription.unsubscribe();
   });
 });
