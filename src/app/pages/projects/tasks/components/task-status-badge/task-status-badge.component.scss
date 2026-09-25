@@ -1,3 +1,4 @@
+@use 'replaced-value';
 @use 'status-dot';
 
 .task-status {
@@ -6,6 +7,10 @@
 
 .task-status--prominent {
   @include status-dot.prominent;
+}
+
+.task-status--muted {
+  @include replaced-value.muted;
 }
 
 .task-status[data-tone='active'] {

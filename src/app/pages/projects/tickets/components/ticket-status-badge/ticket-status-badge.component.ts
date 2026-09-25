@@ -9,9 +9,14 @@ export type TicketStatusTone = 'neutral' | 'active' | 'review' | 'testing' | 'su
     <span
       class="ticket-status"
       [class.ticket-status--prominent]="prominent()"
+      [class.ticket-status--muted]="muted()"
       [attr.data-tone]="tone()"
-      >{{ status().name }}</span
+      [attr.aria-label]="dotOnly() ? status().name : null"
     >
+      @if (!dotOnly()) {
+        {{ status().name }}
+      }
+    </span>
   `,
   styleUrl: './ticket-status-badge.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -20,6 +25,10 @@ export class TicketStatusBadgeComponent {
   readonly status = input.required<DictionaryModel>();
   /** Page-header size, matching the project status badge on Project details. */
   readonly prominent = input(false);
+  /** Only the dot: for a mark whose status is named elsewhere. */
+  readonly dotOnly = input(false);
+  /** A status that was replaced: grey and struck through. */
+  readonly muted = input(false);
   readonly tone = computed(() => ticketStatusTone(this.status().code));
 }
 

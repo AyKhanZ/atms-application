@@ -1,0 +1,128 @@
+<div class="history-tab">
+  @if (loading()) {
+    <div class="history-skeleton" role="status" aria-label="Loading history">
+      <p-skeleton width="60%" height="1.75rem" />
+      <div class="history-skeleton__rows">
+        @for (row of skeletonRows; track row) {
+          <div class="history-skeleton__row">
+            <p-skeleton shape="circle" size="2rem" />
+            <div class="history-skeleton__text">
+              <p-skeleton [width]="row % 2 ? '70%' : '50%'" height="0.85rem" />
+              <p-skeleton width="30%" height="0.7rem" />
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  } @else if (error()) {
+    <!-- The same panel as an empty tab: a failed read is not an alarm, only something to retry. -->
+    <app-empty-state
+      role="alert"
+      icon="pi-history"
+      title="History isn't available right now"
+      description="It couldn't be loaded. Check your connection and try again."
+    >
+      <button
+        pButton
+        type="button"
+        severity="secondary"
+        outlined="true"
+        class="history-retry"
+        (click)="load()"
+      >
+        <i class="pi pi-refresh" aria-hidden="true"></i><span>Try again</span>
+      </button>
+    </app-empty-state>
+  } @else if (!entries().length) {
+    <app-empty-state
+      icon="pi-history"
+      title="No activity yet"
+      description="Every change will be recorded here."
+    />
+  } @else {
+    <!-- Two parts that fold, as in Azure DevOps: the status graph and the history itself. -->
+    <section class="history-section">
+      <h3 class="history-section__head">
+        <button
+          type="button"
+          aria-controls="historyStates"
+          [attr.aria-expanded]="sections.statesOpen()"
+          (click)="sections.toggleStates()"
+        >
+          <span>Status graph</span>
+          <i
+            class="pi"
+            [class.pi-chevron-down]="sections.statesOpen()"
+            [class.pi-chevron-right]="!sections.statesOpen()"
+            aria-hidden="true"
+          ></i>
+        </button>
+      </h3>
+      @if (sections.statesOpen()) {
+        <div id="historyStates" class="history-section__body">
+          <app-history-state-bar
+            [states]="list()?.states ?? null"
+            [entityType]="entityType()"
+            [projectId]="projectId()"
+            [current]="currentStatus()"
+          />
+        </div>
+      }
+    </section>
+
+    <section class="history-section">
+      <h3 class="history-section__head">
+        <button
+          type="button"
+          aria-controls="historyEntries"
+          [attr.aria-expanded]="sections.entriesOpen()"
+          (click)="sections.toggleEntries()"
+        >
+          <span>History</span>
+          <i
+            class="pi"
+            [class.pi-chevron-down]="sections.entriesOpen()"
+            [class.pi-chevron-right]="!sections.entriesOpen()"
+            aria-hidden="true"
+          ></i>
+        </button>
+      </h3>
+      @if (sections.entriesOpen()) {
+        <div
+          id="historyEntries"
+          class="history-columns"
+          appHistoryPaneHeight
+          [class.is-details-open]="detailsOpen()"
+        >
+          <div class="history-pane history-pane--list">
+            <app-history-list
+              [groups]="groups()"
+              [selectedId]="selected()?.id ?? null"
+              [subject]="subject()"
+              [projectId]="projectId()"
+              [hasMore]="list()?.hasMore ?? false"
+              [loadingMore]="list()?.loadingMore ?? false"
+              [loadMoreError]="list()?.loadMoreError ?? null"
+              (select)="select($event)"
+              (loadMore)="loadMore()"
+            />
+          </div>
+
+          <div class="history-pane history-pane--details" aria-live="polite">
+            <button type="button" class="history-back" (click)="closeDetails()">
+              <i class="pi pi-arrow-left" aria-hidden="true"></i>
+              <span>All changes</span>
+            </button>
+            @if (selected(); as entry) {
+              <app-history-entry-details
+                [entry]="entry"
+                [subject]="subject()"
+                [projectId]="projectId()"
+              />
+            }
+          </div>
+        </div>
+      }
+    </section>
+  }
+</div>

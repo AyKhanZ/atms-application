@@ -1,0 +1,13 @@
+<button
+  type="button"
+  class="load-more"
+  [class.load-more--compact]="compact()"
+  [disabled]="loading()"
+  [attr.aria-busy]="loading()"
+  (click)="clicked.emit($event)"
+>
+  @if (loading()) {
+    <i class="pi pi-spin pi-spinner" aria-hidden="true"></i>
+  }
+  <span>Load more</span>
+</button>

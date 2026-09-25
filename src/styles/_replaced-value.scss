@@ -1,0 +1,12 @@
+/// A value that was replaced, as the history shows it: grey and struck through. Shared by every
+/// component that draws a value — status, priority, type, person, work item — so an old value looks
+/// the same whatever it is. A status dot and a type icon keep their colour to stay recognisable.
+///
+/// Usage:
+///   @use 'replaced-value';
+///   .task-status--muted { @include replaced-value.muted; }
+@mixin muted {
+  color: var(--app-muted);
+  text-decoration: line-through;
+  text-decoration-thickness: 1.5px;
+}

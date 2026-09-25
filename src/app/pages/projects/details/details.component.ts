@@ -29,7 +29,7 @@ import { RecentWorkItemsService } from '../../../core/services/recent-work-items
 import { ProjectPermissionsRefreshService } from '../../../core/services/project-permissions-refresh.service';
 import { VisiblePageRefreshService } from '../../../core/services/visible-page-refresh.service';
 import { BackButtonComponent } from '../../../shared/components/back-button/back-button.component';
-import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
+import { HistoryTabComponent } from '../history/history-tab/history-tab.component';
 import { ProjectAttachmentsTabComponent } from '../attachments/project-attachments-tab/project-attachments-tab.component';
 import { AttachmentTreeExpansionService } from '../attachments/attachment-tree-expansion.service';
 import {
@@ -57,7 +57,7 @@ type ProjectTab = 'details' | 'stakeholders' | 'groups' | 'attachments' | 'histo
     HasProjectAccessDirective,
     HasRoleDirective,
     BackButtonComponent,
-    EmptyStateComponent,
+    HistoryTabComponent,
     ProjectAttachmentsTabComponent,
     EntityTabsComponent,
     ProjectStatusBadgeComponent,

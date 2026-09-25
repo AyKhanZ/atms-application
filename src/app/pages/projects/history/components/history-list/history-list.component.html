@@ -1,0 +1,88 @@
+@for (group of groups(); track group.label) {
+  <section class="history-group" [attr.aria-labelledby]="'history-group-' + $index">
+    <button
+      type="button"
+      class="history-group__head"
+      [id]="'history-group-' + $index"
+      [attr.aria-expanded]="!collapsed().has(group.label)"
+      (click)="toggle(group.label)"
+    >
+      <i
+        class="pi"
+        [class.pi-chevron-down]="!collapsed().has(group.label)"
+        [class.pi-chevron-right]="collapsed().has(group.label)"
+        aria-hidden="true"
+      ></i>
+      <span>{{ group.label }}</span>
+    </button>
+
+    @if (!collapsed().has(group.label)) {
+      <ul class="history-rows">
+        @for (entry of group.entries; track entry.id) {
+          <li>
+            <button
+              type="button"
+              class="history-row"
+              [class.is-selected]="entry.id === selectedId()"
+              [attr.aria-current]="entry.id === selectedId() ? 'true' : null"
+              [attr.data-entry-id]="entry.id"
+              (click)="select.emit(entry)"
+              (keydown.arrowDown)="move($event, entry, 1)"
+              (keydown.arrowUp)="move($event, entry, -1)"
+            >
+              <app-history-author-avatar [author]="entry.createdBy" />
+              <span class="history-row__text">
+                <span class="history-row__summary">
+                  <strong>{{ entry.createdBy | personName: 'System' }}</strong>
+                  {{ entry | historySummary: subject() }}
+                </span>
+                @if (entry.changes.length > 1) {
+                  <span class="history-row__fields">{{ entry | historyFieldList }}</span>
+                }
+              </span>
+              <span class="history-row__side">
+                @if (entry | historyMarker; as marker) {
+                  <!-- The sentence already says it; the mark is for the eye, the tooltip for the mouse. -->
+                  <span
+                    class="history-marker"
+                    aria-hidden="true"
+                    [pTooltip]="marker.tooltip"
+                    tooltipPosition="left"
+                  >
+                    @if (marker.kind === 'status') {
+                      <app-history-value
+                        [field]="statusField"
+                        [value]="marker.status"
+                        [entityType]="entry.entityType"
+                        [projectId]="projectId()"
+                        [dotOnly]="true"
+                      />
+                    } @else {
+                      <i class="pi" [class]="'pi ' + marker.icon"></i>
+                    }
+                  </span>
+                }
+                <time
+                  class="history-row__time"
+                  [attr.datetime]="entry.createdAt"
+                  [title]="entry.createdAt | historyTime: 'full'"
+                >
+                  {{ entry.createdAt | historyTime }}
+                </time>
+              </span>
+            </button>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+}
+
+@if (hasMore()) {
+  <div class="history-more">
+    @if (loadMoreError(); as error) {
+      <small class="history-more__error" role="alert">{{ error }}</small>
+    }
+    <app-load-more-button [loading]="loadingMore()" (clicked)="loadMore.emit()" />
+  </div>
+}

@@ -28,6 +28,7 @@ import {
   TaskBoardStoreSelectors,
 } from '../../../../store/task-board';
 import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
+import { LoadMoreButtonComponent } from '../../../../shared/components/load-more-button/load-more-button.component';
 import { WorkItemAssigneeComponent } from '../../../../shared/components/work-item-assignee/work-item-assignee.component';
 import { WorkItemPriorityComponent } from '../../../../shared/components/work-item-priority/work-item-priority.component';
 import { WorkItemRefComponent } from '../../../../shared/components/work-item-ref/work-item-ref.component';
@@ -65,6 +66,7 @@ const sorts: Record<string, WorkTaskBoardSort> = {
     DatePipe,
     TableModule,
     EmptyStateComponent,
+    LoadMoreButtonComponent,
     WorkItemAssigneeComponent,
     WorkItemPriorityComponent,
     WorkItemRefComponent,

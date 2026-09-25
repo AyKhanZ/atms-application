@@ -86,10 +86,11 @@
         } @else if (activeTab() === 'attachments') {
           <app-task-attachments-tab [task]="item" [canEdit]="canEdit()" />
         } @else {
-          <app-empty-state
-            icon="pi-history"
-            title="No activity yet"
-            description="Every change will be recorded here."
+          <app-history-tab
+            [projectId]="item.workProjectId"
+            [scope]="{ kind: 'task', workTaskId: item.id }"
+            [subject]="item.isSubtask ? 'subtask' : 'task'"
+            [currentStatus]="item.status"
           />
         }
       </div>

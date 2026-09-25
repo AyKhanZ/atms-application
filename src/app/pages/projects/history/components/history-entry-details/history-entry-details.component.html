@@ -1,0 +1,116 @@
+@let item = entry();
+<header class="details-head">
+  <app-history-author-avatar [author]="item.createdBy" />
+  <div class="details-head__text">
+    <strong>{{ item.createdBy | personName: 'System' }}</strong>
+    <span>{{ item.createdBy | personName: 'System' }} {{ item | historySummary: subject() }}</span>
+  </div>
+  <time class="details-head__time" [attr.datetime]="item.createdAt">
+    {{ item.createdAt | historyTime: 'full' }}
+  </time>
+</header>
+
+@if (unrecorded()) {
+  <app-empty-state
+    icon="pi-history"
+    title="Created before the history started"
+    description="Who created it and when is known; the values it started with weren't recorded."
+  />
+} @else if (deleted()) {
+  <app-empty-state
+    icon="pi-trash"
+    [title]="(item.subject?.name || 'This item') + ' was deleted'"
+    description="Its earlier changes stay in the history."
+  />
+} @else {
+  <table class="changes" [class.changes--created]="created()">
+    <thead>
+      <tr>
+        <th scope="col">Field</th>
+        <th scope="col">{{ created() ? 'Value' : 'New' }}</th>
+        @if (!created()) {
+          <th scope="col">Old</th>
+        }
+      </tr>
+    </thead>
+    <tbody>
+      @for (change of item.changes; track $index) {
+        @if (change.field === fields.Description && !created()) {
+          <!-- Up to 2000 characters each. A wide pane puts them side by side under New and Old,
+               like every other field; a narrow one, where a column would be a strip of a few
+               words, puts the new one over the old one, labelled. -->
+          <tr>
+            <th scope="row" class="changes__field">{{ change.field | historyFieldLabel }}</th>
+            <td class="changes__cell" colspan="2">
+              <div class="text-change">
+                <div class="text-change__part">
+                  <span class="text-change__label">New</span>
+                  @if (change.newValue?.name; as text) {
+                    <p class="text-change__block text-change__block--new">{{ text }}</p>
+                  } @else {
+                    <span class="change-value change-value--empty">—</span>
+                  }
+                </div>
+                <div class="text-change__part">
+                  <span class="text-change__label">Old</span>
+                  @if (change.oldValue?.name; as text) {
+                    <p class="text-change__block text-change__block--old">{{ text }}</p>
+                  } @else {
+                    <span class="change-value change-value--empty">—</span>
+                  }
+                </div>
+              </div>
+            </td>
+          </tr>
+        } @else {
+          <tr>
+            <th scope="row" class="changes__field">
+              @if (change.field === fields.Stakeholder) {
+                <app-work-item-assignee [assignee]="change.person" />
+              } @else {
+                {{ change.field | historyFieldLabel }}
+              }
+            </th>
+            <td class="changes__cell" data-label="New">
+              @if (change.newValue; as value) {
+                <span
+                  class="change-value change-value--new"
+                  [class.change-value--chip]="change.field === fields.Type"
+                >
+                  <app-history-value
+                    [field]="change.field"
+                    [value]="value"
+                    [entityType]="item.entityType"
+                    [projectId]="projectId()"
+                  />
+                </span>
+              } @else {
+                <span class="change-value change-value--empty">—</span>
+              }
+            </td>
+            @if (!created()) {
+              <td class="changes__cell" data-label="Old">
+                @if (change.oldValue; as value) {
+                  <span
+                    class="change-value change-value--old"
+                    [class.change-value--chip]="change.field === fields.Type"
+                  >
+                    <app-history-value
+                      [field]="change.field"
+                      [value]="value"
+                      [entityType]="item.entityType"
+                      [projectId]="projectId()"
+                      [muted]="true"
+                    />
+                  </span>
+                } @else {
+                  <span class="change-value change-value--empty">—</span>
+                }
+              </td>
+            }
+          </tr>
+        }
+      }
+    </tbody>
+  </table>
+}

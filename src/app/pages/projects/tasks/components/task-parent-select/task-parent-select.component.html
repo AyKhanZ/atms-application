@@ -89,9 +89,11 @@
       } @else if (hasMore()) {
         <div class="parent-feedback">
           <small>Search covers loaded items. Load more to include the next page.</small>
-          <button pButton type="button" text [loading]="loading()" (click)="loadMore($event)">
-            Load more
-          </button>
+          <app-load-more-button
+            [compact]="true"
+            [loading]="loading()"
+            (clicked)="loadMore($event)"
+          />
         </div>
       }
     </ng-template>

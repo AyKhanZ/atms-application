@@ -8,7 +8,11 @@ import {
 } from '../../pipes/person-name.pipe';
 @Component({
   selector: 'app-work-item-assignee',
-  host: { '[class.compact]': 'compact()', '[class.avatar-only]': 'avatarOnly()' },
+  host: {
+    '[class.compact]': 'compact()',
+    '[class.avatar-only]': 'avatarOnly()',
+    '[class.muted]': 'muted()',
+  },
   imports: [ProfileAvatarComponent, PersonNamePipe, PersonInitialsPipe, PersonShortNamePipe],
   templateUrl: './work-item-assignee.component.html',
   styleUrl: './work-item-assignee.component.scss',
@@ -18,5 +22,7 @@ export class WorkItemAssigneeComponent {
   readonly compact = input(false);
   readonly shortName = input(false);
   readonly avatarOnly = input(false);
+  /** A person who was replaced, as the history shows an old assignee. */
+  readonly muted = input(false);
   readonly assignee = input<WorkItemAssigneeModel | null | undefined>(null);
 }

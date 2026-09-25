@@ -84,7 +84,7 @@
         <span role="alert">Items could not be loaded.</span>
         <button type="button" (click)="retry.emit()">Retry</button>
       } @else if (hasMore()) {
-        <button type="button" (click)="more.emit()">Load more</button>
+        <app-load-more-button [compact]="true" (clicked)="more.emit()" />
       }
     </footer>
   </section>

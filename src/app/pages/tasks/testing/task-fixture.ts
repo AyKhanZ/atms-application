@@ -18,7 +18,9 @@ export function taskFixture(overrides: Partial<WorkTaskModel> = {}): WorkTaskMod
     status: { id: 1, code: 'New', name: 'New' },
     priority: { id: 3, code: 'High', name: 'High' },
     assignee: { id: 'person-1', name: 'Roman', surname: 'Kovalchenko' },
-    deadline: '2026-09-24T00:00:00Z',
+    // Far ahead: a fixed near date turned every test "overdue" the day after it, 2026-09-24.
+    // A test about overdue work passes a past deadline of its own.
+    deadline: '2099-09-24T00:00:00Z',
     ...overrides,
   };
 }

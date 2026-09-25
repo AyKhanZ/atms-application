@@ -9,6 +9,7 @@ export enum Features {
   WorkTickets = 'workTickets',
   WorkTasks = 'workTasks',
   Attachments = 'attachments',
+  History = 'history',
   TaskBoard = 'taskBoard',
   Dictionary = 'dictionary',
 }

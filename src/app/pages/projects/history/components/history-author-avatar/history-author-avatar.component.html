@@ -1,0 +1,10 @@
+@if (author(); as person) {
+  <app-profile-avatar
+    [imageUrl]="person.avatarPath"
+    [fullName]="person | personName"
+    [initials]="person | personInitials"
+    [previewEnabled]="false"
+  />
+} @else {
+  <span class="system-avatar" aria-hidden="true"><i class="pi pi-cog"></i></span>
+}

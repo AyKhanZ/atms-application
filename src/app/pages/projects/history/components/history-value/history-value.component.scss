@@ -1,0 +1,61 @@
+@use 'replaced-value';
+
+:host {
+  display: inline-flex;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.history-value {
+  min-width: 0;
+  color: inherit;
+}
+
+.history-value--unknown {
+  color: var(--app-muted);
+  font-style: italic;
+}
+
+.history-value--wrap {
+  overflow-wrap: anywhere;
+}
+
+.history-value--ref,
+.history-value--file {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.history-value--ref {
+  text-decoration: none;
+}
+
+a.history-value--ref:hover .history-value__title,
+a.history-value--ref:focus-visible .history-value__title {
+  text-decoration: underline;
+}
+
+.history-value--file .pi {
+  color: var(--gray-icon);
+}
+
+.history-value__title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// The description keeps its line breaks: it was written as paragraphs.
+.history-value--text {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.history-value--muted {
+  @include replaced-value.muted;
+}

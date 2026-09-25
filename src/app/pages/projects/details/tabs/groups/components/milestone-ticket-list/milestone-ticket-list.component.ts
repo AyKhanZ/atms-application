@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
 import { Menu, MenuModule } from 'primeng/menu';
-import { ButtonModule } from 'primeng/button';
 import { MenuItem } from 'primeng/api';
+import { LoadMoreButtonComponent } from '../../../../../../../shared/components/load-more-button/load-more-button.component';
 import { WorkTicketModel } from '../../../../../../../core/models/work-tickets';
 import { WorkItemAssigneeComponent } from '../../../../../../../shared/components/work-item-assignee/work-item-assignee.component';
 import { TicketStatusBadgeComponent } from '../../../../../tickets/components/ticket-status-badge/ticket-status-badge.component';
@@ -20,7 +20,7 @@ export interface MilestoneTicketPageState {
   selector: 'app-milestone-ticket-list',
   imports: [
     WorkItemRefComponent,
-    ButtonModule,
+    LoadMoreButtonComponent,
     MenuModule,
     WorkItemAssigneeComponent,
     TicketStatusBadgeComponent,

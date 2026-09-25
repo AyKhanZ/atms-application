@@ -2,7 +2,9 @@ import { DictionaryModel } from '../models/dictionary.model';
 import { WorkItemKind } from '../models/work-items';
 
 /** Task or Subtask: the one fact the kind of a work task depends on. */
-export function workTaskKind(task: { isSubtask: boolean }): WorkItemKind.Task | WorkItemKind.Subtask {
+export function workTaskKind(task: {
+  isSubtask: boolean;
+}): WorkItemKind.Task | WorkItemKind.Subtask {
   return task.isSubtask ? WorkItemKind.Subtask : WorkItemKind.Task;
 }
 

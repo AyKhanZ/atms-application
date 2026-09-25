@@ -1,0 +1,179 @@
+:host {
+  display: grid;
+  min-width: 0;
+  container-type: inline-size;
+}
+
+.history-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  min-width: 0;
+  padding: 1.5rem;
+}
+
+.history-tab > app-empty-state {
+  flex: 1;
+}
+
+.history-retry {
+  margin-top: 0.5rem;
+}
+
+.history-section {
+  display: grid;
+  min-width: 0;
+}
+
+// The title of a part with its chevron at the far end and a line under it, as in Azure DevOps.
+.history-section__head {
+  margin: 0;
+  border-bottom: 1px solid var(--app-border);
+
+  button {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 0.55rem 0.25rem;
+    color: var(--app-text);
+    font: inherit;
+    font-size: 1rem;
+    font-weight: 600;
+    text-align: left;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+
+    &:hover .pi {
+      color: var(--app-text);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--orange-focus-outline);
+      outline-offset: 2px;
+      border-radius: 0.45rem;
+    }
+  }
+
+  .pi {
+    color: var(--gray-icon);
+    font-size: 0.8rem;
+  }
+}
+
+.history-section__body {
+  min-width: 0;
+  padding-top: 1rem;
+}
+
+.history-columns {
+  display: grid;
+  grid-template-columns: minmax(18rem, 2fr) minmax(0, 3fr);
+  min-width: 0;
+}
+
+// Each column scrolls on its own, so a long list does not carry the details off the screen. How
+// tall they may get is measured by `appHistoryPaneHeight`: down to the bottom of the page.
+.history-pane {
+  min-width: 0;
+  max-height: var(--history-pane-height, 36rem);
+  overflow-y: auto;
+  padding-top: 1rem;
+}
+
+.history-pane--list {
+  padding-right: 1rem;
+  border-right: 1px solid var(--app-border);
+}
+
+.history-pane--details {
+  padding-left: 1.5rem;
+}
+
+.history-back {
+  display: none;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.75rem;
+  padding: 0.35rem 0;
+  color: var(--orange-text-hover);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid var(--orange-focus-outline);
+    outline-offset: 2px;
+  }
+}
+
+.history-skeleton {
+  display: grid;
+  gap: 1rem;
+}
+
+.history-skeleton__rows {
+  display: grid;
+  gap: 0.9rem;
+  max-width: 28rem;
+}
+
+.history-skeleton__row {
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.history-skeleton__text {
+  display: grid;
+  gap: 0.4rem;
+}
+
+// Narrow tab: one column. The list first; a chosen entry takes its place with a way back.
+@container (max-width: 48rem) {
+  .history-columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .history-pane {
+    max-height: none;
+    overflow: visible;
+  }
+
+  .history-pane--list {
+    padding-right: 0;
+    border-right: 0;
+  }
+
+  .history-pane--details {
+    display: none;
+    padding-left: 0;
+  }
+
+  .is-details-open {
+    .history-pane--list {
+      display: none;
+    }
+
+    .history-pane--details {
+      display: block;
+    }
+  }
+
+  .history-back {
+    display: inline-flex;
+  }
+}
+
+@container (max-width: 34rem) {
+  .history-tab {
+    gap: 1rem;
+    padding: 1rem;
+  }
+}

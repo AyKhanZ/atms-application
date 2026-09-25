@@ -1,0 +1,21 @@
+// The avatar reads its size, shape and shadow from these; custom properties pass into it, so there
+// is no reaching into its markup.
+:host {
+  --avatar-size: var(--history-avatar-size, 2rem);
+  --avatar-radius: 999px;
+  --avatar-font-size: 0.7rem;
+  --avatar-shadow: none;
+
+  display: inline-flex;
+  flex: 0 0 auto;
+}
+
+.system-avatar {
+  display: inline-grid;
+  place-items: center;
+  width: var(--history-avatar-size, 2rem);
+  height: var(--history-avatar-size, 2rem);
+  color: var(--gray-icon);
+  background: var(--app-surface-muted);
+  border-radius: 50%;
+}

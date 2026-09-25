@@ -29,7 +29,7 @@ import { SnackBarService } from '../../../../core/services/snack-bar.service';
 import { WorkProjectsService } from '../../../../core/services/work-projects.service';
 import { WorkTicketsService } from '../../../../core/services/work-tickets.service';
 import { BackButtonComponent } from '../../../../shared/components/back-button/back-button.component';
-import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
+import { HistoryTabComponent } from '../../history/history-tab/history-tab.component';
 import { TicketAttachmentsTabComponent } from '../../attachments/ticket-attachments-tab/ticket-attachments-tab.component';
 import { AttachmentTreeExpansionService } from '../../attachments/attachment-tree-expansion.service';
 import {
@@ -61,7 +61,7 @@ import {
     ButtonModule,
     ConfirmDialogComponent,
     BackButtonComponent,
-    EmptyStateComponent,
+    HistoryTabComponent,
     TicketAttachmentsTabComponent,
     EntityTabsComponent,
     WorkItemFactsComponent,

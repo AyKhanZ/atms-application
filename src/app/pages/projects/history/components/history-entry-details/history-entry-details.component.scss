@@ -1,0 +1,244 @@
+:host {
+  --history-new-bg: color-mix(in srgb, var(--app-success) 9%, transparent);
+
+  display: grid;
+  align-content: start;
+  gap: 1rem;
+  min-width: 0;
+  container-type: inline-size;
+}
+
+.details-head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 0.75rem;
+  padding-bottom: 0.9rem;
+  border-bottom: 1px solid var(--app-border);
+}
+
+.details-head__text {
+  display: grid;
+  gap: 0.15rem;
+  min-width: 0;
+
+  strong {
+    color: var(--app-text);
+    font-weight: 600;
+  }
+
+  span {
+    color: var(--app-muted);
+    overflow-wrap: anywhere;
+  }
+}
+
+.details-head__time {
+  color: var(--app-muted);
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.changes {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+
+  th,
+  td {
+    padding: 0.6rem 0.5rem;
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid var(--app-border);
+  }
+
+  thead th {
+    color: var(--app-muted);
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+
+  thead th:first-child {
+    width: 9rem;
+  }
+}
+
+// A label, not a heading: muted and regular, like the labels of the Details tab.
+.changes__field {
+  min-width: 0;
+  color: var(--app-muted);
+  font-size: 0.84rem;
+  font-weight: 400;
+}
+
+// One size for every value, the size of the description: plain text at 1rem next to 0.8rem
+// badges read as two different fonts.
+.changes__cell {
+  min-width: 0;
+  font-size: 0.875rem;
+}
+
+// A light marker behind each value, as Azure DevOps has it: the new one green, the old one grey and
+// struck through. Both the same shape, so a pair reads as the same thing before and after. Soft on
+// purpose — a marker, not a button.
+.change-value {
+  display: inline-flex;
+  max-width: 100%;
+  min-width: 0;
+  padding: 0.15rem 0.45rem;
+  border-radius: 0.45rem;
+}
+
+.change-value--new {
+  background: var(--history-new-bg);
+}
+
+// The marker only; the value inside draws itself grey and struck through (`muted`).
+.change-value--old {
+  background: var(--app-surface-muted);
+}
+
+// At creation every value is new: nothing to tell apart, so no marker.
+.changes--created .change-value--new {
+  padding: 0;
+  background: none;
+}
+
+// A type is a chip with a colour of its own: a marker behind it made a box inside a box.
+.change-value--chip {
+  padding: 0;
+  background: none;
+}
+
+.change-value--empty {
+  padding: 0;
+  color: var(--app-muted);
+  font-style: italic;
+}
+
+// A long text: the new one over the old one while the pane is narrow.
+.text-change {
+  display: grid;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.text-change__part {
+  display: grid;
+  align-content: start;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+// The same as the New and Old over the columns of the table.
+.text-change__label {
+  color: var(--app-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.text-change__block {
+  margin: 0;
+  padding: 0.6rem 0.75rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  border-radius: var(--radius-card);
+}
+
+.text-change__block--new {
+  background: var(--history-new-bg);
+}
+
+// Struck through like every other old value; a thin line in the text's own grey, so the paragraph
+// can still be read.
+.text-change__block--old {
+  color: var(--app-muted);
+  text-decoration: line-through;
+  text-decoration-color: currentColor;
+  background: var(--app-surface-muted);
+}
+
+// Side by side, each under its own column, whenever the table has columns: the gap is the padding
+// between two cells. Only the phone layout, which has no columns, puts them one over the other.
+@container (width > 34rem) {
+  .text-change {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .text-change__label {
+    display: none;
+  }
+}
+
+// Phone: the field, and under it one line — old → new. The arrow says which is which, so there are
+// no New and Old labels to mix up with the values; a long title wraps with the arrow leading the new
+// one. A description keeps its two blocks, labelled.
+@container (max-width: 34rem) {
+  .details-head {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .details-head__time {
+    grid-column: 2;
+    white-space: normal;
+  }
+
+  .changes {
+    thead {
+      display: none;
+    }
+
+    tr {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.4rem 0.5rem;
+      padding: 0.6rem 0;
+      border-bottom: 1px solid var(--app-border);
+    }
+
+    th,
+    td {
+      min-width: 0;
+      max-width: 100%;
+      padding: 0;
+      border-bottom: 0;
+    }
+
+    th {
+      flex: 0 0 100%;
+    }
+
+    td[colspan] {
+      flex: 1 1 100%;
+    }
+
+    td[data-label='Old'] {
+      order: 1;
+    }
+
+    td[data-label='New'] {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      order: 2;
+    }
+  }
+
+  .changes:not(.changes--created) td[data-label='New']::before {
+    color: var(--app-muted);
+    content: '→';
+  }
+
+  // Filled for the first time: nothing to cross out, so no dash and no arrow either.
+  .changes tr:has(td[data-label='Old'] .change-value--empty) {
+    td[data-label='Old'] {
+      display: none;
+    }
+
+    td[data-label='New']::before {
+      content: none;
+    }
+  }
+}
