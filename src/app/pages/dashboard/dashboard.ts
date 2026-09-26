@@ -97,7 +97,7 @@ export class Dashboard implements OnDestroy {
   private entered = false;
 
   readonly periodOptions = DASHBOARD_PERIOD_OPTIONS;
-  readonly today = new Date();
+  readonly today = startOfToday();
   readonly model = this.store.selectSignal(DashboardStoreSelectors.getModel);
   readonly loading = this.store.selectSignal(DashboardStoreSelectors.getLoading);
   readonly error = this.store.selectSignal(DashboardStoreSelectors.getError);
@@ -115,6 +115,20 @@ export class Dashboard implements OnDestroy {
   readonly selectedPeriod = computed<DashboardPeriod>(() =>
     this.editingCustom() ? 'custom' : this.query().period,
   );
+  // The calendars refuse what the server would refuse: nothing after today, no end before the start
+  // and no range longer than a year — so a wrong range cannot even be picked.
+  readonly fromMinDate = computed(() => {
+    const to = this.customTo();
+    return to ? addDays(to, 1 - maxRangeDays) : null;
+  });
+  readonly fromMaxDate = computed(() => this.customTo() ?? this.today);
+  readonly toMinDate = computed(() => this.customFrom());
+  readonly toMaxDate = computed(() => {
+    const from = this.customFrom();
+    const yearOn = from ? addDays(from, maxRangeDays - 1) : null;
+    return yearOn && yearOn < this.today ? yearOn : this.today;
+  });
+
   readonly customError = computed(() => {
     const from = this.customFrom();
     const to = this.customTo();
@@ -371,6 +385,19 @@ export class Dashboard implements OnDestroy {
     this.navigate({ ...this.query(), period, from: null, to: null });
   }
 
+  /** A new start that leaves the end out of reach clears the end: it has to be picked again. */
+  setCustomFrom(from: Date | null): void {
+    this.customFrom.set(from);
+    const to = this.customTo();
+    if (from && to && (to < from || to > addDays(from, maxRangeDays - 1))) this.customTo.set(null);
+  }
+
+  setCustomTo(to: Date | null): void {
+    this.customTo.set(to);
+    const from = this.customFrom();
+    if (to && from && (from > to || from < addDays(to, 1 - maxRangeDays))) this.customFrom.set(null);
+  }
+
   applyCustom(): void {
     const from = this.customFrom();
     const to = this.customTo();
@@ -504,4 +531,14 @@ function bucketTooltip(label: string, granularity: DashboardGranularity): string
 function monthDate(label: string): Date {
   const [year, month] = label.split('-').map(Number);
   return new Date(year, month - 1, 1);
+}
+
+function startOfToday(): Date {
+  const now = new Date();
+  return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+}
+
+/** Calendar days, not 24-hour steps: a daylight-saving day stays one day. */
+function addDays(date: Date, days: number): Date {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate() + days);
 }

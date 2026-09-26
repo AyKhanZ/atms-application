@@ -123,6 +123,30 @@ describe('Dashboard navigation', () => {
     }));
   });
 
+  it('does not let the calendars reach past a year', () => {
+    const page = fixture.componentInstance;
+    page.changePeriod('custom');
+    page.setCustomFrom(new Date(2025, 0, 10));
+    page.setCustomTo(null);
+
+    expect(page.toMaxDate()).toEqual(new Date(2026, 0, 10));
+
+    page.setCustomTo(new Date(2025, 5, 1));
+    page.setCustomFrom(null);
+    expect(page.fromMinDate()).toEqual(new Date(2024, 5, 1));
+  });
+
+  it('clears the end when a new start puts it out of reach', () => {
+    const page = fixture.componentInstance;
+    page.changePeriod('custom');
+    page.setCustomTo(new Date(2026, 8, 20));
+
+    page.setCustomFrom(new Date(2025, 0, 1));
+
+    expect(page.customTo()).toBeNull();
+    expect(page.customFrom()).toEqual(new Date(2025, 0, 1));
+  });
+
   it('does not apply a reversed range', () => {
     const page = fixture.componentInstance;
     page.changePeriod('custom');

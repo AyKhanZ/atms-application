@@ -51,9 +51,10 @@
             iconDisplay="input"
             [showIcon]="true"
             [readonlyInput]="true"
-            [maxDate]="customTo() ?? today"
+            [minDate]="fromMinDate()"
+            [maxDate]="fromMaxDate()"
             [ngModel]="customFrom()"
-            (ngModelChange)="customFrom.set($event)"
+            (ngModelChange)="setCustomFrom($event)"
           />
           <span class="dashboard-range__dash" aria-hidden="true">–</span>
           <p-datepicker
@@ -66,10 +67,10 @@
             iconDisplay="input"
             [showIcon]="true"
             [readonlyInput]="true"
-            [minDate]="customFrom()"
-            [maxDate]="today"
+            [minDate]="toMinDate()"
+            [maxDate]="toMaxDate()"
             [ngModel]="customTo()"
-            (ngModelChange)="customTo.set($event)"
+            (ngModelChange)="setCustomTo($event)"
           />
         }
       </div>
