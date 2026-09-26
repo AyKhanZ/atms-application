@@ -25,6 +25,7 @@ import {
   DashboardRefModel,
 } from '../../core/models/dashboard';
 import { WorkTaskStatus } from '../../core/enums/work-task-status.enum';
+import { WorkTaskBoardSort } from '../../core/models/work-task-board';
 import { workItemPriorityTone } from '../../shared/components/work-item-priority/work-item-priority.component';
 import { personShortName } from '../../core/utils/person-name.utils';
 import {
@@ -369,7 +370,11 @@ export class Dashboard implements OnDestroy {
   }
 
   changeProject(projectId: string): void {
-    this.navigate({ ...this.query(), projectId: projectId || null });
+    const query = this.query();
+    this.editingCustom.set(false);
+    this.customFrom.set(fromIsoDate(query.from));
+    this.customTo.set(fromIsoDate(query.to));
+    this.navigate({ ...query, projectId: projectId || null });
   }
 
   changePeriod(period: DashboardPeriod): void {
@@ -464,8 +469,14 @@ export class Dashboard implements OnDestroy {
   }
 
   /** Every deadline, not only the nearest ten the card lists. */
-  openCalendar(): void {
-    this.openTasks({ view: 'calendar', state: '1,2' });
+  showAllDeadlines(): void {
+    const today = startOfToday();
+    this.openTasks({
+      state: '1,2',
+      sort: String(WorkTaskBoardSort.Deadline),
+      deadlineFrom: today.toISOString(),
+      deadlineTo: addDays(today, 7).toISOString(),
+    });
   }
 
   openRef(ref: DashboardRefModel): void {

@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import { DashboardChartComponent } from './dashboard-chart.component';
+
+let DashboardChartComponent: typeof import('./dashboard-chart.component').DashboardChartComponent;
 
 interface MockDataset {
   data: number[];
@@ -35,7 +36,8 @@ vi.mock('chart.js', () => ({
 }));
 
 describe('DashboardChartComponent', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
+    ({ DashboardChartComponent } = await import('./dashboard-chart.component'));
     chartMocks.instances.length = 0;
     TestBed.configureTestingModule({ imports: [DashboardChartComponent] });
   });
@@ -43,6 +45,7 @@ describe('DashboardChartComponent', () => {
   function create(kind: 'line' | 'doughnut' | 'bar', labels: string[], values: number[]) {
     const fixture = TestBed.createComponent(DashboardChartComponent);
     fixture.componentRef.setInput('kind', kind);
+    fixture.componentRef.setInput('title', 'Tasks not done by priority');
     fixture.componentRef.setInput('labels', labels);
     fixture.componentRef.setInput('series', [{ label: 'Tasks', values, color: '--orange' }]);
     fixture.detectChanges();
@@ -83,5 +86,18 @@ describe('DashboardChartComponent', () => {
     create('bar', ['#7 Payment Gateway Integration for every region'], [3]);
 
     expect(chartMocks.instances[0].data.labels[0]).toBe('#7 Payment Gateway Inte…');
+  });
+
+  it('exposes a chart summary and a hidden table of its values', () => {
+    const fixture = create('doughnut', ['High', 'Medium', 'Low'], [12, 30, 5]);
+    const canvas = fixture.nativeElement.querySelector('canvas') as HTMLCanvasElement;
+    const table = fixture.nativeElement.querySelector('table') as HTMLTableElement;
+
+    expect(canvas.getAttribute('role')).toBe('img');
+    expect(canvas.getAttribute('aria-label')).toBe(
+      'Tasks not done by priority: High 12, Medium 30, Low 5',
+    );
+    expect(table.textContent).toContain('Medium');
+    expect(table.textContent).toContain('30');
   });
 });

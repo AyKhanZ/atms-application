@@ -153,6 +153,7 @@
         <div class="dashboard-card__chart">
           <app-dashboard-chart
             kind="line"
+            title="Task flow"
             [labels]="mainLabels()"
             [tooltipLabels]="mainTooltipLabels()"
             [series]="mainSeries()"
@@ -171,6 +172,7 @@
           <div class="dashboard-card__chart">
             <app-dashboard-chart
               kind="doughnut"
+              title="Tasks by status"
               [labels]="statusLabels()"
               [series]="statusSeries()"
               [colors]="statusColors()"
@@ -188,6 +190,7 @@
           <div class="dashboard-card__chart">
             <app-dashboard-chart
               kind="doughnut"
+              title="Tasks not done by priority"
               [labels]="priorityLabels()"
               [series]="prioritySeries()"
               [colors]="priorityColors()"
@@ -210,6 +213,7 @@
           <div class="dashboard-card__chart">
             <app-dashboard-chart
               kind="bar"
+              title="Tasks not done by person"
               [labels]="workloadLabels()"
               [tooltipLabels]="workloadTooltips()"
               [series]="workloadSeries()"
@@ -236,6 +240,7 @@
         <div class="dashboard-card__chart">
           <app-dashboard-chart
             kind="bar"
+            [title]="data.secondaryChart.key === 'byProject' ? 'Tasks not done by project' : 'Tasks not done by ticket'"
             [labels]="secondaryLabels()"
             [tooltipLabels]="secondaryLabels()"
             [series]="secondarySeries()"
@@ -249,7 +254,7 @@
         [total]="data.deadlineCount"
         [priorities]="priorities()"
         (selected)="openRef($event)"
-        (showAll)="openCalendar()"
+        (showAll)="showAllDeadlines()"
       />
     </div>
 

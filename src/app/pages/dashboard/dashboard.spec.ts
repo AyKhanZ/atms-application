@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { convertToParamMap, ActivatedRoute, Router } from '@angular/router';
+import { convertToParamMap, ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { provideMockActions } from '@ngrx/effects/testing';
 import { MockStore, provideMockStore } from '@ngrx/store/testing';
 import { Action } from '@ngrx/store';
@@ -42,9 +42,11 @@ describe('Dashboard navigation', () => {
   let fixture: ComponentFixture<Dashboard>;
   let store: MockStore;
   let navigate: ReturnType<typeof vi.fn>;
+  let queryParams: Subject<ParamMap>;
 
   beforeEach(() => {
     const actions = new Subject<Action>();
+    queryParams = new Subject<ParamMap>();
     navigate = vi.fn().mockResolvedValue(true);
     TestBed.configureTestingModule({
       imports: [Dashboard],
@@ -60,7 +62,7 @@ describe('Dashboard navigation', () => {
             snapshot: {
               queryParamMap: convertToParamMap({ projectId: 'project-1', period: '30d' }),
             },
-            queryParamMap: NEVER,
+            queryParamMap: queryParams,
           },
         },
         { provide: VisiblePageRefreshService, useValue: { onReturn: () => NEVER } },
@@ -169,6 +171,50 @@ describe('Dashboard navigation', () => {
     expect(navigate).toHaveBeenCalledWith([], expect.objectContaining({
       queryParams: { projectId: 'project-1', period: '7d', from: null, to: null },
     }));
+  });
+
+  it('restores the applied custom range when the project changes during a draft', () => {
+    queryParams.next(convertToParamMap({
+      projectId: 'project-1',
+      period: 'custom',
+      from: '2026-09-05',
+      to: '2026-09-12',
+    }));
+    fixture.detectChanges();
+    navigate.mockClear();
+    const page = fixture.componentInstance;
+    page.changePeriod('custom');
+    page.customFrom.set(new Date(2026, 8, 1));
+    page.customTo.set(new Date(2026, 8, 10));
+
+    page.changeProject('project-2');
+
+    expect(page.editingCustom()).toBe(false);
+    expect(page.customFrom()).toEqual(new Date(2026, 8, 5));
+    expect(page.customTo()).toEqual(new Date(2026, 8, 12));
+    expect(navigate).toHaveBeenCalledWith([], expect.objectContaining({
+      queryParams: { projectId: 'project-2', period: 'custom', from: '2026-09-05', to: '2026-09-12' },
+    }));
+  });
+
+  it('opens all upcoming deadlines in a list sorted by deadline', () => {
+    fixture.componentInstance.showAllDeadlines();
+
+    const [, options] = navigate.mock.calls[0];
+    expect(navigate.mock.calls[0][0]).toEqual(['/tasks']);
+    expect(options.queryParams).toEqual({
+      view: 'list',
+      assignee: '',
+      project: 'project-1',
+      state: '1,2',
+      sort: '3',
+      deadlineFrom: expect.any(String),
+      deadlineTo: expect.any(String),
+    });
+    const from = new Date(options.queryParams.deadlineFrom);
+    const to = new Date(options.queryParams.deadlineTo);
+    expect(from).toEqual(new Date(from.getFullYear(), from.getMonth(), from.getDate()));
+    expect(to).toEqual(new Date(from.getFullYear(), from.getMonth(), from.getDate() + 7));
   });
 
   it('opens priority and status segments with their filters', () => {

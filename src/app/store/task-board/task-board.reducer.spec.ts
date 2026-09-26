@@ -183,6 +183,8 @@ function loadPage(cursor: string | null) {
       statusIds: [],
       priorityIds: [],
       deadline: 'any',
+      deadlineFrom: null,
+      deadlineTo: null,
       search: '',
     },
     order: { sort: 1, direction: 1 },

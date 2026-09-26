@@ -45,6 +45,10 @@ export function parseTasksPage(params: ParamMap, meId: string | null): TasksPage
   const type = params.get('type');
   const month = params.get('month');
   const deadline = params.get('deadline');
+  const rangeDate = (name: string) => {
+    const value = params.get(name);
+    return value && !Number.isNaN(Date.parse(value)) ? new Date(value).toISOString() : null;
+  };
   const sort = Number(params.get('sort'));
 
   return {
@@ -77,6 +81,8 @@ export function parseTasksPage(params: ParamMap, meId: string | null): TasksPage
       priorityIds: list('priority').map(Number).filter(Number.isInteger),
       deadline:
         deadline === 'overdue' || (deadline === none && view !== 'calendar') ? deadline : 'any',
+      deadlineFrom: rangeDate('deadlineFrom'),
+      deadlineTo: rangeDate('deadlineTo'),
       search: params.get('q') ?? '',
     },
   };
@@ -109,6 +115,8 @@ export function tasksPageParams(state: TasksPageState, meId: string | null): Par
     state: join(filter.statusIds),
     priority: join(filter.priorityIds),
     deadline: filter.deadline === 'any' ? null : filter.deadline,
+    deadlineFrom: filter.deadlineFrom,
+    deadlineTo: filter.deadlineTo,
     q: filter.search.trim() || null,
   };
 }
@@ -124,6 +132,8 @@ export function hasFilters(filter: WorkTaskBoardFilter): boolean {
     filter.statusIds.length > 0 ||
     filter.priorityIds.length > 0 ||
     filter.deadline !== 'any' ||
+    filter.deadlineFrom !== null ||
+    filter.deadlineTo !== null ||
     filter.search.trim().length > 0
   );
 }

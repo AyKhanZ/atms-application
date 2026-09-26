@@ -108,6 +108,7 @@ export class TasksPageComponent implements OnDestroy {
       filter.statusIds.length > 0,
       filter.priorityIds.length > 0,
       filter.deadline !== 'any',
+      filter.deadlineFrom !== null || filter.deadlineTo !== null,
     ].filter(Boolean).length;
   });
 

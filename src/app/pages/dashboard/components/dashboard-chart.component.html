@@ -1,1 +1,30 @@
-<canvas #canvas></canvas>
+<canvas #canvas role="img" [attr.aria-label]="ariaLabel()"></canvas>
+<table class="dashboard-chart-data">
+  <caption>{{ title() }}</caption>
+  <thead>
+    <tr>
+      <th scope="col">{{ kind() === 'line' ? 'Period' : 'Category' }}</th>
+      @if (kind() === 'line') {
+        @for (item of series(); track item.label) {
+          <th scope="col">{{ item.label }}</th>
+        }
+      } @else {
+        <th scope="col">Tasks</th>
+      }
+    </tr>
+  </thead>
+  <tbody>
+    @for (label of labels(); track $index; let index = $index) {
+      <tr>
+        <th scope="row">{{ tooltipLabels().at(index) ?? label }}</th>
+        @if (kind() === 'line') {
+          @for (item of series(); track item.label) {
+            <td>{{ item.values.at(index) ?? 0 }}</td>
+          }
+        } @else {
+          <td>{{ series()[0]?.values?.at(index) ?? 0 }}</td>
+        }
+      </tr>
+    }
+  </tbody>
+</table>

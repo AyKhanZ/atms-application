@@ -4,6 +4,7 @@ import {
   Component,
   ElementRef,
   OnDestroy,
+  computed,
   effect,
   inject,
   input,
@@ -46,6 +47,7 @@ export class DashboardChartComponent implements OnDestroy {
   private renderedKind: ChartKind | null = null;
 
   readonly kind = input.required<ChartKind>();
+  readonly title = input.required<string>();
   readonly labels = input.required<string[]>();
   /** Full labels for tooltips when the axis shows short ones. */
   readonly tooltipLabels = input<string[]>([]);
@@ -54,6 +56,20 @@ export class DashboardChartComponent implements OnDestroy {
   readonly colors = input<string[]>([]);
   readonly disabledIndices = input<number[]>([]);
   readonly selected = output<number>();
+  readonly ariaLabel = computed(() => {
+    const title = this.title();
+    const series = this.series();
+    if (this.kind() === 'line') {
+      const totals = series.map(
+        (item) => `${item.label} ${item.values.reduce((sum, value) => sum + value, 0)}`,
+      );
+      return `${title}: ${totals.join(', ')}`;
+    }
+    const values = this.labels().map(
+      (label, index) => `${label} ${series[0]?.values[index] ?? 0}`,
+    );
+    return `${title}: ${values.join(', ')}`;
+  });
 
   constructor() {
     effect(() => this.render());

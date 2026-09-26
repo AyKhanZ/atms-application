@@ -35,14 +35,13 @@ describe('DashboardService', () => {
     request.flush({ activities: [] });
   });
 
-  it('rejects activity without a subject before rendering the dashboard', () => {
-    const error = vi.fn();
-    service.getDashboard({ projectId: null, period: '30d', from: null, to: null }).subscribe({ error });
+  it('passes the dashboard response through without validating activity subjects', () => {
+    const next = vi.fn();
+    service.getDashboard({ projectId: null, period: '30d', from: null, to: null }).subscribe(next);
     const request = http.expectOne((req) => req.url === `${projectApiUrl}/dashboard`);
-    request.flush({ activities: [{ entry: { id: 'entry-1' } }] });
+    const response = { activities: [{ entry: { id: 'entry-1' } }] };
+    request.flush(response);
 
-    expect(error).toHaveBeenCalledWith(
-      expect.objectContaining({ message: 'Dashboard response is missing activity subjects.' }),
-    );
+    expect(next).toHaveBeenCalledWith(response);
   });
 });
