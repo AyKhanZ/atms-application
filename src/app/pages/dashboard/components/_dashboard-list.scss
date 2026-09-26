@@ -1,0 +1,87 @@
+// Shared by the list cards of the dashboard: a header, then rows that scroll inside the card, so a
+// long list never makes its row of cards taller than the charts beside it.
+@mixin base {
+  :host {
+    display: block;
+    min-width: 0;
+    min-height: 0;
+    height: 100%;
+  }
+
+  .dashboard-list {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+  }
+  .dashboard-list__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    gap: 0.75rem;
+    padding: 1rem 1rem 0.5rem;
+  }
+  .dashboard-list__header h2 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+  .dashboard-list__header small {
+    display: block;
+    margin-top: 0.125rem;
+    color: var(--app-muted);
+    font-size: 0.75rem;
+  }
+  .dashboard-list__total {
+    color: var(--app-text);
+    font-size: 1.25rem;
+    font-weight: 600;
+    line-height: 1;
+  }
+  .dashboard-list__items {
+    min-height: 0;
+    margin: 0;
+    padding: 0 0.5rem 0.5rem;
+    overflow-y: auto;
+    list-style: none;
+  }
+  .dashboard-list__items li {
+    min-width: 0;
+    border-bottom: 1px solid var(--app-border);
+  }
+  .dashboard-list__items li:last-child {
+    border-bottom: 0;
+  }
+  .dashboard-list__items button {
+    width: 100%;
+    min-width: 0;
+    padding: 0.5rem;
+    border: 0;
+    border-radius: var(--radius-btn);
+    background: transparent;
+    color: var(--app-text);
+    text-align: left;
+    cursor: pointer;
+  }
+  .dashboard-list__items button:hover:not(:disabled) {
+    background: var(--orange-light-hover);
+  }
+  .dashboard-list__items button:focus-visible {
+    outline: 3px solid var(--orange-focus-outline);
+    outline-offset: -3px;
+  }
+  .dashboard-list__items button:disabled {
+    cursor: default;
+    opacity: 1;
+  }
+  .dashboard-list__items .dashboard-list__empty {
+    display: grid;
+    place-items: center;
+    min-height: 6rem;
+    height: 100%;
+    border-bottom: 0;
+    color: var(--app-muted);
+    font-size: 0.875rem;
+  }
+}

@@ -1,0 +1,43 @@
+<section class="panel dashboard-list">
+  <header class="dashboard-list__header">
+    <div>
+      <h2>Upcoming deadlines</h2>
+      <small>Not done, due in the next 7 days</small>
+    </div>
+    <span class="dashboard-list__total" title="Tasks due in the next 7 days">{{ total() }}</span>
+  </header>
+  <ul class="dashboard-list__items">
+    @for (row of rows(); track row.item.ref.workTaskId) {
+      <li>
+        <button
+          type="button"
+          class="dashboard-deadline"
+          [title]="row.item.title"
+          (click)="selected.emit(row.item.ref)"
+        >
+          <app-work-item-ref
+            class="dashboard-deadline__ref"
+            [type]="row.item.isSubtask ? subtask : task"
+            [code]="row.item.code"
+            [labelled]="false"
+          />
+          <span class="dashboard-deadline__title">{{ row.item.title }}</span>
+          <app-work-item-priority class="dashboard-deadline__priority" [priority]="row.priority" />
+          <time class="dashboard-deadline__date" [attr.datetime]="row.item.deadline">{{
+            row.item.deadline | date: 'EEE, d MMM' : '+0400'
+          }}</time>
+        </button>
+      </li>
+    } @empty {
+      <li class="dashboard-list__empty">Nothing is due in the next 7 days</li>
+    }
+  </ul>
+  @if (total() > rows().length) {
+    <footer class="dashboard-deadlines__more">
+      <span>The nearest {{ rows().length }} of {{ total() }}</span>
+      <button type="button" (click)="showAll.emit()">
+        Show all <i class="pi pi-arrow-right" aria-hidden="true"></i>
+      </button>
+    </footer>
+  }
+</section>

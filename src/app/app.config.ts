@@ -49,6 +49,8 @@ import { NavigationHistoryService } from './core/services/navigation-history.ser
 import { AppRouteReuseStrategy } from './core/routing/app-route-reuse.strategy';
 import { taskBoardReducer } from './store/task-board/task-board.reducer';
 import { TaskBoardEffects } from './store/task-board/task-board.effects';
+import { DashboardEffects } from './store/dashboard/dashboard.effects';
+import { dashboardReducer } from './store/dashboard/dashboard.reducer';
 
 const BaimTheme = definePreset(Aura, {
   semantic: {
@@ -133,6 +135,7 @@ export const appConfig: ApplicationConfig = {
       [Features.Attachments]: attachmentsReducer,
       [Features.History]: historyReducer,
       [Features.TaskBoard]: taskBoardReducer,
+      [Features.Dashboard]: dashboardReducer,
       [Features.User]: userReducer,
       [Features.Dictionary]: dictionaryReducer,
     }),
@@ -148,6 +151,7 @@ export const appConfig: ApplicationConfig = {
       AttachmentsEffects,
       HistoryEffects,
       TaskBoardEffects,
+      DashboardEffects,
       UserEffects,
       DictionaryEffects,
     ]),

@@ -1,5 +1,289 @@
-<div class="token-block">
-  <p>dashboard works!</p>
-  <p>Model: {{ accessModel() | json }}</p>
-  <p>Me {{ meModel() | json }}</p>
-</div>
+<section class="dashboard-page">
+  <header class="dashboard-header">
+    <div class="dashboard-heading">
+      <h1>Dashboard</h1>
+      @if (scopeText()) {
+        <p>{{ scopeText() }}</p>
+      }
+    </div>
+
+    <div class="dashboard-toolbar" [class.dashboard-toolbar--custom]="selectedPeriod() === 'custom'">
+      <div class="dashboard-project">
+        <p-select
+          inputId="dashboardProject"
+          ariaLabel="Project"
+          [options]="projectOptions()"
+          optionLabel="label"
+          optionValue="id"
+          [ngModel]="query().projectId ?? ''"
+          (ngModelChange)="changeProject($event)"
+          [filter]="true"
+          filterBy="label"
+          filterPlaceholder="Search projects"
+          (onFilter)="searchProjects($event)"
+          appendTo="body"
+          [style]="{ width: '100%' }"
+        />
+      </div>
+      <!-- The period and its dates stay together: they are one choice. -->
+      <div class="dashboard-period-group">
+        <div class="dashboard-period">
+          <p-select
+            inputId="dashboardPeriod"
+            ariaLabel="Period"
+            [options]="periodOptions"
+            optionLabel="label"
+            optionValue="value"
+            [ngModel]="selectedPeriod()"
+            (ngModelChange)="changePeriod($event)"
+            appendTo="body"
+            [style]="{ width: '100%' }"
+          />
+        </div>
+        @if (selectedPeriod() === 'custom') {
+          <p-datepicker
+            inputId="dashboardFrom"
+            styleClass="dashboard-datepicker"
+            ariaLabel="From"
+            placeholder="From"
+            dateFormat="d M yy"
+            appendTo="body"
+            iconDisplay="input"
+            [showIcon]="true"
+            [readonlyInput]="true"
+            [minDate]="fromMinDate()"
+            [maxDate]="fromMaxDate()"
+            [ngModel]="customFrom()"
+            (ngModelChange)="setCustomFrom($event)"
+          />
+          <span class="dashboard-range__dash" aria-hidden="true">–</span>
+          <p-datepicker
+            inputId="dashboardTo"
+            styleClass="dashboard-datepicker"
+            ariaLabel="To"
+            placeholder="To"
+            dateFormat="d M yy"
+            appendTo="body"
+            iconDisplay="input"
+            [showIcon]="true"
+            [readonlyInput]="true"
+            [minDate]="toMinDate()"
+            [maxDate]="toMaxDate()"
+            [ngModel]="customTo()"
+            (ngModelChange)="setCustomTo($event)"
+          />
+        }
+      </div>
+
+      <div class="dashboard-actions">
+        @if (selectedPeriod() === 'custom') {
+          <button
+            type="button"
+            class="dashboard-apply"
+            [disabled]="!!customError()"
+            [title]="customError() ?? 'Show this range'"
+            (click)="applyCustom()"
+          >
+            Apply
+          </button>
+        }
+        @if (model()) {
+          <div class="dashboard-refresh">
+            <span role="status">{{ updatedText() }}</span>
+            <button
+              type="button"
+              class="dashboard-refresh__button"
+              title="Refresh"
+              aria-label="Refresh"
+              [disabled]="loading()"
+              (click)="refresh()"
+            >
+              <i class="pi pi-refresh" [class.pi-spin]="loading()"></i>
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  </header>
+
+  @if (error()) {
+    <div class="panel dashboard-error" role="alert">
+      <i class="pi pi-exclamation-triangle" aria-hidden="true"></i>
+      <span>{{ error() }}</span>
+      <button type="button" (click)="refresh()">Retry</button>
+    </div>
+  }
+
+  @if (model(); as data) {
+    <div class="dashboard-kpis">
+      @for (kpi of kpiCards(); track kpi.key) {
+        <button
+          type="button"
+          class="panel dashboard-kpi"
+          [style.--tone]="'var(' + kpi.tone + ')'"
+          [disabled]="!kpi.clickable"
+          [title]="kpi.clickable ? 'Show these tasks' : ''"
+          (click)="openKpi(kpi.key)"
+        >
+          <span class="dashboard-kpi__icon" aria-hidden="true"><i [class]="'pi ' + kpi.icon"></i></span>
+          <span class="dashboard-kpi__label">{{ kpi.label }}</span>
+          <span class="dashboard-kpi__hint">{{ kpi.hint }}</span>
+          <strong class="dashboard-kpi__value" [class.is-alert]="kpi.alert">{{ kpi.value }}</strong>
+          @if (kpi.delta !== null) {
+            <span
+              class="dashboard-kpi__delta"
+              [class.is-down]="kpi.delta < 0"
+              title="Compared with the period of the same length before"
+            >
+              {{ kpi.delta >= 0 ? '▲' : '▼' }} {{ kpi.delta < 0 ? -kpi.delta : kpi.delta }}%
+            </span>
+          }
+        </button>
+      }
+    </div>
+
+    <div class="dashboard-focus">
+      <section class="panel dashboard-card dashboard-card--main">
+        <header class="dashboard-card__header">
+          <div>
+            <h2>Task flow</h2>
+            <small>How many tasks became New, In progress and Done, {{ granularityText() }}</small>
+          </div>
+        </header>
+        <div class="dashboard-card__chart">
+          <app-dashboard-chart
+            kind="line"
+            title="Task flow"
+            [labels]="mainLabels()"
+            [tooltipLabels]="mainTooltipLabels()"
+            [series]="mainSeries()"
+          />
+        </div>
+      </section>
+
+      <div class="dashboard-rail">
+        <section class="panel dashboard-card">
+          <header class="dashboard-card__header">
+            <div>
+              <h2>Tasks by status</h2>
+              <small>All tasks right now</small>
+            </div>
+          </header>
+          <div class="dashboard-card__chart">
+            <app-dashboard-chart
+              kind="doughnut"
+              title="Tasks by status"
+              [labels]="statusLabels()"
+              [series]="statusSeries()"
+              [colors]="statusColors()"
+              (selected)="openStatus($event)"
+            />
+          </div>
+        </section>
+        <section class="panel dashboard-card">
+          <header class="dashboard-card__header">
+            <div>
+              <h2>Not done, by priority</h2>
+              <small>New and In progress</small>
+            </div>
+          </header>
+          <div class="dashboard-card__chart">
+            <app-dashboard-chart
+              kind="doughnut"
+              title="Tasks not done by priority"
+              [labels]="priorityLabels()"
+              [series]="prioritySeries()"
+              [colors]="priorityColors()"
+              (selected)="openPriority($event)"
+            />
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <div class="dashboard-lower" [class.dashboard-lower--client]="!data.workload">
+      @if (data.workload) {
+        <section class="panel dashboard-card">
+          <header class="dashboard-card__header">
+            <div>
+              <h2>Who has the most tasks not done</h2>
+              <small>Top 8 · the rest are in Others</small>
+            </div>
+          </header>
+          <div class="dashboard-card__chart">
+            <app-dashboard-chart
+              kind="bar"
+              title="Tasks not done by person"
+              [labels]="workloadLabels()"
+              [tooltipLabels]="workloadTooltips()"
+              [series]="workloadSeries()"
+              [colors]="workloadColors()"
+              [disabledIndices]="workloadDisabledIndices()"
+              (selected)="openWorkload($event)"
+            />
+          </div>
+        </section>
+      }
+      <section class="panel dashboard-card">
+        <header class="dashboard-card__header">
+          <div>
+            <h2>
+              {{
+                data.secondaryChart.key === 'byProject'
+                  ? 'Projects with the most tasks not done'
+                  : 'Tickets with the most tasks not done'
+              }}
+            </h2>
+            <small>Top 8, most first</small>
+          </div>
+        </header>
+        <div class="dashboard-card__chart">
+          <app-dashboard-chart
+            kind="bar"
+            [title]="data.secondaryChart.key === 'byProject' ? 'Tasks not done by project' : 'Tasks not done by ticket'"
+            [labels]="secondaryLabels()"
+            [tooltipLabels]="secondaryLabels()"
+            [series]="secondarySeries()"
+            [colors]="secondaryColors()"
+            (selected)="openSecondary($event)"
+          />
+        </div>
+      </section>
+      <app-dashboard-deadlines
+        [deadlines]="data.deadlines"
+        [total]="data.deadlineCount"
+        [priorities]="priorities()"
+        (selected)="openRef($event)"
+        (showAll)="showAllDeadlines()"
+      />
+    </div>
+
+    <app-dashboard-activity
+      class="dashboard-activity-card"
+      [activities]="data.activities"
+      (selected)="openRef($event)"
+    />
+  } @else if (loading()) {
+    <div class="dashboard-skeleton" aria-label="Loading dashboard">
+      <div class="dashboard-kpis">
+        @for (_ of [1, 2, 3, 4, 5, 6]; track _) {
+          <div class="panel dashboard-skeleton__block dashboard-skeleton__kpi"></div>
+        }
+      </div>
+      <!-- The same grid and heights as the loaded page, so nothing jumps when the data arrives. -->
+      <div class="dashboard-focus">
+        <div class="panel dashboard-skeleton__block dashboard-card--main"></div>
+        <div class="dashboard-rail">
+          <div class="panel dashboard-skeleton__block"></div>
+          <div class="panel dashboard-skeleton__block"></div>
+        </div>
+      </div>
+      <div class="dashboard-lower">
+        @for (_ of [1, 2, 3]; track _) {
+          <div class="panel dashboard-skeleton__block"></div>
+        }
+      </div>
+      <div class="panel dashboard-skeleton__block dashboard-activity-card"></div>
+    </div>
+  }
+</section>

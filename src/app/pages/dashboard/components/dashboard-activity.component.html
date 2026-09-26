@@ -1,0 +1,40 @@
+<section class="panel dashboard-list">
+  <header class="dashboard-list__header">
+    <div>
+      <h2>Recent activity</h2>
+      <small>Latest changes to the work</small>
+    </div>
+  </header>
+  <ul class="dashboard-list__items dashboard-activity-list">
+    @for (row of rows(); track row.item.entry.id) {
+      <li>
+        <button
+          type="button"
+          [class]="'dashboard-activity dashboard-activity--' + row.line.tone"
+          [disabled]="row.item.subject.isDeleted"
+          [title]="'#' + row.line.code + ' ' + row.line.title + ' — ' + row.line.change"
+          (click)="selected.emit(row.item.ref)"
+        >
+          <span class="dashboard-activity__dot" aria-hidden="true"></span>
+          <span class="dashboard-activity__text">
+            <span class="dashboard-activity__subject">
+              <app-work-item-ref [type]="row.line.kind" [code]="row.line.code" />
+              <strong>{{ row.line.title }}</strong>
+            </span>
+            <span>{{ row.line.change }}</span>
+          </span>
+          <span class="dashboard-activity__meta">
+            <span>{{
+              row.item.entry.createdBy ? (row.item.entry.createdBy | personShortName) : 'System'
+            }}</span>
+            <time [attr.datetime]="row.item.entry.createdAt">{{
+              row.item.entry.createdAt | historyTime
+            }}</time>
+          </span>
+        </button>
+      </li>
+    } @empty {
+      <li class="dashboard-list__empty">No changes yet</li>
+    }
+  </ul>
+</section>

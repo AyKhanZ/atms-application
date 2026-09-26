@@ -43,6 +43,8 @@ describe('tasks page address', () => {
         statusIds: [1, 2],
         priorityIds: [3],
         deadline: 'overdue',
+        deadlineFrom: '2026-09-25T20:00:00.000Z',
+        deadlineTo: '2026-10-02T20:00:00.000Z',
         search: 'login',
       },
     };
@@ -50,6 +52,8 @@ describe('tasks page address', () => {
     const params = tasksPageParams(state, meId);
 
     expect(params['assignee']).toBe('me,user-2,none');
+    expect(params['deadlineFrom']).toBe('2026-09-25T20:00:00.000Z');
+    expect(params['deadlineTo']).toBe('2026-10-02T20:00:00.000Z');
     expect(parseTasksPage(convertToParamMap(params), meId)).toEqual(state);
   });
 
@@ -73,6 +77,22 @@ describe('tasks page address', () => {
 
   it('counts a deadline choice as a filter', () => {
     expect(hasFilters({ ...clearedFilter(), deadline: 'none' })).toBe(true);
+  });
+
+  it('reads a deadline range from a dashboard link and clears it with the other filters', () => {
+    const state = parseTasksPage(convertToParamMap({
+      view: 'list',
+      assignee: '',
+      state: '1,2',
+      deadlineFrom: '2026-09-25T20:00:00.000Z',
+      deadlineTo: '2026-10-02T20:00:00.000Z',
+    }), meId);
+
+    expect(state.filter.deadlineFrom).toBe('2026-09-25T20:00:00.000Z');
+    expect(state.filter.deadlineTo).toBe('2026-10-02T20:00:00.000Z');
+    expect(hasFilters(state.filter)).toBe(true);
+    expect(clearedFilter().deadlineFrom).toBeNull();
+    expect(clearedFilter().deadlineTo).toBeNull();
   });
 
   it('normalizes a calendar URL with no deadline without losing other filters', () => {

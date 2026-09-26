@@ -1,0 +1,75 @@
+@use './dashboard-list' as list;
+
+@include list.base;
+
+:host {
+  container-type: inline-size;
+}
+
+// Fixed columns: the code and the date never move, the title takes what is left and is cut.
+.dashboard-deadline {
+  display: grid;
+  grid-template-columns: 4.5rem minmax(0, 1fr) auto 5.75rem;
+  align-items: center;
+  gap: 0.75rem;
+}
+.dashboard-deadline__ref {
+  min-width: 0;
+  overflow: hidden;
+}
+.dashboard-deadline__title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.875rem;
+}
+.dashboard-deadline__date {
+  color: var(--app-muted);
+  font-size: 0.8rem;
+  text-align: right;
+  white-space: nowrap;
+}
+
+// More is due than the card lists: say how many are hidden and where they all are.
+.dashboard-list:has(.dashboard-deadlines__more) {
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+.dashboard-deadlines__more {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.5rem 1rem 0.75rem;
+  border-top: 1px solid var(--app-border);
+  color: var(--app-muted);
+  font-size: 0.8rem;
+}
+.dashboard-deadlines__more button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.5rem;
+  border: 0;
+  border-radius: var(--radius-btn);
+  background: transparent;
+  color: var(--orange-text-hover);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.dashboard-deadlines__more button:hover {
+  background: var(--orange-light-hover);
+}
+.dashboard-deadlines__more button:focus-visible {
+  outline: 3px solid var(--orange-focus-outline);
+}
+
+@container (max-width: 30rem) {
+  .dashboard-deadline {
+    grid-template-columns: 4.5rem minmax(0, 1fr) 5rem;
+  }
+  .dashboard-deadline__priority {
+    display: none;
+  }
+}

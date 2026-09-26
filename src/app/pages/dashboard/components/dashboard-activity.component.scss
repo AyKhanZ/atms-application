@@ -1,0 +1,98 @@
+@use './dashboard-list' as list;
+
+@include list.base;
+
+:host {
+  container-type: inline-size;
+}
+
+// Two columns on a wide card: ten rows in one column would be taller than the charts above.
+@container (min-width: 64rem) {
+  .dashboard-activity-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-content: start;
+    column-gap: 1.5rem;
+  }
+  // Both columns end on the same row: an odd last entry is left out rather than hanging alone.
+  .dashboard-activity-list li:last-child:nth-child(odd):not(:first-child) {
+    display: none;
+  }
+}
+
+.dashboard-activity {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+}
+// The dot is the status the work arrived at, as the status dots everywhere else; an edit that
+// changed no status has nothing to colour and is a hollow ring.
+.dashboard-activity__dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border: 2px solid var(--gray-icon-muted);
+  border-radius: 50%;
+  background: transparent;
+}
+.dashboard-activity--new .dashboard-activity__dot,
+.dashboard-activity--progress .dashboard-activity__dot,
+.dashboard-activity--done .dashboard-activity__dot,
+.dashboard-activity--deleted .dashboard-activity__dot {
+  border: 0;
+  background: var(--tone);
+}
+.dashboard-activity--new {
+  --tone: var(--status-dot-new);
+}
+.dashboard-activity--progress {
+  --tone: var(--status-dot-progress);
+}
+.dashboard-activity--done {
+  --tone: var(--status-dot-done);
+}
+.dashboard-activity--deleted {
+  --tone: var(--app-danger);
+}
+.dashboard-activity__text,
+.dashboard-activity__meta {
+  display: grid;
+  min-width: 0;
+  gap: 0.125rem;
+}
+.dashboard-activity__subject {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+.dashboard-activity__subject app-work-item-ref {
+  flex-shrink: 0;
+}
+.dashboard-activity__text strong,
+.dashboard-activity__text > span:not(.dashboard-activity__subject),
+.dashboard-activity__meta span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dashboard-activity__text strong {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+.dashboard-activity__text > span:not(.dashboard-activity__subject) {
+  color: var(--app-muted);
+  font-size: 0.8rem;
+}
+.dashboard-activity__meta {
+  justify-items: end;
+  max-width: 11rem;
+  color: var(--app-muted);
+  font-size: 0.75rem;
+}
+
+@container (max-width: 30rem) {
+  .dashboard-activity__meta {
+    max-width: 6.5rem;
+  }
+}

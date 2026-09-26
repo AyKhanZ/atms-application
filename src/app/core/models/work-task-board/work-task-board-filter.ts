@@ -18,13 +18,14 @@ export interface WorkTaskBoardFilter {
   statusIds: number[];
   priorityIds: number[];
   deadline: WorkTaskBoardDeadline;
+  /** Inclusive start and exclusive end for a deadline range shared in the address. */
+  deadlineFrom: string | null;
+  deadlineTo: string | null;
   search: string;
 }
 
 /** Narrowing a request adds to the filters the page shows, it does not replace them. */
 export interface WorkTaskBoardQuery extends WorkTaskBoardFilter {
-  deadlineFrom?: string | null;
-  deadlineTo?: string | null;
   noDeadline?: boolean;
   /** One side of the overdue split: true only overdue work, false everything else. */
   overdue?: boolean;
@@ -39,5 +40,7 @@ export const emptyWorkTaskBoardFilter: WorkTaskBoardFilter = {
   statusIds: [],
   priorityIds: [],
   deadline: 'any',
+  deadlineFrom: null,
+  deadlineTo: null,
   search: '',
 };
