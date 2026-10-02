@@ -2,9 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
 import { RouterLink } from '@angular/router';
 import { workItemKinds } from '../../../../../shared/components/work-item-ref/work-item-kinds';
 import { WorkItemRefComponent } from '../../../../../shared/components/work-item-ref/work-item-ref.component';
-import { ProjectStatusBadgeComponent } from '../../../components/status-badge/project-status-badge.component';
-import { TaskStatusBadgeComponent } from '../../../tasks/components/task-status-badge/task-status-badge.component';
-import { TicketStatusBadgeComponent } from '../../../tickets/components/ticket-status-badge/ticket-status-badge.component';
+import { WorkItemStatusBadgeComponent } from '../../../../../shared/components/work-item-status-badge/work-item-status-badge.component';
 import { CommentReferenceView } from '../../comment-view';
 
 /**
@@ -14,13 +12,7 @@ import { CommentReferenceView } from '../../comment-view';
  */
 @Component({
   selector: 'app-comment-reference',
-  imports: [
-    ProjectStatusBadgeComponent,
-    RouterLink,
-    TaskStatusBadgeComponent,
-    TicketStatusBadgeComponent,
-    WorkItemRefComponent,
-  ],
+  imports: [RouterLink, WorkItemRefComponent, WorkItemStatusBadgeComponent],
   templateUrl: './comment-reference.component.html',
   styleUrl: './comment-reference.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

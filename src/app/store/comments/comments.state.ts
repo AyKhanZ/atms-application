@@ -14,7 +14,7 @@ export interface CommentListState {
   loadMoreError: string | null;
   /**
    * Comments deleted while the list is open. A delete cannot be undone, so a read that started
-   * before it and answers after it must not bring the comment back.
+   * before it and answers after it must not show its text again.
    */
   removedIds: string[];
 }

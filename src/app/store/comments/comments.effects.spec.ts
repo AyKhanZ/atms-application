@@ -30,6 +30,9 @@ describe('CommentsEffects', () => {
     createdAt: '2026-09-26T10:00:00Z',
     createdBy: { id: 'u', name: 'Ann', surname: 'Lee' },
     updatedAt: null,
+    isDeleted: false,
+    deletedAt: null,
+    deletedBy: null,
     canEdit: true,
     canDelete: true,
     mentions: [],
@@ -118,14 +121,21 @@ describe('CommentsEffects', () => {
     expect(service.getComment).toHaveBeenCalledTimes(1);
   });
 
-  it('drops a deleted comment without asking the server', () => {
+  it('marks a deleted comment at once and reads its placeholder only when it is on screen', () => {
     withList();
-    const emitted = collect('liveRemoved$');
+    const removed = collect('liveRemoved$');
+    const read = collect('liveReceived$');
 
     commentChanged.next(event({ commentId: 'shown', action: 'deleted' }));
+    commentChanged.next(event({ commentId: 'on-a-later-page', action: 'deleted' }));
 
-    expect(emitted).toEqual([Actions.removedElsewhere({ listKey: 'task:t', commentId: 'shown' })]);
-    expect(service.getComment).not.toHaveBeenCalled();
+    expect(removed).toEqual([
+      Actions.removedElsewhere({ listKey: 'task:t', commentId: 'shown' }),
+      Actions.removedElsewhere({ listKey: 'task:t', commentId: 'on-a-later-page' }),
+    ]);
+    expect(service.getComment).toHaveBeenCalledTimes(1);
+    expect(service.getComment).toHaveBeenCalledWith('p', 'shown');
+    expect(read).toHaveLength(1);
   });
 
   it('ignores changes of a task whose comments are not on screen', () => {

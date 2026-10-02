@@ -1,0 +1,106 @@
+@use 'toolbar-button';
+
+// The colours open under the button.
+:host {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+}
+
+// The glyph and its arrow in one button, a little wider than the other tools.
+.highlight__button {
+  @include toolbar-button.base;
+
+  display: inline-flex;
+  width: auto;
+  align-items: center;
+  gap: 0.2rem;
+  padding-inline: 0.35rem;
+
+  .pi {
+    font-size: 0.55rem;
+  }
+}
+
+.highlight__glyph,
+.highlight__swatch {
+  background: var(--highlight-yellow);
+
+  &[data-color='green'] {
+    background: var(--highlight-green);
+  }
+
+  &[data-color='blue'] {
+    background: var(--highlight-blue);
+  }
+
+  &[data-color='pink'] {
+    background: var(--highlight-pink);
+  }
+
+  &[data-color='purple'] {
+    background: var(--highlight-purple);
+  }
+}
+
+.highlight__glyph {
+  padding: 0.05rem 0.2rem;
+  border-radius: 3px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.highlight__palette {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 0.25rem);
+  left: 0;
+  display: flex;
+  gap: 0.35rem;
+  padding: 0.4rem;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-card);
+  background: var(--app-surface);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 12%);
+}
+
+.highlight__swatch {
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  border: 1px solid rgb(0 0 0 / 10%);
+  border-radius: 50%;
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--gray-icon);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--orange-focus-outline);
+    outline-offset: 1px;
+  }
+
+  &.is-current {
+    box-shadow:
+      0 0 0 2px var(--app-surface),
+      0 0 0 4px var(--orange);
+  }
+}
+
+// A phone: the toolbar scrolls sideways and would clip the colours, so they open under the
+// editor's bar, at its left, instead of under this button.
+@container (max-width: 28rem) {
+  :host {
+    position: static;
+  }
+
+  .highlight__button {
+    width: auto;
+  }
+
+  .highlight__palette {
+    top: 2.25rem;
+  }
+}

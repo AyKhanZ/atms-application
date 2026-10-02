@@ -133,7 +133,7 @@ export class CommentsEffects {
     ),
   );
 
-  /** A deletion needs no request: the push names the comment, and the list drops it. */
+  /** A deletion turns the card into a placeholder at once, before the read says who did it. */
   liveRemoved$ = createEffect(() =>
     this.changes$.pipe(
       filter(({ event }) => event.action === 'deleted'),
@@ -149,17 +149,18 @@ export class CommentsEffects {
   /**
    * An added or changed comment is read alone and put in place — never the whole page, however
    * many people watch the task. The user's own change comes back this way too and only refreshes
-   * what the answer already showed, whichever of the two arrives first. An edit of a comment on a
-   * page not opened yet is not read at all.
+   * what the answer already showed, whichever of the two arrives first. A deleted comment is read
+   * for its placeholder — who deleted it and when. An edit or a delete of a comment on a page not
+   * opened yet is not read at all.
    */
   liveReceived$ = createEffect(() =>
     this.changes$.pipe(
       filter(
         ({ event, list }) =>
-          event.action === 'created' ||
-          (event.action === 'updated' && list.items.some((item) => item.id === event.commentId)),
+          event.action === 'created' || list.items.some((item) => item.id === event.commentId),
       ),
-      // Two quick edits of one comment: only the latest read lands, never an older one after it.
+      // Quick changes of one comment: only the latest read lands, never an older one after it — a
+      // delete cancels the read of the edit before it.
       groupBy(({ event }) => event.commentId, {
         duration: (group) => group.pipe(debounceTime(30_000)),
       }),
@@ -170,7 +171,7 @@ export class CommentsEffects {
               map((comment) =>
                 ActionsStore.received({ listKey: commentsKey(event.workTaskId), comment }),
               ),
-              // Deleted in the meantime: its own push removes it.
+              // Gone with its task in the meantime: nothing to show.
               catchError(() => EMPTY),
               takeUntil(this.gone(commentsKey(event.workTaskId))),
             ),

@@ -19,17 +19,11 @@
   >
   </span>
 
-  @switch (item().itemType) {
-    @case (1) {
-      <app-project-status-badge class="row__status" [status]="item().status" />
-    }
-    @case (2) {
-      <app-ticket-status-badge class="row__status" [status]="item().status" />
-    }
-    @default {
-      <app-task-status-badge class="row__status" [status]="item().status" />
-    }
-  }
+  <app-work-item-status-badge
+    class="row__status"
+    [kind]="item().itemType"
+    [status]="item().status"
+  />
 
   <app-work-item-assignee
     class="row__assignee"

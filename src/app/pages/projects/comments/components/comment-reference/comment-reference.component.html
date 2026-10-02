@@ -14,17 +14,9 @@
     [labelled]="false"
   />
   <span class="comment-ref__title">{{ reference.title }}</span>
-  <span class="comment-ref__status">
-    @switch (reference.type) {
-      @case ('project') {
-        <app-project-status-badge [status]="reference.status" />
-      }
-      @case ('ticket') {
-        <app-ticket-status-badge [status]="reference.status" />
-      }
-      @default {
-        <app-task-status-badge [status]="reference.status" />
-      }
-    }
-  </span>
+  <app-work-item-status-badge
+    class="comment-ref__status"
+    [kind]="current.kind"
+    [status]="reference.status"
+  />
 </a>

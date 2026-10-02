@@ -1,0 +1,30 @@
+<!-- mousedown is cancelled so a button does not take the caret and the selection it marks. -->
+<button
+  type="button"
+  class="highlight__button"
+  title="Highlight"
+  aria-label="Highlight"
+  aria-haspopup="true"
+  [attr.aria-expanded]="open()"
+  (mousedown)="$event.preventDefault()"
+  (click)="toggle()"
+>
+  <span class="highlight__glyph" [attr.data-color]="color()" aria-hidden="true">ab</span>
+  <i class="pi pi-chevron-down" aria-hidden="true"></i>
+</button>
+@if (open()) {
+  <span class="highlight__palette" role="group" aria-label="Highlight colours">
+    @for (swatch of colors; track swatch) {
+      <button
+        type="button"
+        class="highlight__swatch"
+        [attr.data-color]="swatch"
+        [class.is-current]="swatch === color()"
+        [title]="swatch"
+        [attr.aria-label]="'Highlight in ' + swatch"
+        (mousedown)="$event.preventDefault()"
+        (click)="pick(swatch)"
+      ></button>
+    }
+  </span>
+}

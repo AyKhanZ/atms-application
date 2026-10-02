@@ -261,6 +261,6 @@ describe('CommentEditorComponent', () => {
     fixture.detectChanges();
 
     expect(field().value).toBe('a ==green:big== bug');
-    expect(element.querySelector('.editor__palette')).toBeNull();
+    expect(element.querySelector('.highlight__palette')).toBeNull();
   });
 });

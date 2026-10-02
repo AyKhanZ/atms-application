@@ -1,0 +1,64 @@
+@use 'toolbar-button';
+
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.125rem;
+
+  > button {
+    @include toolbar-button.base;
+  }
+}
+
+.glyph {
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.glyph--bold {
+  font-weight: 900;
+}
+
+.glyph--italic {
+  font-family: Georgia, serif;
+  font-style: italic;
+}
+
+.toolbar__separator {
+  width: 1px;
+  height: 1.25rem;
+  margin-inline: 0.25rem;
+  background: var(--app-border);
+}
+
+// A phone: the tools stay one row, a little tighter, and scroll sideways on the narrowest screens
+// instead of dropping a button or two onto a line of their own.
+@container (max-width: 28rem) {
+  .toolbar {
+    flex-wrap: nowrap;
+    gap: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    > button {
+      flex: none;
+      width: 1.85rem;
+    }
+  }
+
+  .toolbar__separator {
+    flex: none;
+    margin-inline: 0.15rem;
+  }
+}

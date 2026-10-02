@@ -4,9 +4,7 @@ import { WorkItemKind } from '../../../core/models/work-items';
 import { WorkItemAssigneeComponent } from '../work-item-assignee/work-item-assignee.component';
 import { WorkItemRefComponent } from '../work-item-ref/work-item-ref.component';
 import { workItemKinds } from '../work-item-ref/work-item-kinds';
-import { ProjectStatusBadgeComponent } from '../../../pages/projects/components/status-badge/project-status-badge.component';
-import { TicketStatusBadgeComponent } from '../../../pages/projects/tickets/components/ticket-status-badge/ticket-status-badge.component';
-import { TaskStatusBadgeComponent } from '../../../pages/projects/tasks/components/task-status-badge/task-status-badge.component';
+import { WorkItemStatusBadgeComponent } from '../work-item-status-badge/work-item-status-badge.component';
 
 interface TrailStep {
   icon: string;
@@ -15,13 +13,7 @@ interface TrailStep {
 
 @Component({
   selector: 'app-search-result-row',
-  imports: [
-    WorkItemRefComponent,
-    WorkItemAssigneeComponent,
-    ProjectStatusBadgeComponent,
-    TicketStatusBadgeComponent,
-    TaskStatusBadgeComponent,
-  ],
+  imports: [WorkItemRefComponent, WorkItemAssigneeComponent, WorkItemStatusBadgeComponent],
   templateUrl: './search-result-row.component.html',
   styleUrl: './search-result-row.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

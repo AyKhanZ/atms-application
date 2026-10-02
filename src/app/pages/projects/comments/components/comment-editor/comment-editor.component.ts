@@ -19,7 +19,6 @@ import { CommentReferenceModel } from '../../../../../core/models/comments';
 import { GlobalSearchService } from '../../../../../core/services/global-search.service';
 import {
   EditorTrigger,
-  ListKind,
   TextEdit,
   continueList,
   findTrigger,
@@ -35,7 +34,7 @@ import {
   toggleList,
   toggleWrap,
 } from '../../../../../core/utils/comment-editor.utils';
-import { HIGHLIGHT_COLORS, HighlightColor } from '../../../../../core/utils/comment-markdown.utils';
+import { HighlightColor } from '../../../../../core/utils/comment-markdown.utils';
 import {
   CommentSuggestion,
   MentionCandidate,
@@ -46,8 +45,10 @@ import {
 } from '../../comment-suggestion';
 import { CommentSuggestionsComponent } from '../comment-suggestions/comment-suggestions.component';
 import { CommentTextComponent } from '../comment-text/comment-text.component';
-
-export type CommentFormat = 'bold' | 'italic' | 'code' | 'link' | ListKind;
+import {
+  CommentFormat,
+  CommentToolbarComponent,
+} from '../comment-toolbar/comment-toolbar.component';
 
 let nextEditorId = 0;
 
@@ -58,7 +59,13 @@ let nextEditorId = 0;
  */
 @Component({
   selector: 'app-comment-editor',
-  imports: [ButtonModule, CommentSuggestionsComponent, CommentTextComponent, TextareaModule],
+  imports: [
+    ButtonModule,
+    CommentSuggestionsComponent,
+    CommentTextComponent,
+    CommentToolbarComponent,
+    TextareaModule,
+  ],
   templateUrl: './comment-editor.component.html',
   styleUrl: './comment-editor.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -89,6 +96,7 @@ export class CommentEditorComponent implements OnInit {
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly field = viewChild.required<ElementRef<HTMLTextAreaElement>>('field');
+  private readonly toolbar = viewChild(CommentToolbarComponent);
 
   protected readonly id = `comment-editor-${nextEditorId++}`;
   protected readonly text = signal('');
@@ -98,9 +106,6 @@ export class CommentEditorComponent implements OnInit {
   protected readonly trigger = signal<EditorTrigger | null>(null);
   protected readonly activeIndex = signal(0);
   protected readonly searching = signal(false);
-  protected readonly highlightColors = HIGHLIGHT_COLORS;
-  protected readonly highlightColor = signal<HighlightColor>('yellow');
-  protected readonly paletteOpen = signal(false);
   private readonly workResults = signal<CommentSuggestion[]>([]);
   private readonly workQuery$ = new Subject<string>();
   /** The recently opened items, read once per field: an empty or short `#` lists them. */
@@ -182,7 +187,7 @@ export class CommentEditorComponent implements OnInit {
   protected onFocusOut(event: FocusEvent): void {
     if (this.host.nativeElement.contains(event.relatedTarget as Node | null)) return;
     this.focused.set(false);
-    this.paletteOpen.set(false);
+    this.toolbar()?.closePalette();
     this.closeSuggestions();
   }
 
@@ -279,15 +284,9 @@ export class CommentEditorComponent implements OnInit {
     }
   }
 
-  /** Marks the selection in the colour picked, which the button then shows. */
+  /** Marks the selection in the colour picked, or takes the same colour's mark off. */
   protected highlight(color: HighlightColor): void {
-    this.highlightColor.set(color);
-    this.paletteOpen.set(false);
     this.apply(toggleHighlight(this.currentEdit(), color));
-  }
-
-  protected togglePalette(): void {
-    this.paletteOpen.update((open) => !open);
   }
 
   /** A box ticked in the preview ticks its line in the field — no `[x]` to know by heart. */

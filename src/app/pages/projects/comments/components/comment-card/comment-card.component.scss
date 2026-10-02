@@ -24,6 +24,42 @@
   }
 }
 
+// A deleted comment: one grey line in its place, no border to hover, nothing to click.
+.card--deleted {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 1.1rem;
+  border-style: dashed;
+  background: var(--app-surface-muted);
+  box-shadow: none;
+  color: var(--app-muted);
+
+  &:hover {
+    border-color: var(--app-border);
+  }
+
+  > .pi {
+    flex: none;
+    font-size: 0.85rem;
+  }
+}
+
+.card__deleted {
+  min-width: 0;
+  margin: 0;
+  font-size: 0.85rem;
+
+  strong {
+    color: var(--gray-text-strong);
+    font-weight: 600;
+  }
+}
+
+.card__deleted-when {
+  white-space: nowrap;
+}
+
 // Reached from a link: an orange ring that fades once the eye has found it.
 .card.is-target {
   border-color: var(--orange);
