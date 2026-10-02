@@ -1,5 +1,5 @@
 import { DictionaryModel } from '../dictionary.model';
-import { HistoryPersonModel } from './history-person.model';
+import { PersonModel } from '../person.model';
 
 /**
  * A value ready to show: `id` is what was stored (a status id, a date, a text), `code` the
@@ -8,5 +8,5 @@ import { HistoryPersonModel } from './history-person.model';
  */
 export interface HistoryValueModel extends DictionaryModel<string> {
   /** Set for an assignee. */
-  person?: HistoryPersonModel | null;
+  person?: PersonModel | null;
 }

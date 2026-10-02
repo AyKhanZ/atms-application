@@ -1,0 +1,47 @@
+:host {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  min-width: 0;
+}
+
+// The title with its chevron at the far end and a line under it, as in Azure DevOps.
+.collapsible__head {
+  margin: 0;
+  border-bottom: 1px solid var(--app-border);
+
+  button {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 0.55rem 0.25rem;
+    border: 0;
+    background: transparent;
+    color: var(--app-text);
+    font: inherit;
+    font-size: 1rem;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+
+    &:hover .pi {
+      color: var(--app-text);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--orange-focus-outline);
+      outline-offset: 2px;
+      border-radius: 0.45rem;
+    }
+  }
+
+  .pi {
+    color: var(--gray-icon);
+    font-size: 0.8rem;
+  }
+}
+
+.collapsible__body {
+  min-width: 0;
+}

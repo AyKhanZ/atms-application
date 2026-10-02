@@ -1,0 +1,30 @@
+@let current = view();
+@let reference = current.reference;
+
+<a
+  class="comment-ref"
+  [attr.data-kind]="tone()"
+  [routerLink]="current.route"
+  [title]="reference.title + ' · ' + reference.status.name"
+>
+  <app-work-item-ref
+    class="comment-ref__code"
+    [type]="current.kind"
+    [code]="reference.code"
+    [labelled]="false"
+  />
+  <span class="comment-ref__title">{{ reference.title }}</span>
+  <span class="comment-ref__status">
+    @switch (reference.type) {
+      @case ('project') {
+        <app-project-status-badge [status]="reference.status" />
+      }
+      @case ('ticket') {
+        <app-ticket-status-badge [status]="reference.status" />
+      }
+      @default {
+        <app-task-status-badge [status]="reference.status" />
+      }
+    }
+  </span>
+</a>

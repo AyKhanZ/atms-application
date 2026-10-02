@@ -1,0 +1,83 @@
+:host {
+  display: block;
+}
+
+.suggestions {
+  max-height: 18rem;
+  margin: 0;
+  padding: 0.25rem;
+  overflow-y: auto;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-card);
+  background: var(--app-surface);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 12%);
+  list-style: none;
+}
+
+.suggestion {
+  --avatar-size: 1.5rem;
+  --avatar-radius: 999px;
+  --avatar-font-size: 0.6rem;
+  --avatar-shadow: none;
+
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.6rem;
+  border-radius: 6px;
+  color: var(--app-text);
+  font-size: 0.875rem;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--orange-light-hover);
+  }
+
+  &.is-active {
+    background: var(--orange-light);
+    color: var(--orange-text-hover);
+  }
+}
+
+.suggestion--empty {
+  color: var(--app-muted);
+  cursor: default;
+
+  &:hover {
+    background: none;
+  }
+}
+
+.suggestion__avatar {
+  flex: none;
+}
+
+.suggestion__title {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// A fixed cap, not a share of the row: a percentage is taken of the width the list has already
+// got, so the name would be cut even where the list could still grow to show it.
+.suggestion__meta {
+  max-width: 16rem;
+  flex: none;
+  overflow: hidden;
+  color: var(--app-muted);
+  font-size: 0.8rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.suggestions__hint {
+  margin-top: 0.25rem;
+  padding: 0.45rem 0.6rem 0.25rem;
+  border-top: 1px solid var(--app-border);
+  color: var(--app-muted);
+  font-size: 0.75rem;
+}

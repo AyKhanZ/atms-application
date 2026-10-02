@@ -1,0 +1,80 @@
+/* Inline in a sentence, yet never wider than the line: the title is cut, not the comment. */
+:host {
+  display: inline-flex;
+  max-width: 100%;
+  vertical-align: middle;
+}
+
+/* The title is of normal weight, so it is not taken for bold text around it. */
+.comment-ref {
+  --kind-color: var(--app-muted);
+
+  display: flex;
+  min-width: 0;
+  max-width: 100%;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0.1rem 0;
+  padding: 0.2rem 0.6rem 0.2rem 0.5rem;
+  border-left: 3px solid var(--kind-color);
+  border-radius: 4px;
+  background: var(--app-surface-muted);
+  color: var(--app-text);
+  line-height: 1.5;
+  text-decoration: none;
+
+  &:hover {
+    background: var(--orange-light-hover);
+
+    .comment-ref__title {
+      text-decoration-color: currentColor;
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--orange-focus-outline);
+    outline-offset: 1px;
+  }
+
+  &[data-kind='project'] {
+    --kind-color: var(--kind-project);
+  }
+
+  &[data-kind='ticket'] {
+    --kind-color: var(--kind-ticket);
+  }
+
+  &[data-kind='task'] {
+    --kind-color: var(--kind-task);
+  }
+
+  &[data-kind='subtask'] {
+    --kind-color: var(--kind-subtask);
+  }
+}
+
+/* The code is a label, lighter than on a details page, and it keeps its width. */
+.comment-ref__code {
+  flex: none;
+  font-weight: 600;
+}
+
+.comment-ref__title {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-color: var(--app-border);
+  text-overflow: ellipsis;
+  text-underline-offset: 2px;
+  white-space: nowrap;
+}
+
+.comment-ref__status {
+  flex: none;
+  padding-left: 0.5rem;
+  border-left: 1px solid var(--app-border);
+  font-size: 0.8rem;
+  white-space: nowrap;
+}

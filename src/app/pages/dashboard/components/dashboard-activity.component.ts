@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
-import { DashboardActivityModel, DashboardRefModel } from '../../../core/models/dashboard';
+import { DashboardActivityModel } from '../../../core/models/dashboard';
+import { WorkItemRefModel } from '../../../core/models/work-items';
 import { HistoryTimePipe } from '../../../shared/pipes/history.pipe';
 import { PersonShortNamePipe } from '../../../shared/pipes/person-name.pipe';
 import { WorkItemRefComponent } from '../../../shared/components/work-item-ref/work-item-ref.component';
@@ -14,7 +15,7 @@ import { dashboardActivityLine } from '../dashboard-activity.utils';
 })
 export class DashboardActivityComponent {
   readonly activities = input.required<DashboardActivityModel[]>();
-  readonly selected = output<DashboardRefModel>();
+  readonly selected = output<WorkItemRefModel>();
   readonly rows = computed(() =>
     this.activities().map((item) => ({ item, line: dashboardActivityLine(item) })),
   );

@@ -22,8 +22,8 @@ import {
   DashboardKpiModel,
   DashboardPeriod,
   DashboardQuery,
-  DashboardRefModel,
 } from '../../core/models/dashboard';
+import { WorkItemRefModel } from '../../core/models/work-items';
 import { WorkTaskStatus } from '../../core/enums/work-task-status.enum';
 import { WorkTaskBoardSort } from '../../core/models/work-task-board';
 import { workItemPriorityTone } from '../../shared/components/work-item-priority/work-item-priority.component';
@@ -36,6 +36,7 @@ import {
   toIsoDate,
 } from '../../core/utils/dashboard-query.utils';
 import { VisiblePageRefreshService } from '../../core/services/visible-page-refresh.service';
+import { workItemRoute } from '../../core/utils/work-item-route.utils';
 import { DashboardStoreActions, DashboardStoreSelectors } from '../../store/dashboard';
 import { DashboardActivityComponent } from './components/dashboard-activity.component';
 import {
@@ -479,11 +480,8 @@ export class Dashboard implements OnDestroy {
     });
   }
 
-  openRef(ref: DashboardRefModel): void {
-    const route = ['/projects', ref.projectId];
-    if (ref.workTicketId) route.push('tickets', ref.workTicketId);
-    if (ref.workTaskId) route.push('tasks', ref.workTaskId);
-    void this.router.navigate(route);
+  openRef(ref: WorkItemRefModel): void {
+    void this.router.navigate(workItemRoute(ref));
   }
 
   private navigate(query: DashboardQuery): void {

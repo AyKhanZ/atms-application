@@ -1,0 +1,49 @@
+<ul
+  class="suggestions"
+  role="listbox"
+  [id]="listId()"
+  [attr.aria-label]="trigger() === '@' ? 'People to mention' : 'Work to link'"
+  [attr.aria-busy]="loading()"
+>
+  @for (item of items(); track $index; let index = $index) {
+    <!-- mousedown, not click: a click would first take the focus, and the text field its caret. -->
+    <li
+      role="option"
+      class="suggestion"
+      [id]="listId() + '-' + index"
+      [class.is-active]="index === activeIndex()"
+      [attr.aria-selected]="index === activeIndex()"
+      (mousedown)="$event.preventDefault(); picked.emit(index)"
+    >
+      @if (item.kind === 'person') {
+        <app-profile-avatar
+          class="suggestion__avatar"
+          [imageUrl]="item.person.avatarPath"
+          [fullName]="item.person | personName"
+          [initials]="item.person | personInitials"
+          [previewEnabled]="false"
+        />
+        <span class="suggestion__title">{{ item.person | personName }}</span>
+      } @else {
+        <app-work-item-ref [type]="item.item.itemType" [code]="item.item.code" [labelled]="false" />
+        <span class="suggestion__title">{{ item.item.title }}</span>
+        @if (item.item.project.id !== currentProjectId()) {
+          <span class="suggestion__meta">{{ item.item.project.name }}</span>
+        }
+      }
+    </li>
+  } @empty {
+    <li class="suggestion suggestion--empty" role="option" aria-disabled="true">
+      @if (loading()) {
+        <i class="pi pi-spin pi-spinner" aria-hidden="true"></i><span>Searching…</span>
+      } @else if (trigger() === '@') {
+        No project member with this name
+      } @else {
+        Nothing found
+      }
+    </li>
+  }
+  @if (hint(); as text) {
+    <li class="suggestions__hint" role="presentation">{{ text }}</li>
+  }
+</ul>

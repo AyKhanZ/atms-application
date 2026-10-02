@@ -41,88 +41,47 @@
     />
   } @else {
     <!-- Two parts that fold, as in Azure DevOps: the status graph and the history itself. -->
-    <section class="history-section">
-      <h3 class="history-section__head">
-        <button
-          type="button"
-          aria-controls="historyStates"
-          [attr.aria-expanded]="sections.statesOpen()"
-          (click)="sections.toggleStates()"
-        >
-          <span>Status graph</span>
-          <i
-            class="pi"
-            [class.pi-chevron-down]="sections.statesOpen()"
-            [class.pi-chevron-right]="!sections.statesOpen()"
-            aria-hidden="true"
-          ></i>
-        </button>
-      </h3>
-      @if (sections.statesOpen()) {
-        <div id="historyStates" class="history-section__body">
-          <app-history-state-bar
-            [states]="list()?.states ?? null"
-            [entityType]="entityType()"
+    <app-collapsible-section title="Status graph" [(open)]="statesOpen">
+      <div class="history-section__body">
+        <app-history-state-bar
+          [states]="list()?.states ?? null"
+          [entityType]="entityType()"
+          [projectId]="projectId()"
+          [current]="currentStatus()"
+        />
+      </div>
+    </app-collapsible-section>
+
+    <app-collapsible-section title="History" [(open)]="entriesOpen">
+      <div class="history-columns" appHistoryPaneHeight [class.is-details-open]="detailsOpen()">
+        <div class="history-pane history-pane--list">
+          <app-history-list
+            [groups]="groups()"
+            [selectedId]="selected()?.id ?? null"
+            [subject]="subject()"
             [projectId]="projectId()"
-            [current]="currentStatus()"
+            [hasMore]="list()?.hasMore ?? false"
+            [loadingMore]="list()?.loadingMore ?? false"
+            [loadMoreError]="list()?.loadMoreError ?? null"
+            (select)="select($event)"
+            (loadMore)="loadMore()"
           />
         </div>
-      }
-    </section>
 
-    <section class="history-section">
-      <h3 class="history-section__head">
-        <button
-          type="button"
-          aria-controls="historyEntries"
-          [attr.aria-expanded]="sections.entriesOpen()"
-          (click)="sections.toggleEntries()"
-        >
-          <span>History</span>
-          <i
-            class="pi"
-            [class.pi-chevron-down]="sections.entriesOpen()"
-            [class.pi-chevron-right]="!sections.entriesOpen()"
-            aria-hidden="true"
-          ></i>
-        </button>
-      </h3>
-      @if (sections.entriesOpen()) {
-        <div
-          id="historyEntries"
-          class="history-columns"
-          appHistoryPaneHeight
-          [class.is-details-open]="detailsOpen()"
-        >
-          <div class="history-pane history-pane--list">
-            <app-history-list
-              [groups]="groups()"
-              [selectedId]="selected()?.id ?? null"
+        <div class="history-pane history-pane--details" aria-live="polite">
+          <button type="button" class="history-back" (click)="closeDetails()">
+            <i class="pi pi-arrow-left" aria-hidden="true"></i>
+            <span>All changes</span>
+          </button>
+          @if (selected(); as entry) {
+            <app-history-entry-details
+              [entry]="entry"
               [subject]="subject()"
               [projectId]="projectId()"
-              [hasMore]="list()?.hasMore ?? false"
-              [loadingMore]="list()?.loadingMore ?? false"
-              [loadMoreError]="list()?.loadMoreError ?? null"
-              (select)="select($event)"
-              (loadMore)="loadMore()"
             />
-          </div>
-
-          <div class="history-pane history-pane--details" aria-live="polite">
-            <button type="button" class="history-back" (click)="closeDetails()">
-              <i class="pi pi-arrow-left" aria-hidden="true"></i>
-              <span>All changes</span>
-            </button>
-            @if (selected(); as entry) {
-              <app-history-entry-details
-                [entry]="entry"
-                [subject]="subject()"
-                [projectId]="projectId()"
-              />
-            }
-          </div>
+          }
         </div>
-      }
-    </section>
+      </div>
+    </app-collapsible-section>
   }
 </div>

@@ -30,6 +30,7 @@ describe('task details helpers', () => {
     ['details', 'details'],
     ['subtasks', 'subtasks'],
     ['attachments', 'attachments'],
+    ['comments', 'details'],
     ['history', 'history'],
     ['unknown', 'details'],
   ] as const)('parses %s as %s', (value, expected) => expect(parseTaskTab(value)).toBe(expected));

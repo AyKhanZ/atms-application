@@ -24,6 +24,8 @@ export interface WorkTaskModel {
   assignee?: WorkItemAssigneeModel | null;
   subtaskCount: number;
   doneSubtaskCount: number;
+  /** Comments and replies still there; sent with the details of one task only. */
+  commentsCount?: number;
   updatedAt?: string | null;
   updatedBy?: AuditUserModel | null;
 }

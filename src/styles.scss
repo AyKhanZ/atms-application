@@ -108,6 +108,13 @@
      pill, never a stripe: the left edge already means the kind of work. */
   --overdue-text: var(--red-hover);
   --overdue-bg: #fef2f2;
+  /* Marker colours for highlighted words in a comment: light, so dark text stays readable, and
+     none of them the orange accent. */
+  --highlight-yellow: #fef08a;
+  --highlight-green: #bbf7d0;
+  --highlight-blue: #bfdbfe;
+  --highlight-pink: #fbcfe8;
+  --highlight-purple: #ddd6fe;
   --overdue-border: #fecaca;
   /* A one-line calendar chip has little surface: it needs the stronger tint. The strong border
      marks an overdue board card and the line under the overdue cards. */

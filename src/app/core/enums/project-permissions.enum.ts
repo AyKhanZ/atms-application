@@ -13,6 +13,10 @@ export const ProjectPermissions = {
     Edit: 'TaskEdit',
     Delete: 'TaskDelete',
   },
+  Comment: {
+    Edit: 'CommentEdit',
+    Delete: 'CommentDelete',
+  },
   Participant: {
     Edit: 'ParticipantEdit',
     Delete: 'ParticipantDelete',

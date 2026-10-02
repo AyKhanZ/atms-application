@@ -1,0 +1,130 @@
+@let item = comment();
+
+<article
+  class="card"
+  [id]="anchor()"
+  [class.is-target]="target()"
+  [attr.aria-label]="'Comment by ' + (item.createdBy | personName: 'Unknown user')"
+>
+  <header class="card__header">
+    <app-profile-avatar
+      class="card__avatar"
+      [imageUrl]="item.createdBy.avatarPath"
+      [fullName]="item.createdBy | personName: 'Unknown user'"
+      [initials]="item.createdBy | personInitials"
+      [previewEnabled]="false"
+    />
+    <p class="card__meta">
+      <strong class="card__author">{{ item.createdBy | personName: 'Unknown user' }}</strong>
+      <!-- The time is the comment's own link, as in Azure DevOps. -->
+      <a
+        class="card__when"
+        [routerLink]="[]"
+        [queryParams]="{ tab: null }"
+        queryParamsHandling="merge"
+        [fragment]="anchor()"
+        [title]="item.createdAt | historyTime: 'full'"
+      >
+        commented {{ item.createdAt | historyTime }}
+      </a>
+      @if (item.updatedAt; as updatedAt) {
+        <span class="card__edited" [title]="'Edited ' + (updatedAt | historyTime: 'full')">
+          · edited
+        </span>
+      }
+    </p>
+
+    @if (!editing()) {
+      <!-- As in Azure DevOps: link and edit at hand, delete one step away behind ⋯. -->
+      <div class="card__actions">
+        <button
+          type="button"
+          class="card__action"
+          title="Copy link"
+          aria-label="Copy link to the comment"
+          (click)="actions.copyLink(item.id)"
+        >
+          <i class="pi pi-link" aria-hidden="true"></i>
+        </button>
+        @if (item.canEdit) {
+          <button
+            type="button"
+            class="card__action"
+            title="Edit"
+            aria-label="Edit the comment"
+            (click)="actions.startEdit(item)"
+          >
+            <i class="pi pi-pencil" aria-hidden="true"></i>
+          </button>
+        }
+        @if (item.canDelete) {
+          <button
+            type="button"
+            class="card__action"
+            title="More"
+            aria-haspopup="menu"
+            aria-label="More actions"
+            (click)="openMenu(menu, $event, menuItems())"
+          >
+            <i class="pi pi-ellipsis-h" aria-hidden="true"></i>
+          </button>
+        }
+      </div>
+      <!-- A phone: every action behind one ⋯, so the name and the time keep the row. -->
+      <button
+        type="button"
+        class="card__action card__actions-compact"
+        title="Actions"
+        aria-haspopup="menu"
+        aria-label="Comment actions"
+        (click)="openMenu(menu, $event, compactMenuItems())"
+      >
+        <i class="pi pi-ellipsis-h" aria-hidden="true"></i>
+      </button>
+    }
+  </header>
+
+  <div class="card__body">
+    @if (editing()) {
+      <app-comment-editor
+        label="Edit comment"
+        [initialText]="item.text"
+        [people]="mentionable()"
+        [projectId]="projectId()"
+        [expanded]="true"
+        [busy]="actions.saving()"
+        [error]="actions.editError()"
+        (submitted)="actions.save(item.id, $event)"
+        (cancelled)="actions.cancelEdit()"
+      />
+    } @else {
+      <div class="card__text" [id]="anchor() + '-text'" [class.is-folded]="long() && !unfolded()">
+        <app-comment-text
+          #text
+          [text]="item.text"
+          [mentions]="item.mentions"
+          [references]="item.references"
+        />
+      </div>
+      @if (long()) {
+        <button
+          type="button"
+          class="card__fold"
+          [attr.aria-expanded]="unfolded()"
+          [attr.aria-controls]="anchor() + '-text'"
+          (click)="unfolded.set(!unfolded())"
+        >
+          {{ unfolded() ? 'Show less' : 'Show more' }}
+          <i
+            class="pi"
+            [class]="unfolded() ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"
+            aria-hidden="true"
+          ></i>
+        </button>
+      }
+    }
+  </div>
+</article>
+
+<!-- One menu for both ⋯: Delete alone on a wide screen, every action on a phone. -->
+<p-menu #menu [popup]="true" [model]="menuModel()" appendTo="body" />

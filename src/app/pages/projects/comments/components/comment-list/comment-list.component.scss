@@ -1,0 +1,115 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+ul,
+ol {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+// Each level its own marker, as in Azure DevOps and Word: ● ○ ■ and 1 a i. Set for every level,
+// the first too: the comments themselves sit in a list, and the browser would draw the first
+// level of a comment as if it were already nested. The child combinator keeps a level to its list.
+:host([data-level='0']) > ul {
+  list-style-type: disc;
+}
+
+:host([data-level='1']) > ul {
+  list-style-type: circle;
+}
+
+:host([data-level='2']) > ul {
+  list-style-type: square;
+}
+
+:host([data-level='0']) > ol {
+  list-style-type: decimal;
+}
+
+:host([data-level='1']) > ol {
+  list-style-type: lower-alpha;
+}
+
+:host([data-level='2']) > ol {
+  list-style-type: lower-roman;
+}
+
+:host > ul.checklist {
+  list-style: none;
+}
+
+li + li,
+.list__nested {
+  margin-top: 0.2rem;
+}
+
+.checklist {
+  padding-left: 0;
+  list-style: none;
+
+  > li {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: baseline;
+    column-gap: 0.5rem;
+  }
+
+  // A list under a ticked item starts under its text, not under the box.
+  .list__nested {
+    grid-column: 2;
+  }
+}
+
+// Read-only boxes are quiet grey, so a saved comment does not look like a form to tick. The ones
+// that can be clicked — in the editor's preview — take the orange of every other control.
+.checklist__box {
+  display: inline-grid;
+  width: 0.95rem;
+  height: 0.95rem;
+  place-items: center;
+  align-self: center;
+  border: 1.5px solid var(--app-border);
+  border-radius: 3px;
+  background: var(--app-surface);
+
+  i {
+    color: var(--app-muted);
+    font-size: 0.6rem;
+    font-weight: 700;
+  }
+}
+
+.checklist > li.is-done > .checklist__box {
+  background: var(--app-surface-muted);
+}
+
+.checklist > li.is-done > .list__text {
+  color: var(--app-muted);
+  text-decoration: line-through;
+}
+
+.checklist__box--button {
+  padding: 0;
+  border-color: var(--gray-icon);
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--orange);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--orange-focus-outline);
+    outline-offset: 1px;
+  }
+}
+
+.checklist > li.is-done > .checklist__box--button {
+  border-color: var(--orange);
+  background: var(--orange);
+
+  i {
+    color: var(--white);
+  }
+}

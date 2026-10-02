@@ -10,6 +10,7 @@ export enum Features {
   WorkTasks = 'workTasks',
   Attachments = 'attachments',
   History = 'history',
+  Comments = 'comments',
   TaskBoard = 'taskBoard',
   Dashboard = 'dashboard',
   Dictionary = 'dictionary',
