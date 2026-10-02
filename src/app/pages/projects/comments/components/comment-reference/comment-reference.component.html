@@ -1,0 +1,22 @@
+@let current = view();
+@let reference = current.reference;
+
+<a
+  class="comment-ref"
+  [attr.data-kind]="tone()"
+  [routerLink]="current.route"
+  [title]="reference.title + ' · ' + reference.status.name"
+>
+  <app-work-item-ref
+    class="comment-ref__code"
+    [type]="current.kind"
+    [code]="reference.code"
+    [labelled]="false"
+  />
+  <span class="comment-ref__title">{{ reference.title }}</span>
+  <app-work-item-status-badge
+    class="comment-ref__status"
+    [kind]="current.kind"
+    [status]="reference.status"
+  />
+</a>

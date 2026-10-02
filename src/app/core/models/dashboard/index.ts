@@ -4,6 +4,5 @@ export * from './dashboard-chart.model';
 export * from './dashboard-deadline.model';
 export * from './dashboard-kpi.model';
 export * from './dashboard-project-option.model';
-export * from './dashboard-ref.model';
 export * from './dashboard-workload.model';
 export * from './dashboard.model';

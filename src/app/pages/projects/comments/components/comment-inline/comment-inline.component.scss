@@ -1,0 +1,48 @@
+:host {
+  display: contents;
+}
+
+mark {
+  padding: 0 0.15rem;
+  border-radius: 3px;
+  background: var(--highlight-yellow);
+  color: inherit;
+
+  &[data-color='green'] {
+    background: var(--highlight-green);
+  }
+
+  &[data-color='blue'] {
+    background: var(--highlight-blue);
+  }
+
+  &[data-color='pink'] {
+    background: var(--highlight-pink);
+  }
+
+  &[data-color='purple'] {
+    background: var(--highlight-purple);
+  }
+}
+
+code {
+  padding: 0.05rem 0.3rem;
+  border-radius: 4px;
+  background: var(--app-surface-muted);
+  color: var(--gray-text-strong);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 0.85em;
+  overflow-wrap: anywhere;
+}
+
+.comment-link {
+  color: var(--orange-text-hover);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  overflow-wrap: anywhere;
+}
+
+.comment-mention {
+  color: var(--orange-text-hover);
+  font-weight: 700;
+}

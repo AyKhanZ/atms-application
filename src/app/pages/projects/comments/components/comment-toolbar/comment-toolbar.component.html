@@ -1,0 +1,87 @@
+<!-- mousedown is cancelled so a button does not take the caret and the selection it wraps. -->
+<div class="toolbar" role="toolbar" [attr.aria-label]="label() + ' formatting'">
+  <button
+    type="button"
+    title="Mention a person"
+    aria-label="Mention a person"
+    (mousedown)="$event.preventDefault()"
+    (click)="triggered.emit('@')"
+  >
+    <span class="glyph" aria-hidden="true">&#64;</span>
+  </button>
+  <button
+    type="button"
+    title="Link a ticket or task"
+    aria-label="Link a ticket or task"
+    (mousedown)="$event.preventDefault()"
+    (click)="triggered.emit('#')"
+  >
+    <span class="glyph" aria-hidden="true">#</span>
+  </button>
+  <span class="toolbar__separator" aria-hidden="true"></span>
+  <button
+    type="button"
+    title="Bold (Ctrl+B)"
+    aria-label="Bold"
+    (mousedown)="$event.preventDefault()"
+    (click)="formatted.emit('bold')"
+  >
+    <span class="glyph glyph--bold" aria-hidden="true">B</span>
+  </button>
+  <button
+    type="button"
+    title="Italic (Ctrl+I)"
+    aria-label="Italic"
+    (mousedown)="$event.preventDefault()"
+    (click)="formatted.emit('italic')"
+  >
+    <span class="glyph glyph--italic" aria-hidden="true">I</span>
+  </button>
+  <app-highlight-picker (picked)="highlighted.emit($event)" />
+  <button
+    type="button"
+    title="Code"
+    aria-label="Code"
+    (mousedown)="$event.preventDefault()"
+    (click)="formatted.emit('code')"
+  >
+    <i class="pi pi-code" aria-hidden="true"></i>
+  </button>
+  <button
+    type="button"
+    title="Link (Ctrl+K)"
+    aria-label="Link"
+    (mousedown)="$event.preventDefault()"
+    (click)="formatted.emit('link')"
+  >
+    <i class="pi pi-link" aria-hidden="true"></i>
+  </button>
+  <span class="toolbar__separator" aria-hidden="true"></span>
+  <button
+    type="button"
+    title="Bulleted list"
+    aria-label="Bulleted list"
+    (mousedown)="$event.preventDefault()"
+    (click)="formatted.emit('bullets')"
+  >
+    <i class="pi pi-list" aria-hidden="true"></i>
+  </button>
+  <button
+    type="button"
+    title="Numbered list"
+    aria-label="Numbered list"
+    (mousedown)="$event.preventDefault()"
+    (click)="formatted.emit('numbers')"
+  >
+    <span class="glyph" aria-hidden="true">1.</span>
+  </button>
+  <button
+    type="button"
+    title="Check list — tick items in the preview"
+    aria-label="Check list"
+    (mousedown)="$event.preventDefault()"
+    (click)="formatted.emit('checks')"
+  >
+    <i class="pi pi-check-square" aria-hidden="true"></i>
+  </button>
+</div>

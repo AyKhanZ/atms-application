@@ -1,0 +1,19 @@
+:host {
+  display: block;
+  min-width: 0;
+  color: var(--app-text);
+  font-size: 0.9rem;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+p {
+  margin: 0;
+}
+
+p + p,
+p + .comment-list,
+.comment-list + p,
+.comment-list + .comment-list {
+  margin-top: 0.5rem;
+}

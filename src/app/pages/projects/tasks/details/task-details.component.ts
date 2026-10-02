@@ -4,7 +4,9 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  Injector,
   OnDestroy,
+  afterNextRender,
   computed,
   inject,
   signal,
@@ -22,6 +24,7 @@ import { WorkItemRefComponent } from '../../../../shared/components/work-item-re
 import { WorkTaskModel } from '../../../../core/models/work-tasks';
 import { WorkProjectModel } from '../../../../core/models/work-projects/work-project.model';
 import { BreadcrumbOverrideService } from '../../../../core/services/breadcrumb-override.service';
+import { FoldedSectionsService } from '../../../../core/services/folded-sections.service';
 import { RecentWorkItemsService } from '../../../../core/services/recent-work-items.service';
 import { ProjectAccessService } from '../../../../core/services/project-access.service';
 import { ProjectPermissionsRefreshService } from '../../../../core/services/project-permissions-refresh.service';
@@ -30,6 +33,8 @@ import { WorkProjectsService } from '../../../../core/services/work-projects.ser
 import { WorkTasksService } from '../../../../core/services/work-tasks.service';
 import { BackButtonComponent } from '../../../../shared/components/back-button/back-button.component';
 import { HistoryTabComponent } from '../../history/history-tab/history-tab.component';
+import { WorkProjectParticipantModel } from '../../../../core/models/work-projects';
+import { TaskCommentsService } from '../../comments/task-comments.service';
 import { TaskAttachmentsTabComponent } from '../../attachments/task-attachments-tab/task-attachments-tab.component';
 import { AttachmentTreeExpansionService } from '../../attachments/attachment-tree-expansion.service';
 import {
@@ -74,7 +79,7 @@ interface TaskPageData {
     TaskDetailsTabComponent,
     WorkTaskListComponent,
   ],
-  providers: [ConfirmationService, AttachmentTreeExpansionService],
+  providers: [ConfirmationService, AttachmentTreeExpansionService, TaskCommentsService],
   templateUrl: './task-details.component.html',
   styleUrl: './task-details.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -93,6 +98,9 @@ export class TaskDetailsComponent implements OnDestroy {
   private readonly confirmation = inject(ConfirmationService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly breadcrumbs = inject(BreadcrumbOverrideService);
+  protected readonly comments = inject(TaskCommentsService);
+  private readonly injector = inject(Injector);
+  private readonly sections = inject(FoldedSectionsService);
 
   // Moving between a task and its subtasks stays on this route, so Angular reuses the component.
   // The ids therefore follow paramMap and must not be read once from the snapshot.
@@ -107,6 +115,9 @@ export class TaskDetailsComponent implements OnDestroy {
   readonly canCreate = signal(false);
   readonly canEdit = signal(false);
   readonly canDelete = signal(false);
+  readonly canComment = signal(false);
+  /** Who can be mentioned in a comment: the project's members, read with the project. */
+  readonly participants = signal<readonly WorkProjectParticipantModel[]>([]);
   readonly activeTab = signal<TaskTab>(parseTaskTab(this.route.snapshot.queryParamMap.get('tab')));
   readonly tabs = computed<readonly EntityTab<TaskTab>[]>(() => {
     const task = this.task();
@@ -146,6 +157,7 @@ export class TaskDetailsComponent implements OnDestroy {
           this.ticketId = params.get('ticketId');
           this.taskId = params.get('taskId');
           this.task.set(null);
+          this.comments.watch(null);
           this.loadError.set(false);
           this.loading.set(true);
 
@@ -166,6 +178,20 @@ export class TaskDetailsComponent implements OnDestroy {
       queryParams: { tab: taskTabQueryParam(tab) },
       queryParamsHandling: 'merge',
     });
+  }
+
+  /** The Details tab, scrolled to the discussion under the description. */
+  openDiscussion(): void {
+    this.selectTab('details');
+    // Folded earlier, it opens: the click asked to see the comments.
+    this.sections.open('task.discussion').set(true);
+    afterNextRender(
+      () =>
+        document
+          .getElementById('discussion')
+          ?.scrollIntoView({ behavior: 'smooth', block: 'start' }),
+      { injector: this.injector },
+    );
   }
 
   /** Where the user came from; the parent when that is unknown, as after opening a shared link. */
@@ -249,6 +275,8 @@ export class TaskDetailsComponent implements OnDestroy {
     }
 
     this.task.set(result.task);
+    this.participants.set(result.project.participants);
+    this.comments.watch(result.task);
     // ?tab=subtasks can arrive from a bookmark or from the parent's tab state, and a subtask has
     // no such tab — fall back to Details instead of rendering an empty body.
     if (result.task.isSubtask && this.activeTab() === 'subtasks') this.selectTab('details');
@@ -264,6 +292,7 @@ export class TaskDetailsComponent implements OnDestroy {
     this.canCreate.set(permissions.includes(ProjectPermissions.Task.Create));
     this.canEdit.set(permissions.includes(ProjectPermissions.Task.Edit));
     this.canDelete.set(permissions.includes(ProjectPermissions.Task.Delete));
+    this.canComment.set(permissions.includes(ProjectPermissions.Comment.Edit));
   }
 
   /** A 403 means the cached permissions are already wrong; re-read them so the page stops

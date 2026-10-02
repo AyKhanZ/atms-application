@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
-import { HistoryPersonModel } from '../../../../../core/models/history';
+import { PersonModel } from '../../../../../core/models/person.model';
 import { ProfileAvatarComponent } from '../../../../../shared/components/profile-avatar/profile-avatar.component';
 import { PersonInitialsPipe, PersonNamePipe } from '../../../../../shared/pipes/person-name.pipe';
 
@@ -12,5 +12,5 @@ import { PersonInitialsPipe, PersonNamePipe } from '../../../../../shared/pipes/
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HistoryAuthorAvatarComponent {
-  readonly author = input<HistoryPersonModel | null | undefined>(null);
+  readonly author = input<PersonModel | null | undefined>(null);
 }

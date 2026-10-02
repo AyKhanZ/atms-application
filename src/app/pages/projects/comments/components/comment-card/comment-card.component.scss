@@ -1,0 +1,198 @@
+:host {
+  --avatar-size: 2rem;
+  --avatar-radius: 999px;
+  --avatar-font-size: 0.7rem;
+  --avatar-shadow: none;
+
+  display: block;
+  min-width: 0;
+}
+
+.card {
+  padding: 0.9rem 1.1rem 1rem;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-card);
+  background: var(--app-surface);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 6%);
+  scroll-margin-top: 6rem;
+  transition:
+    border-color 0.16s ease,
+    box-shadow 0.4s ease;
+
+  &:hover {
+    border-color: var(--orange-border);
+  }
+}
+
+// A deleted comment is a card like the rest; only its text says so, grey and quiet, and nothing in
+// it reacts to the pointer.
+.card.is-deleted:hover {
+  border-color: var(--app-border);
+}
+
+.card__deleted {
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+  margin: 0;
+  color: var(--app-muted);
+  font-size: 0.9rem;
+  font-style: italic;
+
+  .pi {
+    font-size: 0.8rem;
+    font-style: normal;
+  }
+}
+
+// Reached from a link: an orange ring that fades once the eye has found it.
+.card.is-target {
+  border-color: var(--orange);
+  box-shadow: 0 0 0 3px var(--orange-focus-ring);
+}
+
+.card__header {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.card__meta {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.15rem 0.45rem;
+  margin: 0;
+  color: var(--app-muted);
+  font-size: 0.8rem;
+}
+
+.card__author {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--app-text);
+  font-size: 0.875rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.card__when {
+  color: var(--app-muted);
+  text-decoration: underline;
+  text-decoration-color: var(--app-border);
+  text-underline-offset: 2px;
+
+  &:hover {
+    color: var(--orange-text-hover);
+    text-decoration-color: currentColor;
+  }
+}
+
+// Quiet until wanted: the actions show up on hover or keyboard focus, as in Azure DevOps.
+.card__actions {
+  display: flex;
+  gap: 0.125rem;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+
+.card:hover .card__actions,
+.card:focus-within .card__actions {
+  opacity: 1;
+}
+
+// A touch screen has no hover: the actions stay visible there.
+@media (hover: none) {
+  .card__actions {
+    opacity: 1;
+  }
+}
+
+.card__action {
+  display: inline-grid;
+  width: 2rem;
+  height: 2rem;
+  place-items: center;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: var(--gray-icon);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--orange-light-hover);
+    color: var(--orange-text-hover);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--orange-focus-outline);
+    outline-offset: 1px;
+  }
+}
+
+.card__body {
+  margin: 0.5rem 0 0 2.6rem;
+}
+
+// A long comment folded to 18rem — the same number as FOLDED_HEIGHT — fading out at the fold so
+// the cut reads as "there is more", not as a broken card.
+.card__text.is-folded {
+  max-height: 18rem;
+  overflow: hidden;
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 4rem), transparent);
+}
+
+.card__fold {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.35rem;
+  padding: 0.25rem 0;
+  border: 0;
+  background: none;
+  color: var(--orange-text-hover);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+
+  i {
+    font-size: 0.7rem;
+  }
+
+  &:hover {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--orange-focus-outline);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+.card__actions-compact {
+  display: none;
+}
+
+@container (max-width: 30rem) {
+  .card {
+    padding: 0.75rem;
+  }
+
+  .card__body {
+    margin-left: 0;
+  }
+
+  // One ⋯ instead of three buttons: the room goes to the author and the time.
+  .card__actions {
+    display: none;
+  }
+
+  .card__actions-compact {
+    display: inline-grid;
+  }
+}

@@ -1,12 +1,12 @@
-import { HistoryPersonModel } from '../history';
-import { DashboardRefModel } from './dashboard-ref.model';
+import { PersonModel } from '../person.model';
+import { WorkItemRefModel } from '../work-items';
 
 export interface DashboardDeadlineModel {
-  ref: DashboardRefModel;
+  ref: WorkItemRefModel;
   code: string;
   title: string;
   isSubtask: boolean;
   deadline: string;
   priority: { id: number; name: string };
-  assignee: HistoryPersonModel | null;
+  assignee: PersonModel | null;
 }

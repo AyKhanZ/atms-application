@@ -1,0 +1,77 @@
+<app-confirm-dialog key="commentDelete" />
+
+<!-- The title and the folding come from the section around it, on the task page. -->
+<div class="discussion">
+  @if (canWrite()) {
+    <div class="discussion__new">
+      @if (me(); as person) {
+        <app-profile-avatar
+          class="discussion__me"
+          [imageUrl]="person.avatarPath"
+          [fullName]="person | personName"
+          [initials]="person | personInitials"
+          [previewEnabled]="false"
+        />
+      }
+      <app-comment-editor
+        #newComment
+        [people]="people()"
+        [projectId]="projectId()"
+        [busy]="actions.sending()"
+        [error]="actions.sendError()"
+        (submitted)="send($event)"
+        (cancelled)="actions.clearSendError()"
+      />
+    </div>
+  }
+
+  @if (loading()) {
+    <div class="discussion__skeleton" role="status" aria-label="Loading comments">
+      @for (row of skeletonRows; track row) {
+        <div class="discussion__skeleton-card">
+          <div class="discussion__skeleton-head">
+            <p-skeleton shape="circle" size="2rem" />
+            <p-skeleton width="35%" height="0.8rem" />
+          </div>
+          <p-skeleton [width]="row % 2 ? '85%' : '60%'" height="0.9rem" />
+        </div>
+      }
+    </div>
+  } @else if (error()) {
+    <p class="discussion__state" role="alert">
+      <i class="pi pi-exclamation-circle" aria-hidden="true"></i>
+      <span>Comments couldn't be loaded.</span>
+      <button pButton type="button" severity="secondary" [text]="true" (click)="load()">
+        Try again
+      </button>
+    </p>
+  } @else if (!comments().length) {
+    <!-- As in Azure DevOps, the empty field above is the invitation; a line is left only for a
+         reader who cannot write, so the section does not look broken. -->
+    @if (!canWrite()) {
+      <p class="discussion__state discussion__state--empty">No comments yet.</p>
+    }
+  } @else {
+    <ol class="discussion__list" aria-label="Comments, newest first">
+      @for (comment of comments(); track comment.id) {
+        <li>
+          <app-comment-card
+            [comment]="comment"
+            [projectId]="projectId()"
+            [people]="people()"
+            [target]="targetId() === comment.id"
+          />
+        </li>
+      }
+    </ol>
+
+    @if (list()?.hasMore) {
+      <div class="discussion__more">
+        <app-load-more-button [loading]="list()?.loadingMore ?? false" (clicked)="loadMore()" />
+        @if (list()?.loadMoreError; as message) {
+          <p class="discussion__more-error" role="alert">{{ message }}</p>
+        }
+      </div>
+    }
+  }
+</div>

@@ -7,8 +7,10 @@ import { WorkTaskModel } from '../../../../core/models/work-tasks';
 
 export type TaskTab = 'details' | 'subtasks' | 'attachments' | 'history';
 
+const taskTabs: readonly TaskTab[] = ['details', 'subtasks', 'attachments', 'history'];
+
 export function parseTaskTab(value: string | null): TaskTab {
-  return value === 'subtasks' || value === 'attachments' || value === 'history' ? value : 'details';
+  return taskTabs.find((tab) => tab === value) ?? 'details';
 }
 
 export function taskTabQueryParam(tab: TaskTab): string | null {

@@ -1,0 +1,42 @@
+<!-- Text tokens sit on one line with their tags: a line break around them would render as a space
+     between "Hello" and the bold word that follows it. -->
+@for (token of tokens(); track $index) {
+  @switch (token.kind) {
+    @case ('text') {
+      <ng-container>{{ token.text }}</ng-container>
+    }
+    @case ('bold') {
+      <strong><app-comment-inline [tokens]="token.children" [lookups]="lookups()" /></strong>
+    }
+    @case ('italic') {
+      <em><app-comment-inline [tokens]="token.children" [lookups]="lookups()" /></em>
+    }
+    @case ('highlight') {
+      <mark [attr.data-color]="token.color"
+        ><app-comment-inline [tokens]="token.children" [lookups]="lookups()"
+      /></mark>
+    }
+    @case ('code') {
+      <code>{{ token.text }}</code>
+    }
+    @case ('link') {
+      <a class="comment-link" [href]="token.href" target="_blank" rel="noopener noreferrer">{{
+        token.text
+      }}</a>
+    }
+    @case ('mention') {
+      <!-- Someone who left the project is still marked, only without a name to look up. -->
+      <span class="comment-mention"
+        >&#64;{{ lookups().people.get(token.userId) | personName: 'Unknown user' }}</span
+      >
+    }
+    @case ('reference') {
+      @if (lookups().references.get(token.code); as view) {
+        <app-comment-reference [view]="view" />
+      } @else {
+        <!-- Unknown, or in a project the reader cannot open: plain text, the title stays hidden. -->
+        <ng-container>#{{ token.code }}</ng-container>
+      }
+    }
+  }
+}

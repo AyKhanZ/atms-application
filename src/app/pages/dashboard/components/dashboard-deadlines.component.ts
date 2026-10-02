@@ -1,7 +1,8 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { DictionaryModel } from '../../../core/models/dictionary.model';
-import { DashboardDeadlineModel, DashboardRefModel } from '../../../core/models/dashboard';
+import { DashboardDeadlineModel } from '../../../core/models/dashboard';
+import { WorkItemRefModel } from '../../../core/models/work-items';
 import { WorkItemKind } from '../../../core/models/work-items';
 import { WorkItemPriorityComponent } from '../../../shared/components/work-item-priority/work-item-priority.component';
 import { WorkItemRefComponent } from '../../../shared/components/work-item-ref/work-item-ref.component';
@@ -20,7 +21,7 @@ export class DashboardDeadlinesComponent {
   /** Every open task due in the next 7 days; the list shows only the nearest of them. */
   readonly total = input.required<number>();
   readonly priorities = input<DictionaryModel[]>([]);
-  readonly selected = output<DashboardRefModel>();
+  readonly selected = output<WorkItemRefModel>();
   readonly showAll = output<void>();
   readonly rows = computed(() =>
     this.deadlines().map((item) => ({

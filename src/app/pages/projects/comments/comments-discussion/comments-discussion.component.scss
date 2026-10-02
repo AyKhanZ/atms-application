@@ -1,0 +1,97 @@
+:host {
+  --avatar-size: 2rem;
+  --avatar-radius: 999px;
+  --avatar-font-size: 0.7rem;
+  --avatar-shadow: none;
+
+  display: block;
+  min-width: 0;
+  container-type: inline-size;
+}
+
+// Columns of minmax(0, 1fr): a long unbreakable line — a work-item title — is cut inside its card
+// instead of widening the column past the facts beside it.
+.discussion {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
+  padding-top: 1rem;
+}
+
+// The field sits beside the reader's own face, as a comment of theirs will.
+.discussion__new {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 0.75rem;
+}
+
+.discussion__me {
+  margin-top: 0.25rem;
+}
+
+.discussion__list {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.discussion__state {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 1rem 0;
+  color: var(--app-muted);
+  font-size: 0.875rem;
+}
+
+.discussion__state--empty {
+  justify-content: center;
+}
+
+.discussion__skeleton {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.discussion__skeleton-card {
+  display: grid;
+  gap: 0.6rem;
+  padding: 0.9rem 1.1rem;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-card);
+}
+
+.discussion__skeleton-head {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.discussion__more {
+  display: grid;
+  justify-items: center;
+  gap: 0.5rem;
+}
+
+.discussion__more-error {
+  margin: 0;
+  color: var(--app-danger);
+  font-size: 0.85rem;
+}
+
+// A phone: no room for the face beside the field.
+@container (max-width: 30rem) {
+  .discussion__new {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .discussion__me {
+    display: none;
+  }
+}

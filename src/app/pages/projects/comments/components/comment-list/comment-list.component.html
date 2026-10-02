@@ -1,0 +1,67 @@
+@let current = list();
+
+@if (current.style === 'numbers') {
+  <ol>
+    @for (item of current.items; track item.line) {
+      <li>
+        <app-comment-inline [tokens]="item.tokens" [lookups]="lookups()" />
+        @for (child of item.children; track $index) {
+          <app-comment-list
+            [list]="child"
+            [lookups]="lookups()"
+            [level]="level() + 1"
+            [checkable]="checkable()"
+            (checkToggled)="checkToggled.emit($event)"
+          />
+        }
+      </li>
+    }
+  </ol>
+} @else {
+  <ul [class.checklist]="current.style === 'checks'">
+    @for (item of current.items; track item.line) {
+      <li [class.is-done]="current.style === 'checks' && item.checked">
+        @if (current.style === 'checks') {
+          <!-- Clickable in the editor's preview only: a saved comment changes through Edit. -->
+          @if (checkable()) {
+            <button
+              type="button"
+              class="checklist__box checklist__box--button"
+              role="checkbox"
+              [attr.aria-checked]="item.checked"
+              [attr.aria-label]="item.checked ? 'Mark as not done' : 'Mark as done'"
+              (click)="checkToggled.emit(item.line)"
+            >
+              @if (item.checked) {
+                <i class="pi pi-check" aria-hidden="true"></i>
+              }
+            </button>
+          } @else {
+            <span
+              class="checklist__box"
+              role="img"
+              [attr.aria-label]="item.checked ? 'Done' : 'Not done'"
+            >
+              @if (item.checked) {
+                <i class="pi pi-check" aria-hidden="true"></i>
+              }
+            </span>
+          }
+        }
+        <span class="list__text"
+          ><app-comment-inline [tokens]="item.tokens" [lookups]="lookups()"
+        /></span>
+        @for (child of item.children; track $index) {
+          <app-comment-list
+            class="list__nested"
+            [list]="child"
+            [lookups]="lookups()"
+            [level]="level() + 1"
+            [checkable]="checkable()"
+            (checkToggled)="checkToggled.emit($event)"
+          />
+        }
+      </li>
+    }
+  </ul>
+}

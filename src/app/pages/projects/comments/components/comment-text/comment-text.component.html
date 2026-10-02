@@ -1,0 +1,20 @@
+@for (block of blocks(); track $index) {
+  @if (block.kind === 'paragraph') {
+    <p>
+      @for (line of block.lines; track $index) {
+        @if (!$first) {
+          <br />
+        }
+        <app-comment-inline [tokens]="line" [lookups]="lookups()" />
+      }
+    </p>
+  } @else {
+    <app-comment-list
+      class="comment-list"
+      [list]="block"
+      [lookups]="lookups()"
+      [checkable]="checkable()"
+      (checkToggled)="checkToggled.emit($event)"
+    />
+  }
+}

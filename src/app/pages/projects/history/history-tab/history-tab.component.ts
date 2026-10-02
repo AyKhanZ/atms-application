@@ -18,14 +18,15 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { HistoryEntityType } from '../../../../core/enums/history-entity-type.enum';
 import { DictionaryModel } from '../../../../core/models/dictionary.model';
 import { HistoryEntryModel, HistoryScope } from '../../../../core/models/history';
+import { FoldedSectionsService } from '../../../../core/services/folded-sections.service';
 import { HistorySubject, groupHistory, historyKey } from '../../../../core/utils/history.utils';
+import { CollapsibleSectionComponent } from '../../../../shared/components/collapsible-section/collapsible-section.component';
 import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
 import { HistoryStoreActions, HistoryStoreSelectors } from '../../../../store/history';
 import { HistoryListState } from '../../../../store/history/history.state';
 import { HistoryEntryDetailsComponent } from '../components/history-entry-details/history-entry-details.component';
 import { HistoryListComponent } from '../components/history-list/history-list.component';
 import { HistoryStateBarComponent } from '../components/history-state-bar/history-state-bar.component';
-import { HistorySectionsService } from '../history-sections.service';
 import { HistoryPaneHeightDirective } from '../history-pane-height.directive';
 
 /**
@@ -36,6 +37,7 @@ import { HistoryPaneHeightDirective } from '../history-pane-height.directive';
   selector: 'app-history-tab',
   imports: [
     ButtonModule,
+    CollapsibleSectionComponent,
     EmptyStateComponent,
     HistoryEntryDetailsComponent,
     HistoryListComponent,
@@ -51,7 +53,10 @@ export class HistoryTabComponent implements OnDestroy {
   private readonly store = inject(Store);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly injector = inject(Injector);
-  protected readonly sections = inject(HistorySectionsService);
+  private readonly sections = inject(FoldedSectionsService);
+  /** Folded on one item, folded on the next: kept for every History tab. */
+  protected readonly statesOpen = this.sections.open('history.states');
+  protected readonly entriesOpen = this.sections.open('history.entries');
 
   readonly projectId = input.required<string>();
   readonly scope = input.required<HistoryScope>();

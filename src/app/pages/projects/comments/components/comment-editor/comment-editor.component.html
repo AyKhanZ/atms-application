@@ -1,0 +1,98 @@
+<div
+  class="editor"
+  [class.is-invalid]="!!error()"
+  (focusin)="onFocusIn()"
+  (focusout)="onFocusOut($event)"
+>
+  <div class="editor__field">
+    <textarea
+      #field
+      pTextarea
+      rows="1"
+      [attr.maxlength]="maxLength()"
+      [id]="id"
+      [attr.aria-label]="label()"
+      [placeholder]="placeholder()"
+      [value]="text()"
+      [attr.aria-invalid]="!!error()"
+      [attr.aria-describedby]="id + '-help'"
+      role="combobox"
+      aria-autocomplete="list"
+      [attr.aria-expanded]="!!trigger()"
+      [attr.aria-controls]="trigger() ? id + '-suggestions' : null"
+      [attr.aria-activedescendant]="
+        trigger() && suggestions().length ? id + '-suggestions-' + activeIndex() : null
+      "
+      (input)="onInput()"
+      (keydown)="onKeydown($event)"
+      (keyup)="onKeyup($event)"
+      (click)="readTrigger()"
+    ></textarea>
+
+    @if (trigger(); as open) {
+      <app-comment-suggestions
+        class="editor__suggestions"
+        [listId]="id + '-suggestions'"
+        [trigger]="open.char"
+        [items]="suggestions()"
+        [activeIndex]="activeIndex()"
+        [loading]="open.char === '#' && searching()"
+        [currentProjectId]="projectId()"
+        [hint]="
+          open.char === '#'
+            ? 'Type a code, or three letters of a title, to search everything you can open.'
+            : null
+        "
+        (picked)="pick($event)"
+      />
+    }
+  </div>
+
+  <!-- The same row as under a description field: the problem on the left, the count on the right. -->
+  <div class="editor__meta" [id]="id + '-help'">
+    <small class="editor__error" [attr.role]="error() ? 'alert' : null">{{ error() }}</small>
+    @if (active()) {
+      <em>{{ stored().length }}/2000</em>
+    }
+  </div>
+
+  @if (active()) {
+    <div class="editor__bar">
+      <app-comment-toolbar
+        [label]="label()"
+        (triggered)="insertTrigger($event)"
+        (formatted)="format($event)"
+        (highlighted)="highlight($event)"
+      />
+
+      <div class="editor__actions">
+        <!-- The Cancel of every form in the project: outlined, with its cross. -->
+        <button pButton type="button" severity="secondary" [outlined]="true" (click)="cancel()">
+          <i class="pi pi-times" aria-hidden="true"></i><span>Cancel</span>
+        </button>
+        <button
+          pButton
+          type="button"
+          title="Ctrl+Enter"
+          [loading]="busy()"
+          [disabled]="!canSubmit()"
+          (click)="submit()"
+        >
+          {{ submitLabel() }}
+        </button>
+      </div>
+    </div>
+
+    @if (text().trim()) {
+      <section class="editor__preview" [attr.aria-label]="label() + ' preview'">
+        <app-comment-text
+          [text]="stored()"
+          [mentions]="previewPeople()"
+          [references]="previewReferences()"
+          [checkable]="true"
+          (checkToggled)="toggleCheckInText($event)"
+        />
+      </section>
+    }
+  }
+</div>
