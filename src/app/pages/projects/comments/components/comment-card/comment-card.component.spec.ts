@@ -43,30 +43,29 @@ describe('CommentCardComponent', () => {
     return fixture.nativeElement as HTMLElement;
   }
 
-  it('shows a deleted comment as one line saying who deleted whose comment, without its text', () => {
+  const deletedLine = (element: HTMLElement) =>
+    element.querySelector('.card__deleted')?.textContent?.replace(/\s+/g, ' ').trim();
+
+  it('keeps a deleted comment as a card with its author, saying who deleted it, without its text', () => {
     const element = render(
       comment({ isDeleted: true, text: '', deletedBy: rustam, deletedAt: '2026-10-02T09:00:00Z' }),
     );
 
-    const line = element.querySelector('.card__deleted')?.textContent?.replace(/\s+/g, ' ');
-    expect(line).toContain('Rustam Agaev deleted a comment by Ann Lee');
+    expect(element.querySelector('.card__author')?.textContent).toContain('Ann Lee');
+    expect(deletedLine(element)).toContain('Comment deleted by Rustam Agaev');
     expect(element.textContent).not.toContain('Secret plan');
     expect(element.querySelector('button')).toBeNull();
   });
 
-  it('says the author deleted their own comment', () => {
+  it('does not name the author again when they deleted it themselves', () => {
     const element = render(comment({ isDeleted: true, text: '', deletedBy: ann }));
 
-    expect(element.querySelector('.card__deleted')?.textContent).toContain(
-      'Ann Lee deleted their comment',
-    );
+    expect(deletedLine(element)).toBe('Comment deleted');
   });
 
   it('says only that it was deleted until the server names who did it', () => {
     const element = render(comment({ isDeleted: true, text: '' }));
 
-    expect(element.querySelector('.card__deleted')?.textContent).toContain(
-      'This comment was deleted',
-    );
+    expect(deletedLine(element)).toBe('Comment deleted');
   });
 });
