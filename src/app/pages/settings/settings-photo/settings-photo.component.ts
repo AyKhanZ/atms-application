@@ -42,15 +42,23 @@ export class SettingsPhotoComponent implements OnDestroy {
   readonly accept = this.validator.accept;
   private readonly chosenPreview = signal<string | null>(null);
   readonly shownUrl = computed(() => this.chosenPreview() ?? this.imageUrl());
+  /**
+   * Bumped on every pick and every reset. Checking an image is async, so a slow check of an older
+   * pick, or one that finishes after Save or Discard, must not replace what is current.
+   */
+  private selection = 0;
 
   constructor() {
     effect(() => {
       this.resetKey();
+      this.selection++;
       this.clearChosen();
     });
   }
 
   ngOnDestroy(): void {
+    // A check still running would otherwise create a preview URL nobody ever frees.
+    this.selection++;
     this.clearChosen();
   }
 
@@ -65,7 +73,10 @@ export class SettingsPhotoComponent implements OnDestroy {
     input.value = '';
     if (!file) return;
 
+    const selection = ++this.selection;
     const errors = await this.validator.validate(file);
+    if (selection !== this.selection) return;
+
     if (errors) {
       this.fileChange.emit({ file: null, errors });
       return;

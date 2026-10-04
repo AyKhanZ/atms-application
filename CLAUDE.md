@@ -39,9 +39,9 @@ tell the user to do the same — say it loudly, not as a footnote.
 **API page size is capped at 50.** Keyset-paginated endpoints reject anything larger with a 400.
 To load everything, follow the cursor.
 
-**One session per account.** The refresh token is a single column on the user row, so logging in
-again anywhere invalidates every other session. Do not log in as the user's account to test —
-you will end their session. See `../Specs/auth-sessions.html`.
+**Sessions.** Each login is its own session (`UserSessions`, one refresh-token family per login), so
+logging in elsewhere does not end the others. Changing or resetting the password ends all of them
+except the one that made the change. Still, do not log in as the user's own account to test.
 
 **Grid and flex children need `min-width: 0`.** Otherwise their intrinsic minimum is the
 untruncated text and a long title blows the layout out of the viewport, silently carrying

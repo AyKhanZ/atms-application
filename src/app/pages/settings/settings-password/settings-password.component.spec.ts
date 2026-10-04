@@ -15,14 +15,23 @@ const tokens: AccessModel = {
   accessTokenExpireTime: '2026-10-04T12:00:00Z',
 };
 
+/** An access token whose only claim that matters here is whose it is. */
+const tokenOf = (sub: string) => `header.${btoa(JSON.stringify({ sub }))}.signature`;
+
 describe('SettingsPasswordComponent', () => {
   let fixture: ComponentFixture<SettingsPasswordComponent>;
   let component: SettingsPasswordComponent;
   let auth: {
     changePassword: ReturnType<typeof vi.fn>;
     forgotPassword: ReturnType<typeof vi.fn>;
+    logout: ReturnType<typeof vi.fn>;
   };
-  let session: { replaceTokenPair: ReturnType<typeof vi.fn>; logout: ReturnType<typeof vi.fn> };
+  let session: {
+    replaceTokenPair: ReturnType<typeof vi.fn>;
+    logout: ReturnType<typeof vi.fn>;
+    isAuthenticated: ReturnType<typeof vi.fn>;
+    accessModel: ReturnType<typeof vi.fn>;
+  };
   let snackBar: {
     success: ReturnType<typeof vi.fn>;
     error: ReturnType<typeof vi.fn>;
@@ -42,8 +51,14 @@ describe('SettingsPasswordComponent', () => {
     auth = {
       changePassword: vi.fn(() => of(tokens)),
       forgotPassword: vi.fn(() => of(undefined)),
+      logout: vi.fn(() => of(undefined)),
     };
-    session = { replaceTokenPair: vi.fn(), logout: vi.fn() };
+    session = {
+      replaceTokenPair: vi.fn(),
+      logout: vi.fn(),
+      isAuthenticated: vi.fn(() => true),
+      accessModel: vi.fn(() => ({ accessToken: tokenOf('user-a') })),
+    };
     snackBar = { success: vi.fn(), error: vi.fn(), warn: vi.fn() };
     router = { navigate: vi.fn(() => Promise.resolve(true)) };
 
@@ -225,5 +240,36 @@ describe('SettingsPasswordComponent', () => {
     response.complete();
 
     expect(session.replaceTokenPair).toHaveBeenCalledWith(tokens);
+  });
+
+  // Logout pressed while the request was in flight: storing the late pair would sign the user back
+  // in, so it is revoked instead.
+  it('revokes a late token pair instead of storing it after a logout', () => {
+    const response = new Subject<AccessModel>();
+    auth.changePassword.mockReturnValue(response);
+    fill('OldPassword1!', 'NewPassword1!');
+
+    component.save();
+    session.isAuthenticated.mockReturnValue(false);
+    response.next(tokens);
+    response.complete();
+
+    expect(session.replaceTokenPair).not.toHaveBeenCalled();
+    expect(auth.logout).toHaveBeenCalledWith({ refreshToken: tokens.refreshToken });
+  });
+
+  // A logged out and B logged in before the answer: the late pair of A must not replace B's session.
+  it('revokes a late token pair when another user is signed in by then', () => {
+    const response = new Subject<AccessModel>();
+    auth.changePassword.mockReturnValue(response);
+    fill('OldPassword1!', 'NewPassword1!');
+
+    component.save();
+    session.accessModel.mockReturnValue({ accessToken: tokenOf('user-b') });
+    response.next(tokens);
+    response.complete();
+
+    expect(session.replaceTokenPair).not.toHaveBeenCalled();
+    expect(auth.logout).toHaveBeenCalledWith({ refreshToken: tokens.refreshToken });
   });
 });

@@ -19,6 +19,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { AuthSessionService } from '../../../core/services/auth-session.service';
 import { SnackBarService } from '../../../core/services/snack-bar.service';
 import { serverErrorMessage, validationMessage } from '../../../core/utils/http-error.utils';
+import { tokenSubject } from '../../../core/utils/jwt-claims.utils';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { NewPasswordFieldsComponent } from '../../../shared/components/new-password-fields/new-password-fields.component';
 import { createNewPasswordForm } from '../../../shared/components/new-password-fields/new-password.form';
@@ -106,6 +107,8 @@ export class SettingsPasswordComponent {
       return;
     }
 
+    // Whose session this request belongs to; checked again when the answer arrives.
+    const owner = this.sessionOwner();
     this.saving.set(true);
     this.auth
       .changePassword({
@@ -119,6 +122,16 @@ export class SettingsPasswordComponent {
       .pipe(finalize(() => this.saving.set(false)))
       .subscribe({
         next: (tokens) => {
+          // Logged out, or someone else logged in, while the request was in flight: storing the pair
+          // would sign the first user back in over the current session. Revoke it instead; nothing
+          // else holds it.
+          if (!owner || this.sessionOwner() !== owner) {
+            this.auth
+              .logout({ refreshToken: tokens.refreshToken })
+              .subscribe({ error: () => undefined });
+            return;
+          }
+
           this.session.replaceTokenPair(tokens);
           this.discard();
           this.snackBar.success('Password changed.');
@@ -196,5 +209,11 @@ export class SettingsPasswordComponent {
   private typedAnything(): boolean {
     const { password, confirmPassword } = this.passwordForm.getRawValue();
     return Boolean(this.currentPassword.value || password || confirmPassword);
+  }
+
+  private sessionOwner(): string | null {
+    return this.session.isAuthenticated()
+      ? tokenSubject(this.session.accessModel()?.accessToken)
+      : null;
   }
 }

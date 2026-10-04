@@ -77,4 +77,63 @@ describe('SettingsPhotoComponent', () => {
     expect(fixture.componentInstance.shownUrl()).toBe('http://api/app/images/users/old.png');
     expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:preview');
   });
+
+  // Checking an image is async: a slow check of an older pick must not replace the newer one.
+  it('keeps the newest pick when an older check finishes last', async () => {
+    let finishFirst!: (errors: null) => void;
+    validate
+      .mockImplementationOnce(() => new Promise((resolve) => (finishFirst = resolve)))
+      .mockImplementationOnce(() => Promise.resolve(null));
+    const { emitted, input } = create();
+    const first = new File(['a'], 'first.png');
+    const second = new File(['b'], 'second.png');
+
+    Object.defineProperty(input, 'files', { configurable: true, value: [first] });
+    input.dispatchEvent(new Event('change'));
+    await pick(input, second);
+    finishFirst(null);
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(emitted).toEqual([{ file: second, errors: null }]);
+  });
+
+  it('ignores a check that finishes after the page reset the photo', async () => {
+    let finish!: (errors: null) => void;
+    validate.mockImplementationOnce(() => new Promise((resolve) => (finish = resolve)));
+    const { fixture, emitted, input } = create();
+
+    Object.defineProperty(input, 'files', {
+      configurable: true,
+      value: [new File(['a'], 'late.png')],
+    });
+    input.dispatchEvent(new Event('change'));
+    fixture.componentRef.setInput('resetKey', 1);
+    fixture.detectChanges();
+    finish(null);
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(emitted).toEqual([]);
+    expect(fixture.componentInstance.shownUrl()).toBe('http://api/app/images/users/old.png');
+  });
+
+  it('creates no preview for a check that finishes after the page is left', async () => {
+    let finish!: (errors: null) => void;
+    validate.mockImplementationOnce(() => new Promise((resolve) => (finish = resolve)));
+    const { fixture, emitted, input } = create();
+
+    Object.defineProperty(input, 'files', {
+      configurable: true,
+      value: [new File(['a'], 'late.png')],
+    });
+    input.dispatchEvent(new Event('change'));
+    fixture.destroy();
+    finish(null);
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(URL.createObjectURL).not.toHaveBeenCalled();
+    expect(emitted).toEqual([]);
+  });
 });

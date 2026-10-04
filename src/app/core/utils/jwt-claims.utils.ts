@@ -1,23 +1,33 @@
 interface JwtPayload {
+  sub?: string;
   onboarding_completed?: string | boolean;
 }
 
 export function hasCompletedOnboarding(accessToken: string | null | undefined): boolean {
+  const claims = readClaims(accessToken);
+  return claims?.onboarding_completed === true || claims?.onboarding_completed === 'true';
+}
+
+/** The id of the user the token belongs to, or null for no token or one that does not decode. */
+export function tokenSubject(accessToken: string | null | undefined): string | null {
+  return readClaims(accessToken)?.sub ?? null;
+}
+
+function readClaims(accessToken: string | null | undefined): JwtPayload | null {
   if (!accessToken) {
-    return false;
+    return null;
   }
 
   try {
     const payload = accessToken.split('.')[1];
     if (!payload) {
-      return false;
+      return null;
     }
 
     const normalized = payload.replace(/-/g, '+').replace(/_/g, '/');
     const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, '=');
-    const claims = JSON.parse(atob(padded)) as JwtPayload;
-    return claims.onboarding_completed === true || claims.onboarding_completed === 'true';
+    return JSON.parse(atob(padded)) as JwtPayload;
   } catch {
-    return false;
+    return null;
   }
 }
