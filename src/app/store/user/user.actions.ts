@@ -15,3 +15,7 @@ export const loadUserDataFailure = createAction(
 );
 
 export const clearAll = createAction(`${key} Clear All`);
+export const updateMeFromProfile = createAction(
+  `${key} Update Me From Profile`,
+  props<{ name: string; surname: string; avatarPath: string; language: string }>(),
+);

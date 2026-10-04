@@ -4,6 +4,7 @@
 @include auth-card.card;
 @include auth-card.field;
 @include auth-card.actions;
+@include auth-card.notice;
 
 /* Login is the only screen with a link beside the password field rather than under the form. */
 .forgot-wrapper {

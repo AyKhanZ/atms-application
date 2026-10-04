@@ -78,6 +78,14 @@
         }
       </a>
     </ng-container>
+    @if (!isSuperAdmin()) {
+      <a routerLink="/settings" routerLinkActive="active" aria-label="Settings" title="Settings">
+        <i class="pi pi-cog" aria-hidden="true"></i>
+        @if (layout.showLabels()) {
+          <span>Settings</span>
+        }
+      </a>
+    }
   </nav>
 
   @if (layout.canCollapse()) {

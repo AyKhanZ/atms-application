@@ -5,7 +5,7 @@ import { Subscription } from 'rxjs';
 import { UserStoreSelectors } from '../../store/user';
 import { Permission } from '../enums/permissions.enum';
 import { ProjectPermission } from '../enums/project-permissions.enum';
-import { Roles } from '../enums/roles.enum';
+import { isSuperAdmin } from '../utils/super-admin.utils';
 import { ProjectAccessService } from '../services/project-access.service';
 
 @Directive({
@@ -47,10 +47,7 @@ export class HasProjectAccessDirective {
     const systemPermission = this.hasProjectAccessSystem();
     if (!systemPermission) return true;
 
-    return (
-      this.roles().some((role) => role.code === Roles.SuperAdmin) ||
-      this.permissions().includes(systemPermission)
-    );
+    return isSuperAdmin(this.roles()) || this.permissions().includes(systemPermission);
   }
 
   private render(canRender: boolean): void {

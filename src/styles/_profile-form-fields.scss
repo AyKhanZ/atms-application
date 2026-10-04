@@ -1,0 +1,114 @@
+@mixin fields {
+  .field {
+    display: grid;
+    align-content: start;
+    gap: 0.45rem;
+    min-width: 0;
+  }
+
+  /* A select or date picker is as wide as its text by default; in a narrow column it would stick
+     out past the field edge instead of shrinking. */
+  .field > * {
+    min-width: 0;
+  }
+
+  .field > label,
+  .field-label label {
+    color: var(--gray-text-strong);
+    font-size: 0.86rem;
+    font-weight: 700;
+  }
+
+  .field-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .field-line {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 0.75rem;
+    min-height: 1.1rem;
+    line-height: 1.1rem;
+  }
+
+  .counter {
+    color: var(--gray-text);
+    font-size: 0.72rem;
+  }
+
+  .field label .pi {
+    margin-left: 0.25rem;
+    color: var(--gray-icon);
+    font-size: 0.8rem;
+  }
+
+  /* The error and counter row keeps one fixed line height, so a message appearing under a field
+     does not push the fields below it down. */
+  .field-error {
+    min-height: 1.1rem;
+    line-height: 1.1rem;
+  }
+
+  .field-error small {
+    display: block;
+    color: var(--red-hover);
+    font-size: 0.75rem;
+  }
+
+  .field input[readonly] {
+    background: var(--gray-bg);
+    color: var(--gray-text);
+  }
+
+  :host ::ng-deep .field .p-inputtext,
+  :host ::ng-deep .field .p-select,
+  :host ::ng-deep .field .p-datepicker-input {
+    min-height: 48px;
+    border-radius: 8px;
+  }
+
+  :host ::ng-deep .field .p-password,
+  :host ::ng-deep .field .p-password-input {
+    width: 100%;
+  }
+
+  :host ::ng-deep .field .p-datepicker,
+  :host ::ng-deep .field .p-select {
+    width: 100%;
+    align-items: center;
+  }
+
+  :host ::ng-deep .field .p-datepicker-input {
+    width: 100%;
+    padding-right: 2.75rem;
+  }
+
+  :host ::ng-deep .field .p-select-label {
+    display: flex;
+    align-items: center;
+    padding-block: 0;
+  }
+
+  :host ::ng-deep .field .p-select-dropdown {
+    align-items: center;
+  }
+
+  :host ::ng-deep .field .p-datepicker-input-icon-container {
+    right: 0.9rem;
+    color: var(--gray-icon);
+  }
+
+  :host ::ng-deep .field .inline-calendar .p-datepicker-trigger {
+    position: absolute;
+    right: 0.25rem;
+    width: 2.5rem;
+    height: calc(100% - 0.5rem);
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--gray-icon);
+  }
+}

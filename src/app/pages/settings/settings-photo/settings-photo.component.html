@@ -1,0 +1,16 @@
+<app-profile-avatar
+  [imageUrl]="shownUrl()"
+  [fullName]="fullName()"
+  [initials]="initials()"
+  [previewEnabled]="false"
+/>
+
+<input
+  #fileInput
+  type="file"
+  class="photo__input"
+  tabindex="-1"
+  aria-hidden="true"
+  [accept]="accept"
+  (change)="onSelected()"
+/>

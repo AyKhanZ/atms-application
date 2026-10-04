@@ -1,0 +1,63 @@
+@use 'profile-form-fields';
+
+:host {
+  display: block;
+  min-width: 0;
+  /* The grid adapts to the width it is given, not to the window: Settings and onboarding give it
+     different columns. */
+  container-type: inline-size;
+}
+
+@include profile-form-fields.fields;
+
+/* Twenty narrow columns let each field take a width that fits its content: a phone number is
+   short, a surname is long. The spans are set on the fields in the template. */
+.personal-fields {
+  display: grid;
+  grid-template-columns: repeat(20, minmax(0, 1fr));
+  gap: 0.7rem 1.25rem;
+  min-width: 0;
+}
+
+.span-6 {
+  grid-column: span 6;
+}
+
+.span-7 {
+  grid-column: span 7;
+}
+
+.span-8 {
+  grid-column: span 8;
+}
+
+.span-12 {
+  grid-column: span 12;
+}
+
+.span-13 {
+  grid-column: span 13;
+}
+
+@media (min-width: 1600px) and (min-height: 900px) {
+  .personal-fields {
+    gap: 1rem 1.5rem;
+  }
+}
+
+/* Too narrow for the tailored widths: two equal columns, then one. */
+@container (max-width: 40rem) {
+  .personal-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .personal-fields > .field {
+    grid-column: auto;
+  }
+}
+
+@container (max-width: 26rem) {
+  .personal-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

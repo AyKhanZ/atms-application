@@ -2,15 +2,27 @@ import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { filter, map, of, switchMap, take } from 'rxjs';
+import { RoleModel } from '../models/users/user.models';
 import { AuthSessionService } from '../services/auth-session.service';
 import { UserStoreSelectors } from '../../store/user';
 
+/** Lets in only users who hold one of `roles`. */
 export const roleGuard = (roles: string | string[]): CanActivateFn => {
+  const allowedRoles = Array.isArray(roles) ? roles : [roles];
+  return userRolesGuard((userRoles) => userRoles.some((role) => allowedRoles.includes(role.code)));
+};
+
+/** Lets in everyone except users who hold one of `roles`. */
+export const exceptRoleGuard = (roles: string | string[]): CanActivateFn => {
+  const deniedRoles = Array.isArray(roles) ? roles : [roles];
+  return userRolesGuard((userRoles) => !userRoles.some((role) => deniedRoles.includes(role.code)));
+};
+
+function userRolesGuard(allows: (roles: RoleModel[]) => boolean): CanActivateFn {
   return (_, state) => {
     const auth = inject(AuthSessionService);
     const store = inject(Store);
     const router = inject(Router);
-    const allowedRoles = Array.isArray(roles) ? roles : [roles];
 
     return auth.ready$.pipe(
       filter(Boolean),
@@ -23,15 +35,13 @@ export const roleGuard = (roles: string | string[]): CanActivateFn => {
         return store.select(UserStoreSelectors.getMe).pipe(
           filter((me) => me !== null),
           take(1),
-          map(() => {
-            const userRoles = store.selectSignal(UserStoreSelectors.getRoles)();
-
-            return userRoles.some((role) => allowedRoles.includes(role.code))
+          map(() =>
+            allows(store.selectSignal(UserStoreSelectors.getRoles)())
               ? true
-              : router.createUrlTree(['/errors/403']);
-          }),
+              : router.createUrlTree(['/errors/403']),
+          ),
         );
       }),
     );
   };
-};
+}

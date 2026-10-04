@@ -22,6 +22,7 @@ import {
   WorkProjectListFilter,
 } from '../../../core/models/work-projects';
 import { Roles } from '../../../core/enums/roles.enum';
+import { isSuperAdmin } from '../../../core/utils/super-admin.utils';
 import { DictionaryService } from '../../../core/services/dictionary.service';
 import { TableLazyLoadService } from '../../../core/services/table-lazy-load.service';
 import { VisiblePageRefreshService } from '../../../core/services/visible-page-refresh.service';
@@ -80,9 +81,7 @@ export class ProjectListComponent implements OnDestroy {
   readonly kinds = signal<DictionaryModel[]>([]);
   readonly statuses = signal<DictionaryModel[]>([]);
   readonly Roles = Roles;
-  readonly showActions = computed(() =>
-    this.roles().some((role) => role.code === Roles.SuperAdmin),
-  );
+  readonly showActions = computed(() => isSuperAdmin(this.roles()));
   readonly first = computed(() => (this.filter().page - 1) * this.filter().pageSize);
   readonly activeFilterCount = computed(() => this.query.activeFilterCount(this.filter()));
 

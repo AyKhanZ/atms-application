@@ -1,7 +1,7 @@
 import { Directive, effect, inject, input, TemplateRef, ViewContainerRef } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { UserStoreSelectors } from '../../store/user';
-import { Roles } from '../enums/roles.enum';
+import { isSuperAdmin } from '../utils/super-admin.utils';
 
 @Directive({
   selector: '[hasPermission]',
@@ -19,8 +19,7 @@ export class HasPermissionDirective {
     effect(() => {
       this.viewContainer.clear();
 
-      const isSuperAdmin = this.roles().some((role) => role.code === Roles.SuperAdmin);
-      if (isSuperAdmin || this.permissions().includes(this.hasPermission())) {
+      if (isSuperAdmin(this.roles()) || this.permissions().includes(this.hasPermission())) {
         this.viewContainer.createEmbeddedView(this.templateRef);
       }
     });

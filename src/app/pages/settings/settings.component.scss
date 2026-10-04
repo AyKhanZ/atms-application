@@ -1,0 +1,134 @@
+@use 'skeleton';
+@use 'settings-pane';
+
+:host {
+  display: block;
+  min-width: 0;
+}
+
+@include settings-pane.pane;
+
+.settings-card {
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* Both tabs share one grid cell, so the card is as tall as the taller tab and keeps its height when
+   the other one is opened. On a narrow screen the profile is much taller, so there the hidden tab
+   simply goes away instead of leaving a blank area under the password. */
+.settings-panes {
+  display: grid;
+  min-width: 0;
+}
+
+.settings-panes > * {
+  grid-area: 1 / 1;
+  min-width: 0;
+  container-type: inline-size;
+}
+
+.settings-pane--hidden {
+  visibility: hidden;
+}
+
+@container (max-width: 60rem) {
+  .settings-pane--hidden {
+    display: none;
+  }
+}
+
+/* The same two columns as onboarding step 1: a large photo, then the fields. */
+.profile-layout {
+  display: grid;
+  grid-template-columns: minmax(14rem, 18rem) minmax(0, 1fr);
+  gap: 1.5rem clamp(2rem, 4cqi, 4rem);
+  align-items: start;
+  min-width: 0;
+}
+
+.profile-photo {
+  display: grid;
+  justify-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+  text-align: center;
+}
+
+.profile-photo .p-button {
+  min-height: 2.5rem;
+}
+
+.profile-photo__hint {
+  color: var(--app-muted);
+  font-size: 0.78rem;
+}
+
+/* Keeps its line even when empty, so an error appearing does not move anything. */
+.profile-photo__error {
+  min-height: 1.1rem;
+  color: var(--red-hover);
+  font-size: 0.75rem;
+  line-height: 1.1rem;
+}
+
+/* Below ~60rem the fields column would get too narrow next to the photo, so the photo moves on top
+   while it can still be large. */
+@container (max-width: 60rem) {
+  .profile-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.settings-error {
+  display: grid;
+  place-items: center;
+  gap: 1rem;
+  min-height: 18rem;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.settings-error .pi {
+  color: var(--app-danger);
+  font-size: 2rem;
+}
+
+.settings-error p {
+  margin: 0;
+}
+
+/* Loading: every label, control and button becomes a shimmering block of its own size. */
+:host ::ng-deep .settings-card--loading {
+  label,
+  .counter,
+  .profile-photo__hint,
+  .p-button,
+  .p-inputtext,
+  .p-select,
+  .avatar {
+    @include skeleton.shimmer;
+
+    border-color: transparent;
+    border-radius: 6px;
+    color: transparent;
+    box-shadow: none;
+  }
+
+  label {
+    width: fit-content;
+  }
+
+  .avatar {
+    border-radius: 50%;
+  }
+
+  .p-inputtext::placeholder,
+  .p-select-label,
+  .p-select-dropdown,
+  .p-datepicker-input-icon-container,
+  .p-button-icon,
+  .avatar > *,
+  label .pi {
+    visibility: hidden;
+  }
+}
