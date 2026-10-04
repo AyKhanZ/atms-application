@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { validationMessage } from './http-error.utils';
+import { validationMessage, serverErrorMessage } from './http-error.utils';
 
 describe('validationMessage', () => {
   it('gives the first message the server sent for a refused request', () => {
@@ -30,5 +30,29 @@ describe('validationMessage', () => {
 
     expect(validationMessage(error, 'title')).toBe('Title is taken.');
     expect(validationMessage(error, 'deadline')).toBe('Milestone is required.');
+  });
+});
+
+describe('serverErrorMessage', () => {
+  it('reads a plain string body', () => {
+    const error = new HttpErrorResponse({ status: 404, error: 'User not found.' });
+
+    expect(serverErrorMessage(error, 'fallback')).toBe('User not found.');
+  });
+
+  it('reads an { error } body', () => {
+    const error = new HttpErrorResponse({
+      status: 423,
+      error: { error: 'Locked for 15 minutes.' },
+    });
+
+    expect(serverErrorMessage(error, 'fallback')).toBe('Locked for 15 minutes.');
+  });
+
+  it('falls back when the server said nothing usable', () => {
+    expect(serverErrorMessage(new HttpErrorResponse({ status: 500 }), 'fallback')).toBe('fallback');
+    expect(serverErrorMessage(new HttpErrorResponse({ status: 500, error: '' }), 'fallback')).toBe(
+      'fallback',
+    );
   });
 });

@@ -1,0 +1,22 @@
+/// The moving grey of a loading placeholder. Lists, Search, Notifications and Settings share it so
+/// every skeleton in the app shimmers the same way.
+@mixin shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--app-surface-muted) 25%,
+    var(--gray-hover) 50%,
+    var(--app-surface-muted) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.2s ease-in-out infinite;
+
+  @keyframes skeleton-shimmer {
+    to {
+      background-position: -200% 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}

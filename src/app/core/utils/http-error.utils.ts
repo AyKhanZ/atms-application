@@ -38,6 +38,16 @@ export function validationMessage(
   return preferred ?? errors?.find((item) => item.error)?.error ?? null;
 }
 
+/**
+ * The message the server attached to a refusal, or `fallback`. Errors other than validation come
+ * back either as a plain string or as `{ error: string }`.
+ */
+export function serverErrorMessage(error: HttpErrorResponse, fallback: string): string {
+  if (typeof error.error === 'string' && error.error) return error.error;
+  if (typeof error.error?.error === 'string' && error.error.error) return error.error.error;
+  return fallback;
+}
+
 /** What a store keeps of a refused change: plain data, so the action stays serialisable. */
 export function toMutationError(error: unknown): WorkItemMutationError {
   return error instanceof HttpErrorResponse

@@ -510,6 +510,18 @@ input:-webkit-autofill:focus {
   border-radius: 8px;
 }
 
+/* PrimeNG gives the toast a fixed 25rem and 20px from the edge, which runs off a phone screen on
+   the left. On a narrow screen it is pinned to both sides instead: 100vw would include a desktop
+   scrollbar and still touch the left edge. */
+@media (max-width: 480px) {
+  .p-toast.p-toast-bottom-right {
+    left: 1rem;
+    right: 1rem;
+    bottom: 1rem;
+    width: auto;
+  }
+}
+
 .p-progressbar {
   height: 3px;
   border-radius: 0;

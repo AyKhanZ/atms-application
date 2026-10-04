@@ -5,7 +5,7 @@ import { BehaviorSubject, firstValueFrom, Observable, of } from 'rxjs';
 import { Roles } from '../enums/roles.enum';
 import { AuthSessionService } from '../services/auth-session.service';
 import { UserStoreSelectors } from '../../store/user';
-import { roleGuard } from './role.guard';
+import { exceptRoleGuard, roleGuard } from './role.guard';
 
 interface AuthStub {
   ready$: BehaviorSubject<boolean>;
@@ -65,5 +65,24 @@ describe('roleGuard', () => {
     roles = [{ code: Roles.SuperAdmin }];
 
     expect(await runGuard(roleGuard(Roles.SuperAdmin))).toBe(true);
+  });
+
+  // Settings: a super admin has no profile of their own, everyone else does.
+  it('sends a user with an excluded role to 403', async () => {
+    roles = [{ code: Roles.SuperAdmin }];
+
+    expect(await runGuard(exceptRoleGuard(Roles.SuperAdmin))).toBe('/errors/403');
+  });
+
+  it('allows a user without the excluded role', async () => {
+    roles = [{ code: 'Employee' }];
+
+    expect(await runGuard(exceptRoleGuard(Roles.SuperAdmin))).toBe(true);
+  });
+
+  it('still redirects an unauthenticated user to login when excluding roles', async () => {
+    auth.isAuthenticated.mockReturnValue(false);
+
+    expect(await runGuard(exceptRoleGuard(Roles.SuperAdmin))).toBe('/login');
   });
 });

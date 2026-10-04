@@ -123,4 +123,17 @@ describe('AuthSessionService', () => {
     expect(tokenStorage.clear).not.toHaveBeenCalled();
     expect(router.navigate).toHaveBeenCalledWith(['/server-unavailable']);
   });
+
+  // change-password revokes the old refresh token: keeping only the access token would sign the
+  // user out at the next refresh.
+  it('stores the whole token pair returned after a password change', () => {
+    const service = TestBed.inject(AuthSessionService);
+
+    service.replaceTokenPair(newAccessModel);
+
+    expect(tokenStorage.save).toHaveBeenCalledWith(newAccessModel);
+    expect(store.dispatch).toHaveBeenCalledWith(
+      expect.objectContaining({ accessModel: newAccessModel }),
+    );
+  });
 });

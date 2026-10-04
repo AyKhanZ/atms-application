@@ -6,6 +6,8 @@ import { guestGuard } from './core/guards/guest.guard';
 import { onboardingCompletedGuard, onboardingPageGuard } from './core/guards/onboarding.guard';
 import { unsavedChangesGuard } from './core/guards/unsaved-changes.guard';
 import { skipNavigationHistory } from './core/services/navigation-history.service';
+import { exceptRoleGuard } from './core/guards/role.guard';
+import { Roles } from './core/enums/roles.enum';
 
 export const routes: Routes = [
   {
@@ -71,6 +73,15 @@ export const routes: Routes = [
           import('./pages/notifications/notifications-page.component').then(
             (c) => c.NotificationsPageComponent,
           ),
+      },
+      {
+        path: 'settings',
+        data: { breadcrumb: { title: 'Settings', icon: 'pi-cog' } },
+        // A super admin has no profile of their own to edit: no onboarding, no settings.
+        canActivate: [exceptRoleGuard(Roles.SuperAdmin)],
+        canDeactivate: [unsavedChangesGuard],
+        loadComponent: () =>
+          import('./pages/settings/settings.component').then((c) => c.SettingsComponent),
       },
       {
         path: 'users',

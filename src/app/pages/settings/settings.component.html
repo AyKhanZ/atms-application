@@ -1,0 +1,100 @@
+<app-confirm-dialog [key]="unsavedChangesDialog" />
+
+<section class="page">
+  <div class="page-header">
+    <h1 class="page-title">Settings</h1>
+  </div>
+
+  @if (loadFailed()) {
+    <div class="panel settings-error" role="alert">
+      <i class="pi pi-exclamation-circle" aria-hidden="true"></i>
+      <p>Could not load your settings.</p>
+      <button pButton type="button" [outlined]="true" (click)="load()">Retry</button>
+    </div>
+  } @else {
+    <!-- While loading, the real page is drawn with every control shimmering: the skeleton is the
+         page itself, so nothing moves when the data arrives. -->
+    <div
+      class="panel settings-card"
+      [class.settings-card--loading]="loading()"
+      [attr.inert]="loading() ? '' : null"
+      [attr.aria-busy]="loading()"
+    >
+      <app-entity-tabs
+        [tabs]="tabs"
+        [active]="activeTab()"
+        ariaLabel="Settings sections"
+        (select)="selectTab($event)"
+      />
+
+      <div class="settings-panes">
+        <form
+          class="settings-pane"
+          aria-label="Profile"
+          [class.settings-pane--hidden]="activeTab() !== 'profile'"
+          [attr.inert]="activeTab() !== 'profile' ? '' : null"
+          [formGroup]="personalForm"
+          (ngSubmit)="save()"
+        >
+          <div class="profile-layout">
+            <div class="profile-photo">
+              <app-settings-photo
+                #photo
+                [imageUrl]="avatarUrl()"
+                [fullName]="profile() | personName: ''"
+                [initials]="profile() | personInitials"
+                [resetKey]="avatarResetKey()"
+                (fileChange)="onAvatarChange($event)"
+              />
+              <button
+                pButton
+                type="button"
+                severity="secondary"
+                [outlined]="true"
+                icon="pi pi-camera"
+                label="Change photo"
+                (click)="photo.choose()"
+              ></button>
+              <small class="profile-photo__hint">{{ photoHint }}</small>
+              <small class="profile-photo__error" role="alert">{{ avatarError() }}</small>
+            </div>
+
+            <app-personal-info-fields
+              [form]="personalForm"
+              [languages]="languages()"
+              [genders]="genders()"
+              [maritalStatuses]="maritalStatuses()"
+            />
+          </div>
+
+          <footer class="settings-pane__actions">
+            <button
+              pButton
+              type="button"
+              severity="secondary"
+              [outlined]="true"
+              [disabled]="!personalChanged() || saving()"
+              (click)="discard()"
+            >
+              Discard
+            </button>
+            <button
+              pButton
+              type="submit"
+              [loading]="saving()"
+              [disabled]="!personalChanged() || saving()"
+            >
+              Save
+            </button>
+          </footer>
+        </form>
+
+        <app-settings-password
+          [class.settings-pane--hidden]="activeTab() !== 'security'"
+          [attr.inert]="activeTab() !== 'security' ? '' : null"
+          [email]="profile()?.email ?? null"
+        />
+      </div>
+    </div>
+  }
+</section>

@@ -1,4 +1,3 @@
-import { LabelForDirective } from '../../core/directives/label-for.directive';
 import { HttpErrorResponse } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
@@ -19,10 +18,7 @@ import {
 import { Router } from '@angular/router';
 import { forkJoin, finalize } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
-import { DatePickerModule } from 'primeng/datepicker';
 import { InputTextModule } from 'primeng/inputtext';
-import { PasswordModule } from 'primeng/password';
-import { SelectModule } from 'primeng/select';
 import { SkeletonModule } from 'primeng/skeleton';
 import { TooltipModule } from 'primeng/tooltip';
 import { DictionaryModel } from '../../core/models/dictionary.model';
@@ -40,8 +36,15 @@ import {
   FileUploadComponent,
   FileUploadValue,
 } from '../../shared/components/file-upload/file-upload.component';
-import { PasswordRules } from '../../shared/components/password-rules/password-rules';
-import { PasswordValidators } from '../../shared/validators/password.validators';
+import { PersonalInfoFieldsComponent } from '../../shared/components/personal-info-fields/personal-info-fields.component';
+import {
+  createPersonalInfoForm,
+  personalInfoSnapshot,
+} from '../../shared/components/personal-info-fields/personal-info.form';
+import { NewPasswordFieldsComponent } from '../../shared/components/new-password-fields/new-password-fields.component';
+import { createNewPasswordForm } from '../../shared/components/new-password-fields/new-password.form';
+import { fromIsoDate, toIsoDate } from '../../core/utils/dashboard-query.utils';
+import { avatarErrorMessage } from '../../core/utils/profile-avatar.utils';
 import { validationMessage } from '../../core/utils/http-error.utils';
 
 type InvitationGroup = FormGroup<{
@@ -49,11 +52,6 @@ type InvitationGroup = FormGroup<{
   surname: FormControl<string>;
   email: FormControl<string>;
 }>;
-
-interface SelectOption {
-  id: number;
-  label: string;
-}
 
 const LAST_ONBOARDING_VIEW_KEY = 'lastOnboardingView';
 const DEFAULT_INVITATION_ROWS = 3;
@@ -63,15 +61,12 @@ const DEFAULT_INVITATION_ROWS = 3;
   imports: [
     ReactiveFormsModule,
     ButtonModule,
-    DatePickerModule,
     InputTextModule,
-    PasswordModule,
-    SelectModule,
     SkeletonModule,
     TooltipModule,
     FileUploadComponent,
-    PasswordRules,
-    LabelForDirective,
+    PersonalInfoFieldsComponent,
+    NewPasswordFieldsComponent,
   ],
   templateUrl: './onboarding.component.html',
   styleUrl: './onboarding.component.scss',
@@ -100,12 +95,6 @@ export class OnboardingComponent implements HasUnsavedChanges {
   readonly avatarResetKey = signal(0);
   readonly invitationsQueued = signal(0);
 
-  readonly languageOptions = computed<SelectOption[]>(() =>
-    this.languages().map((language) => ({
-      id: language.id,
-      label: `${language.nativeName} (${language.code})`,
-    })),
-  );
   readonly isClientManager = computed(() => this.model()?.role === 'clientManager');
   readonly maxInvitations = computed(() => this.model()?.maxInvitations ?? 6);
   readonly existingAvatarUrl = computed(() =>
@@ -119,44 +108,9 @@ export class OnboardingComponent implements HasUnsavedChanges {
       : '',
   );
 
-  readonly minBirthDate = startOfDay(yearsAgo(100));
-  readonly maxBirthDate = startOfDay(yearsAgo(18));
-
-  readonly personalForm = this.fb.group({
-    name: this.fb.control('', [Validators.required, Validators.maxLength(50)]),
-    surname: this.fb.control('', [Validators.required, Validators.maxLength(100)]),
-    email: this.fb.control(''),
-    phoneNumber: this.fb.control('', [
-      Validators.required,
-      Validators.maxLength(20),
-      Validators.pattern(/^\+[0-9 ()-]{7,19}$/),
-    ]),
-    position: this.fb.control('', [Validators.required, Validators.maxLength(100)]),
-    languageId: new FormControl<number | null>(null, Validators.required),
-    birthDate: new FormControl<Date | null>(null, Validators.required),
-    genderId: new FormControl<number | null>(null, Validators.required),
-    maritalStatusId: new FormControl<number | null>(null, Validators.required),
-    avatar: new FormControl<File | null>(null),
-  });
-
-  readonly securityForm = new FormGroup(
-    {
-      password: new FormControl('', {
-        nonNullable: true,
-        validators: [
-          Validators.required,
-          Validators.minLength(10),
-          Validators.maxLength(40),
-          PasswordValidators.strongPassword(),
-        ],
-      }),
-      confirmPassword: new FormControl('', {
-        nonNullable: true,
-        validators: [Validators.required],
-      }),
-    },
-    { validators: PasswordValidators.passwordsMatch('password', 'confirmPassword') },
-  );
+  readonly personalForm = createPersonalInfoForm();
+  readonly securityForm = createNewPasswordForm();
+  private savedPersonalSnapshot = personalInfoSnapshot(this.personalForm.getRawValue());
 
   readonly invitationRows = new FormArray<InvitationGroup>([]);
   private passwordRulesPulseTimeout?: ReturnType<typeof setTimeout>;
@@ -200,33 +154,7 @@ export class OnboardingComponent implements HasUnsavedChanges {
   onAvatarChange(value: FileUploadValue): void {
     this.personalForm.controls.avatar.setValue(value.file);
     this.personalForm.controls.avatar.markAsDirty();
-    this.avatarError.set(value.errors ? this.avatarErrorMessage(value.errors) : '');
-  }
-
-  onBirthDateInput(event: Event): void {
-    const input = event.target as HTMLInputElement | null;
-    if (!input) return;
-
-    const formattedValue = formatBirthDateInput(input.value);
-    if (input.value !== formattedValue) {
-      input.value = formattedValue;
-    }
-
-    const date = parseDisplayBirthDate(formattedValue);
-    if (date) {
-      this.personalForm.controls.birthDate.setValue(date);
-      this.personalForm.controls.birthDate.markAsDirty();
-    }
-  }
-
-  onBirthDateBlur(event: Event): void {
-    const input = event.target as HTMLInputElement | null;
-    if (!input?.value) return;
-
-    const date = parseDisplayBirthDate(input.value);
-    if (!date) {
-      this.personalForm.controls.birthDate.setValue(null);
-    }
+    this.avatarError.set(value.errors ? avatarErrorMessage(value.errors) : '');
   }
 
   savePersonalInfo(): void {
@@ -255,7 +183,7 @@ export class OnboardingComponent implements HasUnsavedChanges {
     data.append('phoneNumber', value.phoneNumber.trim());
     data.append('position', value.position.trim());
     data.append('languageId', value.languageId.toString());
-    data.append('birthDate', toDateOnly(value.birthDate));
+    data.append('birthDate', toIsoDate(value.birthDate));
     data.append('genderId', value.genderId.toString());
     data.append('maritalStatusId', value.maritalStatusId.toString());
     data.append('version', model.version.toString());
@@ -419,13 +347,23 @@ export class OnboardingComponent implements HasUnsavedChanges {
     return (
       !this.completed() &&
       !this.savingInvitations &&
-      (this.personalForm.dirty || this.securityForm.dirty || this.invitationRows.dirty)
+      (this.personalInfoChanged() || this.passwordTyped() || this.invitationRows.dirty)
     );
   }
 
   @HostListener('window:beforeunload', ['$event'])
   beforeUnload(event: BeforeUnloadEvent): void {
     if (this.hasUnsavedChanges()) event.preventDefault();
+  }
+
+  /** By value, not dirty: a field edited and put back is not a change worth a warning. */
+  private personalInfoChanged(): boolean {
+    return personalInfoSnapshot(this.personalForm.getRawValue()) !== this.savedPersonalSnapshot;
+  }
+
+  private passwordTyped(): boolean {
+    const { password, confirmPassword } = this.securityForm.getRawValue();
+    return Boolean(password || confirmPassword);
   }
 
   private applyModel(model: OnboardingModel): void {
@@ -438,12 +376,13 @@ export class OnboardingComponent implements HasUnsavedChanges {
       phoneNumber: personal.phoneNumber ?? '',
       position: personal.position ?? '',
       languageId: personal.languageId,
-      birthDate: personal.birthDate ? parseDateOnly(personal.birthDate) : null,
+      birthDate: fromIsoDate(personal.birthDate),
       genderId: personal.genderId,
       maritalStatusId: personal.maritalStatusId,
       avatar: null,
     });
     this.personalForm.markAsPristine();
+    this.savedPersonalSnapshot = personalInfoSnapshot(this.personalForm.getRawValue());
     this.avatarError.set('');
     this.avatarResetKey.update((key) => key + 1);
 
@@ -514,55 +453,4 @@ export class OnboardingComponent implements HasUnsavedChanges {
       this.passwordRulesPulseTimeout = setTimeout(() => this.passwordRulesPulse.set(false), 650);
     });
   }
-
-  private avatarErrorMessage(errors: Record<string, unknown>): string {
-    if (errors['fileType']) return 'Use JPG, JPEG, JFIF, PNG or WEBP image.';
-    if (errors['fileSize']) return 'Image size must be 5 MB or less.';
-    if (errors['fileNameLength']) return 'File name is too long.';
-    if (errors['imageDimensions']) return 'Image dimensions are too large or invalid.';
-    return 'Choose a valid profile photo.';
-  }
-}
-
-function yearsAgo(years: number): Date {
-  const now = new Date();
-  return new Date(now.getFullYear() - years, now.getMonth(), now.getDate());
-}
-
-function startOfDay(value: Date): Date {
-  return new Date(value.getFullYear(), value.getMonth(), value.getDate());
-}
-
-function toDateOnly(value: Date): string {
-  const year = value.getFullYear();
-  const month = `${value.getMonth() + 1}`.padStart(2, '0');
-  const day = `${value.getDate()}`.padStart(2, '0');
-  return `${year}-${month}-${day}`;
-}
-
-function parseDateOnly(value: string): Date {
-  const [year, month, day] = value.split('-').map(Number);
-  return new Date(year, month - 1, day);
-}
-
-function formatBirthDateInput(value: string): string {
-  const digits = value.replace(/\D/g, '').slice(0, 8);
-  if (digits.length <= 2) return digits;
-  if (digits.length <= 4) return `${digits.slice(0, 2)}.${digits.slice(2)}`;
-  return `${digits.slice(0, 2)}.${digits.slice(2, 4)}.${digits.slice(4)}`;
-}
-
-function parseDisplayBirthDate(value: string): Date | null {
-  const match = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(value);
-  if (!match) return null;
-
-  const day = Number(match[1]);
-  const month = Number(match[2]);
-  const year = Number(match[3]);
-  const date = new Date(year, month - 1, day);
-  if (date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day) {
-    return null;
-  }
-
-  return date;
 }

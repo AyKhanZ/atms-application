@@ -206,3 +206,26 @@
     text-decoration: underline;
   }
 }
+
+/// A one-line status above the form: "check your email", "password changed".
+@mixin notice {
+  /* Sits between the header and the form, inset by the same padding as the form so its edges line
+     up with the fields below. */
+  .auth-notice {
+    margin: -0.75rem 2rem 1.25rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--orange-border);
+    border-radius: 8px;
+    background: var(--orange-light);
+    color: var(--app-text);
+    font-size: 0.9rem;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+  }
+
+  @media (max-width: 480px) {
+    .auth-notice {
+      margin-inline: 1.5rem;
+    }
+  }
+}

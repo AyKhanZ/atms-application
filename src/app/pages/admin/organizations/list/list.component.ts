@@ -17,7 +17,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { HasPermissionDirective } from '../../../../core/directives/has-permission.directive';
 import { Permissions } from '../../../../core/enums/permissions.enum';
-import { Roles } from '../../../../core/enums/roles.enum';
+import { isSuperAdmin } from '../../../../core/utils/super-admin.utils';
 import {
   createDefaultOrganizationListFilter,
   OrganizationListFilter,
@@ -84,9 +84,7 @@ export class ListComponent implements OnInit, OnDestroy {
   readonly selectedOrganization = signal<OrganizationListItemModel | null>(null);
   readonly first = computed(() => (this.filter().page - 1) * this.filter().pageSize);
   readonly activeFilterCount = computed(() => this.query.activeFilterCount(this.filter()));
-  readonly isSuperAdmin = computed(() =>
-    this.roles().some((role) => role.code === Roles.SuperAdmin),
-  );
+  readonly isSuperAdmin = computed(() => isSuperAdmin(this.roles()));
   readonly Permissions = Permissions;
   readonly showActions = computed(
     () =>

@@ -33,6 +33,21 @@ const reducer = createReducer<UserState>(
   ),
 
   on(UserStoreActions.clearAll, (): UserState => initialUserState),
+  on(
+    UserStoreActions.updateMeFromProfile,
+    (state, profile): UserState => ({
+      ...state,
+      me: state.me
+        ? {
+            ...state.me,
+            name: profile.name,
+            surname: profile.surname,
+            avatarPath: profile.avatarPath,
+            language: profile.language,
+          }
+        : null,
+    }),
+  ),
 );
 
 export function userReducer(state: UserState | undefined, action: Action): UserState {

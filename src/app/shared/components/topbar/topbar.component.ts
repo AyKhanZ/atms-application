@@ -9,6 +9,7 @@ import { AuthStoreActions } from '../../../store/auth';
 import { Router } from '@angular/router';
 import { ImageUrlService } from '../../../core/services/image-url.service';
 import { LayoutService } from '../../../core/services/layout.service';
+import { isSuperAdmin } from '../../../core/utils/super-admin.utils';
 
 @Component({
   selector: 'app-topbar',
@@ -24,29 +25,27 @@ export class TopbarComponent {
   isMenuOpen = signal(false);
   meModel = this.store.selectSignal(UserStoreSelectors.getMe);
   avatarUrl = computed(() => this.imageUrlService.normalizeAvatar(this.meModel()?.avatarPath));
-  readonly userMenuItems: MenuItem[] = [
-    {
-      label: 'Settings',
-      icon: 'pi pi-cog',
-      command: () => this.onToggleSettings(),
-    },
-    {
-      separator: true,
-    },
+  private readonly roles = this.store.selectSignal(UserStoreSelectors.getRoles);
+  readonly userMenuItems = computed<MenuItem[]>(() => [
+    ...(isSuperAdmin(this.roles())
+      ? []
+      : [
+          { label: 'Settings', icon: 'pi pi-cog', command: () => this.openSettings() },
+          { separator: true },
+        ]),
     {
       label: 'Logout',
       icon: 'pi pi-sign-out',
       styleClass: 'user-menu__logout',
       command: () => this.logout(),
     },
-  ];
+  ]);
 
   logout(): void {
     this.store.dispatch(AuthStoreActions.logout());
   }
 
-  onToggleSettings(): void {
-    console.log('Do letter !');
-    this.router.navigate(['settings']);
+  openSettings(): void {
+    void this.router.navigate(['/settings']);
   }
 }

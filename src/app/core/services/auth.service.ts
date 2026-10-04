@@ -5,6 +5,9 @@ import { AccessModel } from '../models/auth/auth.models';
 import { LoginCommand } from '../models/auth/login.command';
 import { RefreshCommand } from '../models/auth/refresh.command';
 import { LogoutCommand } from '../models/auth/logout.command';
+import { ChangePasswordCommand } from '../models/auth/change-password.command';
+import { ForgotPasswordCommand } from '../models/auth/forgot-password.command';
+import { ResetPasswordCommand } from '../models/auth/reset-password.command';
 import { adminApiUrl } from '../constants/api-url.constants';
 
 @Injectable({ providedIn: 'root' })
@@ -30,5 +33,17 @@ export class AuthService {
   // DELETE /auth/logout
   logout(command: LogoutCommand): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/logout`, { body: command });
+  }
+
+  changePassword(command: ChangePasswordCommand): Observable<AccessModel> {
+    return this.http.put<AccessModel>(`${this.accountUrl}/change-password`, command);
+  }
+
+  forgotPassword(command: ForgotPasswordCommand): Observable<void> {
+    return this.http.post<void>(`${this.accountUrl}/forgot-password`, command);
+  }
+
+  resetPassword(command: ResetPasswordCommand): Observable<void> {
+    return this.http.post<void>(`${this.accountUrl}/reset-password`, command);
   }
 }

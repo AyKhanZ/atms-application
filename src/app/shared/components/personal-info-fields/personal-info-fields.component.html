@@ -1,0 +1,193 @@
+<div class="personal-fields" [formGroup]="form()">
+  <div class="field span-8">
+    <div class="field-label">
+      <label for="name">Name</label>
+    </div>
+    <input id="name" pInputText maxlength="50" autocomplete="given-name" formControlName="name" />
+    <div class="field-line">
+      <div class="field-error">
+        @if (form().controls.name.touched && form().controls.name.invalid) {
+          <small>Name is required.</small>
+        }
+      </div>
+      @if (form().controls.name.value.length) {
+        <small class="counter">{{ form().controls.name.value.length }}/50</small>
+      }
+    </div>
+  </div>
+
+  <div class="field span-12">
+    <div class="field-label">
+      <label for="surname">Surname</label>
+    </div>
+    <input
+      id="surname"
+      pInputText
+      maxlength="100"
+      autocomplete="family-name"
+      formControlName="surname"
+    />
+    <div class="field-line">
+      <div class="field-error">
+        @if (form().controls.surname.touched && form().controls.surname.invalid) {
+          <small>Surname is required.</small>
+        }
+      </div>
+      @if (form().controls.surname.value.length) {
+        <small class="counter">{{ form().controls.surname.value.length }}/100</small>
+      }
+    </div>
+  </div>
+
+  <div class="field span-13">
+    <label for="email">Email</label>
+    <input id="email" pInputText readonly formControlName="email" />
+    <div class="field-error"></div>
+  </div>
+
+  <div class="field span-7">
+    <div class="field-label">
+      <label for="phone">Phone number</label>
+    </div>
+    <input
+      id="phone"
+      pInputText
+      maxlength="20"
+      autocomplete="tel"
+      placeholder="+994 50 000 00 00"
+      formControlName="phoneNumber"
+    />
+    <div class="field-line">
+      <div class="field-error">
+        @if (form().controls.phoneNumber.touched) {
+          @if (form().controls.phoneNumber.hasError('required')) {
+            <small>Phone number is required.</small>
+          } @else if (form().controls.phoneNumber.invalid) {
+            <small>Enter a valid phone number.</small>
+          }
+        }
+      </div>
+      @if (form().controls.phoneNumber.value.length) {
+        <small class="counter">{{ form().controls.phoneNumber.value.length }}/20</small>
+      }
+    </div>
+  </div>
+
+  <div class="field span-12">
+    <div class="field-label">
+      <label for="position">Position</label>
+    </div>
+    <input
+      id="position"
+      pInputText
+      maxlength="100"
+      autocomplete="organization-title"
+      formControlName="position"
+    />
+    <div class="field-line">
+      <div class="field-error">
+        @if (form().controls.position.touched && form().controls.position.invalid) {
+          <small>Position is required.</small>
+        }
+      </div>
+      @if (form().controls.position.value.length) {
+        <small class="counter">{{ form().controls.position.value.length }}/100</small>
+      }
+    </div>
+  </div>
+
+  <div class="field span-8">
+    <label id="languageLabel" appLabelFor="language"
+      >Language
+      <i
+        class="pi pi-info-circle"
+        pTooltip="Choose the language you want to use in BAIM for the interface, onboarding flow and system notifications."
+        tooltipStyleClass="language-tooltip"
+      ></i
+    ></label>
+    <p-select
+      inputId="language"
+      ariaLabelledBy="languageLabel"
+      [options]="languageOptions()"
+      appendTo="body"
+      optionLabel="label"
+      optionValue="id"
+      placeholder="Select language"
+      formControlName="languageId"
+    />
+    <div class="field-error">
+      @if (form().controls.languageId.touched && form().controls.languageId.invalid) {
+        <small>Select a language.</small>
+      }
+    </div>
+  </div>
+
+  <div class="field span-8">
+    <label for="birthDate">Birth date</label>
+    <p-datepicker
+      inputId="birthDate"
+      formControlName="birthDate"
+      styleClass="inline-calendar"
+      [minDate]="minBirthDate"
+      [maxDate]="maxBirthDate"
+      [defaultDate]="maxBirthDate"
+      [showIcon]="true"
+      iconDisplay="input"
+      [showButtonBar]="true"
+      appendTo="body"
+      dateFormat="dd.mm.yy"
+      placeholder="DD.MM.YYYY"
+      (onInput)="onBirthDateInput($event)"
+      (onBlur)="onBirthDateBlur($event)"
+    />
+    <div class="field-error">
+      @if (form().controls.birthDate.touched) {
+        @if (form().controls.birthDate.hasError('required')) {
+          <small>Birth date is required.</small>
+        } @else if (form().controls.birthDate.hasError('tooOld')) {
+          <small>Enter a birth date within the last 100 years.</small>
+        } @else if (form().controls.birthDate.invalid) {
+          <small>You must be at least 18 years old.</small>
+        }
+      }
+    </div>
+  </div>
+
+  <div class="field span-6">
+    <label id="genderLabel" appLabelFor="gender">Gender</label>
+    <p-select
+      inputId="gender"
+      ariaLabelledBy="genderLabel"
+      [options]="genders()"
+      appendTo="body"
+      optionLabel="name"
+      optionValue="id"
+      placeholder="Select gender"
+      formControlName="genderId"
+    />
+    <div class="field-error">
+      @if (form().controls.genderId.touched && form().controls.genderId.invalid) {
+        <small>Select a gender.</small>
+      }
+    </div>
+  </div>
+
+  <div class="field span-6">
+    <label id="maritalStatusLabel" appLabelFor="maritalStatus">Marital status</label>
+    <p-select
+      inputId="maritalStatus"
+      ariaLabelledBy="maritalStatusLabel"
+      [options]="maritalStatuses()"
+      appendTo="body"
+      optionLabel="name"
+      optionValue="id"
+      placeholder="Select status"
+      formControlName="maritalStatusId"
+    />
+    <div class="field-error">
+      @if (form().controls.maritalStatusId.touched && form().controls.maritalStatusId.invalid) {
+        <small>Select a marital status.</small>
+      }
+    </div>
+  </div>
+</div>

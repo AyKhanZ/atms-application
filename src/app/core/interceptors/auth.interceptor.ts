@@ -13,8 +13,8 @@ const PUBLIC_ENDPOINTS = [
   '/health',
   '/auth/login',
   '/auth/refresh',
-  '/auth/forgot-password',
-  '/auth/reset-password',
+  '/account/forgot-password',
+  '/account/reset-password',
   '/account/email-confirmation/resend',
 ];
 

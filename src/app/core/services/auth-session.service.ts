@@ -133,6 +133,10 @@ export class AuthSessionService {
     this.store.dispatch(AuthStoreActions.refreshTokenSuccess({ accessModel }));
   }
 
+  replaceTokenPair(accessModel: AccessModel): void {
+    this.applyAccessModel(accessModel);
+  }
+
   logout(redirectToLogin = true): void {
     const refreshToken = this.tokenStorage.getAccessModel()?.refreshToken;
     if (refreshToken) {

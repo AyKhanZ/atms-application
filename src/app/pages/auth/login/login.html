@@ -5,6 +5,10 @@
       <p>Sign in to your account</p>
     </header>
 
+    @if (notice; as message) {
+      <p class="auth-notice" role="status">{{ message }}</p>
+    }
+
     <form [formGroup]="form" (ngSubmit)="onSubmit()">
       @let formControl = form.controls;
 
