@@ -53,6 +53,8 @@ import { taskBoardReducer } from './store/task-board/task-board.reducer';
 import { TaskBoardEffects } from './store/task-board/task-board.effects';
 import { DashboardEffects } from './store/dashboard/dashboard.effects';
 import { dashboardReducer } from './store/dashboard/dashboard.reducer';
+import { notificationsReducer } from './store/notifications/notifications.reducer';
+import { NotificationsEffects } from './store/notifications/notifications.effects';
 
 const BaimTheme = definePreset(Aura, {
   semantic: {
@@ -141,6 +143,7 @@ export const appConfig: ApplicationConfig = {
       [Features.Dashboard]: dashboardReducer,
       [Features.User]: userReducer,
       [Features.Dictionary]: dictionaryReducer,
+      [Features.Notifications]: notificationsReducer,
     }),
     provideEffects([
       AuthEffects,
@@ -158,6 +161,7 @@ export const appConfig: ApplicationConfig = {
       DashboardEffects,
       UserEffects,
       DictionaryEffects,
+      NotificationsEffects,
     ]),
     provideAppInitializer(authInitializer),
     // Started before the first navigation, so Back knows the page the user arrived from.

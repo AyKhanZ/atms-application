@@ -1,0 +1,49 @@
+@let item = notification();
+@let view = item | notificationView;
+
+@if (item | isSystemNotification) {
+  <span class="item__clock" aria-hidden="true"><i class="pi pi-clock"></i></span>
+} @else {
+  <app-profile-avatar
+    class="item__avatar"
+    [imageUrl]="item.actor?.avatarPath"
+    [fullName]="item.actor | personName: 'Someone'"
+    [initials]="item.actor | personInitials"
+    [previewEnabled]="false"
+  />
+}
+
+<span class="item__body">
+  <span class="item__subject" [title]="view.subject.title">
+    <app-work-item-ref
+      class="item__ref"
+      [type]="view.subject.kind"
+      [code]="view.subject.code ?? ''"
+      [showCode]="!!view.subject.code"
+    />
+    <span class="item__title">{{ view.subject.title }}</span>
+  </span>
+
+  <span class="item__line">
+    @if (view.overdueDeadline) {
+      <app-overdue-badge [deadline]="view.overdueDeadline" />
+    }
+    <span>
+      @if (view.actor) {
+        <span class="item__actor">{{ view.actor }}</span>
+      }
+      {{ view.action }}
+    </span>
+    @if (view.status) {
+      <app-work-item-status-badge [kind]="view.subject.kind" [status]="view.status" />
+    }
+    <span class="item__separator" aria-hidden="true">·</span>
+    <time [attr.datetime]="item.createdAt" [title]="item.createdAt | historyTime: 'full'">
+      {{ item.createdAt | historyTime }}
+    </time>
+  </span>
+
+  @if (item | notificationCommentDeleted) {
+    <span class="item__deleted">Comment deleted</span>
+  }
+</span>

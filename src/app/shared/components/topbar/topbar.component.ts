@@ -2,6 +2,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { MenuItem } from 'primeng/api';
 import { MenuModule } from 'primeng/menu';
 import { GlobalSearchComponent } from '../global-search/global-search.component';
+import { NotificationBellComponent } from '../notification-bell/notification-bell.component';
 import { UserStoreSelectors } from '../../../store/user';
 import { Store } from '@ngrx/store';
 import { AuthStoreActions } from '../../../store/auth';
@@ -11,7 +12,7 @@ import { LayoutService } from '../../../core/services/layout.service';
 
 @Component({
   selector: 'app-topbar',
-  imports: [MenuModule, GlobalSearchComponent],
+  imports: [MenuModule, GlobalSearchComponent, NotificationBellComponent],
   templateUrl: './topbar.component.html',
   styleUrl: './topbar.component.scss',
 })

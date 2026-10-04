@@ -1,0 +1,68 @@
+/// The states of a cursor-paged list between its rows: grey bars while a page loads, and a line with
+/// Retry when it could not. Search and Notifications share them so the two cannot drift apart.
+///
+/// Usage:
+///   @use 'list-state';
+///   .list__skeleton { @include list-state.skeleton; }
+///   .list__error { @include list-state.error; }
+
+@mixin skeleton {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0.5rem 0.25rem;
+
+  span {
+    height: 2.5rem;
+    border-radius: var(--radius-btn);
+    background: linear-gradient(
+      90deg,
+      var(--app-surface-muted) 25%,
+      var(--gray-hover) 50%,
+      var(--app-surface-muted) 75%
+    );
+    background-size: 200% 100%;
+    animation: list-state-skeleton 1.2s ease-in-out infinite;
+  }
+
+  @keyframes list-state-skeleton {
+    to {
+      background-position: -200% 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    span {
+      animation: none;
+    }
+  }
+}
+
+@mixin error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  color: var(--app-muted);
+  font-size: 0.85rem;
+
+  button {
+    padding: 0.5rem 0.9rem;
+    border: 1px solid var(--app-border);
+    border-radius: var(--radius-btn);
+    background: var(--app-surface);
+    color: var(--app-text);
+    cursor: pointer;
+    font-size: 0.8rem;
+  }
+
+  button:hover {
+    border-color: var(--orange-border);
+    color: var(--orange-text-hover);
+  }
+
+  button:focus-visible {
+    outline: 2px solid var(--orange-focus-outline);
+    outline-offset: 1px;
+  }
+}

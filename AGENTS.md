@@ -398,6 +398,27 @@ code that survives a refactor is indistinguishable from code that is merely hard
 - One file may contain tightly coupled helper types only when splitting them would make the code less clear.
 - Follow existing repository folders and naming conventions, but never use one generic model file as a container for all Product-related types.
 
+## Shared models — look for one before writing fields
+
+Before declaring an interface, look in `src/app/core/models` for a shape that already carries those
+fields, and derive from it. Repeating the same three fields in a new interface is how page models
+drifted apart before a base existed.
+
+| The fields | Use |
+|---|---|
+| `items`, `nextCursor`, `hasMore`, `pageSize` — a cursor-paged response | `KeysetPageModel<T>` (`keyset-page.model.ts`) |
+| `items`, `totalCount`, `page`, `totalPages`, … — a numbered page | `PaginatedResponse<T>` (`paginated.model.ts`) |
+| `id`, `code`, `name` — a dictionary value, a status, a type | `DictionaryModel` |
+| `id`, `name`, `surname`, `avatarPath` — a person | `PersonModel` |
+| a link to a project, ticket or task | `WorkItemRefModel` |
+
+- A new response that is one of these with a different item is `extends KeysetPageModel<XModel>`,
+  not a copy of its fields.
+- A shape that appears a second time is a reason to add a shared one here, in its own file, and to
+  move the first use onto it in the same change.
+- A shape that only looks alike is not the same: an attachment list with `hasMore` and no cursor is
+  not a cursor page. Share what means the same thing, not what happens to have the same names.
+
 ## Existing page is the default template
 
 - For standard ATMS pages, use an existing similar page as the implementation template in almost all cases.

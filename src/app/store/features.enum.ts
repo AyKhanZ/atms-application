@@ -14,4 +14,5 @@ export enum Features {
   TaskBoard = 'taskBoard',
   Dashboard = 'dashboard',
   Dictionary = 'dictionary',
+  Notifications = 'notifications',
 }

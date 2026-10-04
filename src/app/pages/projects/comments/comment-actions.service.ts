@@ -7,6 +7,7 @@ import { ConfirmationService } from 'primeng/api';
 import { CommentModel } from '../../../core/models/comments';
 import { WorkItemMutationError } from '../../../core/models/work-items';
 import { SnackBarService } from '../../../core/services/snack-bar.service';
+import { commentAnchor } from '../../../core/utils/comment-anchor.utils';
 import { confirmTone } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { CommentsStoreActions } from '../../../store/comments';
 
@@ -17,11 +18,6 @@ interface CommentsScope {
 }
 
 let nextRequestId = 0;
-
-/** The fragment a comment's link ends with; the discussion scrolls to it on opening. */
-export function commentAnchor(commentId: string): string {
-  return `comment-${commentId}`;
-}
 
 /**
  * What the discussion of one task is doing right now: which comment is being edited and what is on

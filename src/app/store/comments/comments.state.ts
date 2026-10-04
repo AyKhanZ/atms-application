@@ -17,6 +17,14 @@ export interface CommentListState {
    * before it and answers after it must not show its text again.
    */
   removedIds: string[];
+  /**
+   * The comment a link points at when no page read so far holds it: read alone and shown above the
+   * list until a page brings it to its place. Pushes refresh it like any comment on screen.
+   */
+  linked: CommentModel | null;
+  /** The comment the link asked for: read once, and an answer for an earlier link is dropped. */
+  linkedId: string | null;
+  linkedError: string | null;
 }
 
 export interface CommentsState {

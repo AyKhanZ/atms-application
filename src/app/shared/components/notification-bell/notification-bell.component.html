@@ -1,0 +1,69 @@
+<app-confirm-dialog [key]="noticeKey" />
+
+<button
+  type="button"
+  class="bell"
+  [class.bell--open]="panelOpen()"
+  [attr.aria-label]="buttonLabel()"
+  aria-haspopup="dialog"
+  [attr.aria-expanded]="panelOpen()"
+  (click)="toggle($event)"
+>
+  <i class="pi pi-bell" aria-hidden="true"></i>
+  @if (badge(); as count) {
+    <span class="bell__badge" aria-hidden="true">{{ count }}</span>
+  }
+</button>
+
+<p-popover
+  #panel
+  styleClass="notification-panel"
+  (onShow)="onShow()"
+  (onHide)="onHide()"
+>
+  <section class="panel" aria-label="Notifications">
+    <header class="panel__header">
+      <h2 class="panel__title">Notifications</h2>
+      <button
+        type="button"
+        class="panel__action"
+        [disabled]="unreadCount() === 0"
+        (click)="markAllRead()"
+      >
+        Mark all as read
+      </button>
+    </header>
+
+    <div class="panel__body">
+      @if (!loaded() && loading()) {
+        <p class="panel__message">Loading…</p>
+      } @else if (error() && latest().length === 0) {
+        <div class="panel__message">
+          <span>{{ error() }}</span>
+          <button type="button" class="panel__action" (click)="retry()">Try again</button>
+        </div>
+      } @else {
+        @for (item of latest(); track item.id) {
+          <button
+            type="button"
+            class="row"
+            [class.row--unread]="!item.readAt"
+            (click)="open(item)"
+          >
+            <span class="row__dot" [attr.aria-label]="item.readAt ? null : 'Unread'"></span>
+            <app-notification-item class="row__item" [notification]="item" />
+          </button>
+        } @empty {
+          <div class="panel__empty">
+            <i class="pi pi-check-circle" aria-hidden="true"></i>
+            <span>You're all caught up</span>
+          </div>
+        }
+      }
+    </div>
+
+    <footer class="panel__footer">
+      <button type="button" class="panel__all" (click)="viewAll()">View all</button>
+    </footer>
+  </section>
+</p-popover>

@@ -55,6 +55,9 @@ describe('CommentsEffects', () => {
             error: null,
             loadMoreError: null,
             removedIds: [],
+            linked: null,
+            linkedId: null,
+            linkedError: null,
             ...change,
           },
         },
@@ -68,7 +71,7 @@ describe('CommentsEffects', () => {
     ...change,
   });
 
-  const collect = (effect: 'liveReceived$' | 'liveRemoved$') => {
+  const collect = (effect: 'liveReceived$' | 'liveRemoved$' | 'loadLinked$') => {
     const emitted: Action[] = [];
     const source: Observable<Action> = effects[effect];
     source.subscribe((action) => emitted.push(action));
@@ -119,6 +122,37 @@ describe('CommentsEffects', () => {
 
     expect(emitted).toHaveLength(1);
     expect(service.getComment).toHaveBeenCalledTimes(1);
+  });
+
+  it('reads a linked comment alone, only from its own task, and says when it is not there', () => {
+    const emitted = collect('loadLinked$');
+    service.getComment
+      .mockReturnValueOnce(of(comment('old')))
+      .mockReturnValueOnce(throwError(() => new HttpErrorResponse({ status: 404 })));
+    const ask = (commentId: string) =>
+      Actions.loadLinked({ listKey: 'task:t', projectId: 'p', workTaskId: 't', commentId });
+
+    actions.next(ask('old'));
+    actions.next(ask('elsewhere'));
+
+    expect(service.getComment).toHaveBeenCalledWith('p', 'old', 't');
+    expect(emitted).toEqual([
+      Actions.loadLinkedSuccess({ listKey: 'task:t', comment: comment('old') }),
+      Actions.loadLinkedFailure({
+        listKey: 'task:t',
+        commentId: 'elsewhere',
+        error: "The linked comment couldn't be found.",
+      }),
+    ]);
+  });
+
+  it('keeps the linked comment above the list live, like one on screen', () => {
+    withList({ linked: comment('old'), linkedId: 'old' });
+    const emitted = collect('liveReceived$');
+
+    commentChanged.next(event({ commentId: 'old', action: 'updated' }));
+
+    expect(emitted).toEqual([Actions.received({ listKey: 'task:t', comment: comment('old') })]);
   });
 
   it('marks a deleted comment at once and reads its placeholder only when it is on screen', () => {

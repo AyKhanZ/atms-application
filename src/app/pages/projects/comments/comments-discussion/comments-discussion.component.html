@@ -45,25 +45,43 @@
         Try again
       </button>
     </p>
-  } @else if (!comments().length) {
+  } @else if (!comments().length && !linkedComment() && !linkedError()) {
     <!-- As in Azure DevOps, the empty field above is the invitation; a line is left only for a
          reader who cannot write, so the section does not look broken. -->
     @if (!canWrite()) {
       <p class="discussion__state discussion__state--empty">No comments yet.</p>
     }
   } @else {
-    <ol class="discussion__list" aria-label="Comments, newest first">
-      @for (comment of comments(); track comment.id) {
-        <li>
-          <app-comment-card
-            [comment]="comment"
-            [projectId]="projectId()"
-            [people]="people()"
-            [target]="targetId() === comment.id"
-          />
-        </li>
-      }
-    </ol>
+    @if (linkedComment(); as linked) {
+      <div class="discussion__linked">
+        <p class="discussion__linked-label">Linked comment</p>
+        <app-comment-card
+          [comment]="linked"
+          [projectId]="projectId()"
+          [people]="people()"
+          [target]="targetId() === linked.id"
+        />
+      </div>
+    }
+
+    @if (linkedError(); as message) {
+      <p class="discussion__state" role="alert">{{ message }}</p>
+    }
+
+    @if (comments().length) {
+      <ol class="discussion__list" aria-label="Comments, newest first">
+        @for (comment of comments(); track comment.id) {
+          <li>
+            <app-comment-card
+              [comment]="comment"
+              [projectId]="projectId()"
+              [people]="people()"
+              [target]="targetId() === comment.id"
+            />
+          </li>
+        }
+      </ol>
+    }
 
     @if (list()?.hasMore) {
       <div class="discussion__more">

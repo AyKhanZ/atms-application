@@ -27,8 +27,9 @@ export class CommentsService {
   }
 
   /** One comment still there: what a pushed change puts on screen instead of a whole page. */
-  getComment(projectId: string, commentId: string): Observable<CommentModel> {
-    return this.http.get<CommentModel>(`${this.url(projectId)}/${commentId}`);
+  getComment(projectId: string, commentId: string, workTaskId?: string): Observable<CommentModel> {
+    const params = workTaskId ? new HttpParams().set('workTaskId', workTaskId) : undefined;
+    return this.http.get<CommentModel>(`${this.url(projectId)}/${commentId}`, { params });
   }
 
   create(projectId: string, command: CreateCommentCommand): Observable<CommentModel> {

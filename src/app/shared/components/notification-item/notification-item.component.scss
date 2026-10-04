@@ -1,0 +1,83 @@
+:host {
+  --avatar-size: 2rem;
+  --avatar-radius: 999px;
+  --avatar-font-size: 0.7rem;
+  --avatar-shadow: none;
+
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  min-width: 0;
+  text-align: left;
+}
+
+.item__avatar,
+.item__clock {
+  flex: none;
+}
+
+.item__clock {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  background: var(--app-surface-muted);
+  color: var(--gray-icon);
+}
+
+.item__body {
+  display: grid;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+/* The work first, named the way every list names it; a long title takes two lines at most. */
+.item__subject {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--app-text);
+  font-size: 0.875rem;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+.item__ref {
+  margin-right: 0.375rem;
+  vertical-align: -0.05em;
+}
+
+/* The one thing that stands out, and only while it is unread: read and unread differ by weight,
+   not by a fill that would read as the selected row. */
+.item__title {
+  font-weight: 400;
+}
+
+:host(.is-unread) .item__title {
+  font-weight: 600;
+}
+
+.item__line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 0.375rem;
+  min-width: 0;
+  color: var(--app-muted);
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+.item__actor {
+  color: var(--app-text);
+  font-weight: 500;
+}
+
+.item__deleted {
+  color: var(--app-muted);
+  font-size: 0.8rem;
+  font-style: italic;
+}
