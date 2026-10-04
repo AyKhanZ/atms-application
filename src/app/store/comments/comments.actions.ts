@@ -90,6 +90,22 @@ export const removedElsewhere = createAction(
   props<{ listKey: string; commentId: string }>(),
 );
 
+/** A link to a comment no page read so far holds: read it alone instead of paging back to it. */
+export const loadLinked = createAction(
+  `${key} Load Linked`,
+  props<{ listKey: string; projectId: string; workTaskId: string; commentId: string }>(),
+);
+export const loadLinkedSuccess = createAction(
+  `${key} Load Linked Success`,
+  props<{ listKey: string; comment: CommentModel }>(),
+);
+export const loadLinkedFailure = createAction(
+  `${key} Load Linked Failure`,
+  props<{ listKey: string; commentId: string; error: string }>(),
+);
+/** The link is gone from the address: the comment above the list goes with it. */
+export const clearLinked = createAction(`${key} Clear Linked`, props<{ listKey: string }>());
+
 /** The list is gone from the screen: drop it and cancel a load still on its way. */
 export const clear = createAction(`${key} Clear`, props<{ listKey: string }>());
 

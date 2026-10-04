@@ -39,6 +39,17 @@
   list-style: none;
 }
 
+.discussion__linked {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.discussion__linked-label {
+  margin: 0;
+  color: var(--app-muted);
+  font-size: 0.875rem;
+}
+
 .discussion__state {
   display: flex;
   flex-wrap: wrap;

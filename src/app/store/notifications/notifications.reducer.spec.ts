@@ -42,7 +42,10 @@ describe('notificationsReducer', () => {
   );
 
   it('takes the unread count from the summary and from every push', () => {
-    let state = notificationsReducer(initialNotificationsState, Actions.loadSummarySuccess({ unreadCount: 3 }));
+    let state = notificationsReducer(
+      initialNotificationsState,
+      Actions.loadSummarySuccess({ unreadCount: 3 }),
+    );
     expect(state.unreadCount).toBe(3);
 
     state = notificationsReducer(state, Actions.received({ id: 'n', unreadCount: 4 }));
@@ -146,6 +149,33 @@ describe('notificationsReducer', () => {
       expect(state.page.items[0].readAt).not.toBeNull();
       expect(state.latest[0].readAt).not.toBeNull();
       expect(state.unreadCount).toBe(4);
+    });
+
+    it('removes a read row from the Unread page but keeps it in the bell', () => {
+      const unreadPage = notificationsReducer(
+        notificationsReducer(loaded, Actions.loadPage({ unreadOnly: true })),
+        Actions.loadPageSuccess({ page: pageOf(['a', 'x'], 'next') }),
+      );
+
+      const state = notificationsReducer(unreadPage, Actions.markRead({ id: 'a' }));
+
+      expect(pageIds(state)).toEqual(['x']);
+      expect(state.page.nextCursor).toBe('next');
+      expect(state.latest[0].readAt).not.toBeNull();
+    });
+
+    it('clears the Unread page when everything is marked read', () => {
+      const unreadPage = notificationsReducer(
+        notificationsReducer(loaded, Actions.loadPage({ unreadOnly: true })),
+        Actions.loadPageSuccess({ page: pageOf(['a', 'x'], 'next') }),
+      );
+
+      const state = notificationsReducer(unreadPage, Actions.markAllRead());
+
+      expect(pageIds(state)).toEqual([]);
+      expect(state.unreadCount).toBe(0);
+      expect(state.page.hasMore).toBe(false);
+      expect(state.page.nextCursor).toBeNull();
     });
 
     it('counts a read of a row only on the page', () => {

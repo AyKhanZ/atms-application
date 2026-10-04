@@ -36,7 +36,10 @@ export class NotificationsEffects {
   private readonly reset$ = this.actions$.pipe(
     ofType(ActionsStore.reset, AuthStoreActions.logoutCompleted),
   );
-  private readonly pageGone$ = merge(this.reset$, this.actions$.pipe(ofType(ActionsStore.resetPage)));
+  private readonly pageGone$ = merge(
+    this.reset$,
+    this.actions$.pipe(ofType(ActionsStore.resetPage)),
+  );
   private readonly latestOpen$ = this.store.select(Selectors.getLatestOpen);
   private readonly page$ = this.store.select(Selectors.getPage);
 
@@ -191,7 +194,8 @@ export class NotificationsEffects {
 
   /**
    * A read in this tab comes back as a push with the number this tab already shows; only a read in
-   * another tab changes it, and only then are the rows read again.
+   * another tab changes it, and only then are the rows read again. Every read is a commit of its
+   * own and moves the count by one, so another tab's change never arrives with the same number.
    */
   readElsewhere$ = createEffect(() =>
     this.realtime.notificationRead$.pipe(

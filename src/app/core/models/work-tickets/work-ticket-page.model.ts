@@ -1,8 +1,4 @@
+import { KeysetPageModel } from '../keyset-page.model';
 import { WorkTicketModel } from './work-ticket.model';
 
-export interface WorkTicketPageModel {
-  items: WorkTicketModel[];
-  nextCursor: string | null;
-  hasMore: boolean;
-  pageSize: number;
-}
+export interface WorkTicketPageModel extends KeysetPageModel<WorkTicketModel> {}

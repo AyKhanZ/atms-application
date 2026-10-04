@@ -1,8 +1,4 @@
+import { KeysetPageModel } from '../keyset-page.model';
 import { NotificationModel } from './notification.model';
 
-export interface NotificationPageModel {
-  items: NotificationModel[];
-  nextCursor: string | null;
-  hasMore: boolean;
-  pageSize: number;
-}
+export interface NotificationPageModel extends KeysetPageModel<NotificationModel> {}

@@ -1,8 +1,4 @@
+import { KeysetPageModel } from '../keyset-page.model';
 import { WorkTaskModel } from './work-task.model';
 
-export interface WorkTaskPageModel {
-  items: WorkTaskModel[];
-  nextCursor: string | null;
-  hasMore: boolean;
-  pageSize: number;
-}
+export interface WorkTaskPageModel extends KeysetPageModel<WorkTaskModel> {}

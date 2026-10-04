@@ -42,6 +42,14 @@ describe('CommentsService', () => {
     http.expectOne({ method: 'GET', url: `${url}/c1` }).flush({});
   });
 
+  it('restricts a linked comment to the current task', () => {
+    service.getComment('project-1', 'c1', 'task-1').subscribe();
+
+    const request = http.expectOne((req) => req.url === `${url}/c1`);
+    expect(request.request.params.get('workTaskId')).toBe('task-1');
+    request.flush({});
+  });
+
   it('sends, changes and deletes a comment', () => {
     service.create('project-1', { workTaskId: 'task-1', text: 'Hi' }).subscribe();
     const created = http.expectOne({ method: 'POST', url });

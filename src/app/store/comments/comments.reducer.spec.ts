@@ -136,6 +136,70 @@ describe('commentsReducer', () => {
     expect(state.lists[listKey].items[1]).toEqual(read);
   });
 
+  describe('linked comment', () => {
+    const asked = commentsReducer(
+      loaded,
+      Actions.loadLinked({ listKey, projectId: 'p', workTaskId: 't', commentId: 'old' }),
+    );
+    const linked = commentsReducer(asked, Actions.loadLinkedSuccess({ listKey, comment: comment('old') }));
+    const linkedOf = (state: CommentsState) => state.lists[listKey].linked;
+
+    it('stands above the list, which stays as it was', () => {
+      expect(linkedOf(linked)?.id).toBe('old');
+      expect(ids(linked)).toEqual(['b', 'a']);
+    });
+
+    it('is edited and deleted in place, like a comment on the page', () => {
+      const edited = commentsReducer(
+        linked,
+        Actions.updateSuccess({ listKey, comment: { ...comment('old'), text: 'Edited' } }),
+      );
+      expect(linkedOf(edited)?.text).toBe('Edited');
+      expect(ids(edited)).toEqual(['b', 'a']);
+
+      const deleted = commentsReducer(edited, Actions.removedElsewhere({ listKey, commentId: 'old' }));
+      expect(linkedOf(deleted)?.isDeleted).toBe(true);
+      expect(linkedOf(deleted)?.text).toBe('');
+    });
+
+    it('moves to its place when Load more reaches it', () => {
+      const more = commentsReducer(
+        commentsReducer(linked, Actions.loadMore({ listKey, projectId: 'p', workTaskId: 't', cursor: 'next' })),
+        Actions.loadMoreSuccess({ listKey, page: page(['old', 'older']) }),
+      );
+
+      expect(linkedOf(more)).toBeNull();
+      expect(ids(more)).toEqual(['b', 'a', 'old', 'older']);
+    });
+
+    it('drops an answer for an earlier link and keeps one not found as an error', () => {
+      const other = commentsReducer(
+        asked,
+        Actions.loadLinked({ listKey, projectId: 'p', workTaskId: 't', commentId: 'other' }),
+      );
+      const late = commentsReducer(other, Actions.loadLinkedSuccess({ listKey, comment: comment('old') }));
+      expect(linkedOf(late)).toBeNull();
+
+      const failed = commentsReducer(
+        other,
+        Actions.loadLinkedFailure({ listKey, commentId: 'other', error: 'Not found' }),
+      );
+      expect(failed.lists[listKey].linkedError).toBe('Not found');
+    });
+
+    it('survives a reload of the first page and goes when the link does', () => {
+      const reloaded = [
+        Actions.load({ listKey, projectId: 'p', workTaskId: 't' }),
+        Actions.loadSuccess({ listKey, page: page(['c', 'b'], 'next') }),
+      ].reduce(commentsReducer, linked);
+      expect(linkedOf(reloaded)?.id).toBe('old');
+
+      const cleared = commentsReducer(reloaded, Actions.clearLinked({ listKey }));
+      expect(linkedOf(cleared)).toBeNull();
+      expect(cleared.lists[listKey].linkedId).toBeNull();
+    });
+  });
+
   it('drops the list when it leaves the screen and everything on logout', () => {
     expect(commentsReducer(loaded, Actions.clear({ listKey })).lists[listKey]).toBeUndefined();
     expect(commentsReducer(loaded, AuthStoreActions.logoutCompleted())).toEqual(

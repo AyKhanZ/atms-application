@@ -4,7 +4,10 @@ import { AuthStoreActions } from '../auth';
 import * as Actions from './comments.actions';
 import { CommentListState, CommentsState, initialCommentsState } from './comments.state';
 
-const emptyList: Omit<CommentListState, 'projectId' | 'workTaskId' | 'removedIds'> = {
+const emptyList: Omit<
+  CommentListState,
+  'projectId' | 'workTaskId' | 'removedIds' | 'linked' | 'linkedId' | 'linkedError'
+> = {
   items: [],
   nextCursor: null,
   hasMore: false,
@@ -12,6 +15,17 @@ const emptyList: Omit<CommentListState, 'projectId' | 'workTaskId' | 'removedIds
   loadingMore: false,
   error: null,
   loadMoreError: null,
+};
+
+/** What a list keeps across reads of its pages: deletions it saw and the comment a link points at. */
+const keptAcrossReads: Pick<
+  CommentListState,
+  'removedIds' | 'linked' | 'linkedId' | 'linkedError'
+> = {
+  removedIds: [],
+  linked: null,
+  linkedId: null,
+  linkedError: null,
 };
 
 /** The comment as a placeholder: who wrote it stays, what it said goes. */
@@ -57,10 +71,20 @@ function update(
  * belongs further down, on a page not read yet.
  */
 function put(list: CommentListState, comment: CommentModel): CommentListState {
+  if (list.linked?.id === comment.id) {
+    return list.linked.isDeleted && !comment.isDeleted ? list : { ...list, linked: comment };
+  }
   const shown = list.items.find((item) => item.id === comment.id);
   if (shown) return shown.isDeleted && !comment.isDeleted ? list : replace(list, comment);
   if (comment.isDeleted || list.removedIds.includes(comment.id)) return list;
   return { ...list, items: [comment, ...list.items] };
+}
+
+/** A page reached the linked comment: it leaves the top and stays in its place in the list. */
+function settleLinked(list: CommentListState): CommentListState {
+  return list.linked && list.items.some((item) => item.id === list.linked?.id)
+    ? { ...list, linked: null }
+    : list;
 }
 
 function replace(list: CommentListState, comment: CommentModel): CommentListState {
@@ -80,7 +104,7 @@ const reducer = createReducer(
       lists: {
         ...state.lists,
         [listKey]: {
-          ...(state.lists[listKey] ?? { ...emptyList, removedIds: [] }),
+          ...(state.lists[listKey] ?? { ...emptyList, ...keptAcrossReads }),
           projectId,
           workTaskId,
           loading: true,
@@ -92,13 +116,15 @@ const reducer = createReducer(
   on(
     Actions.loadSuccess,
     (state, { listKey, page }): CommentsState =>
-      update(state, listKey, (list) => ({
-        ...list,
-        ...emptyList,
-        items: live(list, page.items),
-        nextCursor: page.nextCursor,
-        hasMore: page.hasMore,
-      })),
+      update(state, listKey, (list) =>
+        settleLinked({
+          ...list,
+          ...emptyList,
+          items: live(list, page.items),
+          nextCursor: page.nextCursor,
+          hasMore: page.hasMore,
+        }),
+      ),
   ),
   on(
     Actions.loadFailure,
@@ -115,13 +141,13 @@ const reducer = createReducer(
     (state, { listKey, page }): CommentsState =>
       update(state, listKey, (list) => {
         const known = new Set(list.items.map((item) => item.id));
-        return {
+        return settleLinked({
           ...list,
           items: [...list.items, ...live(list, page.items).filter((item) => !known.has(item.id))],
           nextCursor: page.nextCursor,
           hasMore: page.hasMore,
           loadingMore: false,
-        };
+        });
       }),
   ),
   on(
@@ -150,10 +176,47 @@ const reducer = createReducer(
         items: list.items.map((item) =>
           item.id === commentId && !item.isDeleted ? placeholder(item) : item,
         ),
+        linked:
+          list.linked?.id === commentId && !list.linked.isDeleted
+            ? placeholder(list.linked)
+            : list.linked,
         removedIds: list.removedIds.includes(commentId)
           ? list.removedIds
           : [...list.removedIds, commentId],
       })),
+  ),
+  on(
+    Actions.loadLinked,
+    (state, { listKey, commentId }): CommentsState =>
+      update(state, listKey, (list) => ({
+        ...list,
+        linked: null,
+        linkedId: commentId,
+        linkedError: null,
+      })),
+  ),
+  // Already on a page by the time it came: refreshed there, nothing above the list.
+  on(
+    Actions.loadLinkedSuccess,
+    (state, { listKey, comment }): CommentsState =>
+      update(state, listKey, (list) => {
+        if (list.linkedId !== comment.id) return list;
+        if (list.items.some((item) => item.id === comment.id)) return put(list, comment);
+        const [linked] = live(list, [comment]);
+        return { ...list, linked };
+      }),
+  ),
+  on(
+    Actions.loadLinkedFailure,
+    (state, { listKey, commentId, error }): CommentsState =>
+      update(state, listKey, (list) =>
+        list.linkedId === commentId ? { ...list, linkedError: error } : list,
+      ),
+  ),
+  on(
+    Actions.clearLinked,
+    (state, { listKey }): CommentsState =>
+      update(state, listKey, (list) => ({ ...list, linked: null, linkedId: null, linkedError: null })),
   ),
   on(Actions.clear, (state, { listKey }): CommentsState => {
     const lists = { ...state.lists };

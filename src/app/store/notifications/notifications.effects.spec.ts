@@ -78,7 +78,9 @@ describe('NotificationsEffects', () => {
     snackBar = { error: vi.fn() };
     service = {
       getSummary: vi.fn(() => of({ unreadCount: 4 })),
-      getNotifications: vi.fn(() => of({ items: [], nextCursor: null, hasMore: false, pageSize: 10 })),
+      getNotifications: vi.fn(() =>
+        of({ items: [], nextCursor: null, hasMore: false, pageSize: 10 }),
+      ),
       markRead: vi.fn(() => of(undefined)),
       markUnread: vi.fn(() => of(undefined)),
       markAllRead: vi.fn(() => of(undefined)),
@@ -213,7 +215,13 @@ describe('NotificationsEffects', () => {
 
   it('reads the next page by the cursor of the list on screen', () => {
     withState({
-      page: { ...initialNotificationsState.page, unreadOnly: true, loaded: true, nextCursor: 'next', hasMore: true },
+      page: {
+        ...initialNotificationsState.page,
+        unreadOnly: true,
+        loaded: true,
+        nextCursor: 'next',
+        hasMore: true,
+      },
     });
     const emitted = collect('loadMorePage$');
 
@@ -225,7 +233,9 @@ describe('NotificationsEffects', () => {
       cursor: 'next',
     });
     expect(emitted).toEqual([
-      Actions.loadMorePageSuccess({ page: { items: [], nextCursor: null, hasMore: false, pageSize: 10 } }),
+      Actions.loadMorePageSuccess({
+        page: { items: [], nextCursor: null, hasMore: false, pageSize: 10 },
+      }),
     ]);
   });
 
@@ -251,10 +261,15 @@ describe('NotificationsEffects', () => {
     expect(emitted).toEqual([Actions.markUnreadFailure({ id: 'a' })]);
   });
 
-  it('reads the rows again only when another tab changed the count', () => {
-    withState({ latestOpen: true, unreadCount: 3 });
+  it('reads the visible rows again only when another tab changed the count, not on its own echo', () => {
+    withState({
+      latestOpen: true,
+      unreadCount: 3,
+      page: { ...initialNotificationsState.page, loaded: true, unreadOnly: true },
+    });
     const emitted = collect('readElsewhere$');
 
+    // The echo of this tab's own read: the count it already shows, no request.
     read.next({ unreadCount: 3 });
     read.next({ unreadCount: 1 });
 
@@ -262,6 +277,7 @@ describe('NotificationsEffects', () => {
       Actions.readElsewhere({ unreadCount: 3 }),
       Actions.readElsewhere({ unreadCount: 1 }),
       Actions.loadLatest(),
+      Actions.loadPage({ unreadOnly: true }),
     ]);
   });
 
@@ -272,10 +288,6 @@ describe('NotificationsEffects', () => {
     withState({ latestOpen: true });
     reconnected.next();
 
-    expect(emitted).toEqual([
-      Actions.loadSummary(),
-      Actions.loadSummary(),
-      Actions.loadLatest(),
-    ]);
+    expect(emitted).toEqual([Actions.loadSummary(), Actions.loadSummary(), Actions.loadLatest()]);
   });
 });

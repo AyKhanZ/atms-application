@@ -87,6 +87,36 @@ export class CommentsEffects {
     ),
   );
 
+  /**
+   * Read alone, and only from this task: a link with another task's comment in it finds nothing
+   * instead of showing it here. A second link before the answer replaces the first.
+   */
+  loadLinked$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(ActionsStore.loadLinked),
+      groupBy(({ listKey }) => listKey, { duration: (group) => this.gone(group.key) }),
+      mergeMap((requests) =>
+        requests.pipe(
+          switchMap(({ listKey, projectId, workTaskId, commentId }) =>
+            this.comments.getComment(projectId, commentId, workTaskId).pipe(
+              map((comment) => ActionsStore.loadLinkedSuccess({ listKey, comment })),
+              catchError(() =>
+                of(
+                  ActionsStore.loadLinkedFailure({
+                    listKey,
+                    commentId,
+                    error: "The linked comment couldn't be found.",
+                  }),
+                ),
+              ),
+              takeUntil(this.gone(listKey)),
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+
   create$ = createEffect(() =>
     this.actions$.pipe(
       ofType(ActionsStore.create),
@@ -151,13 +181,15 @@ export class CommentsEffects {
    * many people watch the task. The user's own change comes back this way too and only refreshes
    * what the answer already showed, whichever of the two arrives first. A deleted comment is read
    * for its placeholder — who deleted it and when. An edit or a delete of a comment on a page not
-   * opened yet is not read at all.
+   * opened yet is not read at all; the one a link put above the list counts as on screen.
    */
   liveReceived$ = createEffect(() =>
     this.changes$.pipe(
       filter(
         ({ event, list }) =>
-          event.action === 'created' || list.items.some((item) => item.id === event.commentId),
+          event.action === 'created' ||
+          list.linked?.id === event.commentId ||
+          list.items.some((item) => item.id === event.commentId),
       ),
       // Quick changes of one comment: only the latest read lands, never an older one after it — a
       // delete cancels the read of the edit before it.

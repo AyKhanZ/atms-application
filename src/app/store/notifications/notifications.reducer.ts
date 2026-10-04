@@ -15,15 +15,21 @@ type ReadChange = (item: NotificationModel) => NotificationModel;
  * The bell and the page can show the same notification: a read on one shows on the other at once.
  */
 function changeEverywhere(state: NotificationsState, change: ReadChange): NotificationsState {
+  const items = state.page.items.map(change);
   return {
     ...state,
     latest: state.latest.map(change),
-    page: { ...state.page, items: state.page.items.map(change) },
+    page: {
+      ...state.page,
+      items: state.page.unreadOnly ? items.filter((item) => !item.readAt) : items,
+    },
   };
 }
 
 function isShown(state: NotificationsState, id: string, read: boolean): boolean {
-  return [...state.latest, ...state.page.items].some((item) => item.id === id && !!item.readAt === read);
+  return [...state.latest, ...state.page.items].some(
+    (item) => item.id === id && !!item.readAt === read,
+  );
 }
 
 function updatePage(
@@ -59,7 +65,11 @@ const reducer = createReducer(
   ),
   on(
     Actions.loadLatestFailure,
-    (state, { error }): NotificationsState => ({ ...state, latestLoading: false, latestError: error }),
+    (state, { error }): NotificationsState => ({
+      ...state,
+      latestLoading: false,
+      latestError: error,
+    }),
   ),
   // Another filter is another list: its rows are not kept. The same filter read again keeps them.
   on(
@@ -114,10 +124,14 @@ const reducer = createReducer(
   ),
   on(Actions.markRead, (state, { id }): NotificationsState => {
     // Not on screen, or read already: the count is the server's to tell.
-    const unreadCount = isShown(state, id, false) ? Math.max(0, state.unreadCount - 1) : state.unreadCount;
+    const unreadCount = isShown(state, id, false)
+      ? Math.max(0, state.unreadCount - 1)
+      : state.unreadCount;
     const now = new Date().toISOString();
     return {
-      ...changeEverywhere(state, (item) => (item.id === id && !item.readAt ? { ...item, readAt: now } : item)),
+      ...changeEverywhere(state, (item) =>
+        item.id === id && !item.readAt ? { ...item, readAt: now } : item,
+      ),
       unreadCount,
     };
   }),
@@ -130,8 +144,14 @@ const reducer = createReducer(
   }),
   on(Actions.markAllRead, (state): NotificationsState => {
     const now = new Date().toISOString();
+    const changed = changeEverywhere(state, (item) =>
+      item.readAt ? item : { ...item, readAt: now },
+    );
     return {
-      ...changeEverywhere(state, (item) => (item.readAt ? item : { ...item, readAt: now })),
+      ...changed,
+      page: changed.page.unreadOnly
+        ? { ...changed.page, nextCursor: null, hasMore: false }
+        : changed.page,
       unreadCount: 0,
     };
   }),
