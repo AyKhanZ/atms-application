@@ -1,9 +1,11 @@
 import { Injectable, inject } from '@angular/core';
+import { Title } from '@angular/platform-browser';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Action, Store } from '@ngrx/store';
 import {
   EMPTY,
   catchError,
+  distinctUntilChanged,
   exhaustMap,
   map,
   merge,
@@ -21,6 +23,7 @@ import {
 } from '../../core/services/notifications.service';
 import { RealtimeService } from '../../core/services/realtime.service';
 import { SnackBarService } from '../../core/services/snack-bar.service';
+import { titleWithUnread } from '../../core/utils/notification.utils';
 import { AuthStoreActions } from '../auth';
 import * as ActionsStore from './notifications.actions';
 import * as Selectors from './notifications.selectors';
@@ -33,6 +36,7 @@ export class NotificationsEffects {
   private readonly notifications = inject(NotificationsService);
   private readonly realtime = inject(RealtimeService);
   private readonly snackBar = inject(SnackBarService);
+  private readonly title = inject(Title);
   private readonly reset$ = this.actions$.pipe(
     ofType(ActionsStore.reset, AuthStoreActions.logoutCompleted),
   );
@@ -190,6 +194,19 @@ export class NotificationsEffects {
       withLatestFrom(this.latestOpen$, this.page$),
       mergeMap(([, latestOpen, page]) => rereads(latestOpen, page, false)),
     ),
+  );
+
+  /**
+   * The unread count in front of the tab title — "(3) BAIM". No sound: a task tracker that beeps on
+   * every status change gets muted. Zero, and after logout, the title is the plain one again.
+   */
+  tabTitle$ = createEffect(
+    () =>
+      this.store.select(Selectors.getUnreadCount).pipe(
+        distinctUntilChanged(),
+        tap((count) => this.title.setTitle(titleWithUnread(this.title.getTitle(), count))),
+      ),
+    { dispatch: false },
   );
 
   /**

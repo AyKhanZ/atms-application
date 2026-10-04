@@ -4,6 +4,7 @@ import { Store } from '@ngrx/store';
 import { ConfirmationService } from 'primeng/api';
 import { Popover, PopoverModule } from 'primeng/popover';
 import { NotificationModel } from '../../../core/models/notifications';
+import { unreadBadge } from '../../../core/utils/notification.utils';
 import { NotificationsStoreActions, NotificationsStoreSelectors } from '../../../store/notifications';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 import { NotificationItemComponent } from '../notification-item/notification-item.component';
@@ -36,10 +37,7 @@ export class NotificationBellComponent implements OnInit {
   readonly panelOpen = this.store.selectSignal(NotificationsStoreSelectors.getLatestOpen);
   readonly loading = this.store.selectSignal(NotificationsStoreSelectors.getLatestLoading);
   readonly error = this.store.selectSignal(NotificationsStoreSelectors.getLatestError);
-  readonly badge = computed(() => {
-    const count = this.unreadCount();
-    return count > 99 ? '99+' : count > 0 ? `${count}` : null;
-  });
+  readonly badge = computed(() => unreadBadge(this.unreadCount()));
   readonly buttonLabel = computed(() => {
     const count = this.unreadCount();
     return count > 0 ? `Notifications, ${count} unread` : 'Notifications';

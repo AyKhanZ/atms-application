@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { Title } from '@angular/platform-browser';
 import { provideMockActions } from '@ngrx/effects/testing';
 import { Action } from '@ngrx/store';
 import { MockStore, provideMockStore } from '@ngrx/store/testing';
@@ -104,6 +105,18 @@ describe('NotificationsEffects', () => {
     });
     store = TestBed.inject(MockStore);
     effects = TestBed.inject(NotificationsEffects);
+  });
+
+  it('keeps the unread count in front of the tab title and takes it away at zero', () => {
+    const title = TestBed.inject(Title);
+    title.setTitle('BAIM');
+    effects.tabTitle$.subscribe();
+
+    withState({ unreadCount: 3 });
+    expect(title.getTitle()).toBe('(3) BAIM');
+
+    withState({ unreadCount: 0 });
+    expect(title.getTitle()).toBe('BAIM');
   });
 
   it('reads the unread count', () => {

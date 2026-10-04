@@ -11,6 +11,8 @@ import {
   notificationShowsDeletedComment,
   notificationTaskLabel,
   notificationView,
+  titleWithUnread,
+  unreadBadge,
 } from './notification.utils';
 
 const notification = (overrides: Partial<NotificationModel> = {}): NotificationModel => ({
@@ -130,6 +132,24 @@ describe('notificationView', () => {
     expect(notificationTaskLabel({ ...notification().parameters, taskKind: 2 })).toBe(
       'SUBTASK #41 Payment form',
     );
+  });
+});
+
+describe('unread count on the bell and in the tab title', () => {
+  it.each([
+    [0, null],
+    [3, '3'],
+    [99, '99'],
+    [120, '99+'],
+  ])('shows %i as %s', (count, badge) => {
+    expect(unreadBadge(count)).toBe(badge);
+  });
+
+  it('puts the count in front of the title, replaces it, and takes it away at zero', () => {
+    expect(titleWithUnread('BAIM', 3)).toBe('(3) BAIM');
+    expect(titleWithUnread('(3) BAIM', 120)).toBe('(99+) BAIM');
+    expect(titleWithUnread('(99+) BAIM', 0)).toBe('BAIM');
+    expect(titleWithUnread('BAIM', 0)).toBe('BAIM');
   });
 });
 

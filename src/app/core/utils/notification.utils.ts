@@ -128,6 +128,21 @@ function withOverdue(view: NotificationView, notification: NotificationModel, no
   return overdue ? { ...view, overdueDeadline: taskDeadline } : view;
 }
 
+/** The unread count as the bell and the tab title show it: "3", "99+", nothing for zero. */
+export function unreadBadge(count: number): string | null {
+  return count > 99 ? '99+' : count > 0 ? `${count}` : null;
+}
+
+/**
+ * The tab title with the unread count in front, as Gmail and GitHub show it: seen while the tab is in
+ * the background, without a sound. A count already in front is replaced, not stacked.
+ */
+export function titleWithUnread(title: string, count: number): string {
+  const base = title.replace(/^\(\d+\+?\) /, '');
+  const badge = unreadBadge(count);
+  return badge ? `(${badge}) ${base}` : base;
+}
+
 /** The comment a notification was about is gone: say so instead of leading to nothing. */
 export function notificationShowsDeletedComment(notification: NotificationModel): boolean {
   return (
