@@ -23,11 +23,6 @@ export const Permissions = {
     Edit: 'CommentEdit',
     Delete: 'CommentDelete',
   },
-  Notification: {
-    View: 'NotificationView',
-    Edit: 'NotificationEdit',
-    Delete: 'NotificationDelete',
-  },
 } as const;
 
 type PermissionGroup = (typeof Permissions)[keyof typeof Permissions];

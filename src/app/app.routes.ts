@@ -65,6 +65,14 @@ export const routes: Routes = [
           import('./pages/tasks/tasks-page.component').then((c) => c.TasksPageComponent),
       },
       {
+        path: 'notifications',
+        data: { breadcrumb: { title: 'Notifications', icon: 'pi-bell' } },
+        loadComponent: () =>
+          import('./pages/notifications/notifications-page.component').then(
+            (c) => c.NotificationsPageComponent,
+          ),
+      },
+      {
         path: 'users',
         data: { breadcrumb: { title: 'Users', icon: 'pi-users' } },
         loadChildren: () => import('./pages/admin/users/users.routes').then((r) => r.USERS_ROUTES),

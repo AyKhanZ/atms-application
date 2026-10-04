@@ -495,6 +495,17 @@ input:-webkit-autofill:focus {
   color: var(--red-hover);
 }
 
+/* The bell's panel: rows run edge to edge, so the popover gives up its own padding. On a phone it
+   keeps 0.5rem from each side of the screen. */
+.notification-panel.p-popover {
+  width: min(26rem, calc(100vw - 1rem));
+  border-radius: var(--radius-card);
+}
+
+.notification-panel .p-popover-content {
+  padding: 0;
+}
+
 .p-toast .p-toast-message {
   border-radius: 8px;
 }

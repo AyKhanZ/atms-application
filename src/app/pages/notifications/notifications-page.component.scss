@@ -1,0 +1,118 @@
+@use 'list-state';
+@use 'quiet-button';
+
+.notifications-header {
+  align-items: center;
+}
+
+.notifications-header__read-all {
+  @include quiet-button.base;
+}
+
+.notifications-panel {
+  display: grid;
+  padding: 0;
+  container-type: inline-size;
+  overflow: hidden;
+}
+
+.notifications-panel__list {
+  display: grid;
+  padding-bottom: 0.5rem;
+}
+
+.day + .day {
+  border-top: 1px solid var(--app-border);
+}
+
+.day__label {
+  margin: 0;
+  padding: 0.75rem 1rem 0.35rem;
+  color: var(--app-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.row {
+  display: flex;
+  align-items: stretch;
+  min-width: 0;
+
+  &:hover {
+    background: var(--orange-light-hover);
+  }
+}
+
+.row__toggle {
+  display: grid;
+  flex: none;
+  place-items: start center;
+  width: 2.75rem;
+  padding: 1.15rem 0 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 3px solid var(--orange-focus-outline);
+    outline-offset: -3px;
+  }
+}
+
+/* A hollow ring on a read row, so the place to click is there to find; filled when unread. */
+.row__dot {
+  width: 0.625rem;
+  height: 0.625rem;
+  border: 2px solid var(--app-border);
+  border-radius: 999px;
+}
+
+.row__toggle:hover .row__dot {
+  border-color: var(--orange);
+}
+
+.row--unread .row__dot {
+  border-color: var(--orange);
+  background: var(--orange);
+}
+
+.row__open {
+  flex: 1;
+  min-width: 0;
+  padding: 0.75rem 1rem 0.75rem 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 3px solid var(--orange-focus-outline);
+    outline-offset: -3px;
+  }
+}
+
+.notifications-panel__skeleton {
+  @include list-state.skeleton;
+
+  padding-inline: 1rem;
+}
+
+.notifications-panel__error {
+  @include list-state.error;
+}
+
+.notifications-panel__more {
+  justify-self: center;
+  margin: 0.5rem 0;
+}
+
+/* On a phone the one action takes the row it stands in. */
+@container (max-width: 30rem) {
+  .notifications-header .page-actions,
+  .notifications-header__read-all {
+    width: 100%;
+  }
+}

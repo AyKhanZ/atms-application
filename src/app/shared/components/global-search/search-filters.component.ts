@@ -1,8 +1,9 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { WorkItemKind } from '../../../core/models/work-items';
 
-export interface SearchFilterChip {
-  type: WorkItemKind | null;
+/** One chip of a one-choice filter; search filters by kind of work, other lists by their own value. */
+export interface SearchFilterChip<T = WorkItemKind | null> {
+  type: T;
   label: string;
   disabled: boolean;
 }
@@ -10,7 +11,7 @@ export interface SearchFilterChip {
 @Component({
   selector: 'app-search-filters',
   template: `
-    <div class="filters" role="tablist" aria-label="Result types">
+    <div class="filters" role="tablist" [attr.aria-label]="label()">
       @for (chip of chips(); track chip.label) {
         <button
           type="button"
@@ -29,8 +30,9 @@ export interface SearchFilterChip {
   styleUrl: './search-filters.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SearchFiltersComponent {
-  readonly chips = input.required<SearchFilterChip[]>();
-  readonly active = input<WorkItemKind | null>(null);
-  readonly select = output<WorkItemKind | null>();
+export class SearchFiltersComponent<T = WorkItemKind | null> {
+  readonly chips = input.required<SearchFilterChip<T>[]>();
+  readonly active = input<T | null>(null);
+  readonly label = input('Result types');
+  readonly select = output<T>();
 }

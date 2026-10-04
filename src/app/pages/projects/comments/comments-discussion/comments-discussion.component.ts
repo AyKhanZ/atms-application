@@ -31,7 +31,8 @@ import {
 } from '../../../../store/comments';
 import { CommentListState } from '../../../../store/comments/comments.state';
 import { UserStoreSelectors } from '../../../../store/user';
-import { CommentActionsService, commentAnchor } from '../comment-actions.service';
+import { commentAnchor } from '../../../../core/utils/comment-anchor.utils';
+import { CommentActionsService } from '../comment-actions.service';
 import { MentionCandidate } from '../comment-suggestion';
 import { CommentCardComponent } from '../components/comment-card/comment-card.component';
 import { CommentEditorComponent } from '../components/comment-editor/comment-editor.component';

@@ -1,0 +1,107 @@
+import { ChangeDetectionStrategy, Component, OnDestroy, computed, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Store } from '@ngrx/store';
+import { ConfirmationService } from 'primeng/api';
+import { NotificationModel } from '../../core/models/notifications';
+import { groupNotificationsByDay } from '../../core/utils/notification.utils';
+import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component';
+import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
+import {
+  SearchFilterChip,
+  SearchFiltersComponent,
+} from '../../shared/components/global-search/search-filters.component';
+import { LoadMoreButtonComponent } from '../../shared/components/load-more-button/load-more-button.component';
+import { NotificationItemComponent } from '../../shared/components/notification-item/notification-item.component';
+import {
+  NOTIFICATION_NOTICE_KEY,
+  NotificationOpenerService,
+} from '../../shared/components/notification-item/notification-opener.service';
+import { ScrollSentinelDirective } from '../../shared/directives/scroll-sentinel.directive';
+import { NotificationsStoreActions, NotificationsStoreSelectors } from '../../store/notifications';
+
+type NotificationFilter = 'all' | 'unread';
+
+/** Everything that came to the person, by day; the bell shows only the newest ten. */
+@Component({
+  selector: 'app-notifications-page',
+  imports: [
+    ConfirmDialogComponent,
+    EmptyStateComponent,
+    LoadMoreButtonComponent,
+    NotificationItemComponent,
+    ScrollSentinelDirective,
+    SearchFiltersComponent,
+  ],
+  templateUrl: './notifications-page.component.html',
+  styleUrl: './notifications-page.component.scss',
+  providers: [ConfirmationService, NotificationOpenerService],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class NotificationsPageComponent implements OnDestroy {
+  private readonly store = inject(Store);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  private readonly opener = inject(NotificationOpenerService);
+
+  protected readonly noticeKey = NOTIFICATION_NOTICE_KEY;
+  readonly chips: SearchFilterChip<NotificationFilter>[] = [
+    { type: 'all', label: 'All', disabled: false },
+    { type: 'unread', label: 'Unread', disabled: false },
+  ];
+
+  readonly page = this.store.selectSignal(NotificationsStoreSelectors.getPage);
+  readonly unreadCount = this.store.selectSignal(NotificationsStoreSelectors.getUnreadCount);
+  readonly filter = computed<NotificationFilter>(() => (this.page().unreadOnly ? 'unread' : 'all'));
+  readonly groups = computed(() => groupNotificationsByDay(this.page().items));
+  readonly firstLoad = computed(() => this.page().loading && this.page().items.length === 0);
+  readonly empty = computed(
+    () => this.page().loaded && !this.page().loading && !this.page().error && this.page().items.length === 0,
+  );
+
+  constructor() {
+    // The filter lives in the address, so the page survives a refresh and Back returns to it.
+    this.route.queryParamMap.pipe(takeUntilDestroyed()).subscribe((params) => {
+      const unreadOnly = params.get('filter') === 'unread';
+      this.store.dispatch(NotificationsStoreActions.loadPage({ unreadOnly }));
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.store.dispatch(NotificationsStoreActions.resetPage());
+  }
+
+  changeFilter(filter: NotificationFilter): void {
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { filter: filter === 'unread' ? 'unread' : null },
+    });
+  }
+
+  open(notification: NotificationModel): void {
+    this.opener.open(notification);
+  }
+
+  toggleRead(notification: NotificationModel): void {
+    this.store.dispatch(
+      notification.readAt
+        ? NotificationsStoreActions.markUnread({ id: notification.id })
+        : NotificationsStoreActions.markRead({ id: notification.id }),
+    );
+  }
+
+  markAllRead(): void {
+    this.store.dispatch(NotificationsStoreActions.markAllRead());
+  }
+
+  /** Called by the sentinel when the end of the list comes into view, and by the button below it. */
+  loadMore(): void {
+    const page = this.page();
+    if (page.loading || page.loadingMore || !page.hasMore) return;
+    this.store.dispatch(NotificationsStoreActions.loadMorePage());
+  }
+
+  retry(): void {
+    this.store.dispatch(NotificationsStoreActions.loadPage({ unreadOnly: this.page().unreadOnly }));
+  }
+}
