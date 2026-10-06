@@ -397,6 +397,11 @@ code that survives a refactor is indistinguishable from code that is merely hard
   - `product-event.ts`.
 - One file may contain tightly coupled helper types only when splitting them would make the code less clear.
 - Follow existing repository folders and naming conventions, but never use one generic model file as a container for all Product-related types.
+- Before writing an interface, look for one to extend — `AuditUserModel` already carries `id`, `name`, `surname`.
+  Add only the fields it lacks.
+- A new shared base interface is created only when at least two types extend it right away. A base for one
+  type is over-engineering: write the fields in that type, or extend an existing base. `WorkProjectInvitationModel`
+  extends `AuditUserModel` and declares `email` itself: no other interface needs that combination.
 
 ## Shared models — look for one before writing fields
 

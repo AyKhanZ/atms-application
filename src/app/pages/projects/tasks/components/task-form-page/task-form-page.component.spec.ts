@@ -26,6 +26,7 @@ const project: WorkProjectModel = {
   projectKind: dictionary,
   projectStatus: dictionary,
   participants: [],
+  invitations: [],
   createdAt: '',
 };
 const ticket: WorkTicketModel = {

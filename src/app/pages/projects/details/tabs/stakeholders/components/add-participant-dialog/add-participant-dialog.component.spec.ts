@@ -151,4 +151,162 @@ describe('AddParticipantDialogComponent', { timeout: 20_000 }, () => {
       roleId: projectRoleIds.clientOrganizationManager,
     });
   });
+
+  describe('invite by email', () => {
+    let userSelect: Select | null = null;
+
+    // An overlay left open keeps animating after the suite has put matchMedia back.
+    afterEach(async () => {
+      userSelect?.hide();
+      userSelect = null;
+      fixture.detectChanges();
+      await fixture.whenStable();
+    });
+
+    async function openSearch(text: string): Promise<void> {
+      fixture.componentRef.setInput('canInviteByEmail', true);
+      fixture.componentRef.setInput('visible', true);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      userSelect = fixture.debugElement.query(By.directive(Select)).componentInstance as Select;
+      userSelect.show();
+      component.onSearch({ originalEvent: new Event('input'), filter: text });
+      // Set the filter directly: typing schedules an overlay realign that outlives the test.
+      userSelect._filterValue.set(text);
+      fixture.detectChanges();
+      await fixture.whenStable();
+    }
+
+    it('offers to invite a full email nobody has', async () => {
+      await openSearch('anna@client.com');
+
+      const empty = document.body.querySelector('.participant-user-select-panel .search-empty');
+      expect(empty?.textContent).toContain('No user with this email.');
+      expect(empty?.querySelector('button')?.textContent).toContain('Invite anna@client.com');
+    });
+
+    it('asks for a full email when the text is not one', async () => {
+      await openSearch('anna');
+
+      const empty = document.body.querySelector('.participant-user-select-panel .search-empty');
+      expect(empty?.textContent).toContain('Type a full email to invite.');
+      expect(empty?.querySelector('button')).toBeNull();
+    });
+
+    it('offers nothing to invite where inviting is not allowed', async () => {
+      await openSearch('anna@client.com');
+      fixture.componentRef.setInput('canInviteByEmail', false);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(fixture.nativeElement.querySelector('.invite-link')).toBeNull();
+      const empty = document.body.querySelector('.participant-user-select-panel .search-empty');
+      expect(empty?.textContent?.trim()).toBe('No users found.');
+    });
+
+    it('switches to the invite form with the searched email filled in', async () => {
+      await openSearch('anna@client.com');
+
+      const email = component.searchedEmail();
+      userSelect?.hide();
+      userSelect = null;
+      component.openInvite(email);
+      fixture.detectChanges();
+
+      expect(component.header()).toBe('Invite to project');
+      expect(component.inviteForm.getRawValue()).toEqual({
+        email: 'anna@client.com',
+        name: '',
+        surname: '',
+      });
+      expect(
+        [...fixture.nativeElement.querySelectorAll('form:last-of-type label')].map((label) =>
+          (label as HTMLElement).textContent?.trim(),
+        ),
+      ).toEqual(['Name', 'Surname', 'Email']);
+    });
+
+    // Both modes stay in the dialog so it keeps its size; only the active one can be reached.
+    it('keeps both modes rendered and makes the hidden one inert', async () => {
+      fixture.componentRef.setInput('visible', true);
+      fixture.detectChanges();
+      await fixture.whenStable();
+      component.openInvite('anna@client.com');
+      fixture.detectChanges();
+
+      const [search, invite] = [...fixture.nativeElement.querySelectorAll('form')] as HTMLElement[];
+      expect(search.hasAttribute('inert')).toBe(true);
+      expect(search.classList).toContain('dialog-mode--hidden');
+      expect(invite.hasAttribute('inert')).toBe(false);
+    });
+
+    it('requires a name and surname before sending', () => {
+      const invited = vi.fn();
+      component.invited.subscribe(invited);
+      component.openInvite('anna@client.com');
+      component.inviteForm.controls.name.setValue('   ');
+
+      component.submitInvite();
+
+      expect(invited).not.toHaveBeenCalled();
+      expect(component.inviteFieldError('name')).toBe('Enter a name.');
+      expect(component.inviteFieldError('surname')).toBe('Enter a surname.');
+      expect(component.inviteFieldError('email')).toBe('');
+    });
+
+    it('rejects an invalid or too long email', () => {
+      component.openInvite('not-an-email');
+      component.submitInvite();
+
+      expect(component.inviteFieldError('email')).toBe('Enter a valid email.');
+
+      component.inviteForm.controls.email.setValue(`anna@${'b'.repeat(60)}.${'c'.repeat(40)}.com`);
+
+      expect(component.inviteFieldError('email')).toBe('Email must be at most 100 characters.');
+    });
+
+    it('emits the trimmed invitation', () => {
+      const invited = vi.fn();
+      component.invited.subscribe(invited);
+      component.openInvite('anna@client.com');
+      component.inviteForm.controls.name.setValue(' Anna ');
+      component.inviteForm.controls.surname.setValue('Smith ');
+
+      component.submitInvite();
+
+      expect(invited).toHaveBeenCalledWith({
+        email: 'anna@client.com',
+        name: 'Anna',
+        surname: 'Smith',
+      });
+    });
+
+    it('shows the server refusal under the email until the email changes', () => {
+      component.openInvite('anna@client.com');
+      fixture.componentRef.setInput('inviteError', 'This email has already been invited.');
+      fixture.detectChanges();
+
+      expect(component.inviteFieldError('email')).toBe('This email has already been invited.');
+
+      component.inviteForm.controls.email.setValue('anna.smith@client.com');
+
+      expect(component.inviteFieldError('email')).toBe('');
+    });
+
+    it('goes back to the search and opens in search mode next time', async () => {
+      component.openInvite('anna@client.com');
+      component.backToSearch();
+
+      expect(component.mode()).toBe('search');
+
+      component.openInvite('anna@client.com');
+      fixture.componentRef.setInput('visible', true);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(component.mode()).toBe('search');
+      expect(component.header()).toBe('Add participant');
+    });
+  });
 });

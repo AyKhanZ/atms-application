@@ -2,9 +2,18 @@
   width: min(32rem, calc(100vw - 2rem));
 }
 
-.participant-dialog-form {
+/* Both modes sit in one cell and take the height of the taller one, so switching changes the content,
+   not the dialog. Buttons stay at the bottom in both. */
+.dialog-modes {
   display: grid;
+}
+
+.participant-dialog-form {
+  display: flex;
+  flex-direction: column;
+  grid-area: 1 / 1;
   gap: 1rem;
+  min-width: 0;
 }
 
 .field {
@@ -12,7 +21,17 @@
   gap: 0.4rem;
 }
 
+/* Error on the left, a counter or a link on the right: the same row, so nothing pushes the next field. */
+.field-meta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-height: 1rem;
+}
+
 .field-error {
+  min-width: 0;
   min-height: 1rem;
   color: var(--red);
   font-size: 0.75rem;
@@ -78,8 +97,59 @@
   flex: 0 0 auto;
 }
 
+.field-counter {
+  flex: none;
+  color: var(--app-muted);
+  font-size: 0.75rem;
+  font-style: normal;
+  line-height: 1rem;
+}
+
+.invite-link {
+  flex: none;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--orange-text-hover);
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1rem;
+  cursor: pointer;
+}
+
+.invite-link:hover {
+  text-decoration: underline;
+}
+
+.invite-link:focus-visible {
+  border-radius: 0.25rem;
+  outline: 2px solid var(--orange-focus-outline);
+  outline-offset: 2px;
+}
+
+.search-empty {
+  display: grid;
+  justify-items: start;
+  gap: 0.5rem;
+  color: var(--app-muted);
+  font-size: 0.85rem;
+}
+
+.search-invite-button {
+  max-width: 100%;
+}
+
+.search-invite-button span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .dialog-actions {
   display: flex;
+  margin-top: auto;
   justify-content: flex-end;
   gap: 0.6rem;
   padding-top: 0.25rem;
@@ -90,4 +160,10 @@
     display: grid;
     grid-template-columns: 1fr;
   }
+}
+
+/* Last on purpose: a visible error inside the hidden mode must not show through it. */
+.dialog-mode--hidden,
+.dialog-mode--hidden * {
+  visibility: hidden;
 }

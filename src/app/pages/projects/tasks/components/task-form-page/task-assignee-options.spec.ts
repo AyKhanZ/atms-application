@@ -27,6 +27,7 @@ function participant(
     name: 'Test',
     surname: 'User',
     email: 'test@example.com',
+    hasCompletedOnboarding: true,
     category,
     role: {
       id: crypto.randomUUID(),

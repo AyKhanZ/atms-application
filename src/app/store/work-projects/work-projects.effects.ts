@@ -1,9 +1,10 @@
 import { inject, Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { catchError, map, of, switchMap, tap } from 'rxjs';
+import { catchError, filter, map, of, switchMap, tap } from 'rxjs';
 import { SnackBarService } from '../../core/services/snack-bar.service';
 import { ProjectAccessService } from '../../core/services/project-access.service';
 import { WorkProjectsService } from '../../core/services/work-projects.service';
+import { toMutationError } from '../../core/utils/http-error.utils';
 import * as WorkProjectsStoreActions from './work-projects.actions';
 
 @Injectable()
@@ -78,6 +79,46 @@ export class WorkProjectsEffects {
         ),
       ),
     ),
+  );
+  inviteParticipant$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(WorkProjectsStoreActions.inviteProjectParticipant),
+      switchMap(({ id, command }) =>
+        this.service.inviteParticipant(id, command).pipe(
+          map(() =>
+            WorkProjectsStoreActions.inviteProjectParticipantSuccess({
+              id,
+              email: command.email.trim(),
+            }),
+          ),
+          catchError((error: unknown) =>
+            of(
+              WorkProjectsStoreActions.inviteProjectParticipantFailure({
+                error: toMutationError(error),
+              }),
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+  inviteSucceeded$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(WorkProjectsStoreActions.inviteProjectParticipantSuccess),
+        tap(({ email }) => this.snackBar.success(`Invitation sent to ${email}`)),
+      ),
+    { dispatch: false },
+  );
+  // A validation message is shown by the dialog under the email field; anything else needs a toast.
+  inviteFailed$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(WorkProjectsStoreActions.inviteProjectParticipantFailure),
+        filter(({ error }) => !error.message),
+        tap(() => this.snackBar.error('The invitation could not be sent. Please try again.')),
+      ),
+    { dispatch: false },
   );
   updateParticipant$ = createEffect(() =>
     this.actions$.pipe(

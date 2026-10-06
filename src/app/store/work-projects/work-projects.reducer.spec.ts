@@ -60,4 +60,25 @@ describe('workProjectsReducer', () => {
     expect(result.items).toEqual([]);
     expect(result.totalCount).toBe(0);
   });
+
+  it.each([
+    WorkProjectsStoreActions.inviteProjectParticipantSuccess({
+      id: 'project-id',
+      email: 'anna@client.com',
+    }),
+    WorkProjectsStoreActions.inviteProjectParticipantFailure({
+      error: { status: 400, message: 'This email has already been invited to this project.' },
+    }),
+  ])('keeps the invite form busy until the server answers ($type)', (answer) => {
+    const sending = workProjectsReducer(
+      initialWorkProjectsState,
+      WorkProjectsStoreActions.inviteProjectParticipant({
+        id: 'project-id',
+        command: { email: 'anna@client.com', name: 'Anna', surname: 'Smith' },
+      }),
+    );
+
+    expect(sending.isSubmitted).toBe(true);
+    expect(workProjectsReducer(sending, answer).isSubmitted).toBe(false);
+  });
 });

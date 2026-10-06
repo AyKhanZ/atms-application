@@ -28,6 +28,7 @@ describe('ChangeParticipantRoleDialogComponent', () => {
     name: 'Diana',
     surname: 'Zeynalova',
     email: 'diana@example.com',
+    hasCompletedOnboarding: true,
     category: 'client',
     role: roles[0],
   };

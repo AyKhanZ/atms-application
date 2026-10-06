@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { PaginatedResponse } from '../models/paginated.model';
 import {
   CreateWorkProjectCommand,
+  InviteWorkProjectParticipantCommand,
   UpdateWorkProjectCommand,
   UpdateWorkProjectStatusCommand,
   WorkProjectItemModel,
@@ -55,6 +56,10 @@ export class WorkProjectsService {
 
   addParticipant(id: string, userId: string, roleId: string): Observable<void> {
     return this.http.post<void>(`${this.baseUrl}/${id}/participants`, { userId, roleId });
+  }
+
+  inviteParticipant(id: string, command: InviteWorkProjectParticipantCommand): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/${id}/invitations`, command);
   }
 
   updateParticipant(id: string, participantId: string, roleId: string): Observable<void> {

@@ -170,6 +170,7 @@ export class ProjectDetailsComponent implements OnDestroy {
         ofType(
           WorkProjectsStoreActions.updateProjectSuccess,
           WorkProjectsStoreActions.addProjectParticipantSuccess,
+          WorkProjectsStoreActions.inviteProjectParticipantSuccess,
           WorkProjectsStoreActions.updateProjectParticipantSuccess,
           WorkProjectsStoreActions.deleteProjectParticipantSuccess,
         ),
