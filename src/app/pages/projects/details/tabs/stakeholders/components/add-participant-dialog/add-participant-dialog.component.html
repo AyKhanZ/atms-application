@@ -5,168 +5,174 @@
   [modal]="true"
   [draggable]="false"
   [resizable]="false"
-  styleClass="participant-dialog"
+  [closable]="!isSaving()"
+  [closeOnEscape]="!isSaving()"
+  [styleClass]="
+    mode() === 'invite' ? 'participant-dialog participant-dialog--invite' : 'participant-dialog'
+  "
 >
-  <!-- Both modes share one grid cell: the dialog keeps its size and only the content changes. -->
-  <div class="dialog-modes">
-    <form
-      class="participant-dialog-form"
-      [class.dialog-mode--hidden]="mode() !== 'search'"
-      [attr.inert]="mode() !== 'search' ? '' : null"
-      [attr.aria-hidden]="mode() !== 'search'"
-      [formGroup]="form"
-      (ngSubmit)="submit()"
-    >
-      <div class="field">
-        <label id="participantUserLabel" appLabelFor="participantUser">User or email</label>
-        <p-select
-          inputId="participantUser"
-          ariaLabelledBy="participantUserLabel"
-          [class.control-invalid]="showError('userId')"
-          formControlName="userId"
-          [options]="users()"
-          optionLabel="email"
-          optionValue="id"
-          placeholder="Search by name or email"
-          [filter]="true"
-          filterBy="name,surname,email"
-          filterPlaceholder="Name or email"
-          panelStyleClass="participant-user-select-panel"
-          appendTo="body"
-          (onFilter)="onSearch($event)"
-        >
-          <ng-template #selectedItem let-user>
-            <span class="user-selection">
-              <app-profile-avatar
-                [imageUrl]="user.avatarPath"
-                [fullName]="user | personName"
-                [initials]="user | personInitials"
-                [previewEnabled]="false"
-              />
-              <span>{{ user | personName }}</span>
-            </span>
-          </ng-template>
-          <ng-template #item let-user>
-            <div class="user-option">
-              <app-profile-avatar
-                [imageUrl]="user.avatarPath"
-                [fullName]="user | personName"
-                [initials]="user | personInitials"
-                [previewEnabled]="false"
-              />
-              <span
-                ><strong>{{ user | personName }}</strong
-                ><small>{{ user.email }}</small></span
+  <form
+    class="participant-dialog-form"
+    [class.dialog-mode--hidden]="mode() !== 'search'"
+    [formGroup]="form"
+    (ngSubmit)="submit()"
+  >
+    <div class="field">
+      <label id="participantUserLabel" appLabelFor="participantUser">User or email</label>
+      <p-select
+        inputId="participantUser"
+        ariaLabelledBy="participantUserLabel"
+        [class.control-invalid]="showError('userId')"
+        formControlName="userId"
+        [options]="users()"
+        optionLabel="email"
+        optionValue="id"
+        placeholder="Search by name or email"
+        [filter]="true"
+        filterBy="name,surname,email"
+        filterPlaceholder="Name or email"
+        panelStyleClass="participant-user-select-panel"
+        appendTo="body"
+        (onFilter)="onSearch($event)"
+      >
+        <ng-template #selectedItem let-user>
+          <span class="user-selection">
+            <app-profile-avatar
+              [imageUrl]="user.avatarPath"
+              [fullName]="user | personName"
+              [initials]="user | personInitials"
+              [previewEnabled]="false"
+            />
+            <span>{{ user | personName }}</span>
+          </span>
+        </ng-template>
+        <ng-template #item let-user>
+          <div class="user-option">
+            <app-profile-avatar
+              [imageUrl]="user.avatarPath"
+              [fullName]="user | personName"
+              [initials]="user | personInitials"
+              [previewEnabled]="false"
+            />
+            <span
+              ><strong>{{ user | personName }}</strong
+              ><small>{{ user.email }}</small></span
+            >
+          </div>
+        </ng-template>
+        <ng-template #emptyfilter>
+          <div class="search-empty">
+            @if (searchedEmailTaken(); as reason) {
+              <!-- Participants are left out of the list, so their email lands here: say why. -->
+              <span>{{ reason }}</span>
+            } @else if (canInviteByEmail() && searchedEmail()) {
+              <span>No user with this email.</span>
+              <button
+                pButton
+                type="button"
+                class="search-invite-button"
+                [outlined]="true"
+                (click)="openInvite(searchedEmail())"
               >
-            </div>
-          </ng-template>
-          <ng-template #emptyfilter>
-            <div class="search-empty">
-              @if (canInviteByEmail() && searchedEmail()) {
-                <span>No user with this email.</span>
-                <button
-                  pButton
-                  type="button"
-                  class="search-invite-button"
-                  [outlined]="true"
-                  (click)="openInvite(searchedEmail())"
-                >
-                  <i class="pi pi-user-plus"></i>
-                  <span>Invite {{ searchedEmail() }}</span>
-                </button>
-              } @else if (canInviteByEmail()) {
-                <span>No users found. Type a full email to invite.</span>
-              } @else {
-                <span>No users found.</span>
-              }
-            </div>
-          </ng-template>
-        </p-select>
-        <div class="field-meta">
-          <small
-            class="field-error"
-            [class.field-error--visible]="showError('userId')"
-            aria-live="polite"
-            >{{ showError('userId') ? 'Select a user.' : '' }}</small
-          >
-          @if (canInviteByEmail()) {
-            <button type="button" class="invite-link" (click)="openInvite(searchedEmail())">
-              Can't find? Invite
-            </button>
-          }
-        </div>
+                <i class="pi pi-user-plus"></i>
+                <span>Invite {{ searchedEmail() }}</span>
+              </button>
+            } @else if (canInviteByEmail()) {
+              <span>No users found. Type a full email to invite.</span>
+            } @else {
+              <span>No users found.</span>
+            }
+          </div>
+        </ng-template>
+      </p-select>
+      <div class="field-meta">
+        <small
+          class="field-error"
+          [class.field-error--visible]="showError('userId')"
+          aria-live="polite"
+          >{{ showError('userId') ? 'Select a user.' : '00a0' }}</small
+        >
+        @if (canInviteByEmail()) {
+          <button type="button" class="invite-link" (click)="openInvite(searchedEmail())">
+            Can't find? Invite
+          </button>
+        }
       </div>
+    </div>
 
+    <div class="field">
+      <label id="participantRoleLabel" appLabelFor="participantRole">Role</label>
+      <p-select
+        inputId="participantRole"
+        ariaLabelledBy="participantRoleLabel"
+        [class.control-invalid]="showError('roleId')"
+        formControlName="roleId"
+        [options]="availableRoles()"
+        optionLabel="name"
+        optionValue="id"
+        placeholder="Select role"
+        appendTo="body"
+      />
+      <div class="field-meta">
+        <small
+          class="field-error"
+          [class.field-error--visible]="showError('roleId')"
+          aria-live="polite"
+          >{{ showError('roleId') ? 'Select a role.' : '' }}</small
+        >
+      </div>
+    </div>
+
+    <div class="dialog-actions">
+      <button pButton type="button" [outlined]="true" (click)="close()">Cancel</button>
+      <button pButton type="submit" [disabled]="isSaving()">Add</button>
+    </div>
+  </form>
+
+  <form
+    class="participant-dialog-form"
+    [class.dialog-mode--hidden]="mode() !== 'invite'"
+    [formGroup]="inviteForm"
+    (ngSubmit)="submitInvite()"
+  >
+    @for (field of inviteFields; track field.key) {
       <div class="field">
-        <label id="participantRoleLabel" appLabelFor="participantRole">Role</label>
-        <p-select
-          inputId="participantRole"
-          ariaLabelledBy="participantRoleLabel"
-          [class.control-invalid]="showError('roleId')"
-          formControlName="roleId"
-          [options]="availableRoles()"
-          optionLabel="name"
-          optionValue="id"
-          placeholder="Select role"
-          appendTo="body"
+        <label [for]="field.id">{{ field.label }}</label>
+        <input
+          pInputText
+          [id]="field.id"
+          [type]="field.key === 'email' ? 'email' : 'text'"
+          [formControlName]="field.key"
+          [attr.maxlength]="field.maxLength"
+          autocomplete="off"
+          [attr.aria-invalid]="!!inviteFieldError(field.key)"
+          [attr.aria-describedby]="inviteFieldError(field.key) ? field.id + 'Error' : null"
         />
         <div class="field-meta">
           <small
             class="field-error"
-            [class.field-error--visible]="showError('roleId')"
+            [id]="field.id + 'Error'"
+            [class.field-error--visible]="!!inviteFieldError(field.key)"
             aria-live="polite"
-            >{{ showError('roleId') ? 'Select a role.' : '' }}</small
+            >{{ inviteFieldError(field.key) }}</small
           >
+          <em class="field-counter">{{ inviteLength(field.key) }}/{{ field.maxLength }}</em>
         </div>
       </div>
+    }
 
-      <div class="dialog-actions">
-        <button pButton type="button" [outlined]="true" (click)="close()">Cancel</button>
-        <button pButton type="submit" [disabled]="isSaving()">Add</button>
-      </div>
-    </form>
-
-    <form
-      class="participant-dialog-form"
-      [class.dialog-mode--hidden]="mode() !== 'invite'"
-      [attr.inert]="mode() !== 'invite' ? '' : null"
-      [attr.aria-hidden]="mode() !== 'invite'"
-      [formGroup]="inviteForm"
-      (ngSubmit)="submitInvite()"
-    >
-      @for (field of inviteFields; track field.key) {
-        <div class="field">
-          <label [for]="field.id">{{ field.label }}</label>
-          <input
-            pInputText
-            [id]="field.id"
-            [type]="field.key === 'email' ? 'email' : 'text'"
-            [formControlName]="field.key"
-            [attr.maxlength]="field.maxLength"
-            autocomplete="off"
-            [attr.aria-invalid]="!!inviteFieldError(field.key)"
-            [attr.aria-describedby]="inviteFieldError(field.key) ? field.id + 'Error' : null"
-          />
-          <div class="field-meta">
-            <small
-              class="field-error"
-              [id]="field.id + 'Error'"
-              [class.field-error--visible]="!!inviteFieldError(field.key)"
-              aria-live="polite"
-              >{{ inviteFieldError(field.key) }}</small
-            >
-            <em class="field-counter">{{ inviteLength(field.key) }}/{{ field.maxLength }}</em>
-          </div>
-        </div>
-      }
-
-      <div class="dialog-actions">
-        <button pButton type="button" [outlined]="true" (click)="backToSearch()">
-          <i class="pi pi-arrow-left"></i>
-          <span>Back</span>
-        </button>
-        <button pButton type="submit" [disabled]="isSaving()">Send invite</button>
-      </div>
-    </form>
-  </div>
+    <div class="dialog-actions">
+      <button
+        pButton
+        type="button"
+        [outlined]="true"
+        [disabled]="isSaving()"
+        (click)="backToSearch()"
+      >
+        <i class="pi pi-arrow-left"></i>
+        <span>Back</span>
+      </button>
+      <button pButton type="submit" [disabled]="isSaving()">Send invite</button>
+    </div>
+  </form>
 </p-dialog>

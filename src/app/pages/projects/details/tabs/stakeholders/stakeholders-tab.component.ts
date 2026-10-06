@@ -110,6 +110,13 @@ export class StakeholdersTabComponent {
   readonly canManageParticipants = computed(
     () => this.canEditParticipants() || this.canDeleteParticipants(),
   );
+  // The dialog answers these itself instead of asking the server: the people are already on screen.
+  readonly participantEmails = computed(() =>
+    this.project().participants.map((participant) => participant.email),
+  );
+  readonly invitedEmails = computed(() =>
+    this.project().invitations.map((invitation) => invitation.email),
+  );
   readonly availableUsers = computed(() => {
     const selectedUserIds = new Set(
       this.project().participants.map((participant) => participant.userId),

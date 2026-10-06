@@ -186,6 +186,42 @@ describe('AddParticipantDialogComponent', { timeout: 20_000 }, () => {
       expect(empty?.querySelector('button')?.textContent).toContain('Invite anna@client.com');
     });
 
+    it.each([
+      [
+        'participantEmails',
+        'Diana@Client.com',
+        'This person is already a participant of this project.',
+      ],
+      ['invitedEmails', 'diana@client.com', 'This email has already been invited to this project.'],
+    ])(
+      'says why an email from %s cannot be invited instead of offering it',
+      async (input, email, reason) => {
+        fixture.componentRef.setInput(input, [email]);
+        await openSearch('diana@client.com');
+
+        const empty = document.body.querySelector('.participant-user-select-panel .search-empty');
+        expect(empty?.textContent?.trim()).toBe(reason);
+        expect(empty?.querySelector('button')).toBeNull();
+      },
+    );
+
+    it('refuses an email already in the project without sending', () => {
+      const invited = vi.fn();
+      component.invited.subscribe(invited);
+      fixture.componentRef.setInput('participantEmails', ['diana@client.com']);
+      component.openInvite(' Diana@Client.com ');
+      component.inviteForm.controls.name.setValue('Diana');
+      component.inviteForm.controls.surname.setValue('Zeynalova');
+
+      expect(component.inviteFieldError('email')).toBe(
+        'This person is already a participant of this project.',
+      );
+
+      component.submitInvite();
+
+      expect(invited).not.toHaveBeenCalled();
+    });
+
     it('asks for a full email when the text is not one', async () => {
       await openSearch('anna');
 
@@ -227,8 +263,8 @@ describe('AddParticipantDialogComponent', { timeout: 20_000 }, () => {
       ).toEqual(['Name', 'Surname', 'Email']);
     });
 
-    // Both modes stay in the dialog so it keeps its size; only the active one can be reached.
-    it('keeps both modes rendered and makes the hidden one inert', async () => {
+    // The search is hidden, not destroyed, so Back finds the typed text; the invite mode is wider.
+    it('hides the search instead of destroying it and widens the dialog', async () => {
       fixture.componentRef.setInput('visible', true);
       fixture.detectChanges();
       await fixture.whenStable();
@@ -236,9 +272,42 @@ describe('AddParticipantDialogComponent', { timeout: 20_000 }, () => {
       fixture.detectChanges();
 
       const [search, invite] = [...fixture.nativeElement.querySelectorAll('form')] as HTMLElement[];
-      expect(search.hasAttribute('inert')).toBe(true);
       expect(search.classList).toContain('dialog-mode--hidden');
-      expect(invite.hasAttribute('inert')).toBe(false);
+      expect(invite.classList).not.toContain('dialog-mode--hidden');
+      expect(fixture.nativeElement.querySelector('.participant-dialog--invite')).not.toBeNull();
+    });
+
+    it('keeps the typed search when coming back from the invite form', async () => {
+      await openSearch('anna@client.com');
+      const select = userSelect;
+      select?.hide();
+      userSelect = null;
+
+      component.openInvite(component.searchedEmail());
+      fixture.detectChanges();
+      component.backToSearch();
+      fixture.detectChanges();
+
+      expect(select?._filterValue()).toBe('anna@client.com');
+      expect(component.searchedEmail()).toBe('anna@client.com');
+    });
+
+    // A refusal arriving after Back would land in the hidden form and nobody would see it.
+    it('does not let the user leave the invite form while it is being sent', async () => {
+      fixture.componentRef.setInput('visible', true);
+      fixture.detectChanges();
+      await fixture.whenStable();
+      component.openInvite('anna@client.com');
+      fixture.componentRef.setInput('isSaving', true);
+      fixture.detectChanges();
+
+      component.backToSearch();
+
+      expect(component.mode()).toBe('invite');
+      const back = [...fixture.nativeElement.querySelectorAll('button')].find((button) =>
+        (button as HTMLButtonElement).textContent?.includes('Back'),
+      ) as HTMLButtonElement;
+      expect(back.disabled).toBe(true);
     });
 
     it('requires a name and surname before sending', () => {

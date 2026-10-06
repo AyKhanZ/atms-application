@@ -12,7 +12,13 @@ import {
   untracked,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  FormBuilder,
+  FormControl,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
@@ -77,6 +83,9 @@ export class AddParticipantDialogComponent {
   readonly canInviteByEmail = input(false);
   /** The server's reason for refusing the last invitation, shown under the email field. */
   readonly inviteError = input<string | null>(null);
+  /** Emails already in the project: refused here, before a request the server would turn down. */
+  readonly participantEmails = input<string[]>([]);
+  readonly invitedEmails = input<string[]>([]);
   readonly submitted = output<WorkProjectParticipantCommand>();
   readonly invited = output<InviteWorkProjectParticipantCommand>();
   readonly selectedUserId = signal('');
@@ -93,7 +102,16 @@ export class AddParticipantDialogComponent {
   });
 
   readonly inviteForm = this.fb.nonNullable.group({
-    email: ['', [Validators.required, Validators.email, Validators.maxLength(100)]],
+    email: [
+      '',
+      [
+        Validators.required,
+        Validators.email,
+        Validators.maxLength(100),
+        (control: AbstractControl<string>) =>
+          this.takenEmailMessage(control.value) ? { taken: true } : null,
+      ],
+    ],
     name: ['', [Validators.required, Validators.pattern(notBlank), Validators.maxLength(50)]],
     surname: ['', [Validators.required, Validators.pattern(notBlank), Validators.maxLength(100)]],
   });
@@ -106,6 +124,7 @@ export class AddParticipantDialogComponent {
 
     return text.includes('@') && Validators.email(new FormControl(text)) === null ? text : '';
   });
+  readonly searchedEmailTaken = computed(() => this.takenEmailMessage(this.searchedEmail()));
 
   readonly availableRoles = computed(() => {
     const user = this.users().find((candidate) => candidate.id === this.selectedUserId());
@@ -150,6 +169,8 @@ export class AddParticipantDialogComponent {
     if (field === 'email' && this.inviteErrorVisible()) return this.inviteError() ?? '';
 
     const control = this.inviteForm.controls[field];
+    // Shown at once, not after Send: the person is already in the list behind the dialog.
+    if (control.hasError('taken')) return this.takenEmailMessage(control.value) ?? '';
     if (!this.inviteAttempted() || control.valid) return '';
 
     if (control.hasError('required') || control.hasError('pattern')) {
@@ -160,6 +181,17 @@ export class AddParticipantDialogComponent {
     const maxLength = control.getError('maxlength')?.requiredLength as number | undefined;
     const label = inviteFields.find((definition) => definition.key === field)?.label;
     return maxLength ? `${label} must be at most ${maxLength} characters.` : '';
+  }
+
+  takenEmailMessage(email: string): string | null {
+    const normalized = email.trim().toLowerCase();
+    if (!normalized) return null;
+
+    const isIn = (emails: string[]) => emails.some((item) => item.toLowerCase() === normalized);
+    if (isIn(this.participantEmails()))
+      return 'This person is already a participant of this project.';
+    if (isIn(this.invitedEmails())) return 'This email has already been invited to this project.';
+    return null;
   }
 
   inviteLength(field: InviteField): number {
@@ -183,11 +215,14 @@ export class AddParticipantDialogComponent {
     this.inviteAttempted.set(false);
     this.inviteErrorVisible.set(false);
     this.mode.set('invite');
-    // The search form becomes inert and drops the focus; Name is the first field to fill.
+    // The search form is hidden and takes the focus with it; Name is the first field to fill.
     setTimeout(() => document.getElementById('inviteName')?.focus());
   }
 
   backToSearch(): void {
+    // Leaving while the server answers would hide its refusal: it is shown only in the invite form.
+    if (this.isSaving()) return;
+
     this.mode.set('search');
   }
 

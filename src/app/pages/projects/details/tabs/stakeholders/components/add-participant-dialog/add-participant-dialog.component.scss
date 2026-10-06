@@ -2,16 +2,14 @@
   width: min(32rem, calc(100vw - 2rem));
 }
 
-/* Both modes sit in one cell and take the height of the taller one, so switching changes the content,
-   not the dialog. Buttons stay at the bottom in both. */
-.dialog-modes {
-  display: grid;
+/* The invite form takes 100-character names and emails: as wide as registering a user. */
+:host ::ng-deep .participant-dialog--invite {
+  width: min(48rem, calc(100vw - 2rem));
 }
 
 .participant-dialog-form {
   display: flex;
   flex-direction: column;
-  grid-area: 1 / 1;
   gap: 1rem;
   min-width: 0;
 }
@@ -24,7 +22,9 @@
 /* Error on the left, a counter or a link on the right: the same row, so nothing pushes the next field. */
 .field-meta {
   display: flex;
-  align-items: baseline;
+  /* Centre, not baseline: an empty error has no text, and baseline alignment pushed the link down
+     until the error appeared — the fields below jumped. */
+  align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
   min-height: 1rem;
@@ -149,7 +149,6 @@
 
 .dialog-actions {
   display: flex;
-  margin-top: auto;
   justify-content: flex-end;
   gap: 0.6rem;
   padding-top: 0.25rem;
@@ -162,8 +161,7 @@
   }
 }
 
-/* Last on purpose: a visible error inside the hidden mode must not show through it. */
-.dialog-mode--hidden,
-.dialog-mode--hidden * {
-  visibility: hidden;
+/* Hidden, not destroyed: Back returns to the search with the typed text still in it. */
+.dialog-mode--hidden {
+  display: none;
 }
