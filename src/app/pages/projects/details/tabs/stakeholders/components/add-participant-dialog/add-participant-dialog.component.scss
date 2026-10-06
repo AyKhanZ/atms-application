@@ -2,9 +2,16 @@
   width: min(32rem, calc(100vw - 2rem));
 }
 
+/* The invite form takes 100-character names and emails: as wide as registering a user. */
+:host ::ng-deep .participant-dialog--invite {
+  width: min(48rem, calc(100vw - 2rem));
+}
+
 .participant-dialog-form {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 1rem;
+  min-width: 0;
 }
 
 .field {
@@ -12,7 +19,19 @@
   gap: 0.4rem;
 }
 
+/* Error on the left, a counter or a link on the right: the same row, so nothing pushes the next field. */
+.field-meta {
+  display: flex;
+  /* Centre, not baseline: an empty error has no text, and baseline alignment pushed the link down
+     until the error appeared — the fields below jumped. */
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-height: 1rem;
+}
+
 .field-error {
+  min-width: 0;
   min-height: 1rem;
   color: var(--red);
   font-size: 0.75rem;
@@ -78,6 +97,56 @@
   flex: 0 0 auto;
 }
 
+.field-counter {
+  flex: none;
+  color: var(--app-muted);
+  font-size: 0.75rem;
+  font-style: normal;
+  line-height: 1rem;
+}
+
+.invite-link {
+  flex: none;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--orange-text-hover);
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1rem;
+  cursor: pointer;
+}
+
+.invite-link:hover {
+  text-decoration: underline;
+}
+
+.invite-link:focus-visible {
+  border-radius: 0.25rem;
+  outline: 2px solid var(--orange-focus-outline);
+  outline-offset: 2px;
+}
+
+.search-empty {
+  display: grid;
+  justify-items: start;
+  gap: 0.5rem;
+  color: var(--app-muted);
+  font-size: 0.85rem;
+}
+
+.search-invite-button {
+  max-width: 100%;
+}
+
+.search-invite-button span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .dialog-actions {
   display: flex;
   justify-content: flex-end;
@@ -90,4 +159,9 @@
     display: grid;
     grid-template-columns: 1fr;
   }
+}
+
+/* Hidden, not destroyed: Back returns to the search with the typed text still in it. */
+.dialog-mode--hidden {
+  display: none;
 }

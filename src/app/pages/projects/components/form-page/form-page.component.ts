@@ -30,6 +30,7 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
+import { maxProjectParticipants } from '../../../../core/constants/project-participants.constants';
 import { DictionaryModel } from '../../../../core/models/dictionary.model';
 import {
   OrganizationListItemModel,
@@ -78,7 +79,7 @@ import { LabelForDirective } from '../../../../core/directives/label-for.directi
 export class ProjectFormPageComponent implements OnDestroy {
   readonly mode = input.required<'create' | 'edit'>();
 
-  readonly maxParticipants = 20;
+  readonly maxParticipants = maxProjectParticipants;
 
   private readonly fb = inject(FormBuilder);
   private readonly route = inject(ActivatedRoute);

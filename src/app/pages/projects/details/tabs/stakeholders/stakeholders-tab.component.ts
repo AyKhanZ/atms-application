@@ -10,18 +10,21 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
+import { Actions, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { ConfirmationService, MenuItem } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { Menu, MenuModule } from 'primeng/menu';
 import { forkJoin, of } from 'rxjs';
+import { maxProjectParticipants } from '../../../../../core/constants/project-participants.constants';
 import { ProjectPermissions } from '../../../../../core/enums/project-permissions.enum';
 import {
   OrganizationModel,
   OrganizationUserModel,
 } from '../../../../../core/models/organizations/organization.model';
 import {
+  InviteWorkProjectParticipantCommand,
   WorkProjectModel,
   WorkProjectParticipantCandidateModel,
   WorkProjectParticipantCommand,
@@ -34,6 +37,7 @@ import { OrganizationsService } from '../../../../../core/services/organizations
 import { ProjectAccessService } from '../../../../../core/services/project-access.service';
 import { WorkProjectsService } from '../../../../../core/services/work-projects.service';
 import { ProfileAvatarComponent } from '../../../../../shared/components/profile-avatar/profile-avatar.component';
+import { PersonInitialsPipe, PersonNamePipe } from '../../../../../shared/pipes/person-name.pipe';
 import { WorkProjectsStoreActions } from '../../../../../store/work-projects';
 import { AddParticipantDialogComponent } from './components/add-participant-dialog/add-participant-dialog.component';
 import { ChangeParticipantRoleDialogComponent } from './components/change-participant-role-dialog/change-participant-role-dialog.component';
@@ -47,6 +51,8 @@ import { ParticipantCandidate, ParticipantSide } from './participant-candidate.m
     MenuModule,
     RouterLink,
     ProfileAvatarComponent,
+    PersonNamePipe,
+    PersonInitialsPipe,
     AddParticipantDialogComponent,
     ChangeParticipantRoleDialogComponent,
   ],
@@ -56,6 +62,7 @@ import { ParticipantCandidate, ParticipantSide } from './participant-candidate.m
 })
 export class StakeholdersTabComponent {
   private readonly store = inject(Store);
+  private readonly actions$ = inject(Actions);
   private readonly confirmation = inject(ConfirmationService);
   private readonly dictionaryService = inject(DictionaryService);
   private readonly imageUrlService = inject(ImageUrlService);
@@ -68,6 +75,7 @@ export class StakeholdersTabComponent {
   readonly project = input.required<WorkProjectModel>();
   readonly isSaving = input(false);
   readonly ProjectPermissions = ProjectPermissions;
+  readonly maxParticipants = maxProjectParticipants;
   readonly projectReturnUrl = this.router.url;
 
   readonly roles = signal<WorkProjectRoleModel[]>([]);
@@ -77,8 +85,12 @@ export class StakeholdersTabComponent {
   readonly selectedParticipant = signal<WorkProjectParticipantModel | null>(null);
   readonly addDialogVisible = signal(false);
   readonly roleDialogVisible = signal(false);
+  readonly inviteError = signal<string | null>(null);
 
-  readonly participantsCount = computed(() => this.project().participants.length);
+  // Invitations still waiting for an account take a place: they become participants in seconds.
+  readonly participantsCount = computed(
+    () => this.project().participants.length + this.project().invitations.length,
+  );
   readonly canInviteClient = computed(() =>
     this.projectPermissions().includes(ProjectPermissions.Participant.InviteClient),
   );
@@ -86,6 +98,9 @@ export class StakeholdersTabComponent {
     this.projectPermissions().includes(ProjectPermissions.Participant.InviteEmployee),
   );
   readonly canInvite = computed(() => this.canInviteClient() || this.canInviteEmployee());
+  readonly canInviteByEmail = computed(
+    () => this.canInviteClient() && !this.isInternal() && !!this.project().organization,
+  );
   readonly canEditParticipants = computed(() =>
     this.projectPermissions().includes(ProjectPermissions.Participant.Edit),
   );
@@ -94,6 +109,13 @@ export class StakeholdersTabComponent {
   );
   readonly canManageParticipants = computed(
     () => this.canEditParticipants() || this.canDeleteParticipants(),
+  );
+  // The dialog answers these itself instead of asking the server: the people are already on screen.
+  readonly participantEmails = computed(() =>
+    this.project().participants.map((participant) => participant.email),
+  );
+  readonly invitedEmails = computed(() =>
+    this.project().invitations.map((invitation) => invitation.email),
   );
   readonly availableUsers = computed(() => {
     const selectedUserIds = new Set(
@@ -139,6 +161,14 @@ export class StakeholdersTabComponent {
         .subscribe((permissions) => this.projectPermissions.set(permissions));
       onCleanup(() => subscription.unsubscribe());
     });
+
+    // The invite form stays open until the server answers, so a refused email can be fixed in place.
+    this.actions$
+      .pipe(ofType(WorkProjectsStoreActions.inviteProjectParticipantSuccess), takeUntilDestroyed())
+      .subscribe(() => this.addDialogVisible.set(false));
+    this.actions$
+      .pipe(ofType(WorkProjectsStoreActions.inviteProjectParticipantFailure), takeUntilDestroyed())
+      .subscribe(({ error }) => this.inviteError.set(error.message));
   }
 
   fullName(participant: WorkProjectParticipantModel): string {
@@ -170,7 +200,9 @@ export class StakeholdersTabComponent {
   }
 
   openAddDialog(): void {
-    if (!this.canInvite() || this.participantsCount() >= 20) return;
+    if (!this.canInvite() || this.participantsCount() >= this.maxParticipants) return;
+
+    this.inviteError.set(null);
 
     this.loadDialogData(() => this.addDialogVisible.set(true));
   }
@@ -196,6 +228,13 @@ export class StakeholdersTabComponent {
       }),
     );
     this.addDialogVisible.set(false);
+  }
+
+  submitInvite(command: InviteWorkProjectParticipantCommand): void {
+    this.inviteError.set(null);
+    this.store.dispatch(
+      WorkProjectsStoreActions.inviteProjectParticipant({ id: this.project().id, command }),
+    );
   }
 
   submitRole(roleId: string): void {

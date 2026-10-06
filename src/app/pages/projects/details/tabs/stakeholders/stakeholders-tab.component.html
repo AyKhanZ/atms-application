@@ -30,7 +30,7 @@
           pButton
           type="button"
           class="add-participant-button"
-          [disabled]="participantsCount() >= 20 || isSaving()"
+          [disabled]="participantsCount() >= maxParticipants || isSaving()"
           (click)="openAddDialog()"
         >
           <i class="pi pi-plus"></i>
@@ -39,7 +39,7 @@
       }
     </div>
 
-    @if (project().participants.length) {
+    @if (participantsCount()) {
       <div class="participants-table" role="table" aria-label="Participants">
         <div class="participants-row participants-row--head" role="row">
           <span role="columnheader">Participant</span>
@@ -63,9 +63,12 @@
                 <span>{{ participant.email }}</span>
               </div>
             </div>
-            <span class="role-cell" role="cell">
-              {{ participant.role.name }}
-            </span>
+            <div class="role-cell" role="cell">
+              <span>{{ participant.role.name }}</span>
+              @if (!participant.hasCompletedOnboarding) {
+                <span class="invited-status">Invited</span>
+              }
+            </div>
             @if (canManageParticipants()) {
               <div class="actions-cell" role="cell">
                 <button
@@ -77,6 +80,30 @@
                   <i class="pi pi-ellipsis-v"></i>
                 </button>
               </div>
+            }
+          </div>
+        }
+
+        <!-- Waiting for the account Admin creates; nothing to change until it becomes a participant. -->
+        @for (invitation of project().invitations; track invitation.id) {
+          <div class="participants-row" role="row">
+            <div class="person-cell" role="cell">
+              <app-profile-avatar
+                [fullName]="invitation | personName"
+                [initials]="invitation | personInitials"
+                [previewEnabled]="false"
+              />
+              <div class="person-copy">
+                <strong>{{ invitation | personName }}</strong>
+                <span>{{ invitation.email }}</span>
+              </div>
+            </div>
+            <div class="role-cell" role="cell">
+              <span>{{ invitation.role.name }}</span>
+              <span class="invited-status">Invited</span>
+            </div>
+            @if (canManageParticipants()) {
+              <div class="actions-cell" role="cell"></div>
             }
           </div>
         }
@@ -97,7 +124,12 @@
   [users]="availableUsers()"
   [roles]="roles()"
   [isSaving]="isSaving()"
+  [canInviteByEmail]="canInviteByEmail()"
+  [participantEmails]="participantEmails()"
+  [invitedEmails]="invitedEmails()"
+  [inviteError]="inviteError()"
   (submitted)="submitAdd($event)"
+  (invited)="submitInvite($event)"
 />
 
 <app-change-participant-role-dialog

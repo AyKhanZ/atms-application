@@ -1,7 +1,9 @@
 import { createAction, props } from '@ngrx/store';
 import { PaginatedResponse } from '../../core/models/paginated.model';
+import { WorkItemMutationError } from '../../core/models/work-items';
 import {
   CreateWorkProjectCommand,
+  InviteWorkProjectParticipantCommand,
   UpdateWorkProjectCommand,
   WorkProjectItemModel,
   WorkProjectListFilter,
@@ -69,6 +71,21 @@ export const addProjectParticipantSuccess = createAction(
 );
 
 export const addProjectParticipantFailure = createAction(`${key} Add Participant Failure`);
+
+export const inviteProjectParticipant = createAction(
+  `${key} Invite Participant`,
+  props<{ id: string; command: InviteWorkProjectParticipantCommand }>(),
+);
+
+export const inviteProjectParticipantSuccess = createAction(
+  `${key} Invite Participant Success`,
+  props<{ id: string; email: string }>(),
+);
+
+export const inviteProjectParticipantFailure = createAction(
+  `${key} Invite Participant Failure`,
+  props<{ error: WorkItemMutationError }>(),
+);
 
 export const updateProjectParticipant = createAction(
   `${key} Update Participant`,

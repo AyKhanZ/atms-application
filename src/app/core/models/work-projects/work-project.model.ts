@@ -1,4 +1,5 @@
 import { WorkProjectOrganizationModel } from './work-project-organization.model';
+import { WorkProjectInvitationModel } from './work-project-invitation.model';
 import { WorkProjectParticipantModel } from './work-project-participant.model';
 import { DictionaryModel } from '../dictionary.model';
 import { AuditUserModel } from '../audit-user.model';
@@ -15,6 +16,7 @@ export interface WorkProjectModel {
   startDate?: string | null;
   endDate?: string | null;
   participants: WorkProjectParticipantModel[];
+  invitations: WorkProjectInvitationModel[];
   createdAt: string;
   updatedAt?: string | null;
   updatedBy?: AuditUserModel | null;
