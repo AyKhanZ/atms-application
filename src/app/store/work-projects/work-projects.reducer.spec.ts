@@ -68,6 +68,7 @@ describe('workProjectsReducer', () => {
     }),
     WorkProjectsStoreActions.inviteProjectParticipantFailure({
       error: { status: 400, message: 'This email has already been invited to this project.' },
+      field: 'Email',
     }),
   ])('keeps the invite form busy until the server answers ($type)', (answer) => {
     const sending = workProjectsReducer(

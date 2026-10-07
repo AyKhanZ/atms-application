@@ -171,6 +171,8 @@ export class ProjectDetailsComponent implements OnDestroy {
           WorkProjectsStoreActions.updateProjectSuccess,
           WorkProjectsStoreActions.addProjectParticipantSuccess,
           WorkProjectsStoreActions.inviteProjectParticipantSuccess,
+          WorkProjectsStoreActions.cancelProjectInvitationSuccess,
+          WorkProjectsStoreActions.cancelProjectInvitationFailure,
           WorkProjectsStoreActions.updateProjectParticipantSuccess,
           WorkProjectsStoreActions.deleteProjectParticipantSuccess,
         ),

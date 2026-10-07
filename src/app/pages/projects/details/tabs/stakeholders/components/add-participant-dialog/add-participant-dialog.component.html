@@ -20,6 +20,7 @@
     <div class="field">
       <label id="participantUserLabel" appLabelFor="participantUser">User or email</label>
       <p-select
+        #userSelect
         inputId="participantUser"
         ariaLabelledBy="participantUserLabel"
         [class.control-invalid]="showError('userId')"
