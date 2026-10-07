@@ -54,3 +54,11 @@ export function toMutationError(error: unknown): WorkItemMutationError {
     ? { status: error.status, message: validationMessage(error) }
     : { status: 0, message: null };
 }
+
+/** The field the server named in a refused request (400), or null — to show the message under it. */
+export function validationField(error: unknown): string | null {
+  if (!(error instanceof HttpErrorResponse) || error.status !== 400) return null;
+
+  const errors = error.error?.errors as { field?: string; error?: string }[] | undefined;
+  return errors?.find((item) => item.error)?.field ?? null;
+}

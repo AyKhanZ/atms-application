@@ -62,6 +62,10 @@ export class WorkProjectsService {
     return this.http.post<void>(`${this.baseUrl}/${id}/invitations`, command);
   }
 
+  cancelInvitation(id: string, invitationId: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/${id}/invitations/${invitationId}`);
+  }
+
   updateParticipant(id: string, participantId: string, roleId: string): Observable<void> {
     return this.http.patch<void>(`${this.baseUrl}/${id}/participants/${participantId}`, { roleId });
   }

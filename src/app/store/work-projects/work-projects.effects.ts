@@ -4,7 +4,7 @@ import { catchError, filter, map, of, switchMap, tap } from 'rxjs';
 import { SnackBarService } from '../../core/services/snack-bar.service';
 import { ProjectAccessService } from '../../core/services/project-access.service';
 import { WorkProjectsService } from '../../core/services/work-projects.service';
-import { toMutationError } from '../../core/utils/http-error.utils';
+import { toMutationError, validationField } from '../../core/utils/http-error.utils';
 import * as WorkProjectsStoreActions from './work-projects.actions';
 
 @Injectable()
@@ -95,6 +95,7 @@ export class WorkProjectsEffects {
             of(
               WorkProjectsStoreActions.inviteProjectParticipantFailure({
                 error: toMutationError(error),
+                field: validationField(error),
               }),
             ),
           ),
@@ -117,6 +118,45 @@ export class WorkProjectsEffects {
         ofType(WorkProjectsStoreActions.inviteProjectParticipantFailure),
         filter(({ error }) => !error.message),
         tap(() => this.snackBar.error('The invitation could not be sent. Please try again.')),
+      ),
+    { dispatch: false },
+  );
+  cancelInvitation$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(WorkProjectsStoreActions.cancelProjectInvitation),
+      switchMap(({ id, invitationId }) =>
+        this.service.cancelInvitation(id, invitationId).pipe(
+          map(() => WorkProjectsStoreActions.cancelProjectInvitationSuccess({ id })),
+          catchError((error: unknown) =>
+            of(
+              WorkProjectsStoreActions.cancelProjectInvitationFailure({
+                id,
+                message: toMutationError(error).message,
+              }),
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+  invitationCancelled$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(WorkProjectsStoreActions.cancelProjectInvitationSuccess),
+        tap(() => this.snackBar.success('Invitation cancelled.')),
+      ),
+    { dispatch: false },
+  );
+  // Usually the invitation was accepted a moment ago: say so, and the page reloads to show the participant.
+  invitationNotCancelled$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(WorkProjectsStoreActions.cancelProjectInvitationFailure),
+        tap(({ message }) =>
+          this.snackBar.error(
+            message ?? 'The invitation could not be cancelled. Please try again.',
+          ),
+        ),
       ),
     { dispatch: false },
   );

@@ -10,6 +10,7 @@ import {
   output,
   signal,
   untracked,
+  viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
@@ -22,13 +23,14 @@ import {
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
-import { SelectFilterEvent, SelectModule } from 'primeng/select';
+import { Select, SelectFilterEvent, SelectModule } from 'primeng/select';
 import {
   InviteWorkProjectParticipantCommand,
   WorkProjectParticipantCommand,
   WorkProjectRoleModel,
 } from '../../../../../../../core/models/work-projects';
 import { ParticipantCandidate } from '../../participant-candidate.model';
+import { InviteField, InviteServerError } from '../../invite-server-error.model';
 import { availableParticipantRoles } from '../../participant-role.utils';
 import { ProfileAvatarComponent } from '../../../../../../../shared/components/profile-avatar/profile-avatar.component';
 import {
@@ -37,7 +39,6 @@ import {
 } from '../../../../../../../shared/pipes/person-name.pipe';
 
 type DialogMode = 'search' | 'invite';
-type InviteField = 'email' | 'name' | 'surname';
 
 const notBlank = /\S/;
 
@@ -74,6 +75,7 @@ const inviteFields: InviteFieldDefinition[] = [
 })
 export class AddParticipantDialogComponent {
   private readonly fb = inject(FormBuilder);
+  private readonly userSelect = viewChild<Select>('userSelect');
 
   readonly visible = model(false);
   readonly users = input<ParticipantCandidate[]>([]);
@@ -81,8 +83,8 @@ export class AddParticipantDialogComponent {
   readonly isSaving = input(false);
   /** Clients of the project's organization can be invited by email from this dialog. */
   readonly canInviteByEmail = input(false);
-  /** The server's reason for refusing the last invitation, shown under the email field. */
-  readonly inviteError = input<string | null>(null);
+  /** The server's reason for refusing the last invitation, shown under the field it named. */
+  readonly inviteError = input<InviteServerError | null>(null);
   /** Emails already in the project: refused here, before a request the server would turn down. */
   readonly participantEmails = input<string[]>([]);
   readonly invitedEmails = input<string[]>([]);
@@ -141,8 +143,8 @@ export class AddParticipantDialogComponent {
       else this.form.controls.roleId.disable();
     });
 
-    // A refused email stays marked until the user changes it.
-    this.inviteForm.controls.email.valueChanges
+    // A refusal stays marked until the user changes something.
+    this.inviteForm.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe(() => this.inviteErrorVisible.set(false));
 
@@ -166,7 +168,8 @@ export class AddParticipantDialogComponent {
   }
 
   inviteFieldError(field: InviteField): string {
-    if (field === 'email' && this.inviteErrorVisible()) return this.inviteError() ?? '';
+    const serverError = this.inviteError();
+    if (this.inviteErrorVisible() && serverError?.field === field) return serverError.message;
 
     const control = this.inviteForm.controls[field];
     // Shown at once, not after Send: the person is already in the list behind the dialog.
@@ -211,6 +214,9 @@ export class AddParticipantDialogComponent {
   }
 
   openInvite(email: string): void {
+    // The search is only hidden now, so its list would stay open over the form: on a phone, as a
+    // sheet with a backdrop. Close it before switching.
+    this.userSelect()?.hide();
     this.inviteForm.reset({ email, name: '', surname: '' });
     this.inviteAttempted.set(false);
     this.inviteErrorVisible.set(false);

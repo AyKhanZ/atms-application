@@ -14,13 +14,16 @@ describe('WorkProjectsEffects — invitations', () => {
   let actions: Subject<Action>;
   let emitted: Action[];
   let effects: WorkProjectsEffects;
-  let service: { inviteParticipant: ReturnType<typeof vi.fn> };
+  let service: {
+    inviteParticipant: ReturnType<typeof vi.fn>;
+    cancelInvitation: ReturnType<typeof vi.fn>;
+  };
   let snackBar: { success: ReturnType<typeof vi.fn>; error: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
     actions = new Subject<Action>();
     emitted = [];
-    service = { inviteParticipant: vi.fn() };
+    service = { inviteParticipant: vi.fn(), cancelInvitation: vi.fn() };
     snackBar = { success: vi.fn(), error: vi.fn() };
     TestBed.configureTestingModule({
       providers: [
@@ -65,8 +68,35 @@ describe('WorkProjectsEffects — invitations', () => {
     expect(emitted).toEqual([
       Actions.inviteProjectParticipantFailure({
         error: { status: 400, message: 'A user with this email already exists.' },
+        field: 'Email',
       }),
     ]);
+  });
+
+  it('cancels an invitation and reports a refusal with the server text', () => {
+    service.cancelInvitation.mockReturnValueOnce(of(undefined)).mockReturnValueOnce(
+      throwError(
+        () =>
+          new HttpErrorResponse({
+            status: 400,
+            error: { errors: [{ field: 'InvitationId', error: 'Already joined.' }] },
+          }),
+      ),
+    );
+    effects.cancelInvitation$.subscribe((action) => emitted.push(action));
+    effects.invitationNotCancelled$.subscribe();
+
+    actions.next(Actions.cancelProjectInvitation({ id: 'project-id', invitationId: 'i1' }));
+    actions.next(Actions.cancelProjectInvitation({ id: 'project-id', invitationId: 'i2' }));
+
+    expect(emitted).toEqual([
+      Actions.cancelProjectInvitationSuccess({ id: 'project-id' }),
+      Actions.cancelProjectInvitationFailure({ id: 'project-id', message: 'Already joined.' }),
+    ]);
+
+    // The mock action stream does not loop effects back; feed the failure in to check the toast.
+    actions.next(emitted[1]);
+    expect(snackBar.error).toHaveBeenCalledWith('Already joined.');
   });
 
   it('says whom the invitation went to', () => {
@@ -83,12 +113,18 @@ describe('WorkProjectsEffects — invitations', () => {
     effects.inviteFailed$.subscribe();
 
     actions.next(
-      Actions.inviteProjectParticipantFailure({ error: { status: 400, message: 'Taken.' } }),
+      Actions.inviteProjectParticipantFailure({
+        error: { status: 400, message: 'Taken.' },
+        field: 'Email',
+      }),
     );
     expect(snackBar.error).not.toHaveBeenCalled();
 
     actions.next(
-      Actions.inviteProjectParticipantFailure({ error: { status: 500, message: null } }),
+      Actions.inviteProjectParticipantFailure({
+        error: { status: 500, message: null },
+        field: null,
+      }),
     );
     expect(snackBar.error).toHaveBeenCalledWith(
       'The invitation could not be sent. Please try again.',

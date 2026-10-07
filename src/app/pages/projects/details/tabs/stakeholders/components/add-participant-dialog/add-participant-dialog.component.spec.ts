@@ -277,6 +277,18 @@ describe('AddParticipantDialogComponent', { timeout: 20_000 }, () => {
       expect(fixture.nativeElement.querySelector('.participant-dialog--invite')).not.toBeNull();
     });
 
+    // The search is hidden, not destroyed: its list (a sheet with a backdrop on a phone) must close itself.
+    it('closes the open list when switching to the invite form', async () => {
+      await openSearch('anna@client.com');
+      expect(userSelect?.overlayVisible).toBe(true);
+
+      component.openInvite(component.searchedEmail());
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(userSelect?.overlayVisible).toBe(false);
+    });
+
     it('keeps the typed search when coming back from the invite form', async () => {
       await openSearch('anna@client.com');
       const select = userSelect;
@@ -353,13 +365,28 @@ describe('AddParticipantDialogComponent', { timeout: 20_000 }, () => {
 
     it('shows the server refusal under the email until the email changes', () => {
       component.openInvite('anna@client.com');
-      fixture.componentRef.setInput('inviteError', 'This email has already been invited.');
+      fixture.componentRef.setInput('inviteError', {
+        field: 'email',
+        message: 'This email has already been invited.',
+      });
       fixture.detectChanges();
 
       expect(component.inviteFieldError('email')).toBe('This email has already been invited.');
 
       component.inviteForm.controls.email.setValue('anna.smith@client.com');
 
+      expect(component.inviteFieldError('email')).toBe('');
+    });
+
+    it('shows a refusal of the name under Name, not under Email', () => {
+      component.openInvite('anna@client.com');
+      fixture.componentRef.setInput('inviteError', {
+        field: 'name',
+        message: 'Name must be less than 50 symbols.',
+      });
+      fixture.detectChanges();
+
+      expect(component.inviteFieldError('name')).toBe('Name must be less than 50 symbols.');
       expect(component.inviteFieldError('email')).toBe('');
     });
 

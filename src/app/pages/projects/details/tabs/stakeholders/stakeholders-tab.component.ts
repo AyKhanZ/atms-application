@@ -25,6 +25,7 @@ import {
 } from '../../../../../core/models/organizations/organization.model';
 import {
   InviteWorkProjectParticipantCommand,
+  WorkProjectInvitationModel,
   WorkProjectModel,
   WorkProjectParticipantCandidateModel,
   WorkProjectParticipantCommand,
@@ -42,6 +43,14 @@ import { WorkProjectsStoreActions } from '../../../../../store/work-projects';
 import { AddParticipantDialogComponent } from './components/add-participant-dialog/add-participant-dialog.component';
 import { ChangeParticipantRoleDialogComponent } from './components/change-participant-role-dialog/change-participant-role-dialog.component';
 import { ParticipantCandidate, ParticipantSide } from './participant-candidate.model';
+import { InviteField, InviteServerError } from './invite-server-error.model';
+
+// The server names fields as in the command; anything else lands under the email.
+const inviteFieldsByServerName: Partial<Record<string, InviteField>> = {
+  email: 'email',
+  name: 'name',
+  surname: 'surname',
+};
 
 @Component({
   selector: 'app-stakeholders-tab',
@@ -85,7 +94,8 @@ export class StakeholdersTabComponent {
   readonly selectedParticipant = signal<WorkProjectParticipantModel | null>(null);
   readonly addDialogVisible = signal(false);
   readonly roleDialogVisible = signal(false);
-  readonly inviteError = signal<string | null>(null);
+  readonly inviteError = signal<InviteServerError | null>(null);
+  readonly selectedInvitation = signal<WorkProjectInvitationModel | null>(null);
 
   // Invitations still waiting for an account take a place: they become participants in seconds.
   readonly participantsCount = computed(
@@ -107,8 +117,28 @@ export class StakeholdersTabComponent {
   readonly canDeleteParticipants = computed(() =>
     this.projectPermissions().includes(ProjectPermissions.Participant.Delete),
   );
+  readonly canDeleteClients = computed(() =>
+    this.projectPermissions().includes(ProjectPermissions.Participant.DeleteClient),
+  );
+  // A client manager removes clients only; the project manager removes anyone. The server decides the
+  // same per participant, this only hides what would be refused.
+  readonly removableParticipantIds = computed(
+    () =>
+      new Set(
+        this.project()
+          .participants.filter(
+            (participant) =>
+              this.canDeleteParticipants() ||
+              (this.canDeleteClients() && participant.category === 'client'),
+          )
+          .map((participant) => participant.id),
+      ),
+  );
   readonly canManageParticipants = computed(
-    () => this.canEditParticipants() || this.canDeleteParticipants(),
+    () =>
+      this.canEditParticipants() ||
+      this.removableParticipantIds().size > 0 ||
+      (this.canInviteClient() && this.project().invitations.length > 0),
   );
   // The dialog answers these itself instead of asking the server: the people are already on screen.
   readonly participantEmails = computed(() =>
@@ -128,6 +158,17 @@ export class StakeholdersTabComponent {
     ];
     return candidates.filter((user) => !selectedUserIds.has(user.id));
   });
+  readonly invitationActions: MenuItem[] = [
+    {
+      label: 'Cancel invitation',
+      icon: 'pi pi-times',
+      styleClass: 'participant-menu-danger',
+      command: () => {
+        const invitation = this.selectedInvitation();
+        if (invitation) this.confirmCancelInvitation(invitation);
+      },
+    },
+  ];
   readonly participantActions = computed<MenuItem[]>(() => {
     const actions: MenuItem[] = [];
     if (this.canEditParticipants()) {
@@ -140,7 +181,8 @@ export class StakeholdersTabComponent {
         },
       });
     }
-    if (this.canDeleteParticipants()) {
+    const selected = this.selectedParticipant();
+    if (selected && this.removableParticipantIds().has(selected.id)) {
       actions.push({
         label: 'Remove',
         icon: 'pi pi-trash',
@@ -168,7 +210,16 @@ export class StakeholdersTabComponent {
       .subscribe(() => this.addDialogVisible.set(false));
     this.actions$
       .pipe(ofType(WorkProjectsStoreActions.inviteProjectParticipantFailure), takeUntilDestroyed())
-      .subscribe(({ error }) => this.inviteError.set(error.message));
+      .subscribe(({ error, field }) =>
+        this.inviteError.set(
+          error.message
+            ? {
+                field: inviteFieldsByServerName[field?.toLowerCase() ?? ''] ?? 'email',
+                message: error.message,
+              }
+            : null,
+        ),
+      );
   }
 
   fullName(participant: WorkProjectParticipantModel): string {
@@ -266,6 +317,32 @@ export class StakeholdersTabComponent {
           WorkProjectsStoreActions.deleteProjectParticipant({
             id: this.project().id,
             participantId: participant.id,
+          }),
+        );
+      },
+    });
+  }
+
+  openInvitationMenu(event: Event, invitation: WorkProjectInvitationModel, menu: Menu): void {
+    this.selectedInvitation.set(invitation);
+    menu.toggle(event);
+  }
+
+  confirmCancelInvitation(invitation: WorkProjectInvitationModel): void {
+    this.confirmation.confirm({
+      key: 'projectParticipantDanger',
+      header: 'Cancel invitation',
+      message: `Cancel the invitation for ${invitation.email}? They will not join this project.`,
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Cancel invitation',
+      rejectLabel: 'Keep',
+      acceptButtonStyleClass: 'p-button-danger participant-danger-confirm-button',
+      rejectButtonStyleClass: 'p-button-outlined',
+      accept: () => {
+        this.store.dispatch(
+          WorkProjectsStoreActions.cancelProjectInvitation({
+            id: this.project().id,
+            invitationId: invitation.id,
           }),
         );
       },

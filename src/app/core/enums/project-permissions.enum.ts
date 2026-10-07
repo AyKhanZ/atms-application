@@ -22,6 +22,7 @@ export const ProjectPermissions = {
     Delete: 'ParticipantDelete',
     InviteClient: 'ParticipantInviteClient',
     InviteEmployee: 'ParticipantInviteEmployee',
+    DeleteClient: 'ParticipantDeleteClient',
   },
 } as const;
 

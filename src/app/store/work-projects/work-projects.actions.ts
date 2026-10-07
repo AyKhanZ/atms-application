@@ -84,7 +84,22 @@ export const inviteProjectParticipantSuccess = createAction(
 
 export const inviteProjectParticipantFailure = createAction(
   `${key} Invite Participant Failure`,
-  props<{ error: WorkItemMutationError }>(),
+  props<{ error: WorkItemMutationError; field: string | null }>(),
+);
+
+export const cancelProjectInvitation = createAction(
+  `${key} Cancel Invitation`,
+  props<{ id: string; invitationId: string }>(),
+);
+
+export const cancelProjectInvitationSuccess = createAction(
+  `${key} Cancel Invitation Success`,
+  props<{ id: string }>(),
+);
+
+export const cancelProjectInvitationFailure = createAction(
+  `${key} Cancel Invitation Failure`,
+  props<{ id: string; message: string | null }>(),
 );
 
 export const updateProjectParticipant = createAction(
