@@ -7,18 +7,10 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import {
-  FormArray,
-  FormControl,
-  FormGroup,
-  NonNullableFormBuilder,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { FormArray, NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { forkJoin, finalize } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
 import { SkeletonModule } from 'primeng/skeleton';
 import { TooltipModule } from 'primeng/tooltip';
 import { DictionaryModel } from '../../core/models/dictionary.model';
@@ -42,17 +34,15 @@ import {
   personalInfoSnapshot,
 } from '../../shared/components/personal-info-fields/personal-info.form';
 import { NewPasswordFieldsComponent } from '../../shared/components/new-password-fields/new-password-fields.component';
+import {
+  InvitationGroup,
+  OnboardingInvitationsComponent,
+} from './components/onboarding-invitations/onboarding-invitations.component';
 import { createNewPasswordForm } from '../../shared/components/new-password-fields/new-password.form';
 import { fromIsoDate, toIsoDate } from '../../core/utils/dashboard-query.utils';
 import { avatarErrorMessage } from '../../core/utils/profile-avatar.utils';
 import { validationMessage } from '../../core/utils/http-error.utils';
 import { showPhoneServerError } from '../../core/utils/phone-number.utils';
-
-type InvitationGroup = FormGroup<{
-  name: FormControl<string>;
-  surname: FormControl<string>;
-  email: FormControl<string>;
-}>;
 
 const LAST_ONBOARDING_VIEW_KEY = 'lastOnboardingView';
 const DEFAULT_INVITATION_ROWS = 3;
@@ -62,12 +52,12 @@ const DEFAULT_INVITATION_ROWS = 3;
   imports: [
     ReactiveFormsModule,
     ButtonModule,
-    InputTextModule,
     SkeletonModule,
     TooltipModule,
     FileUploadComponent,
     PersonalInfoFieldsComponent,
     NewPasswordFieldsComponent,
+    OnboardingInvitationsComponent,
   ],
   templateUrl: './onboarding.component.html',
   styleUrl: './onboarding.component.scss',
