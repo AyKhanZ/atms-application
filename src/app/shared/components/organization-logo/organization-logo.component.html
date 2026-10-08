@@ -1,0 +1,7 @@
+<span class="organization-logo" role="img" [attr.aria-label]="title()">
+  @if (visibleImageUrl(); as imageUrl) {
+    <img [src]="imageUrl" alt="" loading="lazy" (error)="onImageError()" />
+  } @else {
+    <span aria-hidden="true">{{ initials() }}</span>
+  }
+</span>

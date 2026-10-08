@@ -3,13 +3,7 @@
 <section class="stakeholders-content">
   @if (!isInternal() && project().organization; as organization) {
     <section class="organization-strip">
-      <div class="organization-logo">
-        @if (logoUrl(organization.logoPath); as logo) {
-          <img [src]="logo" [alt]="organization.title" />
-        } @else {
-          <span>{{ organizationInitials(organization.title) }}</span>
-        }
-      </div>
+      <app-organization-logo [logoPath]="organization.logoPath" [title]="organization.title" />
       <h3>
         <a
           class="organization-link"
@@ -24,112 +18,50 @@
 
   <section class="participants-panel">
     <div class="participants-header">
-      <h3>Participants</h3>
-      @if (canInvite()) {
-        <button
-          pButton
-          type="button"
-          class="add-participant-button"
-          [disabled]="participantsCount() >= maxParticipants || isSaving()"
-          (click)="openAddDialog()"
+      <div class="participants-title">
+        <h3>Participants</h3>
+        <!-- Pending invitations are counted: they take a place until Admin creates the account. -->
+        <span
+          class="participants-count"
+          [attr.aria-label]="participantsCount() + ' of ' + maxParticipants + ' participants'"
         >
-          <i class="pi pi-plus"></i>
-          <span>Add</span>
-        </button>
+          {{ participantsCount() }}/{{ maxParticipants }}
+        </span>
+      </div>
+      @if (canInvite()) {
+        <!-- A disabled button gets no pointer events, so the tooltip hangs on the wrapper. -->
+        <span
+          class="add-participant-wrap"
+          [pTooltip]="limitTooltip"
+          [tooltipDisabled]="!limitReached()"
+          tooltipPosition="top"
+        >
+          <button
+            pButton
+            type="button"
+            class="add-participant-button"
+            [disabled]="limitReached() || isSaving()"
+            (click)="openAddDialog()"
+          >
+            <i class="pi pi-plus"></i>
+            <span>Add</span>
+          </button>
+        </span>
       }
     </div>
 
-    @if (participantsCount()) {
-      <div class="participants-table" role="table" aria-label="Participants">
-        <div class="participants-row participants-row--head" role="row">
-          <span role="columnheader">Participant</span>
-          <span role="columnheader">Role</span>
-          @if (canManageParticipants()) {
-            <span role="columnheader" class="actions-head">Actions</span>
-          }
-        </div>
-
-        @for (participant of project().participants; track participant.id) {
-          <div class="participants-row" role="row">
-            <div class="person-cell" role="cell">
-              <app-profile-avatar
-                [imageUrl]="participant.avatarPath"
-                [fullName]="fullName(participant)"
-                [initials]="initials(participant)"
-                [previewEnabled]="true"
-              />
-              <div class="person-copy">
-                <strong>{{ fullName(participant) }}</strong>
-                <span>{{ participant.email }}</span>
-              </div>
-            </div>
-            <div class="role-cell" role="cell">
-              <span>{{ participant.role.name }}</span>
-              @if (!participant.hasCompletedOnboarding) {
-                <span class="invited-status">Invited</span>
-              }
-            </div>
-            @if (canEditParticipants() || removableParticipantIds().has(participant.id)) {
-              <div class="actions-cell" role="cell">
-                <button
-                  type="button"
-                  class="row-menu-button"
-                  [attr.aria-label]="'Actions for ' + fullName(participant)"
-                  (click)="openParticipantMenu($event, participant, participantMenu)"
-                >
-                  <i class="pi pi-ellipsis-v"></i>
-                </button>
-              </div>
-            }
-          </div>
-        }
-
-        <!-- Waiting for the account Admin creates; the only thing to do with it is to cancel it. -->
-        @for (invitation of project().invitations; track invitation.id) {
-          <div class="participants-row" role="row">
-            <div class="person-cell" role="cell">
-              <app-profile-avatar
-                [fullName]="invitation | personName"
-                [initials]="invitation | personInitials"
-                [previewEnabled]="false"
-              />
-              <div class="person-copy">
-                <strong>{{ invitation | personName }}</strong>
-                <span>{{ invitation.email }}</span>
-              </div>
-            </div>
-            <div class="role-cell" role="cell">
-              <span>{{ invitation.role.name }}</span>
-              <span class="invited-status">Invited</span>
-            </div>
-            @if (canManageParticipants()) {
-              <div class="actions-cell" role="cell">
-                @if (canInviteClient()) {
-                  <button
-                    type="button"
-                    class="row-menu-button"
-                    [attr.aria-label]="'Actions for invitation of ' + invitation.email"
-                    (click)="openInvitationMenu($event, invitation, invitationMenu)"
-                  >
-                    <i class="pi pi-ellipsis-v"></i>
-                  </button>
-                }
-              </div>
-            }
-          </div>
-        }
-      </div>
-    } @else {
-      <div class="participants-empty">
-        <i class="pi pi-users"></i>
-        <span>No participants yet</span>
-      </div>
-    }
+    <app-participant-list
+      [participants]="project().participants"
+      [invitations]="project().invitations"
+      [canChangeRole]="canEditParticipants()"
+      [removableParticipantIds]="removableParticipantIds()"
+      [canCancelInvitations]="canInviteClient()"
+      (changeRole)="openRoleDialog($event)"
+      (remove)="confirmRemove($event)"
+      (cancelInvitation)="confirmCancelInvitation($event)"
+    />
   </section>
 </section>
-
-<p-menu #participantMenu [model]="participantActions()" [popup]="true" appendTo="body" />
-<p-menu #invitationMenu [model]="invitationActions" [popup]="true" appendTo="body" />
 
 <app-add-participant-dialog
   [(visible)]="addDialogVisible"
@@ -140,6 +72,7 @@
   [participantEmails]="participantEmails()"
   [invitedEmails]="invitedEmails()"
   [inviteError]="inviteError()"
+  [placesLeft]="placesLeft()"
   (submitted)="submitAdd($event)"
   (invited)="submitInvite($event)"
 />

@@ -27,6 +27,7 @@ import { ProfileService } from '../../core/services/profile.service';
 import { SnackBarService } from '../../core/services/snack-bar.service';
 import { fromIsoDate, toIsoDate } from '../../core/utils/dashboard-query.utils';
 import { serverErrorMessage, validationMessage } from '../../core/utils/http-error.utils';
+import { showPhoneServerError } from '../../core/utils/phone-number.utils';
 import { avatarErrorMessage } from '../../core/utils/profile-avatar.utils';
 import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component';
 import {
@@ -207,11 +208,17 @@ export class SettingsComponent implements HasUnsavedChanges {
           );
           this.snackBar.success('Profile saved.');
         },
-        error: (error: HttpErrorResponse) =>
-          this.snackBar.error(
-            validationMessage(error) ?? serverErrorMessage(error, 'Could not save the profile.'),
-          ),
+        error: (error: HttpErrorResponse) => this.reportPersonalInfoError(error),
       });
+  }
+
+  private reportPersonalInfoError(error: HttpErrorResponse): void {
+    const phone = this.personalForm.controls.phoneNumber;
+    if (showPhoneServerError(phone, error, (message) => this.snackBar.error(message))) return;
+
+    this.snackBar.error(
+      validationMessage(error) ?? serverErrorMessage(error, 'Could not save the profile.'),
+    );
   }
 
   discard(): void {

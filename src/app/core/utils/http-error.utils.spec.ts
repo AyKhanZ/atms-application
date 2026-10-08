@@ -1,5 +1,10 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { validationMessage, serverErrorMessage } from './http-error.utils';
+import {
+  serverErrorMessage,
+  validationErrorExcept,
+  validationErrorFor,
+  validationMessage,
+} from './http-error.utils';
 
 describe('validationMessage', () => {
   it('gives the first message the server sent for a refused request', () => {
@@ -30,6 +35,28 @@ describe('validationMessage', () => {
 
     expect(validationMessage(error, 'title')).toBe('Title is taken.');
     expect(validationMessage(error, 'deadline')).toBe('Milestone is required.');
+  });
+});
+
+describe('validationErrorFor', () => {
+  const error = new HttpErrorResponse({
+    status: 400,
+    error: {
+      errors: [
+        { field: 'PhoneNumber', error: 'Enter a valid international phone number.' },
+        { field: 'Name', error: 'Name is required.' },
+      ],
+    },
+  });
+
+  it('reads one field and ignores the rest', () => {
+    expect(validationErrorFor(error, 'phonenumber')).toBe('Enter a valid international phone number.');
+    expect(validationErrorExcept(error, 'PhoneNumber')).toBe('Name is required.');
+  });
+
+  it('is empty when that field was not refused', () => {
+    expect(validationErrorFor(error, 'Position')).toBeNull();
+    expect(validationErrorFor(new HttpErrorResponse({ status: 500 }), 'PhoneNumber')).toBeNull();
   });
 });
 

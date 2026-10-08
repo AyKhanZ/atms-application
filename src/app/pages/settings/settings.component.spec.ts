@@ -176,7 +176,7 @@ describe('SettingsComponent', { timeout: 15_000 }, () => {
     expect(snackBar.success).toHaveBeenCalledWith('Profile saved.');
   });
 
-  it('shows the server validation message when saving fails', () => {
+  it('shows a PhoneNumber refusal under the field, not as a toast', () => {
     profiles.update.mockReturnValue(
       throwError(
         () =>
@@ -191,7 +191,10 @@ describe('SettingsComponent', { timeout: 15_000 }, () => {
 
     component.save();
 
-    expect(snackBar.error).toHaveBeenCalledWith('Enter a valid phone number.');
+    expect(component.personalForm.controls.phoneNumber.getError('server')).toBe(
+      'Enter a valid phone number.',
+    );
+    expect(snackBar.error).not.toHaveBeenCalled();
   });
 
   it('asks for a photo when the profile has none and none was chosen', () => {

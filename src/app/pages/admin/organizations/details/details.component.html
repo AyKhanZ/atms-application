@@ -75,23 +75,40 @@
       </div>
 
       @if (employees().length) {
-        <div class="employees-grid">
-          @for (user of employees(); track user.id) {
-            <article class="employee-card">
-              <app-profile-avatar
-                [imageUrl]="user.avatarPath"
-                [fullName]="fullName(user)"
-                [initials]="initials(user)"
-                [previewEnabled]="true"
-              />
-              <div>
-                <h3>{{ fullName(user) }}</h3>
-                <p>{{ display(user.email) }}</p>
-                <span>No position yet</span>
-              </div>
-            </article>
-          }
-        </div>
+        <p-table
+          class="employees-table management-table"
+          [value]="employees()"
+          [tableStyle]="{ 'min-width': '36rem' }"
+          dataKey="id"
+        >
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Employee</th>
+              <th>Email</th>
+              <th>Position</th>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="body" let-user>
+            <tr>
+              <td>
+                <div class="employee-cell">
+                  <app-profile-avatar
+                    [imageUrl]="user.avatarPath"
+                    [fullName]="user | personName: 'Unnamed user'"
+                    [initials]="user | personInitials"
+                    [previewEnabled]="true"
+                  />
+                  <span class="employee-name">{{ user | personName: 'Unnamed user' }}</span>
+                </div>
+              </td>
+              <td>
+                <a class="email-link" [href]="'mailto:' + user.email">{{ user.email }}</a>
+              </td>
+              <td>{{ display(user.position) }}</td>
+            </tr>
+          </ng-template>
+        </p-table>
       } @else {
         <div class="empty-employees">
           <i class="pi pi-users"></i>

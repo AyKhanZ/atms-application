@@ -19,6 +19,21 @@
   gap: 0.4rem;
 }
 
+/* Said before the person is chosen, so the last places are not a surprise after Add. */
+.places-left {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0;
+  color: var(--app-muted);
+  font-size: 0.8rem;
+}
+
+.places-left i {
+  color: var(--orange);
+  font-size: 0.85rem;
+}
+
 /* Error on the left, a counter or a link on the right: the same row, so nothing pushes the next field. */
 .field-meta {
   display: flex;
