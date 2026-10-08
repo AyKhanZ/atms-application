@@ -34,7 +34,11 @@ export interface NotificationLink {
 
 const statuses: Record<number, DictionaryModel> = {
   [WorkTaskStatus.New]: { id: WorkTaskStatus.New, code: 'New', name: 'New' },
-  [WorkTaskStatus.InProgress]: { id: WorkTaskStatus.InProgress, code: 'InProgress', name: 'In Progress' },
+  [WorkTaskStatus.InProgress]: {
+    id: WorkTaskStatus.InProgress,
+    code: 'InProgress',
+    name: 'In Progress',
+  },
   [WorkTaskStatus.Done]: { id: WorkTaskStatus.Done, code: 'Done', name: 'Done' },
 };
 
@@ -50,7 +54,10 @@ export function notificationTaskLabel(parameters: NotificationParametersModel): 
 }
 
 // server keeps no text, so new names and the ui language are used
-export function notificationView(notification: NotificationModel, now = new Date()): NotificationView {
+export function notificationView(
+  notification: NotificationModel,
+  now = new Date(),
+): NotificationView {
   const subject = notificationSubject(notification);
   const actor = isSystemNotification(notification)
     ? null
@@ -80,7 +87,11 @@ export function notificationView(notification: NotificationModel, now = new Date
       // reminder read on a later day shows the date, not "today"
       const deadline = parseDeadline(notification.parameters.deadline);
       const today = !deadline || deadline.getTime() === startOfToday(now).getTime();
-      return withOverdue(view(today ? 'Due today' : `Due ${formatDeadline(deadline)}`), notification, now);
+      return withOverdue(
+        view(today ? 'Due today' : `Due ${formatDeadline(deadline)}`),
+        notification,
+        now,
+      );
     }
     case NotificationType.TaskOverdue: {
       const deadline = deadlineLabel(notification.parameters.deadline);
@@ -107,7 +118,11 @@ function notificationSubject(notification: NotificationModel): NotificationSubje
 }
 
 // red pill only while the task is still late, done or moved since = no pill
-function withOverdue(view: NotificationView, notification: NotificationModel, now: Date): NotificationView {
+function withOverdue(
+  view: NotificationView,
+  notification: NotificationModel,
+  now: Date,
+): NotificationView {
   const { taskStatusId, taskDeadline } = notification;
   const overdue =
     !notification.entityDeleted &&

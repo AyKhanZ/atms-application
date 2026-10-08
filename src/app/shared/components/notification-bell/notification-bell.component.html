@@ -15,12 +15,7 @@
   }
 </button>
 
-<p-popover
-  #panel
-  styleClass="notification-panel"
-  (onShow)="onShow()"
-  (onHide)="onHide()"
->
+<p-popover #panel styleClass="notification-panel" (onShow)="onShow()" (onHide)="onHide()">
   <section class="panel" aria-label="Notifications">
     <header class="panel__header">
       <h2 class="panel__title">Notifications</h2>
@@ -44,12 +39,7 @@
         </div>
       } @else {
         @for (item of latest(); track item.id) {
-          <button
-            type="button"
-            class="row"
-            [class.row--unread]="!item.readAt"
-            (click)="open(item)"
-          >
+          <button type="button" class="row" [class.row--unread]="!item.readAt" (click)="open(item)">
             <span class="row__dot" [attr.aria-label]="item.readAt ? null : 'Unread'"></span>
             <app-notification-item class="row__item" [notification]="item" />
           </button>

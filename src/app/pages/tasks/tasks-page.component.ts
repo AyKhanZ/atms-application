@@ -256,7 +256,6 @@ export class TasksPageComponent implements OnDestroy {
         replaceUrl: true,
       });
   }
-
 }
 
 function moveErrorMessage(error: WorkItemMutationError): string {

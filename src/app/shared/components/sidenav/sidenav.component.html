@@ -24,7 +24,12 @@
     </a>
 
     @if (layout.mode() === 'hidden') {
-      <button type="button" class="drawer-close" aria-label="Close menu" (click)="layout.closeDrawer()">
+      <button
+        type="button"
+        class="drawer-close"
+        aria-label="Close menu"
+        (click)="layout.closeDrawer()"
+      >
         <i class="pi pi-times"></i>
       </button>
     }

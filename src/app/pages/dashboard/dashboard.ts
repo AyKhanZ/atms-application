@@ -11,12 +11,9 @@ import {
   untracked,
 } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Actions, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
-import { DatePickerModule } from 'primeng/datepicker';
-import { SelectModule } from 'primeng/select';
 import {
   DashboardGranularity,
   DashboardKpiModel,
@@ -44,6 +41,7 @@ import {
   DashboardChartSeries,
 } from './components/dashboard-chart.component';
 import { DashboardDeadlinesComponent } from './components/dashboard-deadlines.component';
+import { DashboardToolbarComponent } from './components/dashboard-toolbar.component';
 
 const refreshSafetyMs = 300_000;
 const maxRangeDays = 366;
@@ -73,12 +71,10 @@ const kpiLooks: Record<DashboardKpiModel['key'], { label: string; icon: string; 
 @Component({
   selector: 'app-dashboard',
   imports: [
-    FormsModule,
-    SelectModule,
-    DatePickerModule,
     DashboardActivityComponent,
     DashboardChartComponent,
     DashboardDeadlinesComponent,
+    DashboardToolbarComponent,
   ],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
@@ -209,9 +205,7 @@ export class Dashboard implements OnDestroy {
   });
   readonly mainTooltipLabels = computed(() => {
     const data = this.model();
-    return data
-      ? data.mainChart.labels.map((label) => bucketTooltip(label, data.granularity))
-      : [];
+    return data ? data.mainChart.labels.map((label) => bucketTooltip(label, data.granularity)) : [];
   });
   readonly mainSeries = computed<DashboardChartSeries[]>(() => {
     const series = this.model()?.mainChart.series ?? [];
@@ -295,7 +289,11 @@ export class Dashboard implements OnDestroy {
     ),
   );
   readonly workloadSeries = computed<DashboardChartSeries[]>(() => [
-    { label: 'Tasks not done', values: this.workloadSegments().map((item) => item.value), color: '--orange' },
+    {
+      label: 'Tasks not done',
+      values: this.workloadSegments().map((item) => item.value),
+      color: '--orange',
+    },
   ]);
   readonly workloadDisabledIndices = computed(() =>
     this.workloadSegments().flatMap((item, index) => (item.kind === 'others' ? [index] : [])),
@@ -397,7 +395,8 @@ export class Dashboard implements OnDestroy {
   setCustomTo(to: Date | null): void {
     this.customTo.set(to);
     const from = this.customFrom();
-    if (to && from && (from > to || from < addDays(to, 1 - maxRangeDays))) this.customFrom.set(null);
+    if (to && from && (from > to || from < addDays(to, 1 - maxRangeDays)))
+      this.customFrom.set(null);
   }
 
   applyCustom(): void {

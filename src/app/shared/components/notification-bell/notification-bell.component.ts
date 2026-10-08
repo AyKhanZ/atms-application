@@ -1,11 +1,21 @@
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, viewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  computed,
+  inject,
+  viewChild,
+} from '@angular/core';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { ConfirmationService } from 'primeng/api';
 import { Popover, PopoverModule } from 'primeng/popover';
 import { NotificationModel } from '../../../core/models/notifications';
 import { unreadBadge } from '../../../core/utils/notification.utils';
-import { NotificationsStoreActions, NotificationsStoreSelectors } from '../../../store/notifications';
+import {
+  NotificationsStoreActions,
+  NotificationsStoreSelectors,
+} from '../../../store/notifications';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 import { NotificationItemComponent } from '../notification-item/notification-item.component';
 import {

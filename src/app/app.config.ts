@@ -3,7 +3,6 @@ import {
   provideAppInitializer,
   inject,
   provideZonelessChangeDetection,
-  isDevMode,
 } from '@angular/core';
 import { RouteReuseStrategy, provideRouter, withComponentInputBinding } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
@@ -15,6 +14,7 @@ import { definePreset } from '@primeuix/themes';
 import { provideStore } from '@ngrx/store';
 import { provideEffects } from '@ngrx/effects';
 
+import { environment } from '../environments/environment';
 import { routes } from './app.routes';
 import { authInitializer } from './core/initializers/auth.initializer';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
@@ -46,7 +46,6 @@ import { historyReducer } from './store/history/history.reducer';
 import { HistoryEffects } from './store/history/history.effects';
 import { commentsReducer } from './store/comments/comments.reducer';
 import { CommentsEffects } from './store/comments/comments.effects';
-import { provideStoreDevtools } from '@ngrx/store-devtools';
 import { NavigationHistoryService } from './core/services/navigation-history.service';
 import { AppRouteReuseStrategy } from './core/routing/app-route-reuse.strategy';
 import { taskBoardReducer } from './store/task-board/task-board.reducer';
@@ -167,10 +166,7 @@ export const appConfig: ApplicationConfig = {
       inject(NavigationHistoryService);
     }),
     provideZonelessChangeDetection(),
-    provideStoreDevtools({
-      maxAge: 25,
-      logOnly: !isDevMode(),
-    }),
+    ...environment.providers,
     MessageService,
   ],
 };

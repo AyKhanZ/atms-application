@@ -1,9 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import {
-  attachmentIcon,
-  attachmentTone,
-  formatFileSize,
-} from '../../core/utils/attachment.utils';
+import { attachmentIcon, attachmentTone, formatFileSize } from '../../core/utils/attachment.utils';
 
 // 512 B, 38 KB, 2.4 MB
 @Pipe({ name: 'fileSize' })

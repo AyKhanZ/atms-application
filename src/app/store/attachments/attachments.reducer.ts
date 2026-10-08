@@ -2,14 +2,21 @@ import { type Action, createReducer, on } from '@ngrx/store';
 import { AttachmentModel } from '../../core/models/attachments';
 import { AuthStoreActions } from '../auth';
 import * as Actions from './attachments.actions';
-import { AttachmentListState, AttachmentsState, initialAttachmentsState } from './attachments.state';
+import {
+  AttachmentListState,
+  AttachmentsState,
+  initialAttachmentsState,
+} from './attachments.state';
 
 function mapLists(
   lists: Record<string, AttachmentListState>,
   change: (items: AttachmentModel[]) => AttachmentModel[],
 ): Record<string, AttachmentListState> {
   return Object.fromEntries(
-    Object.entries(lists).map(([listKey, list]) => [listKey, { ...list, items: change(list.items) }]),
+    Object.entries(lists).map(([listKey, list]) => [
+      listKey,
+      { ...list, items: change(list.items) },
+    ]),
   );
 }
 
@@ -119,19 +126,16 @@ const reducer = createReducer(
       ),
     }),
   ),
-  on(
-    Actions.uploadSuccess,
-    (state, { uploadId, listKey, attachment }): AttachmentsState => {
-      const list = state.lists[listKey];
-      return {
-        ...state,
-        uploads: state.uploads.filter((upload) => upload.uploadId !== uploadId),
-        lists: list
-          ? { ...state.lists, [listKey]: { ...list, items: [attachment, ...list.items] } }
-          : state.lists,
-      };
-    },
-  ),
+  on(Actions.uploadSuccess, (state, { uploadId, listKey, attachment }): AttachmentsState => {
+    const list = state.lists[listKey];
+    return {
+      ...state,
+      uploads: state.uploads.filter((upload) => upload.uploadId !== uploadId),
+      lists: list
+        ? { ...state.lists, [listKey]: { ...list, items: [attachment, ...list.items] } }
+        : state.lists,
+    };
+  }),
   on(
     Actions.uploadFailure,
     (state, { uploadId, error, retryable }): AttachmentsState => ({

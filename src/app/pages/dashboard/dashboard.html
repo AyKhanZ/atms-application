@@ -7,102 +7,29 @@
       }
     </div>
 
-    <div class="dashboard-toolbar" [class.dashboard-toolbar--custom]="selectedPeriod() === 'custom'">
-      <div class="dashboard-project">
-        <p-select
-          inputId="dashboardProject"
-          ariaLabel="Project"
-          [options]="projectOptions()"
-          optionLabel="label"
-          optionValue="id"
-          [ngModel]="query().projectId ?? ''"
-          (ngModelChange)="changeProject($event)"
-          [filter]="true"
-          filterBy="label"
-          filterPlaceholder="Search projects"
-          (onFilter)="searchProjects($event)"
-          appendTo="body"
-          [style]="{ width: '100%' }"
-        />
-      </div>
-      <div class="dashboard-period-group">
-        <div class="dashboard-period">
-          <p-select
-            inputId="dashboardPeriod"
-            ariaLabel="Period"
-            [options]="periodOptions"
-            optionLabel="label"
-            optionValue="value"
-            [ngModel]="selectedPeriod()"
-            (ngModelChange)="changePeriod($event)"
-            appendTo="body"
-            [style]="{ width: '100%' }"
-          />
-        </div>
-        @if (selectedPeriod() === 'custom') {
-          <p-datepicker
-            inputId="dashboardFrom"
-            styleClass="dashboard-datepicker"
-            ariaLabel="From"
-            placeholder="From"
-            dateFormat="d M yy"
-            appendTo="body"
-            iconDisplay="input"
-            [showIcon]="true"
-            [readonlyInput]="true"
-            [minDate]="fromMinDate()"
-            [maxDate]="fromMaxDate()"
-            [ngModel]="customFrom()"
-            (ngModelChange)="setCustomFrom($event)"
-          />
-          <span class="dashboard-range__dash" aria-hidden="true">–</span>
-          <p-datepicker
-            inputId="dashboardTo"
-            styleClass="dashboard-datepicker"
-            ariaLabel="To"
-            placeholder="To"
-            dateFormat="d M yy"
-            appendTo="body"
-            iconDisplay="input"
-            [showIcon]="true"
-            [readonlyInput]="true"
-            [minDate]="toMinDate()"
-            [maxDate]="toMaxDate()"
-            [ngModel]="customTo()"
-            (ngModelChange)="setCustomTo($event)"
-          />
-        }
-      </div>
-
-      <div class="dashboard-actions">
-        @if (selectedPeriod() === 'custom') {
-          <button
-            type="button"
-            class="dashboard-apply"
-            [disabled]="!!customError()"
-            [title]="customError() ?? 'Show this range'"
-            (click)="applyCustom()"
-          >
-            Apply
-          </button>
-        }
-        @if (model()) {
-          <div class="dashboard-refresh">
-            <span role="status">{{ updatedText() }}</span>
-            <button
-              type="button"
-              class="dashboard-refresh__button"
-              title="Refresh"
-              aria-label="Refresh"
-              [disabled]="loading()"
-              (click)="refresh()"
-            >
-              <i class="pi pi-refresh" [class.pi-spin]="loading()"></i>
-            </button>
-          </div>
-        }
-      </div>
-    </div>
+    <app-dashboard-toolbar
+      [projectOptions]="projectOptions()"
+      [projectId]="query().projectId ?? ''"
+      [periodOptions]="periodOptions"
+      [period]="selectedPeriod()"
+      [customFrom]="customFrom()"
+      [customTo]="customTo()"
+      [fromMinDate]="fromMinDate()"
+      [fromMaxDate]="fromMaxDate()"
+      [toMinDate]="toMinDate()"
+      [toMaxDate]="toMaxDate()"
+      [customError]="customError()"
+      [showUpdated]="!!model()"
+      [updatedText]="updatedText()"
+      [loading]="loading()"
+      (projectChange)="changeProject($event)"
+      (projectSearch)="searchProjects($event)"
+      (periodChange)="changePeriod($event)"
+      (customFromChange)="setCustomFrom($event)"
+      (customToChange)="setCustomTo($event)"
+      (apply)="applyCustom()"
+      (refresh)="refresh()"
+    />
   </header>
 
   @if (error()) {
@@ -124,7 +51,9 @@
           [title]="kpi.clickable ? 'Show these tasks' : ''"
           (click)="openKpi(kpi.key)"
         >
-          <span class="dashboard-kpi__icon" aria-hidden="true"><i [class]="'pi ' + kpi.icon"></i></span>
+          <span class="dashboard-kpi__icon" aria-hidden="true"
+            ><i [class]="'pi ' + kpi.icon"></i
+          ></span>
           <span class="dashboard-kpi__label">{{ kpi.label }}</span>
           <span class="dashboard-kpi__hint">{{ kpi.hint }}</span>
           <strong class="dashboard-kpi__value" [class.is-alert]="kpi.alert">{{ kpi.value }}</strong>
@@ -239,7 +168,11 @@
         <div class="dashboard-card__chart">
           <app-dashboard-chart
             kind="bar"
-            [title]="data.secondaryChart.key === 'byProject' ? 'Tasks not done by project' : 'Tasks not done by ticket'"
+            [title]="
+              data.secondaryChart.key === 'byProject'
+                ? 'Tasks not done by project'
+                : 'Tasks not done by ticket'
+            "
             [labels]="secondaryLabels()"
             [tooltipLabels]="secondaryLabels()"
             [series]="secondarySeries()"

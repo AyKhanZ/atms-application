@@ -11,7 +11,14 @@ import {
   output,
   viewChild,
 } from '@angular/core';
-import { Chart, ChartConfiguration, ChartDataset, ChartType, LegendItem, registerables } from 'chart.js';
+import {
+  Chart,
+  ChartConfiguration,
+  ChartDataset,
+  ChartType,
+  LegendItem,
+  registerables,
+} from 'chart.js';
 
 Chart.register(...registerables);
 
@@ -57,9 +64,7 @@ export class DashboardChartComponent implements OnDestroy {
       );
       return `${title}: ${totals.join(', ')}`;
     }
-    const values = this.labels().map(
-      (label, index) => `${label} ${series[0]?.values[index] ?? 0}`,
-    );
+    const values = this.labels().map((label, index) => `${label} ${series[0]?.values[index] ?? 0}`);
     return `${title}: ${values.join(', ')}`;
   });
 
@@ -172,7 +177,10 @@ export class DashboardChartComponent implements OnDestroy {
               align: 'end',
               labels: { color: muted, font, usePointStyle: true, boxWidth: 8, boxHeight: 8 },
             },
-            tooltip: { ...tooltip, callbacks: { title: (items) => titleOf(items[0]?.dataIndex ?? 0) } },
+            tooltip: {
+              ...tooltip,
+              callbacks: { title: (items) => titleOf(items[0]?.dataIndex ?? 0) },
+            },
           },
           scales: {
             x: {
