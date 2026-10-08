@@ -3,8 +3,7 @@
   min-width: 0;
 }
 
-// Every block reacts to the width of the page, not of the window: the sidebar takes a different
-// share of the window on every screen.
+// blocks react to the page width, not the window (sidebar width differs)
 .dashboard-page {
   container-type: inline-size;
   display: grid;
@@ -12,8 +11,6 @@
   width: 100%;
   min-width: 0;
 }
-
-// ─── Header ────────────────────────────────────────────────────────────────────────────────────
 
 .dashboard-header {
   display: flex;
@@ -39,95 +36,6 @@
   white-space: nowrap;
 }
 
-// Controls keep a fixed width, so picking a project with a long title does not move anything.
-// On a wide page they sit in one row on the right; narrower, they stack from the left (see below).
-.dashboard-toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 0.5rem;
-  min-width: 0;
-}
-.dashboard-project {
-  width: 26rem;
-  max-width: 100%;
-  min-width: 0;
-}
-// The period and its two dates are one choice and are never split apart.
-.dashboard-period-group {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  min-width: 0;
-}
-.dashboard-period {
-  width: 11.5rem;
-  min-width: 0;
-}
-.dashboard-period-group p-datepicker {
-  width: 9.5rem;
-  min-width: 0;
-}
-:host ::ng-deep .dashboard-datepicker,
-:host ::ng-deep .dashboard-datepicker .p-inputtext {
-  width: 100%;
-}
-.dashboard-range__dash {
-  color: var(--app-muted);
-  text-align: center;
-}
-.dashboard-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  min-width: 0;
-}
-.dashboard-apply {
-  height: 2.5rem;
-  padding: 0 1.25rem;
-  border: 0;
-  border-radius: var(--radius-btn);
-  background: var(--orange);
-  color: var(--white);
-  font: inherit;
-  font-weight: 600;
-  cursor: pointer;
-}
-.dashboard-apply:hover:not(:disabled) {
-  background: var(--orange-hover);
-}
-.dashboard-apply:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-.dashboard-refresh {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  color: var(--app-muted);
-  font-size: 0.8rem;
-  white-space: nowrap;
-}
-.dashboard-refresh__button {
-  display: grid;
-  place-items: center;
-  width: 2.25rem;
-  height: 2.25rem;
-  border: 0;
-  border-radius: var(--radius-btn);
-  background: transparent;
-  color: var(--gray-icon);
-  cursor: pointer;
-}
-.dashboard-refresh__button:hover:not(:disabled) {
-  background: var(--orange-light-hover);
-  color: var(--orange-text-hover);
-}
-.dashboard-refresh__button:disabled {
-  cursor: default;
-}
-
 .dashboard-error {
   display: flex;
   align-items: center;
@@ -149,8 +57,6 @@
   color: var(--app-danger);
   cursor: pointer;
 }
-
-// ─── KPI ───────────────────────────────────────────────────────────────────────────────────────
 
 .dashboard-kpis {
   display: grid;
@@ -184,9 +90,7 @@
   cursor: default;
   opacity: 1;
 }
-.dashboard-kpi:focus-visible,
-.dashboard-range__apply:focus-visible,
-.dashboard-refresh__button:focus-visible {
+.dashboard-kpi:focus-visible {
   outline: 3px solid var(--orange-focus-outline);
   outline-offset: 2px;
 }
@@ -242,10 +146,7 @@
   color: var(--app-danger);
 }
 
-// ─── Cards with charts ─────────────────────────────────────────────────────────────────────────
-
-// A card has a fixed height and the chart fills what is left under the header. The chart never
-// decides the height — that is what kept growing the chart on every resize.
+// fixed card height, the chart fills the rest; if the chart sets the height it grows on every resize
 .dashboard-card {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
@@ -314,8 +215,6 @@
   height: 24rem;
 }
 
-// ─── Skeleton ──────────────────────────────────────────────────────────────────────────────────
-
 .dashboard-skeleton {
   display: grid;
   gap: 1rem;
@@ -341,15 +240,12 @@
   }
 }
 
-// ─── Narrower pages ────────────────────────────────────────────────────────────────────────────
-
 @container (max-width: 80rem) {
   .dashboard-kpis {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
-// The side column moves under the main chart; both keep a fixed height of their own.
 @container (max-width: 64rem) {
   .dashboard-focus {
     grid-template-columns: minmax(0, 1fr);
@@ -366,61 +262,12 @@
   .dashboard-lower--client {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-  // An odd card left alone on the last row takes the full width.
+  // odd last card takes the full row
   .dashboard-lower > :last-child:nth-child(odd) {
     grid-column: 1 / -1;
   }
   .dashboard-activity-card {
     height: 28rem;
-  }
-}
-
-// The controls move under the title and start from the left, in rows that fill the width:
-//   project
-//   period                     updated · refresh
-// and with a custom range:
-//   project
-//   period   from  –  to
-//   Apply                      updated · refresh
-@container (max-width: 72rem) {
-  .dashboard-toolbar {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    grid-template-areas:
-      'project project'
-      'period  actions';
-    flex: 1 1 100%;
-  }
-  .dashboard-toolbar--custom {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-areas:
-      'project'
-      'period'
-      'actions';
-  }
-  .dashboard-project {
-    grid-area: project;
-    width: 100%;
-  }
-  .dashboard-period-group {
-    grid-area: period;
-    display: grid;
-    grid-template-columns: minmax(0, 18rem);
-  }
-  .dashboard-toolbar--custom .dashboard-period-group {
-    grid-template-columns: minmax(10rem, 1.2fr) minmax(0, 1fr) auto minmax(0, 1fr);
-  }
-  .dashboard-period,
-  .dashboard-period-group p-datepicker {
-    width: 100%;
-  }
-  .dashboard-actions {
-    grid-area: actions;
-    justify-content: flex-end;
-  }
-  // Apply takes the whole row, the way every form of the product ends.
-  .dashboard-apply {
-    flex: 1;
   }
 }
 
@@ -444,16 +291,6 @@
   .dashboard-lower--client {
     grid-template-columns: minmax(0, 1fr);
     grid-auto-rows: 18rem;
-  }
-  // The period on its own row, the two dates under it.
-  .dashboard-toolbar--custom .dashboard-period-group {
-    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-  }
-  .dashboard-toolbar--custom .dashboard-period {
-    grid-column: 1 / -1;
-  }
-  .dashboard-period-group {
-    grid-template-columns: minmax(0, 1fr);
   }
 }
 

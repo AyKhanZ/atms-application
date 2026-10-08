@@ -23,7 +23,7 @@ export interface DashboardModel {
   workload: DashboardWorkloadModel | null;
   secondaryChart: DashboardSecondaryChartModel;
   deadlines: DashboardDeadlineModel[];
-  /** Every open task due in the next 7 days; deadlines holds only the nearest of them. */
+  // all open tasks due in 7 days, deadlines has only the nearest
   deadlineCount: number;
   activities: DashboardActivityModel[];
 }
@@ -31,7 +31,7 @@ export interface DashboardModel {
 export interface DashboardQuery {
   projectId: string | null;
   period: DashboardPeriod;
-  /** yyyy-MM-dd, only for the custom period. */
+  // yyyy-MM-dd, only for custom period
   from: string | null;
   to: string | null;
 }

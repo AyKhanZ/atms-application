@@ -6,7 +6,6 @@ import { commentLookups } from '../../comment-view';
 import { CommentInlineComponent } from '../comment-inline/comment-inline.component';
 import { CommentListComponent } from '../comment-list/comment-list.component';
 
-/** A comment's text with its markup drawn: paragraphs, lists and the lines inside them. */
 @Component({
   selector: 'app-comment-text',
   imports: [CommentInlineComponent, CommentListComponent],
@@ -18,10 +17,9 @@ export class CommentTextComponent {
   readonly text = input.required<string>();
   readonly mentions = input<readonly MentionPerson[]>([]);
   readonly references = input<readonly CommentReferenceModel[]>([]);
-  /** The editor's preview: a click ticks the check list in the text being written. */
+  // editor preview: a click ticks the check list in the text
   readonly checkable = input(false);
 
-  /** The line of the check-list item clicked. */
   readonly checkToggled = output<number>();
 
   readonly blocks = computed(() => parseCommentMarkdown(this.text()));

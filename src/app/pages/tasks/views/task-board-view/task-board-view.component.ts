@@ -37,10 +37,7 @@ import { filterKey } from '../../tasks-page.utils';
 
 const pageSize = 20;
 
-/**
- * One list inside a column. An open column has two: overdue work on top, the rest below, each in
- * its own manual order. Done has one, `overdue: null`: closed work is never overdue.
- */
+// open column has two lanes (overdue on top, the rest), Done has one: closed work is never overdue
 interface Lane {
   key: string;
   overdue: boolean | null;
@@ -58,16 +55,8 @@ interface Drop {
   lane: Lane;
 }
 
-/**
- * Three columns by status. A card is dragged within a column to reorder it and across columns to
- * change its status; the menu on every card does the same for the keyboard and for phones, where
- * dragging with a finger is unreliable. Done is ordered by when things were closed, freshest on
- * top, so a drop there lands on top whatever spot it was aimed at.
- *
- * Overdue work sits on top of New and In Progress, above a dashed line. A card cannot be
- * dragged across that line: it leaves the group when its deadline changes or it is closed, not
- * because someone ranked it lower.
- */
+// menu does the same as drag for keyboard and phones; Done is by close date so a drop goes on top
+// overdue cards cant be dragged across the line, they leave the group when the deadline changes or they close
 @Component({
   selector: 'app-task-board-view',
   imports: [
@@ -89,19 +78,16 @@ export class TaskBoardViewComponent {
   private readonly confirmation = inject(ConfirmationService);
 
   readonly query = input.required<WorkTaskBoardQuery>();
-  /** Task statuses from the dictionary, in their order. */
   readonly statuses = input.required<DictionaryModel[]>();
   readonly canMove = input(false);
-  /** Cards name their project: the page shows more than one. */
   readonly showProject = input(false);
-  /** Changes whenever the page wants everything reloaded — after a failed move, for one. */
   readonly reloadToken = input(0);
   readonly openTask = output<WorkTaskModel>();
 
   private readonly pages = this.store.selectSignal(TaskBoardStoreSelectors.getPages);
   readonly counts = this.store.selectSignal(TaskBoardStoreSelectors.getCounts);
 
-  /** A column for every status, shown or not: a card can be moved into one the filter hides. */
+  // every status, shown or not: a card can be moved into a hidden one
   private readonly allColumns = computed<Column[]>(() => {
     const filter = filterKey(this.query());
     const deadline = this.query().deadline;
@@ -125,8 +111,7 @@ export class TaskBoardViewComponent {
     });
   });
 
-  /** The columns shown: all three, or the ones the State filter keeps. Overdue work is open work
-   *  by definition, so that filter leaves Done out too. */
+  // overdue work is open work, so that filter hides Done too
   readonly columns = computed<Column[]>(() => {
     const { statusIds, deadline } = this.query();
     return this.allColumns().filter(
@@ -136,8 +121,7 @@ export class TaskBoardViewComponent {
     );
   });
 
-  /** On a phone one column at a time; this is which. A column the Status filter hides gives way to
-   *  the first one shown, so the phone never shows a board with nothing on it. */
+  // hidden column gives way to the first shown, so the phone never shows an empty board
   readonly phoneColumn = linkedSignal<Column[], number>({
     source: () => this.columns(),
     computation: (columns, previous) =>
@@ -146,9 +130,7 @@ export class TaskBoardViewComponent {
         : (columns[0]?.status.id ?? WorkTaskStatus.New),
   });
 
-  /** An overdue card only goes among overdue cards, anything else only below them. A column with
-   *  no overdue work has no place above the line, so there an overdue card drops anywhere and
-   *  goes on top after the drop. */
+  // overdue only among overdue, the rest below; column without overdue: drop anywhere, goes on top
   readonly acceptsLate = (drag: CdkDrag<WorkTaskModel>): boolean =>
     daysLate(drag.data.deadline) > 0;
   readonly acceptsOnTime = (drag: CdkDrag<WorkTaskModel>, drop: CdkDropList<Drop>): boolean =>
@@ -156,7 +138,6 @@ export class TaskBoardViewComponent {
   readonly acceptsAny = (): boolean => true;
 
   constructor() {
-    // Every list loads its first page when the filters change or the page asks to reload.
     effect(() => {
       const columns = this.columns();
       const query = this.query();
@@ -176,8 +157,7 @@ export class TaskBoardViewComponent {
     return this.pages()[lane.key];
   }
 
-  /** The lanes drawn: the overdue one only in a column that has overdue work, or that could not
-   *  be read — its error must show, not an empty-looking column. */
+  // overdue lane only if it has work, or failed (the error must show)
   shownLanes(column: Column): Lane[] {
     return column.lanes.length > 1
       ? column.lanes.filter(
@@ -186,12 +166,10 @@ export class TaskBoardViewComponent {
       : column.lanes;
   }
 
-  /** Overdue work on top and the rest below, split by a line. */
   grouped(column: Column): boolean {
     return this.shownLanes(column).length > 1;
   }
 
-  /** Still reading any of the column's lists: the skeleton, not an empty column. */
   loading(column: Column): boolean {
     return column.lanes.some((lane) => !this.page(lane) || this.page(lane)?.loading);
   }
@@ -215,7 +193,7 @@ export class TaskBoardViewComponent {
   drop(event: CdkDragDrop<Drop, Drop, WorkTaskModel>): void {
     const from = event.previousContainer.data;
     const to = event.container.data;
-    // Done is ordered by close date: reordering within it would show an order nobody saves.
+    // Done is by close date, reordering inside it would show an order nobody saves
     if (
       from.lane.key === to.lane.key &&
       (to.lane.overdue === null || event.previousIndex === event.currentIndex)
@@ -255,13 +233,10 @@ export class TaskBoardViewComponent {
       completeSubtasks = choice === 'all';
     }
 
-    // The card's deadline, not the drop, decides the group. Dropped where it does not belong —
-    // reopened from Done, or moved from the menu — it goes on top of the group it belongs to.
+    // deadline decides the group, not the drop position
     const late = daysLate(task.deadline) > 0;
     const lane = to.lanes.find((candidate) => candidate.overdue === late) ?? to.lanes[0];
-    // Done keeps its own order, by close date: a card dropped there goes on top.
     const target = to.status.id === WorkTaskStatus.Done || lane.key !== aimed?.key ? 0 : index;
-    // Done is ordered by close date, not by rank: no neighbours to place the card between.
     const neighbours =
       to.status.id === WorkTaskStatus.Done
         ? []

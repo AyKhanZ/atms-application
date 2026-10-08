@@ -77,7 +77,7 @@ export const routes: Routes = [
       {
         path: 'settings',
         data: { breadcrumb: { title: 'Settings', icon: 'pi-cog' } },
-        // A super admin has no profile of their own to edit: no onboarding, no settings.
+        // super admin has no own profile, so no onboarding and settings
         canActivate: [exceptRoleGuard(Roles.SuperAdmin)],
         canDeactivate: [unsavedChangesGuard],
         loadComponent: () =>

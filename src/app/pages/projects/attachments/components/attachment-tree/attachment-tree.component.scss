@@ -45,8 +45,6 @@
   list-style: none;
 }
 
-/* The outermost level is a stack of cards, the way Plan draws its groups: each card holds one
-   branch, so a long tree still reads as a few separate things rather than one wall of rows. */
 .tree-level--root {
   gap: 0.85rem;
 }
@@ -165,8 +163,6 @@ strong.node-title {
   font-size: 0.72rem;
 }
 
-/* The guide line runs through the centre of the chevron above it, down everything the level
-   holds: that line, not the indent alone, is what makes "inside" unambiguous. */
 .node-body {
   display: grid;
   gap: 0.5rem;
@@ -216,7 +212,7 @@ strong.node-title {
     margin: 0.6rem 0.5rem 0.7rem 0.95rem;
   }
 
-  /* Five levels of indent would eat a phone, so the line stays and the step shrinks. */
+  // five levels of indent would eat a phone, the step shrinks
   .node-body {
     margin-left: 0.4rem;
     padding-left: 0.5rem;

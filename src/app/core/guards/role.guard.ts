@@ -6,13 +6,11 @@ import { RoleModel } from '../models/users/user.models';
 import { AuthSessionService } from '../services/auth-session.service';
 import { UserStoreSelectors } from '../../store/user';
 
-/** Lets in only users who hold one of `roles`. */
 export const roleGuard = (roles: string | string[]): CanActivateFn => {
   const allowedRoles = Array.isArray(roles) ? roles : [roles];
   return userRolesGuard((userRoles) => userRoles.some((role) => allowedRoles.includes(role.code)));
 };
 
-/** Lets in everyone except users who hold one of `roles`. */
 export const exceptRoleGuard = (roles: string | string[]): CanActivateFn => {
   const deniedRoles = Array.isArray(roles) ? roles : [roles];
   return userRolesGuard((userRoles) => !userRoles.some((role) => deniedRoles.includes(role.code)));

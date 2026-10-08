@@ -67,7 +67,6 @@
     outline-offset: -2px;
   }
 
-  // The entry on the right: the selected-row background and the accent bar, as elsewhere.
   &.is-selected {
     background: var(--orange-light);
   }
@@ -111,9 +110,7 @@
   white-space: nowrap;
 }
 
-// The mark above the time, as Azure DevOps puts it: the colour of the status it set, or an icon.
-// Two fixed rows, so the time sits on the same line in every row: a row without a mark keeps the
-// mark's row empty instead of letting the time climb into it.
+// two fixed rows so the time is on the same line in every row
 .history-row__side {
   display: grid;
   grid-template-rows: 1rem auto;

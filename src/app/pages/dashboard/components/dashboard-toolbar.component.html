@@ -1,0 +1,94 @@
+<div class="dashboard-project">
+  <p-select
+    inputId="dashboardProject"
+    ariaLabel="Project"
+    [options]="projectOptions()"
+    optionLabel="label"
+    optionValue="id"
+    [ngModel]="projectId()"
+    (ngModelChange)="projectChange.emit($event)"
+    [filter]="true"
+    filterBy="label"
+    filterPlaceholder="Search projects"
+    (onFilter)="projectSearch.emit($event)"
+    appendTo="body"
+    [style]="{ width: '100%' }"
+  />
+</div>
+<div class="dashboard-period-group">
+  <div class="dashboard-period">
+    <p-select
+      inputId="dashboardPeriod"
+      ariaLabel="Period"
+      [options]="periodOptions()"
+      optionLabel="label"
+      optionValue="value"
+      [ngModel]="period()"
+      (ngModelChange)="periodChange.emit($event)"
+      appendTo="body"
+      [style]="{ width: '100%' }"
+    />
+  </div>
+  @if (period() === 'custom') {
+    <p-datepicker
+      inputId="dashboardFrom"
+      styleClass="dashboard-datepicker"
+      ariaLabel="From"
+      placeholder="From"
+      dateFormat="d M yy"
+      appendTo="body"
+      iconDisplay="input"
+      [showIcon]="true"
+      [readonlyInput]="true"
+      [minDate]="fromMinDate()"
+      [maxDate]="fromMaxDate()"
+      [ngModel]="customFrom()"
+      (ngModelChange)="customFromChange.emit($event)"
+    />
+    <span class="dashboard-range__dash" aria-hidden="true">–</span>
+    <p-datepicker
+      inputId="dashboardTo"
+      styleClass="dashboard-datepicker"
+      ariaLabel="To"
+      placeholder="To"
+      dateFormat="d M yy"
+      appendTo="body"
+      iconDisplay="input"
+      [showIcon]="true"
+      [readonlyInput]="true"
+      [minDate]="toMinDate()"
+      [maxDate]="toMaxDate()"
+      [ngModel]="customTo()"
+      (ngModelChange)="customToChange.emit($event)"
+    />
+  }
+</div>
+
+<div class="dashboard-actions">
+  @if (period() === 'custom') {
+    <button
+      type="button"
+      class="dashboard-apply"
+      [disabled]="!!customError()"
+      [title]="customError() ?? 'Show this range'"
+      (click)="apply.emit()"
+    >
+      Apply
+    </button>
+  }
+  @if (showUpdated()) {
+    <div class="dashboard-refresh">
+      <span role="status">{{ updatedText() }}</span>
+      <button
+        type="button"
+        class="dashboard-refresh__button"
+        title="Refresh"
+        aria-label="Refresh"
+        [disabled]="loading()"
+        (click)="refresh.emit()"
+      >
+        <i class="pi pi-refresh" [class.pi-spin]="loading()"></i>
+      </button>
+    </div>
+  }
+</div>

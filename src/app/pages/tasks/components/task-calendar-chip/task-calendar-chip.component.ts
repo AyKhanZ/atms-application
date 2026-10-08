@@ -10,10 +10,7 @@ import { OverdueBadgeComponent } from '../../../../shared/components/overdue-bad
 import { PersonNamePipe } from '../../../../shared/pipes/person-name.pipe';
 import { TaskHoverComponent } from '../task-hover/task-hover.component';
 
-/**
- * One task in a calendar day: a single line on the month grid, two in the phone's agenda. The rest
- * of the task is in the hover card.
- */
+// one line on the month grid, two in the phone agenda, the rest is in the hover card
 @Component({
   selector: 'app-task-calendar-chip',
   imports: [
@@ -30,9 +27,8 @@ import { TaskHoverComponent } from '../task-hover/task-hover.component';
 })
 export class TaskCalendarChipComponent {
   readonly task = input.required<WorkTaskModel>();
-  /** The agenda's two-line row with the code and the name, and no hover card. */
   readonly phone = input(false);
-  /** Every task on the page is the viewer's own: an avatar on each would say nothing. */
+  // every task on the page is the viewers own, an avatar on each says nothing
   readonly hideAssignee = input(false);
   readonly open = output<void>();
 

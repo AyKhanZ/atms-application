@@ -3,7 +3,6 @@ import {
   provideAppInitializer,
   inject,
   provideZonelessChangeDetection,
-  isDevMode,
 } from '@angular/core';
 import { RouteReuseStrategy, provideRouter, withComponentInputBinding } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
@@ -15,6 +14,7 @@ import { definePreset } from '@primeuix/themes';
 import { provideStore } from '@ngrx/store';
 import { provideEffects } from '@ngrx/effects';
 
+import { environment } from '../environments/environment';
 import { routes } from './app.routes';
 import { authInitializer } from './core/initializers/auth.initializer';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
@@ -46,7 +46,6 @@ import { historyReducer } from './store/history/history.reducer';
 import { HistoryEffects } from './store/history/history.effects';
 import { commentsReducer } from './store/comments/comments.reducer';
 import { CommentsEffects } from './store/comments/comments.effects';
-import { provideStoreDevtools } from '@ngrx/store-devtools';
 import { NavigationHistoryService } from './core/services/navigation-history.service';
 import { AppRouteReuseStrategy } from './core/routing/app-route-reuse.strategy';
 import { taskBoardReducer } from './store/task-board/task-board.reducer';
@@ -110,9 +109,7 @@ export const appConfig: ApplicationConfig = {
     provideAnimationsAsync(),
     providePrimeNG({
       ripple: true,
-      // On a narrow screen a panel is about as wide as the window, so anchoring it to its field
-      // means it either points at the field or stays clear of the edges — never both. Below this
-      // width every overlay comes up as a sheet from the bottom with a backdrop instead.
+      // on phones every overlay opens as a bottom sheet, anchored to the field it doesnt fit a narrow screen
       overlayOptions: {
         responsive: { breakpoint: '768px', direction: 'bottom' },
       },
@@ -164,16 +161,12 @@ export const appConfig: ApplicationConfig = {
       NotificationsEffects,
     ]),
     provideAppInitializer(authInitializer),
-    // Started before the first navigation, so Back knows the page the user arrived from.
+    // started before the first navigation so Back knows where the user came from
     provideAppInitializer(() => {
       inject(NavigationHistoryService);
     }),
     provideZonelessChangeDetection(),
-    // Redux DevTools
-    provideStoreDevtools({
-      maxAge: 25,
-      logOnly: !isDevMode(),
-    }),
+    ...environment.providers,
     MessageService,
   ],
 };

@@ -1,11 +1,10 @@
-/* Inline in a sentence, yet never wider than the line: the title is cut, not the comment. */
 :host {
   display: inline-flex;
   max-width: 100%;
   vertical-align: middle;
 }
 
-/* The title is of normal weight, so it is not taken for bold text around it. */
+// normal weight so it isnt taken for bold text
 .comment-ref {
   --kind-color: var(--app-muted);
 
@@ -53,7 +52,6 @@
   }
 }
 
-/* The code is a label, lighter than on a details page, and it keeps its width. */
 .comment-ref__code {
   flex: none;
   font-weight: 600;

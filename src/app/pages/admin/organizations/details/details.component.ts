@@ -33,10 +33,12 @@ import { BackButtonComponent } from '../../../../shared/components/back-button/b
 import { ProfileAvatarComponent } from '../../../../shared/components/profile-avatar/profile-avatar.component';
 import { PersonInitialsPipe, PersonNamePipe } from '../../../../shared/pipes/person-name.pipe';
 import { OrganizationCreateDialogComponent } from '../components/organization-create-dialog/organization-create-dialog.component';
+import { LoadingStateComponent } from '../../../../shared/components/loading-state/loading-state.component';
 
 @Component({
   selector: 'app-details.component',
   imports: [
+    LoadingStateComponent,
     BackButtonComponent,
     ButtonModule,
     ConfirmDialogModule,

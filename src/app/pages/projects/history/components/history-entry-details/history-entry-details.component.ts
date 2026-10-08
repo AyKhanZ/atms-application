@@ -14,7 +14,6 @@ import { PersonNamePipe } from '../../../../../shared/pipes/person-name.pipe';
 import { HistoryAuthorAvatarComponent } from '../history-author-avatar/history-author-avatar.component';
 import { HistoryValueComponent } from '../history-value/history-value.component';
 
-/** What exactly one entry changed: every field with its new value and the one it replaced. */
 @Component({
   selector: 'app-history-entry-details',
   imports: [
@@ -40,6 +39,6 @@ export class HistoryEntryDetailsComponent {
 
   readonly created = computed(() => this.entry().action === HistoryAction.Created);
   readonly deleted = computed(() => this.entry().action === HistoryAction.Deleted);
-  /** Created before the history was kept: the values it started with were never written down. */
+  // created before history was kept, starting values were never written
   readonly unrecorded = computed(() => this.created() && !this.entry().changes.length);
 }

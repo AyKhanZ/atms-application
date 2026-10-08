@@ -8,8 +8,7 @@ export interface HasUnsavedChanges {
 }
 
 export const unsavedChangesGuard: CanDeactivateFn<HasUnsavedChanges> = (component) => {
-  // After a logout there is nowhere left to save to: asking would only offer to "stay" on a page
-  // the user can no longer use.
+  // after logout there is nothing to save, dont ask
   if (!inject(AuthSessionService).isAuthenticated()) return true;
   if (!component.hasUnsavedChanges()) return true;
   if (component.confirmUnsavedChanges) return component.confirmUnsavedChanges();

@@ -11,11 +11,6 @@ import { OverdueBadgeComponent } from '../../../../shared/components/overdue-bad
 import { daysFromToday, isOverdueTask } from '../../../../core/utils/deadline.utils';
 import { TaskContextComponent } from '../task-context/task-context.component';
 
-/**
- * One task or subtask on the board. Says what it is ("SUBTASK #70" in its kind's colour), where it
- * lives — the parent task for a subtask, the ticket for a task, and the project when the page
- * spans several — and who, how urgent, by when.
- */
 @Component({
   selector: 'app-task-card',
   imports: [
@@ -32,9 +27,9 @@ import { TaskContextComponent } from '../task-context/task-context.component';
 })
 export class TaskCardComponent {
   readonly task = input.required<WorkTaskModel>();
-  /** Put the project in front of the location: the page mixes several. */
+  // the page mixes several projects
   readonly showProject = input(false);
-  /** Offer Move to in the menu; off for people who cannot edit. */
+  // off for people who cant edit
   readonly canMove = input(false);
   readonly open = output<void>();
   readonly moveTo = output<WorkTaskStatus>();
@@ -44,10 +39,9 @@ export class TaskCardComponent {
 
   protected readonly done = computed(() => this.task().status.id === WorkTaskStatus.Done);
 
-  /** Past its deadline and not done: the one thing on a card that needs attention first. */
   protected readonly overdue = computed(() => isOverdueTask(this.task()));
 
-  /** "Due today" / "Due tomorrow" for open work; further dates are not worth a place on the card. */
+  // further dates arent worth a place on the card
   protected readonly dueSoon = computed(() => {
     const { deadline } = this.task();
     if (!deadline || this.done()) return null;

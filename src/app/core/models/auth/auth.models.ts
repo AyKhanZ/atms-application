@@ -1,12 +1,8 @@
-// ─── Responses (то что приходит с сервера) ────────────────────────────────────
-
 export interface AccessModel {
   accessToken: string;
   refreshToken: string;
   accessTokenExpireTime: string; // ISO date string
 }
-
-// ─── Errors ───────────────────────────────────────────────────────────────────
 
 export interface ValidationErrorModel {
   message: string;
@@ -23,9 +19,9 @@ export interface ServerErrorModel {
   message: string;
 }
 
-// 401 | 423 приходят просто строкой message
+// 401 and 423 come as a plain message
 export interface ApiErrorModel {
   status: 400 | 401 | 423 | 500;
   message: string;
-  fieldErrors?: FieldErrorModel[]; // только для 400
+  fieldErrors?: FieldErrorModel[]; // only for 400
 }

@@ -9,10 +9,7 @@ import { WorkItemPriorityComponent } from '../../../../shared/components/work-it
 import { OverdueBadgeComponent } from '../../../../shared/components/overdue-badge/overdue-badge.component';
 import { TaskStatusBadgeComponent } from '../../../projects/tasks/components/task-status-badge/task-status-badge.component';
 
-/**
- * One task of the list on a phone, where six columns do not fit: two lines, as in a ticket's Tasks
- * tab — the code and the whole title on top, status, priority, deadline and person below.
- */
+// phone version of a list row, six columns dont fit
 @Component({
   selector: 'app-task-list-row',
   imports: [

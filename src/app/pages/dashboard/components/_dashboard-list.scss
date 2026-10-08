@@ -1,5 +1,4 @@
-// Shared by the list cards of the dashboard: a header, then rows that scroll inside the card, so a
-// long list never makes its row of cards taller than the charts beside it.
+// rows scroll inside the card so a long list doesnt make the row taller than the charts
 @mixin base {
   :host {
     display: block;

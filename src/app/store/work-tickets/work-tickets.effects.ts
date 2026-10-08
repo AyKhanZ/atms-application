@@ -96,10 +96,7 @@ export class WorkTicketsEffects {
     ),
   );
 
-  /**
-   * A list load stops when its list is cleared, the store is reset or the session ends: a late
-   * answer would otherwise put back a page nobody shows any more.
-   */
+  // late answer would bring back a page nobody shows
   private stopped(requestKey: string) {
     return merge(
       this.reset$,

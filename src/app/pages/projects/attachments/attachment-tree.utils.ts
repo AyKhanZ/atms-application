@@ -53,10 +53,7 @@ function withCounts(nodes: AttachmentTreeNode[]): AttachmentTreeNode[] {
   });
 }
 
-/**
- * Tasks of one ticket, each with its own files and its subtasks under it. Files keep the order
- * they came in — newest first — and tasks go by code, the order the ticket lists them in.
- */
+// files newest first, tasks by code like the ticket lists them
 export function buildTaskNodes(
   items: readonly AttachmentModel[],
   projectId: string,
@@ -94,13 +91,8 @@ export function buildTaskNodes(
   return withCounts([...tasks.values()]);
 }
 
-/**
- * Groups, milestones and tickets of a project; a ticket's tasks appear once its files are read.
- *
- * The plan counts are a snapshot from when the tree was read. Once a ticket's files arrive they
- * are the fresher truth — someone may have added a file in between — so the ticket counts them
- * itself and every level above sums its children, and no branch says 7 over a child that says 8.
- */
+// counts are a snapshot, once a tickets files arrive they win and parents sum their children
+// so a branch never says 7 over a child that says 8
 export function buildProjectNodes(
   tree: AttachmentTreeModel,
   ticketFiles: (ticketId: string) => TicketFiles | undefined,
@@ -133,7 +125,7 @@ export function buildProjectNodes(
   });
 }
 
-/** Every node key, depth first — for Expand all. */
+// depth first, for Expand all
 export function nodeKeys(nodes: readonly AttachmentTreeNode[]): string[] {
   return nodes.flatMap((item) => [item.key, ...nodeKeys(item.children)]);
 }

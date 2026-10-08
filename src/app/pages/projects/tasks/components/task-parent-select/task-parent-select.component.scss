@@ -39,21 +39,18 @@ p-select {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-/* The cap is what keeps the chain honest: without it the context collapses on a narrow field and
-   leaves a row of icons with no text between them. */
+// without the cap a narrow field shows only icons
 .parent-context {
   color: var(--app-muted);
   max-width: 55%;
 }
 
-/* Entity icons carry the orange, the chevrons between them do not — otherwise the separators
-   shout as loudly as the things they separate. Same split as the Milestone select. */
+// chevrons arent orange or they shout like the items
 .parent-option > i,
 .parent-selection > i:not(.pi-angle-right),
 .parent-context > i:not(.pi-angle-right) {
   color: var(--orange);
 }
-/* Same gap between the code and the title as everywhere an item is named. */
 .parent-option,
 .parent-selection,
 .parent-context {
@@ -84,17 +81,14 @@ p-select {
   }
 }
 
-/* The group header is a small stepped tree rather than one line.
-   `--tree-row-gap` is also how far a row's guide line reaches up to meet the row above, so the
-   spacing between levels and the guide line stay in step with each other. */
+// --tree-row-gap is also how far the guide line reaches up, keeps them in step
 .parent-group {
   --tree-row-gap: 0.4rem;
 
   display: grid;
   gap: var(--tree-row-gap);
   min-width: 0;
-  /* The row padding lives here rather than on the PrimeNG row, so a row's box ends exactly where
-     the next one starts and the guide lines can meet without bleeding out of a clipped row. */
+  // padding here, not on the primeng row, so guide lines meet without bleeding out
   padding-block: 0.4rem;
 }
 
@@ -114,35 +108,24 @@ p-select {
   white-space: nowrap;
 }
 
-/* Every line above the option is context, so it is muted and grey the whole way down — the same
-   rule the Location tree follows. Colouring the ticket like a selectable item made the header
-   compete with the options it introduces. */
+// context lines are grey, like Location
 .parent-group__level i {
   color: var(--gray-icon);
 }
 
-/* Header and option share one size and weight: in a tree it is the indent and the colour that
-   separate a parent from a child, not a smaller or heavier font. */
 .parent-group__level,
 .parent-option {
   font-size: 0.85rem;
   font-weight: 400;
 }
 
-/* Indent alone reads as loose spacing, so each level also carries the guide line of everything it
-   sits inside — the same device as `.location-branch`, drawn here as a background because PrimeNG
-   renders group headers and options as siblings and they cannot be physically nested.
-   `--tree-depth` (set in the template) is how many ancestor lines the row draws; each row starts
-   its lines where the row above ended, so the chain reads as one unbroken line instead of dashes
-   and never runs up through the icon of the level it belongs to. */
+// primeng renders headers and options as siblings, so the guide lines are a background
+// --tree-depth = how many ancestor lines the row draws
 .parent-tree-row {
   @include work-location.guide-lines;
 }
 
-/* A line ends up under the icon it descends from, so how far a row reaches *up* decides whether
-   the line stops below that icon or runs into it. A header row starts its lines a little below
-   the row above — enough to clear that icon — and the last one carries them down to the edge of
-   the header, where the first option picks them up. */
+// header rows start lines a bit lower to clear the icon above
 .parent-group__level::before {
   top: -0.15rem;
   bottom: -0.3rem;
@@ -152,8 +135,7 @@ p-select {
   bottom: -0.4rem;
 }
 
-/* An option carries the row padding itself, so its box already spans the whole row: the lines run
-   edge to edge and hand over to the next option without leaving the row they belong to. */
+// option has the padding itself, so lines run edge to edge
 .parent-option {
   padding-block: 0.4rem;
 }

@@ -18,7 +18,7 @@ export class DashboardDeadlinesComponent {
   protected readonly task = WorkItemKind.Task;
   protected readonly subtask = WorkItemKind.Subtask;
   readonly deadlines = input.required<DashboardDeadlineModel[]>();
-  /** Every open task due in the next 7 days; the list shows only the nearest of them. */
+  // all open tasks due in 7 days, the list shows only the nearest
   readonly total = input.required<number>();
   readonly priorities = input<DictionaryModel[]>([]);
   readonly selected = output<WorkItemRefModel>();

@@ -46,6 +46,7 @@ import {
   MilestoneTicketPageState,
 } from './components/milestone-ticket-list/milestone-ticket-list.component';
 import { EmptyStateComponent } from '../../../../../shared/components/empty-state/empty-state.component';
+import { LoadingStateComponent } from '../../../../../shared/components/loading-state/loading-state.component';
 
 interface SelectedWorkGroup {
   item: WorkGroupModel;
@@ -55,6 +56,7 @@ interface SelectedWorkGroup {
 @Component({
   selector: 'app-groups-tab',
   imports: [
+    LoadingStateComponent,
     EmptyStateComponent,
     ButtonModule,
     ConfirmDialogComponent,
@@ -108,10 +110,7 @@ export class GroupsTabComponent implements OnInit, OnDestroy {
   readonly loadError = this.store.selectSignal(WorkGroupsStoreSelectors.getLoadError);
 
   readonly expandedGroupIds = signal<Set<string>>(new Set<string>());
-  /**
-   * Milestones start collapsed. A group with five filled milestones would otherwise render fifty
-   * ticket rows at once, and every one of those milestones would fire its own request on expand.
-   */
+  // collapsed by default: 5 milestones = 50 ticket rows at once and a request per milestone
   readonly expandedMilestoneIds = signal<Set<string>>(new Set<string>());
   readonly initialLoadComplete = signal(this.groups().length > 0 || this.loadError() !== null);
   readonly showExpansionControls = computed(() => this.groups().length > 3);
@@ -208,7 +207,7 @@ export class GroupsTabComponent implements OnInit, OnDestroy {
 
         for (const milestone of group.milestones) {
           if (!this.expandedMilestoneIds().has(milestone.id)) continue;
-          // The count comes with the group payload, so an empty milestone needs no request.
+          // count comes with the group, empty milestone needs no request
           if (milestone.ticketCount === 0) continue;
           if (!this.ticketPageFor(milestone.id)) this.loadTicketsFor(milestone.id, true);
         }
@@ -268,7 +267,7 @@ export class GroupsTabComponent implements OnInit, OnDestroy {
     const restoredMilestones = this.expansionState.getMilestones(this.projectId());
     if (restoredMilestones) this.expandedMilestoneIds.set(restoredMilestones);
 
-    // "View in Plan" points at one milestone: it has to open, not just be highlighted.
+    // "View in Plan" has to open the milestone, not just highlight it
     const focused = this.focusedMilestoneId();
     if (focused) this.setExpandedMilestones(new Set(this.expandedMilestoneIds()).add(focused));
 

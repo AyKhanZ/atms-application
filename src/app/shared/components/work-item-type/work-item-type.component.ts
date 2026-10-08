@@ -38,7 +38,7 @@ import { DictionaryModel } from '../../../core/models/dictionary.model';
 })
 export class WorkItemTypeComponent {
   readonly type = input.required<DictionaryModel>();
-  /** A type that was replaced: faded and struck through. */
+  // replaced: faded and struck through
   readonly muted = input(false);
   readonly appearance = computed(() => normalizeCode(this.type().code));
   readonly icon = computed(() => {

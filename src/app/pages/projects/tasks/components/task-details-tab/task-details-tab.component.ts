@@ -28,14 +28,12 @@ export class TaskDetailsTabComponent {
 
   readonly task = input.required<WorkTaskModel>();
   readonly canComment = input(false);
-  /** Who can be mentioned in a comment: the project's members, read with the task page. */
   readonly participants = input<readonly WorkProjectParticipantModel[]>([]);
 
-  /** Folded on one task, folded on the next, as History's parts are. */
   protected readonly descriptionOpen = this.sections.open('task.description');
   protected readonly discussionOpen = this.sections.open('task.discussion');
 
-  /** A task has no type, so that slot stays empty and the block shows three rows. */
+  // no type for a task, so three rows
   readonly facts = computed<WorkItemFacts>(() => ({
     priority: this.task().priority,
     assignee: this.task().assignee,
@@ -46,7 +44,7 @@ export class TaskDetailsTabComponent {
   private readonly fragment = toSignal(inject(ActivatedRoute).fragment, { initialValue: null });
 
   constructor() {
-    // A link to a comment opens the discussion even if the reader had folded it.
+    // a link to a comment opens the discussion even if it was folded
     effect(() => {
       if (this.fragment()?.startsWith('comment-')) this.discussionOpen.set(true);
     });

@@ -1,17 +1,10 @@
 import { DestroyRef, Directive, ElementRef, afterNextRender, inject } from '@angular/core';
 
-/** The shortest the columns get, on a short window: below this they would show two or three rows. */
+// shorter than this shows only two or three rows
 const MIN_HEIGHT_REM = 36;
 
-/**
- * Lets the History columns reach down to the bottom of the page's scroll area, measured, not
- * guessed: what sits above them (top bar, header, tabs, status graph) and below them (the card's
- * edge, the page padding) is taken off the visible height. A guessed offset left empty space under
- * the columns on a tall monitor and a second scroll bar when the header grew.
- *
- * Measured again when the window changes size and when anything above the columns does — the
- * status graph folded, a title wrapped onto a second line.
- */
+// measured, not guessed: a guessed offset left a gap on tall screens and a 2nd scrollbar when the header grew
+// measured again on resize and when anything above changes
 @Directive({ selector: '[appHistoryPaneHeight]' })
 export class HistoryPaneHeightDirective {
   private readonly element = inject<ElementRef<HTMLElement>>(ElementRef);
@@ -19,14 +12,14 @@ export class HistoryPaneHeightDirective {
 
   constructor() {
     afterNextRender(() => {
-      // Not in a test page without layout; the columns keep their minimum there.
+      // no ResizeObserver in tests, min height stays
       if (typeof ResizeObserver === 'undefined') return;
 
       const columns = this.element.nativeElement;
       const scroller = scrollParent(columns);
       let frame = 0;
 
-      // One measure per frame: setting the height resizes the tab, which the observer reports back.
+      // one measure per frame, setting the height triggers the observer again
       const schedule = () => {
         cancelAnimationFrame(frame);
         frame = requestAnimationFrame(() => this.measure(columns, scroller));
@@ -54,7 +47,6 @@ export class HistoryPaneHeightDirective {
   }
 }
 
-/** The nearest ancestor that scrolls: the page content of the layout, or the document itself. */
 function scrollParent(element: HTMLElement): HTMLElement {
   for (let node = element.parentElement; node; node = node.parentElement) {
     const { overflowY } = getComputedStyle(node);

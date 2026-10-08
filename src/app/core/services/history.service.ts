@@ -4,7 +4,6 @@ import { Observable } from 'rxjs';
 import { projectApiUrl } from '../constants/api-url.constants';
 import { HistoryPageModel, HistoryScope, HistoryStateModel } from '../models/history';
 
-/** Entries on one page: a row is one or two lines, and 10 would fill half of the column. */
 export const HISTORY_PAGE_SIZE = 20;
 
 @Injectable({ providedIn: 'root' })

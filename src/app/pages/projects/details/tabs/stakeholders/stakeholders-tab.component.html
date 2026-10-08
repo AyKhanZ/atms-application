@@ -20,7 +20,7 @@
     <div class="participants-header">
       <div class="participants-title">
         <h3>Participants</h3>
-        <!-- Pending invitations are counted: they take a place until Admin creates the account. -->
+        <!-- pending invitations take a place until admin creates the account -->
         <span
           class="participants-count"
           [attr.aria-label]="participantsCount() + ' of ' + maxParticipants + ' participants'"
@@ -29,7 +29,7 @@
         </span>
       </div>
       @if (canInvite()) {
-        <!-- A disabled button gets no pointer events, so the tooltip hangs on the wrapper. -->
+        <!-- disabled button gets no pointer events, the tooltip is on the wrapper -->
         <span
           class="add-participant-wrap"
           [pTooltip]="limitTooltip"

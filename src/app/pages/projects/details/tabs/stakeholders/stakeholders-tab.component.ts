@@ -37,7 +37,7 @@ import { ParticipantCandidate } from './participant-candidate.model';
 import { ParticipantDialogDataService } from './participant-dialog-data.service';
 import { InviteField, InviteServerError } from './invite-server-error.model';
 
-// The server names fields as in the command; anything else lands under the email.
+// server field names, anything else goes under email
 const inviteFieldsByServerName: Partial<Record<string, InviteField>> = {
   email: 'email',
   name: 'name',
@@ -85,7 +85,7 @@ export class StakeholdersTabComponent {
   readonly roleDialogVisible = signal(false);
   readonly inviteError = signal<InviteServerError | null>(null);
 
-  // Invitations still waiting for an account take a place: they become participants in seconds.
+  // pending invitations take a place too
   readonly participantsCount = computed(
     () => this.project().participants.length + this.project().invitations.length,
   );
@@ -110,8 +110,7 @@ export class StakeholdersTabComponent {
   readonly canDeleteClients = computed(() =>
     this.projectPermissions().includes(ProjectPermissions.Participant.DeleteClient),
   );
-  // A client manager removes clients only; the project manager removes anyone. The server decides the
-  // same per participant, this only hides what would be refused.
+  // client manager removes only clients, pm removes anyone; server checks the same
   readonly removableParticipantIds = computed(
     () =>
       new Set(
@@ -124,7 +123,7 @@ export class StakeholdersTabComponent {
           .map((participant) => participant.id),
       ),
   );
-  // The dialog answers these itself instead of asking the server: the people are already on screen.
+  // answered here, the people are already on screen
   readonly participantEmails = computed(() =>
     this.project().participants.map((participant) => participant.email),
   );
@@ -151,7 +150,7 @@ export class StakeholdersTabComponent {
       onCleanup(() => subscription.unsubscribe());
     });
 
-    // The invite form stays open until the server answers, so a refused email can be fixed in place.
+    // invite form stays open until the server answers so a refused email can be fixed
     this.actions$
       .pipe(ofType(WorkProjectsStoreActions.inviteProjectParticipantSuccess), takeUntilDestroyed())
       .subscribe(() => this.addDialogVisible.set(false));

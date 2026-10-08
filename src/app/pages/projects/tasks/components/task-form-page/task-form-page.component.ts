@@ -40,6 +40,7 @@ import { BackButtonComponent } from '../../../../../shared/components/back-butto
 import { eligibleTaskAssignees } from './task-assignee-options';
 import { TaskFormContextService } from './task-form-context.service';
 import { TaskFormFieldsComponent } from '../task-form-fields/task-form-fields.component';
+import { LoadingStateComponent } from '../../../../../shared/components/loading-state/loading-state.component';
 
 interface TaskFormNavigationState {
   returnUrl?: unknown;
@@ -48,6 +49,7 @@ interface TaskFormNavigationState {
 @Component({
   selector: 'app-task-form-page',
   imports: [
+    LoadingStateComponent,
     ButtonModule,
     ConfirmDialogModule,
     ConfirmDialogComponent,
@@ -140,9 +142,7 @@ export class TaskFormPageComponent {
       )
       .subscribe((result) => {
         if (!result) return;
-        // A task can be moved to another ticket, so a link kept from before the move points at
-        // the wrong one. The details page quietly sends the user to the real ticket; this form
-        // used to stop with an error instead, for the same situation.
+        // task can move to another ticket, an old link points to the wrong one -> go to the real ticket
         if (result.task && result.task.workTicket.id !== this.ticketId) {
           this.redirectToOwningTicket(result.task.workTicket.id);
           return;
@@ -156,8 +156,7 @@ export class TaskFormPageComponent {
         this.statuses.set(result.statuses);
         this.contextTask.set(result.task);
         this.isSubtask.set(Boolean(this.parentTaskId || result.task?.isSubtask));
-        // On create the loaded task is the chosen parent; on edit it is the item itself, so its
-        // parent is either the task above it or, for a top-level task, its ticket.
+        // create: loaded task is the parent; edit: its the item, parent is the task above or its ticket
         const parent = editing
           ? editedTaskParentOption(result.task, result.ticket)
           : result.task
@@ -166,9 +165,7 @@ export class TaskFormPageComponent {
               ? ticketParentOption(result.ticket)
               : null;
         this.selectedParent.set(parent);
-        // The form submits what these controls hold, and the edit route carries no parentTaskId,
-        // so the parent has to be taken from the loaded item. Without this a subtask saved with an
-        // untouched select went up as parentWorkTaskId: null and was silently turned into a task.
+        // edit route has no parentTaskId, without this a subtask saved untouched became a task (parentWorkTaskId: null)
         this.form.patchValue({
           workTicketId: parent?.ticketId ?? this.ticketId,
           parentWorkTaskId: parent?.kind === 'task' ? parent.id : null,
@@ -178,8 +175,7 @@ export class TaskFormPageComponent {
       });
   }
 
-  /** Same route, the ticket the item actually lives under; the history entry is replaced so Back
-   *  does not lead straight into the stale link again. */
+  // replaces history so Back doesnt go to the stale link again
   private redirectToOwningTicket(ticketId: string): void {
     const path = ['/projects', this.projectId, 'tickets', ticketId, 'tasks'];
     void this.router.navigate(this.taskId ? [...path, this.taskId, 'edit'] : [...path, 'create'], {
@@ -191,7 +187,7 @@ export class TaskFormPageComponent {
 
   selectParent(parent: TaskParentOption): void {
     if (this.saving()) return;
-    // A task is parented by a ticket, a subtask by a task — anything else is a wrong list.
+    // task -> ticket, subtask -> task, anything else is a wrong list
     if (this.isSubtask() !== (parent.kind === 'task')) return;
     this.selectedParent.set(parent);
     this.form.patchValue({
@@ -213,7 +209,7 @@ export class TaskFormPageComponent {
     const value = this.form.getRawValue();
     if (value.priorityId === null || !value.workTicketId) return;
 
-    // Saved as Done with subtasks still open: asked, not refused and not done silently.
+    // Done with open subtasks: ask, dont refuse and dont do it silently
     const task = this.contextTask();
     const openSubtasks = task ? task.subtaskCount - task.doneSubtaskCount : 0;
     const closing =
@@ -246,8 +242,7 @@ export class TaskFormPageComponent {
       deadline: value.deadline?.toISOString() ?? null,
       assigneeId: value.assigneeId,
     };
-    // The request goes through the store, like a project's. The answer is the next success or
-    // failure of this kind: only one save can be under way, the button is disabled meanwhile.
+    // one save at a time, the button is disabled meanwhile
     this.actions$
       .pipe(
         ofType(
@@ -262,7 +257,7 @@ export class TaskFormPageComponent {
       .subscribe((action) => {
         if ('error' in action) {
           this.snackBar.error(taskErrorMessage(action.error));
-          // The cached permissions said this was allowed; drop them so the next page is right.
+          // cached permissions said ok, drop them so the next page is right
           if (action.error.status === 403 && this.projectId) {
             this.permissionsRefresh
               .refreshAfterForbidden(this.projectId)
@@ -273,7 +268,7 @@ export class TaskFormPageComponent {
         }
         const createdId = 'id' in action ? action.id : null;
         this.navigationComplete = true;
-        // Same two sentences a ticket uses, so one action does not get three different wordings.
+        // same wording as tickets
         const label = this.isSubtask() ? 'Subtask' : 'Task';
         this.snackBar.success(this.isEdit() ? `${label} changes saved.` : `${label} created.`);
         if (!this.isEdit() && createdId) {

@@ -1,4 +1,4 @@
-/** What a notification is about. The numbers match the server's `NotificationTypeEnum`. */
+// same numbers as server NotificationTypeEnum
 export enum NotificationType {
   TaskAssigned = 1,
   TaskStatusChanged = 2,

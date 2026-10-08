@@ -39,18 +39,13 @@ export class BreadcrumbsComponent implements AfterViewInit, OnDestroy {
   private readonly injector = inject(Injector);
   private readonly bar = viewChild<ElementRef<HTMLElement>>('bar');
 
-  /** Longest a single crumb may count as when deciding what fits, in pixels. Mirrors the
-   *  `max-width` of `.crumb__title`, so a measured crumb is exactly as wide as a drawn one. */
+  // same as .crumb__title max-width
   private static readonly maxTitleWidth = 240;
 
-  /**
-   * How many levels after the first are folded into the «…» button. The first and the last level
-   * are never folded: the root is what you go back to, the last one is where you are.
-   */
+  // first and last level are never folded
   readonly foldedCount = signal(0);
 
-  /** Last resort: on a phone even the root plus the current level can be too much, and then the
-   *  root goes into the menu as well. The level you are on is never folded. */
+  // on a phone even root + current can be too much, then root goes in the menu
   readonly rootFolded = signal(false);
 
   private observer?: ResizeObserver;
@@ -58,18 +53,10 @@ export class BreadcrumbsComponent implements AfterViewInit, OnDestroy {
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly breadcrumbOverride = inject(BreadcrumbOverrideService);
 
-  /**
-   * Bumped on every NavigationEnd. The router's own state is not a signal, so this is what
-   * tells `breadcrumbs` that the URL changed; the override map is tracked directly.
-   */
+  // router state isnt a signal, this tells breadcrumbs the url changed
   private readonly navigationTick = signal(0);
 
-  /**
-   * A computed rather than a signal written from an effect: the trail is purely derived from
-   * the current route plus the registered overrides, and deriving it keeps the two inputs from
-   * going out of sync (the previous version only stayed correct because navigation happened to
-   * rebuild it as well).
-   */
+  // computed, not set from an effect, so route and overrides cant go out of sync
   readonly breadcrumbs = computed<BreadcrumbItem[]>(() => {
     this.navigationTick();
     const trail = this.breadcrumbOverride.trail();
@@ -98,8 +85,7 @@ export class BreadcrumbsComponent implements AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
-    // Guarded: the unit test environment has no ResizeObserver, and the window listener below
-    // still keeps the trail correct without it.
+    // no ResizeObserver in tests, the window listener still works
     if (typeof ResizeObserver !== 'undefined') {
       this.observer = new ResizeObserver(() => this.measure());
       const bar = this.bar()?.nativeElement;
@@ -109,12 +95,11 @@ export class BreadcrumbsComponent implements AfterViewInit, OnDestroy {
     this.measure();
   }
 
-  /** The observer covers the bar changing size on its own; the window listener covers the window
-   *  changing size, which does not always resize the bar itself. */
+  // observer for the bar itself, window listener for window resizes
   private watchResize(): void {
     fromEvent(window, 'resize')
       .pipe(takeUntilDestroyed(this.destroyRef))
-      // After a resize the new width is only known once the browser has laid the page out again.
+      // new width is known only after the next layout
       .subscribe(() => requestAnimationFrame(() => this.measure()));
   }
 
@@ -122,15 +107,8 @@ export class BreadcrumbsComponent implements AfterViewInit, OnDestroy {
     this.observer?.disconnect();
   }
 
-  /**
-   * Folded crumbs stay in the DOM, taken out of flow instead of removed, so every level can be
-   * measured whatever the current state is. That is what lets the trail open back up again: a
-   * trail that measured only what it currently draws would shrink its own idea of how much room
-   * it needs and stay folded for good.
-   *
-   * A crumb counts as its chrome plus its title capped at a readable length, not as whatever the
-   * layout squeezed it to, so the measurement does not depend on the layout it decides.
-   */
+  // folded crumbs stay in the dom so every level can be measured, otherwise the trail stays folded forever
+  // a crumb counts as chrome + capped title, not its squeezed width
   private measure(): void {
     const bar = this.bar()?.nativeElement;
     if (!bar) return;
@@ -194,10 +172,7 @@ export class BreadcrumbsComponent implements AfterViewInit, OnDestroy {
       const segments = r.snapshot.url.map((u) => u.path).filter(Boolean);
       if (segments.length === 0) return;
 
-      // A single route config entry can match several URL segments at once (e.g.
-      // ':projectId/tickets/:ticketId'), so each segment is checked individually for a
-      // registered override — that's what lets a compound route still surface a crumb for
-      // each level (project, then ticket) instead of only one crumb for the whole node.
+      // one route can match several segments (':projectId/tickets/:ticketId'), check each for an override
       segments.forEach((segment, index) => {
         wholePath += `/${segment}`;
         const isLastSegment = index === segments.length - 1;

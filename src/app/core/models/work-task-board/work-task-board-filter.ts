@@ -1,33 +1,28 @@
 import { WorkItemKind } from '../work-items';
 
-/** Deadline filter: anything, work without a deadline, or open work already past it. */
 export type WorkTaskBoardDeadline = 'any' | 'none' | 'overdue';
 
-/**
- * The Tasks page's filters. Every list means "any of", an empty one does not filter. People are
- * filtered by user, not by participant: one person, many projects.
- */
+// empty list = no filter; people by user id, not participant
 export interface WorkTaskBoardFilter {
   projectIds: string[];
   workTicketIds: string[];
-  /** Task or Subtask; null for both. */
+  // null = both
   kind: WorkItemKind.Task | WorkItemKind.Subtask | null;
   assigneeUserIds: string[];
-  /** Include tasks nobody is assigned to. */
   unassigned: boolean;
   statusIds: number[];
   priorityIds: number[];
   deadline: WorkTaskBoardDeadline;
-  /** Inclusive start and exclusive end for a deadline range shared in the address. */
+  // from inclusive, to exclusive
   deadlineFrom: string | null;
   deadlineTo: string | null;
   search: string;
 }
 
-/** Narrowing a request adds to the filters the page shows, it does not replace them. */
+// adds to the filters on the page, doesnt replace them
 export interface WorkTaskBoardQuery extends WorkTaskBoardFilter {
   noDeadline?: boolean;
-  /** One side of the overdue split: true only overdue work, false everything else. */
+  // true = only overdue, false = everything else
   overdue?: boolean;
 }
 

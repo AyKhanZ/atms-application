@@ -118,25 +118,11 @@
                 </footer>
               </div>
             } @else if (activeView() === 'invitations') {
-              <div class="invite-count">
-                <p-skeleton width="5.5rem" height=".9rem" />
-              </div>
-              <div class="invite-table">
-                <div class="invite-head">
-                  <p-skeleton width="5rem" height=".9rem" />
-                  <p-skeleton width="5rem" height=".9rem" />
-                  <p-skeleton width="6rem" height=".9rem" />
-                  <span></span>
-                </div>
-                @for (item of [1, 2, 3]; track item) {
-                  <div class="invite-row">
-                    <p-skeleton width="100%" height="48px" />
-                    <p-skeleton width="100%" height="48px" />
-                    <p-skeleton width="100%" height="48px" />
-                    <p-skeleton width="38px" height="38px" />
-                  </div>
-                }
-              </div>
+              <app-onboarding-invitations
+                [rows]="invitationRows"
+                [max]="maxInvitations()"
+                loading
+              />
               <footer class="form-actions form-actions--end">
                 <p-skeleton width="8rem" height="2.75rem" />
                 <p-skeleton width="9.5rem" height="2.75rem" />
@@ -278,125 +264,12 @@
           @if (activeView() === 'invitations') {
             <div>
               <div class="form-content">
-                <div class="invite-count">
-                  <span>{{ invitationRows.length }}/{{ maxInvitations() }} added</span>
-                </div>
-                <div class="invite-table">
-                  <div class="invite-head">
-                    <span>Name</span><span>Surname</span><span>Email</span><span></span>
-                  </div>
-                  @for (row of invitationRows.controls; track row; let index = $index) {
-                    <div class="invite-row" [formGroup]="row">
-                      <div class="invite-row__header">
-                        <strong>Colleague {{ index + 1 }}</strong>
-                        @if (invitationRows.length > 1) {
-                          <button
-                            type="button"
-                            class="remove-row"
-                            pTooltip="Remove user"
-                            (click)="removeInvitation(index)"
-                          >
-                            <i class="pi pi-trash"></i><span class="sr-only">Remove user</span>
-                          </button>
-                        }
-                      </div>
-                      <div>
-                        <input
-                          pInputText
-                          maxlength="50"
-                          placeholder="Name"
-                          [attr.aria-label]="'Name for invitation ' + (index + 1)"
-                          formControlName="name"
-                        />
-                        <div class="field-line">
-                          <small>
-                            @if (
-                              row.controls.name.touched && row.controls.name.hasError('required')
-                            ) {
-                              Name is required.
-                            }
-                          </small>
-                          @if (row.controls.name.value.length) {
-                            <span class="counter">{{ row.controls.name.value.length }}/50</span>
-                          }
-                        </div>
-                      </div>
-                      <div>
-                        <input
-                          pInputText
-                          maxlength="100"
-                          placeholder="Surname"
-                          [attr.aria-label]="'Surname for invitation ' + (index + 1)"
-                          formControlName="surname"
-                        />
-                        <div class="field-line">
-                          <small>
-                            @if (
-                              row.controls.surname.touched &&
-                              row.controls.surname.hasError('required')
-                            ) {
-                              Surname is required.
-                            }
-                          </small>
-                          @if (row.controls.surname.value.length) {
-                            <span class="counter">{{ row.controls.surname.value.length }}/100</span>
-                          }
-                        </div>
-                      </div>
-                      <div>
-                        <input
-                          pInputText
-                          type="email"
-                          maxlength="100"
-                          placeholder="name@company.com"
-                          [attr.aria-label]="'Email for invitation ' + (index + 1)"
-                          formControlName="email"
-                        />
-                        <div class="field-line">
-                          <small>
-                            @if (
-                              row.controls.email.touched && row.controls.email.hasError('required')
-                            ) {
-                              Email is required.
-                            } @else if (
-                              row.controls.email.touched && row.controls.email.hasError('email')
-                            ) {
-                              Enter a valid email.
-                            }
-                          </small>
-                          @if (row.controls.email.value.length) {
-                            <span class="counter">{{ row.controls.email.value.length }}/100</span>
-                          }
-                        </div>
-                      </div>
-                      @if (invitationRows.length > 1) {
-                        <button
-                          type="button"
-                          class="remove-row remove-row--desktop"
-                          pTooltip="Remove user"
-                          (click)="removeInvitation(index)"
-                        >
-                          <i class="pi pi-trash"></i><span class="sr-only">Remove user</span>
-                        </button>
-                      }
-                    </div>
-                  }
-                </div>
-                <div class="invite-add">
-                  <button
-                    pButton
-                    type="button"
-                    [text]="true"
-                    icon="pi pi-plus"
-                    [disabled]="!canAddInvitation"
-                    (click)="addInvitation()"
-                  >
-                    Add another user
-                  </button>
-                  @if (!canAddInvitation) {
-                    <small>You can invite up to {{ maxInvitations() }} users at a time.</small>
-                  }
-                </div>
+                <app-onboarding-invitations
+                  [rows]="invitationRows"
+                  [max]="maxInvitations()"
+                  (add)="addInvitation()"
+                  (remove)="removeInvitation($event)"
+                />
                 <footer class="form-actions form-actions--end">
                   <button
                     pButton

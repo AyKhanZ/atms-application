@@ -28,10 +28,7 @@ export class TaskLocationComponent {
   readonly task = input.required<WorkTaskModel>();
   readonly allowJump = input(true);
 
-  /**
-   * The tree above the switcher, repeated inside the panel. A subtask carries one more level
-   * than a task, because its siblings live under the parent task rather than under the ticket.
-   */
+  // subtask has one more level, its siblings are under the parent task
   readonly jumpContext = computed<WorkItemJumpContext[]>(() => {
     const item = this.task();
     const chain: WorkItemJumpContext[] = [
@@ -75,7 +72,7 @@ export class TaskLocationComponent {
 
   selectSibling(id: string): void {
     const item = this.task();
-    // A sibling stands in for this page: Back returns where the user came from, not to it.
+    // sibling replaces this page so Back goes where the user came from
     void this.router.navigate(
       ['/projects', item.workProjectId, 'tickets', item.workTicket.id, 'tasks', id],
       { state: { replaceHistory: true } },

@@ -12,14 +12,9 @@ import {
 import { NotificationsStoreActions } from '../../../store/notifications';
 import { confirmTone } from '../confirm-dialog/confirm-dialog.component';
 
-/** The `key` of the `app-confirm-dialog` a component using this service puts in its template. */
 export const NOTIFICATION_NOTICE_KEY = 'notificationTarget';
 
-/**
- * What a click on a notification does, the same in the bell and on the page: it is read, and it
- * opens what it is about — or a Notice says that was deleted. Provided by the component, together
- * with its ConfirmationService.
- */
+// same in the bell and on the page; provided by the component with its ConfirmationService
 @Injectable()
 export class NotificationOpenerService {
   private readonly store = inject(Store);

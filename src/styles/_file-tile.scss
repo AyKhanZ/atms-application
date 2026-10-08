@@ -1,8 +1,10 @@
-/// The square in front of a file name: the file's type icon on a light wash of the type's colour
-/// (`--file-*`). One definition for stored files and uploads in flight, so a row does not change
-/// its look when an upload lands in the list.
-///
-/// The element carries `data-tone` = pdf | document | sheet | image | archive | other.
+// same for stored files and uploads so a row doesnt change when the upload lands
+// data-tone = pdf
+// document
+// sheet
+// image
+// archive
+// other
 @mixin tile($size: 2.25rem) {
   --tone: var(--file-other);
 

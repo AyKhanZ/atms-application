@@ -3,18 +3,12 @@ import { ChangeDetectionStrategy, Component, input, output } from '@angular/core
 export interface EntityTab<TId extends string = string> {
   id: TId;
   label: string;
-  /** PrimeIcons class name, e.g. "pi-align-left". */
+  // e.g. "pi-align-left"
   icon: string;
   badge?: string;
 }
 
-/**
- * The tab strip across the top of a detail card.
- *
- * Project details and Ticket details had byte-identical markup and styles for this, differing
- * only in which tabs they listed. Each page still owns its own tab ids and routing — this
- * component only renders the strip and reports which tab was picked.
- */
+// each page owns its tab ids and routing, this only draws the strip
 @Component({
   selector: 'app-entity-tabs',
   template: `

@@ -24,14 +24,18 @@
     </a>
 
     @if (layout.mode() === 'hidden') {
-      <button type="button" class="drawer-close" aria-label="Close menu" (click)="layout.closeDrawer()">
+      <button
+        type="button"
+        class="drawer-close"
+        aria-label="Close menu"
+        (click)="layout.closeDrawer()"
+      >
         <i class="pi pi-times"></i>
       </button>
     }
   </div>
 
-  <!-- One handler for the whole menu: after a jump the drawer has done its job and gets out of
-       the way. On a wide screen there is no drawer and this does nothing. -->
+  <!-- after a jump the drawer gets out of the way; no drawer on wide screens -->
   <nav class="menu" (click)="layout.closeDrawer()">
     <a routerLink="/dashboard" routerLinkActive="active">
       <i class="pi pi-th-large"></i>

@@ -6,7 +6,7 @@
   container-type: inline-size;
 }
 
-// Fixed columns: the code and the date never move, the title takes what is left and is cut.
+// code and date fixed, title takes the rest and is cut
 .dashboard-deadline {
   display: grid;
   grid-template-columns: 4.5rem minmax(0, 1fr) auto 5.75rem;
@@ -31,7 +31,6 @@
   white-space: nowrap;
 }
 
-// More is due than the card lists: say how many are hidden and where they all are.
 .dashboard-list:has(.dashboard-deadlines__more) {
   grid-template-rows: auto minmax(0, 1fr) auto;
 }

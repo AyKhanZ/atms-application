@@ -15,7 +15,7 @@
   [attr.aria-label]="label() + ', ' + (task().assignee | personName)"
   (click)="open.emit()"
 >
-  <!-- On the grid the left edge says the kind and the hover says the code; the agenda has room. -->
+  <!-- on the grid the left edge shows the kind and hover the code; the agenda has room -->
   @if (phone()) {
     <app-work-item-ref [type]="kind()" [code]="task().code" />
   }
@@ -23,7 +23,7 @@
   @if (overdue()) {
     <app-overdue-badge [deadline]="task().deadline" [compact]="!phone()" />
   }
-  <!-- Always a person or the empty-person icon, like the hover card: never a silent gap. -->
+  <!-- always a person or the empty-person icon, never a gap -->
   @if (!hideAssignee()) {
     <app-work-item-assignee
       class="chip__assignee"

@@ -8,8 +8,7 @@
     <p class="state state--error" role="alert">{{ error }}</p>
   }
   @if (isPhone()) {
-    <!-- A phone has no room for six columns: two lines per task, as in a ticket's Tasks tab — what
-         and which on top, status, priority, deadline and person below. Same order, same overdue. -->
+    <!-- phone: two lines per task like a tickets Tasks tab -->
     <ul class="rows" aria-label="Tasks">
       @for (task of items(); track task.id) {
         <li><app-task-list-row [task]="task" (open)="openTask.emit(task)" /></li>

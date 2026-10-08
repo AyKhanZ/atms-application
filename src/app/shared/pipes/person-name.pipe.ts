@@ -3,12 +3,7 @@ import { NamedPerson, personFullName, personShortName } from '../../core/utils/p
 
 export type { NamedPerson } from '../../core/utils/person-name.utils';
 
-/**
- * "Diana Zeynalova", or the given fallback when there is nobody.
- *
- * Replaces the per-component `assigneeName` / `participantName` helpers that had drifted into
- * five separate copies with slightly different fallbacks.
- */
+// "Damon Salvatore"
 @Pipe({ name: 'personName' })
 export class PersonNamePipe implements PipeTransform {
   transform(person?: NamedPerson | null, fallback = 'Unassigned'): string {
@@ -16,7 +11,6 @@ export class PersonNamePipe implements PipeTransform {
   }
 }
 
-/** Short display name for constrained lists; the full name remains in the tooltip. */
 @Pipe({ name: 'personShortName' })
 export class PersonShortNamePipe implements PipeTransform {
   transform(person?: NamedPerson | null): string {
@@ -24,7 +18,7 @@ export class PersonShortNamePipe implements PipeTransform {
   }
 }
 
-/** "DZ" — the avatar fallback shown while there is no picture. */
+// "DS"
 @Pipe({ name: 'personInitials' })
 export class PersonInitialsPipe implements PipeTransform {
   transform(person?: NamedPerson | null): string {

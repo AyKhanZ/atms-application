@@ -8,6 +8,7 @@ import { TicketStatusBadgeComponent } from '../../../../../tickets/components/ti
 import { WorkItemTypeComponent } from '../../../../../../../shared/components/work-item-type/work-item-type.component';
 import { WorkItemRefComponent } from '../../../../../../../shared/components/work-item-ref/work-item-ref.component';
 import { WorkItemKind } from '../../../../../../../core/models/work-items';
+import { LoadingStateComponent } from '../../../../../../../shared/components/loading-state/loading-state.component';
 
 export interface MilestoneTicketPageState {
   items: WorkTicketModel[];
@@ -19,6 +20,7 @@ export interface MilestoneTicketPageState {
 @Component({
   selector: 'app-milestone-ticket-list',
   imports: [
+    LoadingStateComponent,
     WorkItemRefComponent,
     LoadMoreButtonComponent,
     MenuModule,

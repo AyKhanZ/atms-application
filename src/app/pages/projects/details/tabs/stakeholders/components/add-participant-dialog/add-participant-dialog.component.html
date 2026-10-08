@@ -71,7 +71,7 @@
         <ng-template #emptyfilter>
           <div class="search-empty">
             @if (searchedEmailTaken(); as reason) {
-              <!-- Participants are left out of the list, so their email lands here: say why. -->
+              <!-- participants arent in the list so their email lands here, say why -->
               <span>{{ reason }}</span>
             } @else if (canInviteByEmail() && searchedEmail()) {
               <span>No user with this email.</span>

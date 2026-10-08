@@ -6,14 +6,13 @@ import {
   FileSizePipe,
 } from '../../../../../shared/pipes/attachment.pipe';
 
-/** A file on its way up, or one that did not make it. */
 export interface AttachmentUploadRow {
   id: string;
   fileName: string;
   size: number;
   progress: number;
   error: string | null;
-  /** A network failure can be tried again; a refused type or size cannot. */
+  // network error can be retried, refused type or size cant
   retryable: boolean;
 }
 

@@ -15,11 +15,7 @@ import { FileUploadValue } from '../../../shared/components/file-upload/file-upl
 import { ProfileAvatarComponent } from '../../../shared/components/profile-avatar/profile-avatar.component';
 import { ImageFileValidator } from '../../../shared/validators/image-file.validator';
 
-/**
- * The photo on the Profile tab. The page's Change photo button calls `choose()`; the new photo is
- * only previewed here and goes to the server with the rest of the profile on Save. There is no
- * "remove": a profile photo is required.
- */
+// only previewed here, goes to the server with the profile on Save; no "remove", photo is required
 @Component({
   selector: 'app-settings-photo',
   imports: [ProfileAvatarComponent],
@@ -31,21 +27,17 @@ export class SettingsPhotoComponent implements OnDestroy {
   private readonly validator = inject(ImageFileValidator);
   private readonly fileInput = viewChild.required<ElementRef<HTMLInputElement>>('fileInput');
 
-  /** The photo saved on the server. */
   readonly imageUrl = input<string | null>(null);
   readonly fullName = input('');
   readonly initials = input('');
-  /** Changing it drops the chosen file and shows the saved photo again (after Save or Discard). */
+  // changing it drops the picked file and shows the saved photo (after Save or Discard)
   readonly resetKey = input<unknown>(null);
   readonly fileChange = output<FileUploadValue>();
 
   readonly accept = this.validator.accept;
   private readonly chosenPreview = signal<string | null>(null);
   readonly shownUrl = computed(() => this.chosenPreview() ?? this.imageUrl());
-  /**
-   * Bumped on every pick and every reset. Checking an image is async, so a slow check of an older
-   * pick, or one that finishes after Save or Discard, must not replace what is current.
-   */
+  // image check is async, an older or late check must not replace the current pick
   private selection = 0;
 
   constructor() {
@@ -57,7 +49,7 @@ export class SettingsPhotoComponent implements OnDestroy {
   }
 
   ngOnDestroy(): void {
-    // A check still running would otherwise create a preview URL nobody ever frees.
+    // otherwise a running check creates a preview url nobody frees
     this.selection++;
     this.clearChosen();
   }
@@ -69,7 +61,7 @@ export class SettingsPhotoComponent implements OnDestroy {
   async onSelected(): Promise<void> {
     const input = this.fileInput().nativeElement;
     const file = input.files?.[0] ?? null;
-    // Reset so that picking the same file again still fires `change`.
+    // so picking the same file again still fires change
     input.value = '';
     if (!file) return;
 

@@ -30,7 +30,7 @@ export const loadMoreFailure = createAction(
   props<{ listKey: string; error: string }>(),
 );
 
-/** `requestId` tells the editor that sent the comment which answer is its own. */
+// requestId tells the editor which answer is its own
 export const create = createAction(
   `${key} Create`,
   props<{
@@ -76,21 +76,17 @@ export const removeFailure = createAction(
   props<{ commentId: string; error: WorkItemMutationError }>(),
 );
 
-/**
- * A comment added or changed by anyone, read after its push: put in place when on screen, added on
- * top of the list when not.
- */
+// put in place when on screen, on top of the list when not
 export const received = createAction(
   `${key} Received`,
   props<{ listKey: string; comment: CommentModel }>(),
 );
-/** A comment deleted by anyone, known from its push alone. */
 export const removedElsewhere = createAction(
   `${key} Removed Elsewhere`,
   props<{ listKey: string; commentId: string }>(),
 );
 
-/** A link to a comment no page read so far holds: read it alone instead of paging back to it. */
+// read it alone instead of paging back to it
 export const loadLinked = createAction(
   `${key} Load Linked`,
   props<{ listKey: string; projectId: string; workTaskId: string; commentId: string }>(),
@@ -103,10 +99,9 @@ export const loadLinkedFailure = createAction(
   `${key} Load Linked Failure`,
   props<{ listKey: string; commentId: string; error: string }>(),
 );
-/** The link is gone from the address: the comment above the list goes with it. */
 export const clearLinked = createAction(`${key} Clear Linked`, props<{ listKey: string }>());
 
-/** The list is gone from the screen: drop it and cancel a load still on its way. */
+// also cancels a load still on its way
 export const clear = createAction(`${key} Clear`, props<{ listKey: string }>());
 
 export const reset = createAction(`${key} Reset`);

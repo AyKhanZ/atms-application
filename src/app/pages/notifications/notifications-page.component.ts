@@ -22,7 +22,6 @@ import { NotificationsStoreActions, NotificationsStoreSelectors } from '../../st
 
 type NotificationFilter = 'all' | 'unread';
 
-/** Everything that came to the person, by day; the bell shows only the newest ten. */
 @Component({
   selector: 'app-notifications-page',
   imports: [
@@ -60,7 +59,7 @@ export class NotificationsPageComponent implements OnDestroy {
   );
 
   constructor() {
-    // The filter lives in the address, so the page survives a refresh and Back returns to it.
+    // filter lives in the url so refresh and Back keep it
     this.route.queryParamMap.pipe(takeUntilDestroyed()).subscribe((params) => {
       const unreadOnly = params.get('filter') === 'unread';
       this.store.dispatch(NotificationsStoreActions.loadPage({ unreadOnly }));
@@ -94,7 +93,6 @@ export class NotificationsPageComponent implements OnDestroy {
     this.store.dispatch(NotificationsStoreActions.markAllRead());
   }
 
-  /** Called by the sentinel when the end of the list comes into view, and by the button below it. */
   loadMore(): void {
     const page = this.page();
     if (page.loading || page.loadingMore || !page.hasMore) return;

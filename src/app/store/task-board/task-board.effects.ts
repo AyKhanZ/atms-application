@@ -27,7 +27,7 @@ import { WorkTaskModel } from '../../core/models/work-tasks';
 import { AuthStoreActions } from '../auth';
 import * as ActionsStore from './task-board.actions';
 
-/** A calendar month is read whole; past this many pages the rest is not worth the wait. */
+// past this the rest isnt worth the wait
 const maxPagesPerMonth = 20;
 
 @Injectable()
@@ -39,7 +39,7 @@ export class TaskBoardEffects {
     ofType(ActionsStore.reset, AuthStoreActions.logoutCompleted),
   );
 
-  /** One stream per list, so loading one column never cancels another. */
+  // one stream per list so one column never cancels another
   loadPage$ = createEffect(() =>
     this.actions$.pipe(
       ofType(ActionsStore.loadPage),
@@ -99,7 +99,7 @@ export class TaskBoardEffects {
       switchMap(({ query }) =>
         this.board.getCounts(query).pipe(
           map((counts) => ActionsStore.loadCountsSuccess({ counts })),
-          // Counts are a garnish on the column headers; without them the board still works.
+          // counts are extra, the board works without them
           catchError(() => EMPTY),
           takeUntil(this.stopped$),
         ),
@@ -120,11 +120,8 @@ export class TaskBoardEffects {
     ),
   );
 
-  /**
-   * Moves run one after another, in the order they were made: each depends on the last. Leaving
-   * the page does not stop them — the card was already dropped — but signing out drops the queue:
-   * what is left must not be sent under whoever signs in next.
-   */
+  // moves run in order, each depends on the last
+  // leaving the page doesnt stop them, signing out drops the queue so nothing is sent for the next user
   moveTask$ = createEffect(() =>
     this.untilLogout(() =>
       this.actions$.pipe(
@@ -165,10 +162,7 @@ export class TaskBoardEffects {
     ),
   );
 
-  /**
-   * A list load stops when the view no longer shows the list, the page closes or the session
-   * ends: a late answer would otherwise put back a list nobody shows any more.
-   */
+  // late answer would bring back a list nobody shows
   private dropped(key: string) {
     return merge(
       this.stopped$,
@@ -179,7 +173,6 @@ export class TaskBoardEffects {
     );
   }
 
-  /** Runs `work` afresh after every sign-out, with whatever it had queued thrown away. */
   private untilLogout<T>(work: () => Observable<T>): Observable<T> {
     return this.actions$.pipe(
       ofType(AuthStoreActions.logoutCompleted),

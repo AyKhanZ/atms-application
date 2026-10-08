@@ -1,4 +1,4 @@
-/* The width of the dialog, never of the document: the frame scrolls the pages inside itself. */
+// width of the dialog, the frame scrolls pages inside
 :host {
   display: grid;
   width: 100%;
@@ -14,7 +14,7 @@
   border: 0;
 }
 
-/* Kept in the layout while it loads, only unseen: a frame out of the layout may not load. */
+// hidden but kept in layout, a frame out of layout may not load
 .document-frame--hidden {
   height: 0;
   visibility: hidden;

@@ -23,20 +23,15 @@ import {
 } from '../../attachment-tree-expansion.service';
 import { AttachmentRowComponent } from '../attachment-row/attachment-row.component';
 
-/** A lazy branch whose files have not been read: opening it costs a request. */
+// opening it costs a request
 function isUnread(node: AttachmentTreeNode): boolean {
   return node.lazy && node.children.length === 0 && (node.loading || node.error);
 }
 
-/** Expand all / Collapse all only pays for itself past this many branches, as in Plan. */
+// same as Plan
 const EXPANSION_CONTROLS_FROM = 4;
 
-/**
- * Files laid out along the plan: each level is a row with its icon, code and title, indented one
- * step under its parent with a guide line down everything it holds — the same drawing as Location
- * and the Parent select, so "this file sits inside that subtask" reads the same way everywhere.
- * Read-only: files are changed only on the task or subtask they belong to.
- */
+// read-only: files are changed only on their task
 @Component({
   selector: 'app-attachment-tree',
   imports: [
@@ -56,14 +51,11 @@ export class AttachmentTreeComponent {
 
   readonly nodes = input.required<AttachmentTreeNode[]>();
   readonly heading = input.required<string>();
-  /** Where the open branches are remembered: one key per tree on the page. */
   readonly stateKey = input.required<string>();
-  /** Whether a branch seen for the first time starts open. */
   readonly defaultOpen = input<(node: AttachmentTreeNode) => boolean>(() => true);
 
   readonly preview = output<AttachmentModel>();
   readonly download = output<AttachmentModel>();
-  /** A lazy branch was opened and has no files yet. */
   readonly opened = output<AttachmentTreeNode>();
   readonly retry = output<AttachmentTreeNode>();
 
@@ -71,11 +63,7 @@ export class AttachmentTreeComponent {
   readonly fileCount = computed(() => this.nodes().reduce((sum, item) => sum + item.fileCount, 0));
   readonly keys = computed(() => nodeKeys(this.nodes()));
   readonly showExpansionControls = computed(() => this.keys().length >= EXPANSION_CONTROLS_FROM);
-  /**
-   * What Expand all opens: everything already on the page. A ticket whose files are not read yet
-   * stays shut — opening every one would fire a request per ticket at once, two hundred in a big
-   * project. It opens, and loads, when the user opens it.
-   */
+  // unread tickets stay shut, opening all would fire a request per ticket (200 in a big project)
   readonly expandableKeys = computed(() => {
     const keys: string[] = [];
     this.forEachNode(this.nodes(), (node) => {
@@ -99,8 +87,7 @@ export class AttachmentTreeComponent {
       });
     });
 
-    // A branch gets its default state once, the first time it shows up; after that it stays as
-    // the user left it, even when the list is read again.
+    // default state only the first time, then it stays as the user left it
     effect(() => {
       const nodes = this.nodes();
       const defaultOpen = this.defaultOpen();

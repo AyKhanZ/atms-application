@@ -1,5 +1,4 @@
-<!-- A single level is the page title again, one line above it. Nothing to navigate, so nothing
-     is drawn. -->
+<!-- one level = the page title again, nothing to draw -->
 @if (breadcrumbs().length > 1) {
   <nav class="breadcrumbs" #bar aria-label="Breadcrumb">
     @for (crumb of breadcrumbs(); track crumb.path; let index = $index; let last = $last) {
@@ -36,7 +35,7 @@
       </div>
     }
 
-    <!-- Always rendered so its width can be measured; hidden the same way folded crumbs are. -->
+    <!-- always rendered so its width can be measured -->
     <div
       class="crumb crumb--more"
       [class.crumb--hidden]="foldedCount() === 0 && !rootFolded()"

@@ -12,7 +12,6 @@ export class UsersEffects {
   private readonly usersService = inject(UsersService);
   private readonly snackBar = inject(SnackBarService);
 
-  // GET /users
   loadUsers$ = createEffect(() =>
     this.actions$.pipe(
       ofType(UsersStoreActions.loadUsers),
@@ -28,7 +27,6 @@ export class UsersEffects {
     ),
   );
 
-  // POST /account/register
   registerUser$ = createEffect(() =>
     this.actions$.pipe(
       ofType(UsersStoreActions.registerUser),
@@ -43,7 +41,6 @@ export class UsersEffects {
       ),
     ),
   );
-  // GET /users/:id
   loadUser$ = createEffect(() =>
     this.actions$.pipe(
       ofType(UsersStoreActions.loadUser),
@@ -59,7 +56,6 @@ export class UsersEffects {
     ),
   );
 
-  // PATCH /users/status/:id
   updateUserStatus$ = createEffect(() =>
     this.actions$.pipe(
       ofType(UsersStoreActions.updateUserStatus),

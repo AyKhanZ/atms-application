@@ -12,11 +12,7 @@ export class TaskFormBreadcrumbsService implements OnDestroy {
   private readonly router = inject(Router);
   private readonly ownerPath = this.router.url.split(/[?#]/)[0];
 
-  /**
-   * A subtask is created on the same route as a task, whose static crumb reads "New task". Until
-   * the form data lands there is nothing else to go on, so the crumb is corrected up front rather
-   * than being briefly wrong.
-   */
+  // subtask uses the task route ("New task"), fix the crumb up front instead of showing it wrong for a moment
   placeholder(isSubtask: boolean): void {
     this.breadcrumbs.set(this.ownerPath, isSubtask ? 'New subtask' : 'New task');
   }

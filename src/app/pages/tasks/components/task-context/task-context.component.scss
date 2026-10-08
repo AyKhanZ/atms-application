@@ -1,4 +1,3 @@
-/* Label and link side by side, one row each: Project (when shown), then Parent. */
 :host {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);

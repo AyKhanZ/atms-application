@@ -1,10 +1,7 @@
 import { GlobalSearchItemModel } from '../../../core/models/global-search';
 import { WorkItemKind } from '../../../core/models/work-items';
 
-/**
- * Where a result opens. A subtask lives under its parent task's ticket, so it uses the same
- * route as a task — the page tells the two apart by the item itself.
- */
+// subtask uses the task route, the page tells them apart
 export function workItemRoute(item: GlobalSearchItemModel): string {
   const project = `/projects/${item.project.id}`;
 
@@ -18,7 +15,7 @@ export function workItemRoute(item: GlobalSearchItemModel): string {
   }
 }
 
-/** A code is matched exactly, so one digit is enough; a title needs three, like on the server. */
+// code is exact so one digit is enough, a title needs three like on the server
 export function isSearchable(value: string): boolean {
   const text = value.trim();
   if (text.length === 0 || text.length > 100) return false;

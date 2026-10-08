@@ -1,11 +1,21 @@
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, viewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  computed,
+  inject,
+  viewChild,
+} from '@angular/core';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { ConfirmationService } from 'primeng/api';
 import { Popover, PopoverModule } from 'primeng/popover';
 import { NotificationModel } from '../../../core/models/notifications';
 import { unreadBadge } from '../../../core/utils/notification.utils';
-import { NotificationsStoreActions, NotificationsStoreSelectors } from '../../../store/notifications';
+import {
+  NotificationsStoreActions,
+  NotificationsStoreSelectors,
+} from '../../../store/notifications';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 import { NotificationItemComponent } from '../notification-item/notification-item.component';
 import {
@@ -13,7 +23,6 @@ import {
   NotificationOpenerService,
 } from '../notification-item/notification-opener.service';
 
-/** The bell in the top bar: the unread count, and the newest ten in a panel under it. */
 @Component({
   selector: 'app-notification-bell',
   imports: [PopoverModule, ConfirmDialogComponent, NotificationItemComponent],
@@ -32,8 +41,7 @@ export class NotificationBellComponent implements OnInit {
   readonly unreadCount = this.store.selectSignal(NotificationsStoreSelectors.getUnreadCount);
   readonly latest = this.store.selectSignal(NotificationsStoreSelectors.getLatest);
   readonly loaded = this.store.selectSignal(NotificationsStoreSelectors.getLatestLoaded);
-  // From the store, not from the popover: its visibility is a plain field that nothing redraws
-  // when it changes, so the button would stay lit after the panel closed.
+  // from the store, the popover visibility is a plain field nothing redraws, the button stayed lit
   readonly panelOpen = this.store.selectSignal(NotificationsStoreSelectors.getLatestOpen);
   readonly loading = this.store.selectSignal(NotificationsStoreSelectors.getLatestLoading);
   readonly error = this.store.selectSignal(NotificationsStoreSelectors.getLatestError);

@@ -13,7 +13,7 @@ import { UserStoreSelectors } from '../../store/user';
 import { FilterOption } from './components/task-filters/filter-option';
 import { OptionsPage, RemoteOptions } from './remote-options';
 
-/** The API caps a page at 50. */
+// api max page size
 const pageSize = 50;
 
 const projectOption = (project: { id: string; code: string; title: string }): FilterOption => ({
@@ -28,11 +28,7 @@ const ticketOption = (ticket: { id: string; code: string; title: string }): Filt
   ref: { kind: WorkItemKind.Ticket, code: ticket.code, title: ticket.title },
 });
 
-/**
- * What the Tasks page's filter dropdowns offer: statuses, priorities, people, and projects and the
- * tickets of the one chosen project — those two searched on the server and read a page at a time.
- * Provided by the page, so it lives and dies with it.
- */
+// provided by the page, lives and dies with it
 @Injectable()
 export class TaskFilterOptionsService {
   private readonly store = inject(Store);
@@ -43,10 +39,9 @@ export class TaskFilterOptionsService {
 
   private readonly me = this.store.selectSignal(UserStoreSelectors.getMe);
   private readonly assignees = this.store.selectSignal(TaskBoardStoreSelectors.getAssignees);
-  /** The project whose tickets the Ticket filter offers; null unless exactly one is chosen. */
+  // null unless exactly one project is chosen
   private ticketProjectId: string | null = null;
-  /** The projects people were last read for: the page calls `select` on every change of its
-   *  address, and most of them — a page, a month, the view — leave the projects as they were. */
+  // select is called on every url change, most leave the projects as they were
   private assigneesFor: string | null = null;
 
   readonly projects = new RemoteOptions(
@@ -63,7 +58,7 @@ export class TaskFilterOptionsService {
     this.destroyRef,
   );
 
-  /** Task statuses in their dictionary order; the board builds its columns from them. */
+  // board builds its columns from them
   readonly statuses = signal<DictionaryModel[]>([]);
   readonly statusOptions = computed<FilterOption<number>[]>(() =>
     this.statuses().map((status) => ({ value: status.id, label: status.name })),
@@ -91,7 +86,6 @@ export class TaskFilterOptionsService {
     this.projects.reload();
   }
 
-  /** People and tickets depend on the projects chosen; the choices themselves must stay named. */
   select(projectIds: readonly string[], workTicketIds: readonly string[]): void {
     const assigneesFor = projectIds.join();
     if (assigneesFor !== this.assigneesFor) {
@@ -109,7 +103,7 @@ export class TaskFilterOptionsService {
     this.tickets.choose(ticketProjectId ? workTicketIds : []);
   }
 
-  /** A dropdown without its options still works: a failed load leaves it empty, not broken. */
+  // a failed load leaves the dropdown empty, not broken
   private keep<T>(source: Observable<T[]>, set: (value: T[]) => void): void {
     source
       .pipe(

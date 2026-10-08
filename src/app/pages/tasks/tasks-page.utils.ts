@@ -16,16 +16,14 @@ export const defaultListOrder: WorkTaskBoardOrder = {
 
 export type TasksView = 'board' | 'calendar' | 'list';
 
-/** What the page shows, as it lives in the address: view, filters and the calendar's month. */
 export interface TasksPageState {
   view: TasksView;
   filter: WorkTaskBoardFilter;
-  /** "2026-09" — the calendar's month. */
+  // "2026-09"
   month: string;
   order: WorkTaskBoardOrder;
 }
 
-/** Stand-ins in the address for the signed-in user and for "nobody". */
 const me = 'me';
 const none = 'none';
 const lastStateKey = 'baim.tasks.last';
@@ -34,10 +32,7 @@ export function currentMonth(today = new Date()): string {
   return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
 }
 
-/**
- * Reads the page from its address. No filters at all means a first visit: the user's own work
- * across all projects, which is what most people open this page for.
- */
+// no filters at all = first visit: own work across all projects
 export function parseTasksPage(params: ParamMap, meId: string | null): TasksPageState {
   const list = (name: string) => (params.get(name) ?? '').split(',').filter(Boolean);
   const view = params.get('view');
@@ -88,8 +83,7 @@ export function parseTasksPage(params: ParamMap, meId: string | null): TasksPage
   };
 }
 
-/** The address for a page state. The signed-in user is written as "me", so a shared link is
- *  "my tasks" for whoever opens it. An empty value is written too: "assignee=" means anyone. */
+// user written as "me" so a shared link is "my tasks" for whoever opens it; "assignee=" means anyone
 export function tasksPageParams(state: TasksPageState, meId: string | null): Params {
   const { filter } = state;
   const people = [
@@ -121,7 +115,7 @@ export function tasksPageParams(state: TasksPageState, meId: string | null): Par
   };
 }
 
-/** Anything narrower than "anyone's work in every project"? Decides whether Clear shows. */
+// decides if Clear shows
 export function hasFilters(filter: WorkTaskBoardFilter): boolean {
   return (
     filter.projectIds.length > 0 ||
@@ -142,7 +136,7 @@ export function clearedFilter(): WorkTaskBoardFilter {
   return { ...emptyWorkTaskBoardFilter };
 }
 
-/** Stable text for a filter, used in store keys: the same filter always maps to the same lists. */
+// same filter always maps to the same lists
 export function filterKey(query: WorkTaskBoardQuery): string {
   const sorted = (values: readonly (string | number)[]) => [...values].map(String).sort().join(',');
   return [
@@ -162,12 +156,12 @@ export function filterKey(query: WorkTaskBoardQuery): string {
   ].join('|');
 }
 
-/** Remembers the last view and filters in this browser; best effort, storage may be off. */
+// best effort, storage may be off
 export function rememberTasksPage(params: Params): void {
   try {
     localStorage.setItem(lastStateKey, JSON.stringify(params));
   } catch {
-    // Private mode or blocked storage: the page still works, it just starts fresh next time.
+    // private mode or blocked storage: works, just starts fresh next time
   }
 }
 

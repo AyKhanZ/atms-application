@@ -1,4 +1,4 @@
-<!-- On a phone the columns become a switcher: one column fills the screen. -->
+<!-- on a phone the columns become a switcher -->
 <div class="switcher" role="tablist" aria-label="Board columns">
   @for (column of columns(); track column.key) {
     <button
@@ -30,8 +30,7 @@
       </header>
 
       @for (lane of shownLanes(column); track lane.key) {
-        <!-- Overdue work sits on top, cut off by a dashed line, with no heading of its own: the
-             red cards already say what they are. Absent from a column that has none. -->
+        <!-- overdue on top under a dashed line, no heading, red cards say it -->
         <div
           class="column__list"
           [class.column__list--late]="lane.overdue && grouped(column)"
@@ -82,7 +81,7 @@
       }
     </section>
   } @empty {
-    <!-- Statuses still loading: the board's outline, so it does not appear out of nothing. -->
+    <!-- statuses still loading: draw the outline so the board doesnt appear from nothing -->
     @for (placeholder of [1, 2, 3]; track placeholder) {
       <section class="column" aria-hidden="true">
         <header class="column__head"><p-skeleton width="7rem" height="1.25rem" /></header>

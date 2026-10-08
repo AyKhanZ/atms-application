@@ -1,7 +1,7 @@
 import { Pipe, PipeTransform } from '@angular/core';
 import { daysFromToday, daysLate } from '../../core/utils/deadline.utils';
 
-/** "Today" / "in 5 days" / "overdue by 2 days" — the muted line under a deadline date. */
+// "Today" / "in 5 days" / "overdue by 2 days"
 @Pipe({ name: 'deadlineLabel' })
 export class DeadlineLabelPipe implements PipeTransform {
   transform(deadline?: string | Date | null): string {
@@ -17,10 +17,7 @@ export class DeadlineLabelPipe implements PipeTransform {
   }
 }
 
-/**
- * True once the deadline is in the past and the work is still open, so the date can be flagged:
- * `deadline | isOverdue: closed`. Closed work is never overdue, whatever its date.
- */
+// closed work is never overdue
 @Pipe({ name: 'isOverdue' })
 export class IsOverduePipe implements PipeTransform {
   transform(deadline?: string | Date | null, closed = false): boolean {

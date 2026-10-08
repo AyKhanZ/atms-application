@@ -11,12 +11,9 @@ import {
   untracked,
 } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Actions, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
-import { DatePickerModule } from 'primeng/datepicker';
-import { SelectModule } from 'primeng/select';
 import {
   DashboardGranularity,
   DashboardKpiModel,
@@ -44,6 +41,7 @@ import {
   DashboardChartSeries,
 } from './components/dashboard-chart.component';
 import { DashboardDeadlinesComponent } from './components/dashboard-deadlines.component';
+import { DashboardToolbarComponent } from './components/dashboard-toolbar.component';
 
 const refreshSafetyMs = 300_000;
 const maxRangeDays = 366;
@@ -73,12 +71,10 @@ const kpiLooks: Record<DashboardKpiModel['key'], { label: string; icon: string; 
 @Component({
   selector: 'app-dashboard',
   imports: [
-    FormsModule,
-    SelectModule,
-    DatePickerModule,
     DashboardActivityComponent,
     DashboardChartComponent,
     DashboardDeadlinesComponent,
+    DashboardToolbarComponent,
   ],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
@@ -108,7 +104,7 @@ export class Dashboard implements OnDestroy {
   readonly priorities = this.store.selectSignal(DashboardStoreSelectors.getPriorities);
   readonly now = signal(Date.now());
 
-  /** Picking "Custom range" opens the date fields; nothing is loaded until Apply. */
+  // nothing loads until Apply
   readonly editingCustom = signal(false);
   readonly customFrom = signal<Date | null>(null);
   readonly customTo = signal<Date | null>(null);
@@ -117,8 +113,7 @@ export class Dashboard implements OnDestroy {
   readonly selectedPeriod = computed<DashboardPeriod>(() =>
     this.editingCustom() ? 'custom' : this.query().period,
   );
-  // The calendars refuse what the server would refuse: nothing after today, no end before the start
-  // and no range longer than a year — so a wrong range cannot even be picked.
+  // calendars refuse what the server refuses: nothing after today, end after start, max a year
   readonly fromMinDate = computed(() => {
     const to = this.customTo();
     return to ? addDays(to, 1 - maxRangeDays) : null;
@@ -162,10 +157,7 @@ export class Dashboard implements OnDestroy {
     if (data.period === 'custom') return rangeText(data.from, data.to);
     return DASHBOARD_PERIOD_OPTIONS.find((option) => option.value === data.period)?.label ?? '';
   });
-  /**
-   * The dates behind the chosen period — the one thing the controls do not already show. The project
-   * and the period name are in the fields right beside it; a custom range shows its dates itself.
-   */
+  // only the dates, project and period name are already in the fields next to it
   readonly scopeText = computed(() => {
     const data = this.model();
     return data && data.period !== 'custom' ? rangeText(data.from, data.to) : '';
@@ -198,7 +190,7 @@ export class Dashboard implements OnDestroy {
         value: kpi.value,
         alert: kpi.key === 'overdue' && kpi.value > 0,
         delta: kpi.changePercent ?? null,
-        // The task list has no filter by creation date, so Created has nowhere honest to lead.
+        // task list has no created-date filter, so Created leads nowhere
         clickable: kpi.key !== 'created',
       }));
   });
@@ -213,16 +205,14 @@ export class Dashboard implements OnDestroy {
   });
   readonly mainTooltipLabels = computed(() => {
     const data = this.model();
-    return data
-      ? data.mainChart.labels.map((label) => bucketTooltip(label, data.granularity))
-      : [];
+    return data ? data.mainChart.labels.map((label) => bucketTooltip(label, data.granularity)) : [];
   });
   readonly mainSeries = computed<DashboardChartSeries[]>(() => {
     const series = this.model()?.mainChart.series ?? [];
     const values = (key: 'created' | 'started' | 'done') =>
       series.find((item) => item.key === key)?.data ?? [];
     return [
-      // Named and coloured as the statuses the tasks moved into, the way every status dot is.
+      // same colors as status dots
       { label: 'New', values: values('created'), color: '--status-dot-new' },
       { label: 'In progress', values: values('started'), color: '--status-dot-progress' },
       { label: 'Done', values: values('done'), color: '--status-dot-done' },
@@ -299,7 +289,11 @@ export class Dashboard implements OnDestroy {
     ),
   );
   readonly workloadSeries = computed<DashboardChartSeries[]>(() => [
-    { label: 'Tasks not done', values: this.workloadSegments().map((item) => item.value), color: '--orange' },
+    {
+      label: 'Tasks not done',
+      values: this.workloadSegments().map((item) => item.value),
+      color: '--orange',
+    },
   ]);
   readonly workloadDisabledIndices = computed(() =>
     this.workloadSegments().flatMap((item, index) => (item.kind === 'others' ? [index] : [])),
@@ -334,7 +328,7 @@ export class Dashboard implements OnDestroy {
         this.navigate(query);
         return;
       }
-      // A link or a reload with a custom range shows its dates in the fields.
+      // link or reload with a custom range fills the fields
       if (query.period === 'custom' && !untracked(this.editingCustom)) {
         this.customFrom.set(fromIsoDate(query.from));
         this.customTo.set(fromIsoDate(query.to));
@@ -391,7 +385,7 @@ export class Dashboard implements OnDestroy {
     this.navigate({ ...this.query(), period, from: null, to: null });
   }
 
-  /** A new start that leaves the end out of reach clears the end: it has to be picked again. */
+  // new start out of range clears the end
   setCustomFrom(from: Date | null): void {
     this.customFrom.set(from);
     const to = this.customTo();
@@ -401,7 +395,8 @@ export class Dashboard implements OnDestroy {
   setCustomTo(to: Date | null): void {
     this.customTo.set(to);
     const from = this.customFrom();
-    if (to && from && (from > to || from < addDays(to, 1 - maxRangeDays))) this.customFrom.set(null);
+    if (to && from && (from > to || from < addDays(to, 1 - maxRangeDays)))
+      this.customFrom.set(null);
   }
 
   applyCustom(): void {
@@ -469,7 +464,6 @@ export class Dashboard implements OnDestroy {
     });
   }
 
-  /** Every deadline, not only the nearest ten the card lists. */
   showAllDeadlines(): void {
     const today = startOfToday();
     this.openTasks({
@@ -512,7 +506,7 @@ export class Dashboard implements OnDestroy {
   }
 }
 
-// Angular's formatter, as in History and Attachments: `Intl` writes September as "Sept" in en-GB.
+// angular formatter like history and attachments, Intl writes "Sept" in en-GB
 const date = (value: Date, format: string) => formatDate(value, format, 'en-US');
 
 function rangeText(from: string, to: string): string {
@@ -524,7 +518,7 @@ function rangeText(from: string, to: string): string {
   return `${date(start, format)} – ${date(end, format)}`;
 }
 
-/** Axis label of a bucket the API names as yyyy-MM-ddTHH:mm, yyyy-MM-dd or yyyy-MM. */
+// api sends yyyy-MM-ddTHH:mm, yyyy-MM-dd or yyyy-MM
 function bucketLabel(label: string, granularity: DashboardGranularity): string {
   if (granularity === 'hour') return label.slice(11, 16);
   if (granularity === 'month') return date(monthDate(label), 'MMM y');
@@ -547,7 +541,7 @@ function startOfToday(): Date {
   return new Date(now.getFullYear(), now.getMonth(), now.getDate());
 }
 
-/** Calendar days, not 24-hour steps: a daylight-saving day stays one day. */
+// calendar days, not 24h, so a DST day stays one day
 function addDays(date: Date, days: number): Date {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate() + days);
 }

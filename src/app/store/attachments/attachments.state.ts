@@ -18,12 +18,10 @@ export interface AttachmentTreeState {
 }
 
 export interface AttachmentsState {
-  /** By list key: `task:<id>`, `subtasks:<id>`, `ticket:<id>`. */
+  // task:<id>, subtasks:<id>, ticket:<id>
   lists: Record<string, AttachmentListState>;
-  /** By project id. */
   trees: Record<string, AttachmentTreeState>;
   uploads: AttachmentUploadModel[];
-  /** Files being renamed or deleted right now. */
   pendingIds: string[];
 }
 

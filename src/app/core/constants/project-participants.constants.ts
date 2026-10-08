@@ -1,2 +1,2 @@
-/** One number for the project form, adding a participant and inviting one. Same as the API. */
+// same limit as the api
 export const maxProjectParticipants = 20;

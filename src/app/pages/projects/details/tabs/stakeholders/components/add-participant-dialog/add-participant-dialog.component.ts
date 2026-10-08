@@ -49,7 +49,7 @@ interface InviteFieldDefinition {
   maxLength: number;
 }
 
-// Same order and limits as registering a user; the email comes last even when the search filled it.
+// same order and limits as registering a user
 const inviteFields: InviteFieldDefinition[] = [
   { key: 'name', id: 'inviteName', label: 'Name', maxLength: 50 },
   { key: 'surname', id: 'inviteSurname', label: 'Surname', maxLength: 100 },
@@ -81,14 +81,13 @@ export class AddParticipantDialogComponent {
   readonly users = input<ParticipantCandidate[]>([]);
   readonly roles = input<WorkProjectRoleModel[]>([]);
   readonly isSaving = input(false);
-  /** Clients of the project's organization can be invited by email from this dialog. */
   readonly canInviteByEmail = input(false);
-  /** The server's reason for refusing the last invitation, shown under the field it named. */
+  // shown under the field the server named
   readonly inviteError = input<InviteServerError | null>(null);
-  /** Emails already in the project: refused here, before a request the server would turn down. */
+  // refused here before a request the server would refuse anyway
   readonly participantEmails = input<string[]>([]);
   readonly invitedEmails = input<string[]>([]);
-  /** Free places of the project's 20; mentioned only when one or two are left. */
+  // of 20, shown only when one or two are left
   readonly placesLeft = input<number | null>(null);
   readonly submitted = output<WorkProjectParticipantCommand>();
   readonly invited = output<InviteWorkProjectParticipantCommand>();
@@ -151,7 +150,7 @@ export class AddParticipantDialogComponent {
       else this.form.controls.roleId.disable();
     });
 
-    // A refusal stays marked until the user changes something.
+    // refusal stays until the user changes something
     this.inviteForm.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe(() => this.inviteErrorVisible.set(false));
@@ -180,7 +179,7 @@ export class AddParticipantDialogComponent {
     if (this.inviteErrorVisible() && serverError?.field === field) return serverError.message;
 
     const control = this.inviteForm.controls[field];
-    // Shown at once, not after Send: the person is already in the list behind the dialog.
+    // shown at once, the person is already in the list behind the dialog
     if (control.hasError('taken')) return this.takenEmailMessage(control.value) ?? '';
     if (!this.inviteAttempted() || control.valid) return '';
 
@@ -222,19 +221,17 @@ export class AddParticipantDialogComponent {
   }
 
   openInvite(email: string): void {
-    // The search is only hidden now, so its list would stay open over the form: on a phone, as a
-    // sheet with a backdrop. Close it before switching.
+    // close the search list before switching, on a phone it stays open as a sheet over the form
     this.userSelect()?.hide();
     this.inviteForm.reset({ email, name: '', surname: '' });
     this.inviteAttempted.set(false);
     this.inviteErrorVisible.set(false);
     this.mode.set('invite');
-    // The search form is hidden and takes the focus with it; Name is the first field to fill.
     setTimeout(() => document.getElementById('inviteName')?.focus());
   }
 
   backToSearch(): void {
-    // Leaving while the server answers would hide its refusal: it is shown only in the invite form.
+    // leaving while saving would hide the server refusal
     if (this.isSaving()) return;
 
     this.mode.set('search');

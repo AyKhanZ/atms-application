@@ -4,7 +4,6 @@
   min-width: 0;
 }
 
-/* Notion's calendar: a light heading, bare arrows, and lines only between the days. */
 .head {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
@@ -135,7 +134,7 @@
   );
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
-  /* Tall enough that a month fills the card like the board does; weeks share the height. */
+  // tall enough to fill the card like the board
   grid-template-rows: auto;
   grid-auto-rows: auto;
   min-height: calc(var(--tasks-view-height, 26rem) - 3rem);

@@ -1,4 +1,4 @@
-/** What a history entry is about. The numbers match the server's `HistoryEntityTypeEnum`. */
+// same numbers as server HistoryEntityTypeEnum
 export enum HistoryEntityType {
   Project = 1,
   WorkGroup = 2,

@@ -14,7 +14,7 @@ import {
   historySummary,
 } from '../../core/utils/history.utils';
 
-/** "changed Status to Done" — the sentence after the author's name. */
+// "changed Status to Done"
 @Pipe({ name: 'historySummary' })
 export class HistorySummaryPipe implements PipeTransform {
   transform(entry: HistoryEntryModel, subject: HistorySubject): string {
@@ -22,7 +22,7 @@ export class HistorySummaryPipe implements PipeTransform {
   }
 }
 
-/** "Status · Priority · Deadline" under an entry of several changes. */
+// "Status · Priority · Deadline"
 @Pipe({ name: 'historyFieldList' })
 export class HistoryFieldListPipe implements PipeTransform {
   transform(entry: HistoryEntryModel): string {
@@ -37,7 +37,6 @@ export class HistoryFieldLabelPipe implements PipeTransform {
   }
 }
 
-/** A stored dictionary value in the shape the status, priority and type components take. */
 @Pipe({ name: 'historyDictionary' })
 export class HistoryDictionaryPipe implements PipeTransform {
   transform(value: HistoryValueModel): DictionaryModel {
@@ -45,7 +44,7 @@ export class HistoryDictionaryPipe implements PipeTransform {
   }
 }
 
-/** "22 Sep 2026" for a stored date. */
+// "22 Sep 2026"
 @Pipe({ name: 'historyDate' })
 export class HistoryDatePipe implements PipeTransform {
   transform(value: string): string {
@@ -53,7 +52,7 @@ export class HistoryDatePipe implements PipeTransform {
   }
 }
 
-/** `short`: "3 hours ago", "9 Sep", "12 Aug 2025". `full`: "Thu 24 Sep 2026, 14:05". */
+// short: "3 hours ago", "9 Sep", "12 Aug 2025"; full: "Thu 24 Sep 2026, 14:05"
 @Pipe({ name: 'historyTime' })
 export class HistoryTimePipe implements PipeTransform {
   transform(value: string | null | undefined, format: 'short' | 'full' = 'short'): string {
@@ -62,7 +61,6 @@ export class HistoryTimePipe implements PipeTransform {
   }
 }
 
-/** The status dot or the icon at the right of a row, with its tooltip. */
 @Pipe({ name: 'historyMarker' })
 export class HistoryMarkerPipe implements PipeTransform {
   transform(entry: HistoryEntryModel): HistoryMarker | null {

@@ -81,8 +81,7 @@
   display: none;
 }
 
-/* Same answer the select overlays give below 768px: stop pointing at the trigger and come up
-   from the bottom. A panel this wide cannot both point at something and keep off the edges. */
+// same as select overlays under 768px: a sheet from the bottom
 .work-item-jump-panel--sheet {
   inset: auto 0 0 0;
   width: 100%;
@@ -119,8 +118,7 @@
   color: var(--app-muted);
 }
 
-/* The cross is taller than the text line; pulled into the padding so the field does not grow
-   the moment the first letter is typed. */
+// the cross is taller than the text, pulled into the padding so the field doesnt grow on typing
 .work-item-jump-search app-input-clear {
   margin-block: -0.35rem;
 }
@@ -153,8 +151,7 @@
   font-weight: 400;
 }
 
-/* Match the edit parent tree exactly: descendant guides reach back to the icon above and the
-   deepest context row hands its lines to the first selectable item without a visible gap. */
+// same as the edit parent tree, lines reach back to the icon above without a gap
 .work-item-jump-context__level.work-item-jump-tree-row::before {
   top: -0.15rem;
   bottom: -0.3rem;
@@ -196,8 +193,7 @@
   cursor: pointer;
 }
 
-/* The edit parent select and this details switcher are two presentations of the same plan tree.
-   Keep their 1.2rem hierarchy step and uninterrupted guide-line geometry identical. */
+// same tree as the parent select, keep the 1.2rem step and line geometry identical
 .work-item-jump-tree-row {
   @include work-location.guide-lines(0.75rem);
 }

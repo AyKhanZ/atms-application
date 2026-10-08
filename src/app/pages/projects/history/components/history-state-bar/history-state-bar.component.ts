@@ -17,21 +17,16 @@ import { PersonNamePipe } from '../../../../../shared/pipes/person-name.pipe';
 import { HistoryAuthorAvatarComponent } from '../history-author-avatar/history-author-avatar.component';
 import { HistoryValueComponent } from '../history-value/history-value.component';
 
-/** A phone shows the newest three; the rest wait behind "Show N earlier". */
 const PHONE_STATES = 3;
 
 interface StateStep {
   state: HistoryStateModel;
-  /** Above the arrow: "Created", "Moved to In Review". */
+  // "Created", "Moved to In Review"
   label: string;
   current: boolean;
 }
 
-/**
- * How the status went from the first to the current one, with who moved it and when. On a wide tab one line that
- * scrolls sideways: an item moved back and forth twenty times keeps the same height, and the line
- * opens scrolled to its end, where the current status is. On a phone a column from the newest down.
- */
+// wide: one line scrolled to the end, so 20 moves back and forth keep the same height; phone: a column
 @Component({
   selector: 'app-history-state-bar',
   imports: [HistoryAuthorAvatarComponent, HistoryTimePipe, HistoryValueComponent, PersonNamePipe],
@@ -45,7 +40,7 @@ export class HistoryStateBarComponent {
   readonly states = input<HistoryStateModel[] | null>(null);
   readonly entityType = input.required<HistoryEntityType>();
   readonly projectId = input.required<string>();
-  /** Shown alone when no status change was ever recorded. */
+  // shown alone when no status change was recorded
   readonly current = input<DictionaryModel | null>(null);
 
   protected readonly phoneStates = PHONE_STATES;

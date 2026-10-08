@@ -10,7 +10,6 @@
 >
   @if (participant(); as selectedParticipant) {
     <form class="participant-dialog-form" [formGroup]="form" (ngSubmit)="submit()">
-      <!-- Same avatar as the row the dialog was opened from, so it is obvious whose role changes. -->
       <div class="selected-person">
         <app-profile-avatar
           [imageUrl]="selectedParticipant.avatarPath"

@@ -48,7 +48,7 @@
     </section>
   } @else if (!uploads.rows().length) {
     @if (subtaskNodes().length) {
-      <!-- The subtasks below hold files, so a full-size empty panel here would bury them. -->
+      <!-- subtasks below have files, a big empty panel here would bury them -->
       <p class="inline-empty">No files on this {{ kind }} itself.</p>
     } @else {
       <app-empty-state

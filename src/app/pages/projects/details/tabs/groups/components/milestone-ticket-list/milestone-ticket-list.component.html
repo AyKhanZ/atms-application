@@ -48,9 +48,7 @@
 
 @if (page(); as ticketPage) {
   @if (ticketPage.loading && ticketPage.items.length === 0) {
-    <div class="milestone-ticket-loading" role="status">
-      <i class="pi pi-spin pi-spinner" aria-hidden="true"></i> Loading tickets...
-    </div>
+    <app-loading-state class="milestone-ticket-loading" text="Loading tickets..." compact />
   } @else if (ticketPage.hasMore) {
     <app-load-more-button
       class="milestone-tickets-load-more"

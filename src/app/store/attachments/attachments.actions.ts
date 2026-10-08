@@ -21,7 +21,7 @@ export const loadListFailure = createAction(
   `${key} Load List Failure`,
   props<{ listKey: string; error: string }>(),
 );
-/** The list is gone from the screen: drop it and cancel a load still on its way. */
+// also cancels a load still on its way
 export const clearList = createAction(`${key} Clear List`, props<{ listKey: string }>());
 
 export const loadTree = createAction(`${key} Load Tree`, props<{ projectId: string }>());
@@ -35,10 +35,7 @@ export const loadTreeFailure = createAction(
 );
 export const clearTree = createAction(`${key} Clear Tree`, props<{ projectId: string }>());
 
-/**
- * One file. The file itself waits in `AttachmentUploadFilesService` under `uploadId`: an action
- * carries plain data only.
- */
+// the File waits in AttachmentUploadFilesService, an action carries plain data only
 export const upload = createAction(
   `${key} Upload`,
   props<{
@@ -60,10 +57,9 @@ export const uploadSuccess = createAction(
 );
 export const uploadFailure = createAction(
   `${key} Upload Failure`,
-  /** `retryable`: the file never reached a verdict (no connection, server down), so sending it again may work. */
+  // true = no verdict (no connection, server down), retry may work
   props<{ uploadId: string; error: string; retryable: boolean }>(),
 );
-/** Cancels an upload in flight or dismisses a failed one. */
 export const dismissUpload = createAction(`${key} Dismiss Upload`, props<{ uploadId: string }>());
 
 export const rename = createAction(

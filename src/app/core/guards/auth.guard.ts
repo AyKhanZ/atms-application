@@ -12,6 +12,7 @@ import { AuthSessionService } from '../services/auth-session.service';
  * ВАЖНО: APP_INITIALIZER (auth.initializer.ts) восстанавливает Store из localStorage
  * ДО того как этот Guard срабатывает. Поэтому isLoggedIn будет корректным при F5.
  */
+// not logged in -> /login?returnUrl=..., authInitializer restores the session before this so F5 works
 export const authGuard: CanActivateFn = (_route, state) => {
   const auth = inject(AuthSessionService);
   const router = inject(Router);

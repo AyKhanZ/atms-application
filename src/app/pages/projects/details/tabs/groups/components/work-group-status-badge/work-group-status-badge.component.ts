@@ -11,9 +11,9 @@ export type WorkGroupStatusTone = 'planned' | 'active' | 'done' | 'unknown';
 })
 export class WorkGroupStatusBadgeComponent {
   readonly status = input.required<DictionaryModel>();
-  /** Only the dot: for a mark whose status is named elsewhere. */
+  // when the status is named elsewhere
   readonly dotOnly = input(false);
-  /** A status that was replaced: grey and struck through. */
+  // replaced status: grey and struck through
   readonly muted = input(false);
   readonly tone = computed(() => workGroupStatusTone(this.status().code));
 }

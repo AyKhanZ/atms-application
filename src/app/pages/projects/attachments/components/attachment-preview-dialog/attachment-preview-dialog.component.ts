@@ -22,11 +22,7 @@ import { AttachmentFilesService, TextPreview } from '../../attachment-files.serv
 import { AttachmentDocumentViewComponent } from '../attachment-document-view/attachment-document-view.component';
 import { AttachmentSheetViewComponent } from '../attachment-sheet-view/attachment-sheet-view.component';
 
-/**
- * Opens a file without leaving the page: images, PDF, text, Word (.docx), Excel and CSV. Open
- * while `attachment` is set. Everything is read from the file in the browser; nothing is sent to
- * a third-party viewer.
- */
+// everything is read in the browser, nothing goes to a third-party viewer
 @Component({
   selector: 'app-attachment-preview-dialog',
   imports: [
@@ -55,13 +51,12 @@ export class AttachmentPreviewDialogComponent {
   });
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
-  /** An object URL for an image or a PDF. */
   readonly url = signal<string | null>(null);
-  /** Text is read and shown as text — never handed to the browser to render. */
+  // never handed to the browser to render
   readonly text = signal<TextPreview | null>(null);
   readonly document = signal<Blob | null>(null);
   readonly sheets = signal<SheetPreview[] | null>(null);
-  /** A blob URL made here a moment ago, never user input: safe to put in an iframe. */
+  // blob url made here, never user input, so safe for the iframe
   readonly frameUrl = computed<SafeResourceUrl | null>(() => {
     const url = this.url();
     return url && this.kind() === 'pdf' ? this.sanitizer.bypassSecurityTrustResourceUrl(url) : null;
@@ -73,7 +68,7 @@ export class AttachmentPreviewDialogComponent {
     effect(() => {
       const attachment = this.attachment();
       const projectId = this.projectId();
-      // Only the file drives this; what it produces must not re-run it.
+      // only the file triggers this
       untracked(() => this.open(projectId, attachment));
     });
 

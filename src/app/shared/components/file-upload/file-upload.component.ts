@@ -37,7 +37,7 @@ export class FileUploadComponent implements OnDestroy {
   readonly resetKey = input<unknown>(null);
   readonly errorMessage = input('');
   readonly roundPreview = input(false);
-  /** Off where an image is required: there is nothing to go back to without one. */
+  // off where an image is required
   readonly removable = input(true);
 
   readonly fileChange = output<FileUploadValue>();

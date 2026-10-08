@@ -38,8 +38,7 @@
   background: var(--app-border);
 }
 
-// A phone: the tools stay one row, a little tighter, and scroll sideways on the narrowest screens
-// instead of dropping a button or two onto a line of their own.
+// on a phone tools stay one row and scroll sideways
 @container (max-width: 28rem) {
   .toolbar {
     flex-wrap: nowrap;

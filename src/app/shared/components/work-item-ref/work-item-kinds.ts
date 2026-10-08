@@ -2,19 +2,15 @@ import { WorkItemKind } from '../../../core/models/work-items';
 
 export interface WorkItemKindView {
   icon: string;
-  /** One item: "Task #34". */
+  // "Task #34"
   label: string;
-  /** A group of them: a search heading, a filter chip. */
+  // search heading, filter chip
   pluralLabel: string;
-  /** A class name, not a colour: the colour itself is a token in styles.scss. */
+  // class name, the color is a token in styles.scss
   tone: string;
 }
 
-/**
- * How each kind of work is told apart at a glance: the icon the lists and breadcrumbs already use,
- * plus a colour of its own. The colours stay off orange-as-a-pill and green, which the statuses use.
- * Every label for a kind lives here, so a heading and a row cannot drift apart.
- */
+// colors avoid orange and green, statuses use them; all labels here so headings and rows cant drift
 export const workItemKinds: Record<WorkItemKind, WorkItemKindView> = {
   [WorkItemKind.Project]: {
     icon: 'pi-briefcase',
@@ -42,7 +38,7 @@ export const workItemKinds: Record<WorkItemKind, WorkItemKindView> = {
   },
 };
 
-/** Outermost first — the order search groups and filter chips are drawn in. */
+// outermost first
 export const workItemKindOrder: readonly WorkItemKind[] = [
   WorkItemKind.Project,
   WorkItemKind.Ticket,

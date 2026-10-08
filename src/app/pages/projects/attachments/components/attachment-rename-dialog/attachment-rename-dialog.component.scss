@@ -39,7 +39,6 @@
   color: var(--orange);
 }
 
-/* The extension sits inside the field, greyed, so it reads as part of the name that stays. */
 .name-input {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;

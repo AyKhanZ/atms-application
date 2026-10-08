@@ -23,9 +23,7 @@
   </div>
 
   @if (loading()) {
-    <section class="panel task-form-state" role="status">
-      <i class="pi pi-spin pi-spinner"></i> Loading task form...
-    </section>
+    <section class="panel"><app-loading-state text="Loading task form..." /></section>
   } @else if (loadError()) {
     <section class="panel task-form-state task-form-state--error" role="alert">
       <i class="pi pi-exclamation-circle"></i><strong>Task form is unavailable</strong
@@ -44,8 +42,7 @@
         (submitForm)="submit()"
       >
         <div task-parent>
-          <!-- Editable in both modes: moving a task to another ticket, or a subtask to another
-               task, is the same kind of change as moving a ticket to another milestone. -->
+          <!-- editable in both modes, moving to another ticket/task is a normal change -->
           @if (projectId && ticketId) {
             <app-task-parent-select
               [projectId]="projectId"

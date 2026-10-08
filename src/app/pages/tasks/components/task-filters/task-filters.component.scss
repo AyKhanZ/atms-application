@@ -1,7 +1,7 @@
 :host {
   display: block;
   min-width: 0;
-  /* The panel, not the window, decides the layout: the sidebar takes a different share of each screen. */
+  // the panel decides the layout, not the window
   container-type: inline-size;
 }
 
@@ -54,7 +54,7 @@
   color: var(--red-hover);
 }
 
-/* Twelve tracks: three wide fields on the first row, four short ones and Clear on the second. */
+// 12 tracks: three wide fields on row 1, four short ones and Clear on row 2
 .filters__grid {
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
@@ -63,7 +63,6 @@
   min-width: 0;
 }
 
-/* Only the label and the control: a field must not stretch to the row and push its label up. */
 .field {
   align-content: start;
 }
@@ -87,7 +86,7 @@
   justify-content: flex-end;
 }
 
-/* Options live in an overlay appended to the body, so these reach it through ::ng-deep. */
+// options are in an overlay on body, so ::ng-deep
 :host ::ng-deep .option,
 ::ng-deep .option {
   display: block;
@@ -97,7 +96,6 @@
   white-space: nowrap;
 }
 
-/* Everyone else below Me and Unassigned. The line sits in the option's own padding. */
 ::ng-deep .p-multiselect-option:has(.option--divided) {
   border-top: 1px solid var(--app-border);
   margin-top: 0.25rem;
@@ -113,7 +111,6 @@
   flex: 1 1 auto;
 }
 
-/* Too narrow for three wide fields in a row: two to a row, Project on its own. */
 @container (max-width: 56rem) {
   .field--wide,
   .field--narrow {

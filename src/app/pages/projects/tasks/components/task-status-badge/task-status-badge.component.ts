@@ -23,19 +23,16 @@ export type TaskStatusTone = 'neutral' | 'active' | 'success';
 })
 export class TaskStatusBadgeComponent {
   readonly status = input.required<DictionaryModel>();
-  /** Page-header size, matching the status badge on Ticket and Project details. */
+  // same size as ticket and project header badges
   readonly prominent = input(false);
-  /** Only the dot: for a mark whose status is named elsewhere. */
+  // when the status is named elsewhere
   readonly dotOnly = input(false);
-  /** A status that was replaced: grey and struck through. */
+  // replaced status: grey and struck through
   readonly muted = input(false);
   readonly tone = computed(() => taskStatusTone(this.status().code));
 }
 
-/**
- * Tasks use their own three-value status scale (New, InProgress, Done), so they cannot reuse the
- * ticket tone map: it has no Done and would render a finished task in the neutral grey of New.
- */
+// task statuses have Done, ticket tone map doesnt and would show it grey
 export function taskStatusTone(code: string): TaskStatusTone {
   switch (code.trim().toLowerCase()) {
     case 'inprogress':

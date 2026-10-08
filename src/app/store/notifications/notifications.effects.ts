@@ -53,7 +53,7 @@ export class NotificationsEffects {
       switchMap(() =>
         this.notifications.getSummary().pipe(
           map(({ unreadCount }) => ActionsStore.loadSummarySuccess({ unreadCount })),
-          // The bell stays as it was; the next push or reconnect brings the number.
+          // bell stays as it was, the next push or reconnect brings the number
           catchError(() => of(ActionsStore.loadSummaryFailure())),
           takeUntil(this.reset$),
         ),
@@ -61,7 +61,7 @@ export class NotificationsEffects {
     ),
   );
 
-  /** Every opening reads the newest ten again; the rows already there stay until they arrive. */
+  // rows already there stay until the new ones arrive
   panelOpened$ = createEffect(() =>
     this.actions$.pipe(
       ofType(ActionsStore.panelOpened),
@@ -121,7 +121,7 @@ export class NotificationsEffects {
                     }),
                   ),
                 ),
-                // A reload starts the list over; a later page of the old list would land on it.
+                // a reload starts over, a later page of the old list would land on it
                 takeUntil(merge(this.pageGone$, this.actions$.pipe(ofType(ActionsStore.loadPage)))),
               ),
       ),
@@ -164,7 +164,6 @@ export class NotificationsEffects {
     ),
   );
 
-  /** What the screen already showed was not saved: say so and read the truth back. */
   markFailed$ = createEffect(() =>
     this.actions$.pipe(
       ofType(
@@ -187,7 +186,7 @@ export class NotificationsEffects {
     ),
   );
 
-  /** A new one goes on top of what is on screen: the panel while it is open, and the page. */
+  // on top of the panel (if open) and the page
   refreshOnReceived$ = createEffect(() =>
     this.actions$.pipe(
       ofType(ActionsStore.received),
@@ -196,10 +195,7 @@ export class NotificationsEffects {
     ),
   );
 
-  /**
-   * The unread count in front of the tab title — "(3) BAIM". No sound: a task tracker that beeps on
-   * every status change gets muted. Zero, and after logout, the title is the plain one again.
-   */
+  // "(3) BAIM", no sound: a tracker that beeps on every status change gets muted
   tabTitle$ = createEffect(
     () =>
       this.store.select(Selectors.getUnreadCount).pipe(
@@ -209,11 +205,7 @@ export class NotificationsEffects {
     { dispatch: false },
   );
 
-  /**
-   * A read in this tab comes back as a push with the number this tab already shows; only a read in
-   * another tab changes it, and only then are the rows read again. Every read is a commit of its
-   * own and moves the count by one, so another tab's change never arrives with the same number.
-   */
+  // own reads come back with the same number, only another tabs read changes it and rereads rows
   readElsewhere$ = createEffect(() =>
     this.realtime.notificationRead$.pipe(
       withLatestFrom(
@@ -228,7 +220,7 @@ export class NotificationsEffects {
     ),
   );
 
-  /** Pushes missed while the connection was down: the number and every list on screen again. */
+  // pushes missed while offline: the number and every list again
   reconnected$ = createEffect(() =>
     this.realtime.reconnected$.pipe(
       withLatestFrom(this.latestOpen$, this.page$),
@@ -240,11 +232,7 @@ export class NotificationsEffects {
   );
 }
 
-/**
- * The lists to read again after a change. The page is read again only while it holds its first
- * page: after Load more, a reload would throw away what the person scrolled to — unless the screen
- * may be wrong (`always`), after a failure or a lost connection.
- */
+// the page is reread only while on its first page, unless always (after a failure or reconnect)
 function rereads(latestOpen: boolean, page: NotificationPageState, always: boolean): Action[] {
   const actions: Action[] = [];
   if (latestOpen) actions.push(ActionsStore.loadLatest());

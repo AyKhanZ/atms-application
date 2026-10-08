@@ -15,7 +15,7 @@
       </div>
     </div>
   } @else if (error()) {
-    <!-- The same panel as an empty tab: a failed read is not an alarm, only something to retry. -->
+    <!-- a failed read is not an alarm, just retry -->
     <app-empty-state
       role="alert"
       icon="pi-history"
@@ -40,7 +40,6 @@
       description="Every change will be recorded here."
     />
   } @else {
-    <!-- Two parts that fold, as in Azure DevOps: the status graph and the history itself. -->
     <app-collapsible-section title="Status graph" [(open)]="statesOpen">
       <div class="history-section__body">
         <app-history-state-bar

@@ -27,8 +27,7 @@
     emptyFilterMessage="No matches in the loaded items"
     emptyMessage="No available parents"
   >
-    <!-- The chain is stepped, not joined with separators, so the dropdown reads like the Plan
-         tab: group, then milestone under it, then the ticket under that. -->
+    <!-- stepped like the Plan tab, not joined with separators -->
     <ng-template #group let-group>
       <span class="parent-group">
         @for (level of group.path; track level; let index = $index) {
@@ -43,8 +42,7 @@
         }
       </span>
     </ng-template>
-    <!-- Same chain, same icons and same separator as the Milestone select on the ticket form:
-         these two controls sit on sibling screens and must not read as two different products. -->
+    <!-- same as the Milestone select on the ticket form -->
     <ng-template #selectedItem let-parent>
       <span class="parent-selection">
         <span class="parent-context">
@@ -68,8 +66,7 @@
         <strong>{{ parent.title }}</strong>
       </span>
     </ng-template>
-    <!-- Indented one step past the deepest header line, so an item visibly sits inside the
-         branch above it instead of floating at the same level as its own group. -->
+    <!-- one step past the deepest header line so it sits inside its branch -->
     <ng-template #item let-parent>
       <span
         class="parent-option parent-tree-row"

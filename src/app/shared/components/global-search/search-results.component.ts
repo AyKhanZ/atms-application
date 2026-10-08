@@ -22,7 +22,6 @@ export class SearchResultsComponent {
   readonly query = input('');
   readonly activeId = input<string | null>(null);
   readonly choose = output<GlobalSearchItemModel>();
-  /** The row under the pointer, so the owner keeps one highlight for mouse and keyboard alike. */
   readonly point = output<{ id: string; event: MouseEvent }>();
   readonly showAll = output<WorkItemKind>();
 }

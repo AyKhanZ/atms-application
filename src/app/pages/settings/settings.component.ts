@@ -86,10 +86,7 @@ export class SettingsComponent implements HasUnsavedChanges {
     { id: 'profile', label: 'Profile', icon: 'pi-user' },
     { id: 'security', label: 'Security', icon: 'pi-lock' },
   ];
-  /**
-   * Both tabs stay rendered and keep what was typed, so switching needs no confirmation; only
-   * leaving the page does. The open tab lives in the URL (?tab=security) like on project details.
-   */
+  // both tabs stay rendered and keep input, so only leaving the page asks; tab in the url like project details
   readonly activeTab = toSignal(
     this.route.queryParamMap.pipe(
       map((params): SettingsTab => (params.get('tab') === 'security' ? 'security' : 'profile')),
@@ -116,7 +113,7 @@ export class SettingsComponent implements HasUnsavedChanges {
     ),
     { initialValue: '' },
   );
-  /** Compared by value: a field edited and put back is not a change. */
+  // by value, edited and put back is not a change
   readonly personalChanged = computed(() => this.currentSnapshot() !== this.savedSnapshot());
 
   constructor() {

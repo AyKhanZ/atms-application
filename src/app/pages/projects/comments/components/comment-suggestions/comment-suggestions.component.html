@@ -6,7 +6,7 @@
   [attr.aria-busy]="loading()"
 >
   @for (item of items(); track $index; let index = $index) {
-    <!-- mousedown, not click: a click would first take the focus, and the text field its caret. -->
+    <!-- mousedown not click, a click would steal focus and the caret first -->
     <li
       role="option"
       class="suggestion"

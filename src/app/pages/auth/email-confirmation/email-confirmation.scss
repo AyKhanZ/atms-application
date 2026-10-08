@@ -5,10 +5,7 @@
 @include auth-card.field;
 @include auth-card.actions;
 
-/* This screen reports an outcome before it asks for anything, so instead of the title band the
-   other auth screens use, it keeps the badge sitting on the band: the colour says succeeded or
-   failed before a word is read. The band is the same height as their header, and the title the
-   same size, so the top of the card still matches them. */
+// badge on the band instead of a title, the color says success or fail; same height as other auth headers
 .auth-card {
   position: relative;
 }
@@ -68,7 +65,7 @@
   line-height: 1.5;
 }
 
-/* The success state has no form, so its button needs the padding the form would have carried. */
+// no form here, so the button needs the padding the form would give
 .confirmed-actions {
   display: flex;
   padding: 0 2rem 2rem;

@@ -13,14 +13,8 @@ import {
 import { LayoutService } from '../../../../../core/services/layout.service';
 import { renderDocument } from '../../attachment-content';
 
-/**
- * A .docx drawn as pages, the way Word shows it. A page wider than the dialog — a landscape A4 —
- * narrows to fit and its text wraps; on a phone the page reflows to the screen.
- *
- * The pages live in a sandboxed iframe: no scripts (`allow-scripts` is not given), so nothing a
- * document carries can run as the signed-in user. `allow-same-origin` only lets the app draw into
- * the frame; `allow-popups` lets a link in the document open in a new tab, outside the sandbox.
- */
+// no allow-scripts so nothing in the document runs as the user
+// allow-same-origin only to draw into it, allow-popups so links open in a new tab
 @Component({
   selector: 'app-attachment-document-view',
   template: `

@@ -22,7 +22,7 @@ export class AttachmentsService {
     return this.http.get<AttachmentTreeModel>(`${this.url(projectId)}/attachments/tree`);
   }
 
-  /** One file per request, with progress events, so every file has its own bar and error. */
+  // one request per file so every file has its own progress and error
   upload(
     projectId: string,
     workTaskId: string,
@@ -37,7 +37,7 @@ export class AttachmentsService {
     );
   }
 
-  /** `fileName` without the extension: the server keeps the one set at upload. */
+  // without extension, server keeps the original one
   rename(projectId: string, attachmentId: string, fileName: string): Observable<void> {
     return this.http.patch<void>(`${this.url(projectId)}/attachments/${attachmentId}`, {
       fileName,
@@ -48,10 +48,7 @@ export class AttachmentsService {
     return this.http.delete<void>(`${this.url(projectId)}/attachments/${attachmentId}`);
   }
 
-  /**
-   * The file itself. Read through HttpClient rather than a plain link: the token travels in a
-   * header, which a link cannot send.
-   */
+  // through HttpClient not a plain link, the token goes in a header
   getContent(projectId: string, attachmentId: string, inline = false): Observable<Blob> {
     const params = inline ? new HttpParams().set('inline', true) : undefined;
     return this.http.get(`${this.url(projectId)}/attachments/${attachmentId}/content`, {

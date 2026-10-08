@@ -67,16 +67,17 @@ import {
   WorkTicketsStoreSelectors,
 } from '../../../../../store/work-tickets';
 import { WorkItemMutationError } from '../../../../../core/models/work-items';
+import { LoadingStateComponent } from '../../../../../shared/components/loading-state/loading-state.component';
 
 interface TicketFormNavigationState {
   milestone?: MilestoneOptionModel;
-  /** Where the user was before opening this form, so Back and Save return them there. */
   returnUrl?: unknown;
 }
 
 @Component({
   selector: 'app-ticket-form-page',
   imports: [
+    LoadingStateComponent,
     ReactiveFormsModule,
     ButtonModule,
     ConfirmDialogModule,
@@ -141,11 +142,7 @@ export class TicketFormPageComponent implements OnDestroy {
   readonly isEdit = computed(() => this.mode() === 'edit');
   readonly pageTitle = computed(() => (this.isEdit() ? 'Edit ticket' : 'Create ticket'));
   readonly submitLabel = computed(() => (this.isEdit() ? 'Save' : 'Create'));
-  /**
-   * Where Back, Cancel and a successful Save land. Honours the caller's `returnUrl` so opening
-   * the form from a ticket returns to that ticket instead of dumping the user in the Plan tab;
-   * falls back to the Plan for direct hits on the URL, where there is nothing to return to.
-   */
+  // returns to the caller (e.g. the ticket), Plan when opened directly by url
   readonly returnUrl =
     projectNavigationUrl(this.navigationState.returnUrl) ??
     (this.projectId ? `/projects/${this.projectId}?tab=plan` : '/projects');
@@ -273,7 +270,7 @@ export class TicketFormPageComponent implements OnDestroy {
       return;
     }
 
-    // Saved as Closed with tasks still open: asked, not refused and not done silently.
+    // Closed with open tasks: ask, dont refuse and dont do it silently
     const ticket = this.ticket();
     const openTasks = (ticket?.totalTaskCount ?? 0) - (ticket?.doneTaskCount ?? 0);
     const closing =
@@ -300,8 +297,7 @@ export class TicketFormPageComponent implements OnDestroy {
     const statusId = this.form.controls.workTicketStatusId.value;
     if (!createCommand || !this.projectId) return;
 
-    // The request goes through the store, like a project's. The answer is the next success or
-    // failure of this kind: only one save can be under way, the button is disabled meanwhile.
+    // one save at a time, the button is disabled meanwhile
     this.actions$
       .pipe(
         ofType(
@@ -316,7 +312,7 @@ export class TicketFormPageComponent implements OnDestroy {
       .subscribe((action) => {
         if ('error' in action) {
           this.snackBar.error(ticketErrorMessage(action.error));
-          // The cached permissions said this was allowed; drop them so the next page is right.
+          // cached permissions said ok, drop them so the next page is right
           if (action.error.status === 403 && this.projectId) {
             this.permissionsRefresh
               .refreshAfterForbidden(this.projectId)

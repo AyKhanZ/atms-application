@@ -52,11 +52,7 @@ import {
 
 let nextEditorId = 0;
 
-/**
- * The comment field, as in Azure DevOps: one quiet line at rest; in use it grows with the text, shows
- * the toolbar, Cancel and Save, and a preview of the result under it. `@` lists people, `#` lists
- * tickets and tasks. The field shows names and sends `@[user:<id>]` tokens.
- */
+// field shows names and sends @[user:id] tokens
 @Component({
   selector: 'app-comment-editor',
   imports: [
@@ -75,18 +71,16 @@ export class CommentEditorComponent implements OnInit {
   private readonly search = inject(GlobalSearchService);
   private readonly destroyRef = inject(DestroyRef);
 
-  /** Who can be mentioned: the project's members. */
   readonly people = input<readonly MentionCandidate[]>([]);
-  /** The stored text to start from, for an edit. */
   readonly initialText = input('');
   readonly placeholder = input(
     'Add a comment. Use @ to mention a person or # to link a ticket or task.',
   );
   readonly submitLabel = input('Save');
   readonly label = input('Comment');
-  /** An edit opens ready to type; the field for a new comment waits at rest. */
+  // an edit opens ready to type, a new comment waits at rest
   readonly expanded = input(false);
-  /** The task's project: its own work is listed under `#` without the project's name. */
+  // own project work is listed under # without the project name
   readonly projectId = input<string | null>(null);
   readonly busy = input(false);
   readonly error = input<string | null>(null);
@@ -101,26 +95,23 @@ export class CommentEditorComponent implements OnInit {
   protected readonly id = `comment-editor-${nextEditorId++}`;
   protected readonly text = signal('');
   private readonly focused = signal(false);
-  /** Which shown name is which person: "@Ann Lee" → id. */
+  // "@Ann Lee" -> id
   private readonly mentions = signal<ReadonlyMap<string, string>>(new Map());
   protected readonly trigger = signal<EditorTrigger | null>(null);
   protected readonly activeIndex = signal(0);
   protected readonly searching = signal(false);
   private readonly workResults = signal<CommentSuggestion[]>([]);
   private readonly workQuery$ = new Subject<string>();
-  /** The recently opened items, read once per field: an empty or short `#` lists them. */
+  // read once per field, an empty or short # lists them
   private readonly recent$ = defer(() => this.search.recent()).pipe(shareReplay(1));
 
-  /** Work picked after `#`, so the preview draws it as the badge the saved comment will show. */
+  // so the preview draws it as the badge the saved comment will show
   private readonly picked = signal<ReadonlyMap<string, CommentReferenceModel>>(new Map());
 
   protected readonly active = computed(() => this.expanded() || this.focused() || !!this.text());
-  /** What will be stored: markup and mention tokens included, as the server counts it. */
+  // as the server counts it, with markup and tokens
   protected readonly stored = computed(() => mentionsToTokens(this.text(), this.mentions()));
-  /**
-   * The field's own limit, so typing and pasting stop at 2000 stored characters: a mention takes
-   * more room stored (`@[user:<id>]`) than shown, and the difference is taken off here.
-   */
+  // 2000 stored chars, a mention takes more room stored than shown so the difference is taken off here
   protected readonly maxLength = computed(() => 2000 - (this.stored().length - this.text().length));
   protected readonly canSubmit = computed(
     () => !!this.text().trim() && this.stored().length <= 2000 && !this.busy(),
@@ -169,7 +160,6 @@ export class CommentEditorComponent implements OnInit {
     }
   }
 
-  /** Back to a quiet empty line: after a comment was saved, or on Cancel. */
   reset(): void {
     this.mentions.set(new Map());
     this.picked.set(new Map());
@@ -183,7 +173,7 @@ export class CommentEditorComponent implements OnInit {
     this.focused.set(true);
   }
 
-  /** Focus moving to the toolbar or the buttons keeps the editor open; leaving it closes it. */
+  // focus moving to the toolbar or buttons keeps it open
   protected onFocusOut(event: FocusEvent): void {
     if (this.host.nativeElement.contains(event.relatedTarget as Node | null)) return;
     this.focused.set(false);
@@ -205,7 +195,7 @@ export class CommentEditorComponent implements OnInit {
         : null;
     const previous = this.trigger();
     this.trigger.set(trigger);
-    // A click or an arrow key also lands here; only a changed query starts a search.
+    // a click or arrow key lands here too, only a changed query searches
     if (!trigger || (previous?.char === trigger.char && previous.query === trigger.query)) return;
 
     this.activeIndex.set(0);
@@ -216,7 +206,6 @@ export class CommentEditorComponent implements OnInit {
     }
   }
 
-  /** The caret moved without typing: it may have left an `@` or come back to one. */
   protected onKeyup(event: KeyboardEvent): void {
     const inList = event.key === 'ArrowUp' || event.key === 'ArrowDown';
     if (inList && this.trigger() && this.suggestions().length) return;
@@ -236,7 +225,7 @@ export class CommentEditorComponent implements OnInit {
       return;
     }
 
-    // Tab moves a list line a level in or out; anywhere else it moves the focus on, as usual.
+    // tab on a list line indents, elsewhere it moves focus as usual
     if (event.key === 'Tab' && !event.ctrlKey && !event.metaKey && !event.altKey) {
       const next = indentList(this.currentEdit(), event.shiftKey ? -1 : 1);
       if (next) {
@@ -284,18 +273,16 @@ export class CommentEditorComponent implements OnInit {
     }
   }
 
-  /** Marks the selection in the colour picked, or takes the same colour's mark off. */
   protected highlight(color: HighlightColor): void {
     this.apply(toggleHighlight(this.currentEdit(), color));
   }
 
-  /** A box ticked in the preview ticks its line in the field — no `[x]` to know by heart. */
+  // no [x] to know by heart
   protected toggleCheckInText(line: number): void {
     const { selectionStart, selectionEnd } = this.currentEdit();
     this.apply({ text: toggleCheck(this.text(), line), selectionStart, selectionEnd });
   }
 
-  /** The @ and # buttons open the same list as typing them. */
   protected insertTrigger(char: '@' | '#'): void {
     this.apply(insertTriggerChar(this.currentEdit(), char));
     this.readTrigger();
@@ -367,7 +354,7 @@ export class CommentEditorComponent implements OnInit {
     };
   }
 
-  /** A toolbar or list edit that would pass 2000 stored characters is not made, as typing is not. */
+  // an edit over 2000 stored chars is not made, like typing
   private apply(edit: TextEdit): void {
     if (mentionsToTokens(edit.text, this.mentions()).length > 2000) return;
     this.field().nativeElement.value = edit.text;
@@ -382,7 +369,6 @@ export class CommentEditorComponent implements OnInit {
     element.setSelectionRange(start, end);
   }
 
-  /** The field is as tall as its text, up to the stylesheet's max-height; then it scrolls. */
   private fit(): void {
     const element = this.field().nativeElement;
     element.style.height = 'auto';

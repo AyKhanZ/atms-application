@@ -1,4 +1,4 @@
-/** The numbers match the server's `HistoryFieldEnum`. */
+// same numbers as server HistoryFieldEnum
 export enum HistoryField {
   Title = 1,
   Description = 2,

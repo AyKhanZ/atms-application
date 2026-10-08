@@ -3,7 +3,6 @@
   min-width: 0;
 }
 
-/* One task on a phone: what and which on top, status, priority, deadline and person below. */
 .row {
   --kind-color: var(--kind-task);
 
@@ -72,4 +71,3 @@
 .row__assignee {
   margin-left: auto;
 }
-

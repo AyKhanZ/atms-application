@@ -1,5 +1,4 @@
-/* The width of the dialog, never of the sheet: left to size itself, a centring parent let a wide
-   sheet stretch this box past the dialog, cut on both sides, with no scrollbar to reach the rest. */
+// width of the dialog, otherwise a wide sheet stretched the box and was cut with no scrollbar
 :host {
   display: flex;
   flex-direction: column;
@@ -36,7 +35,6 @@
   white-space: nowrap;
 }
 
-/* Column letters and row numbers stay in view while the grid scrolls, as in Excel. */
 .sheet thead th {
   position: sticky;
   top: 0;
@@ -74,7 +72,6 @@
   background: var(--app-surface-muted);
 }
 
-/* Sheet tabs sit under the grid, where Excel keeps them. */
 .sheet-tabs {
   display: flex;
   gap: 0.25rem;

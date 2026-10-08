@@ -34,7 +34,6 @@
   min-width: 0;
 }
 
-/* The same "TASK #34" line as above a details title, so an item looks alike wherever it shows. */
 .row__code {
   flex: 0 0 auto;
 }
@@ -115,9 +114,7 @@
   text-overflow: ellipsis;
 }
 
-/* Narrow rows stay two lines, with the right side stacked: the assignee beside the title, the
-   status beside the trail. The small avatar and short name take far less of the title's line than
-   the status pill did. */
+// narrow: assignee next to the title, status next to the trail
 @container (max-width: 40rem) {
   .row {
     grid-template-columns: minmax(0, 1fr) auto;
@@ -144,8 +141,7 @@
   }
 }
 
-/* On a phone the assignee goes and the title takes the whole first line: who holds the item is on
-   its page. The status stays below, it tells a finished item from a live one. */
+// phone: assignee goes, status stays (tells done from live)
 @container (max-width: 26rem) {
   .row {
     grid-template-columns: minmax(0, 1fr) auto;

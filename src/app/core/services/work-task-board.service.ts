@@ -11,10 +11,9 @@ import { WorkItemKind } from '../models/work-items';
 import { WorkTaskPageModel } from '../models/work-tasks';
 import { startOfToday } from '../utils/deadline.utils';
 
-/** Server's page size cap; the board asks for less, the calendar for as much as it may. */
+// server max page size
 export const workTaskBoardMaxPageSize = 50;
 
-/** The Tasks page: tasks and subtasks from every project the user may see. */
 @Injectable({ providedIn: 'root' })
 export class WorkTaskBoardService {
   private readonly http = inject(HttpClient);
@@ -34,7 +33,7 @@ export class WorkTaskBoardService {
     return this.http.get<WorkTaskPageModel>(this.url, { params });
   }
 
-  /** Status id to count, under the same filters. */
+  // status id -> count, same filters
   getCounts(query: WorkTaskBoardQuery): Observable<Record<number, number>> {
     return this.http.get<Record<number, number>>(`${this.url}/counts`, { params: toParams(query) });
   }
@@ -53,14 +52,14 @@ function toParams(query: WorkTaskBoardQuery): HttpParams {
   for (const id of query.assigneeUserIds) params = params.append('assigneeUserIds', id);
   for (const id of query.statusIds) params = params.append('statusIds', id);
   for (const id of query.priorityIds) params = params.append('priorityIds', id);
-  // The server numbers the two kinds on their own scale: 1 task, 2 subtask.
+  // server uses its own scale here: 1 task, 2 subtask
   if (query.kind !== null) params = params.set('kind', query.kind === WorkItemKind.Task ? 1 : 2);
   if (query.unassigned) params = params.set('unassigned', true);
   if (query.search.trim()) params = params.set('search', query.search.trim());
   if (query.deadlineFrom) params = params.set('deadlineFrom', query.deadlineFrom);
   if (query.deadlineTo) params = params.set('deadlineTo', query.deadlineTo);
   if (query.noDeadline || query.deadline === 'none') params = params.set('noDeadline', true);
-  // A deadline is the user's local midnight; overdue means before the start of their today.
+  // deadline is local midnight, overdue = before the start of the users today
   if (query.deadline === 'overdue' || query.overdue === true) {
     params = params.set('overdueBefore', startOfToday().toISOString());
   }

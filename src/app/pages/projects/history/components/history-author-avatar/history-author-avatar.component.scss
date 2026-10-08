@@ -1,5 +1,4 @@
-// The avatar reads its size, shape and shadow from these; custom properties pass into it, so there
-// is no reaching into its markup.
+// custom properties pass into the avatar, no reaching into its markup
 :host {
   --avatar-size: var(--history-avatar-size, 2rem);
   --avatar-radius: 999px;

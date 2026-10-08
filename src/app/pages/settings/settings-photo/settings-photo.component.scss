@@ -1,6 +1,6 @@
 :host {
   display: block;
-  /* Sized by the tab it sits in (the nearest container), not the window. */
+  // sized by the tab, not the window
   --avatar-size: clamp(11rem, 18cqi, 14rem);
 }
 

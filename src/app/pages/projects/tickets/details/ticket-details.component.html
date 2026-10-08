@@ -30,10 +30,7 @@
   </div>
 
   @if (loading()) {
-    <section class="panel ticket-state" role="status">
-      <i class="pi pi-spin pi-spinner"></i>
-      <span>Loading ticket...</span>
-    </section>
+    <section class="panel"><app-loading-state text="Loading ticket..." /></section>
   } @else if (loadError()) {
     <section class="panel ticket-state" role="alert">
       <i class="pi pi-exclamation-circle"></i>
@@ -68,7 +65,7 @@
         (select)="selectTab($event)"
       />
 
-      <!-- One height for every tab, so moving between empty ones does not resize the card. -->
+      <!-- one height for every tab so the card doesnt resize -->
       <div class="tab-body">
         @if (activeTab() === 'details') {
           <div class="work-item-details-content">

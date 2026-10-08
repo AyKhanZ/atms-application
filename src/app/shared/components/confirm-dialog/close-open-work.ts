@@ -1,27 +1,20 @@
 import { ConfirmEventType, ConfirmationService } from 'primeng/api';
 import { ChoiceConfirmation, confirmTone } from './confirm-dialog.component';
 
-/** What the user chose when closing something that still has open work under it. */
 export type CloseOpenWorkChoice = 'all' | 'only' | 'cancel';
 
 export interface CloseOpenWorkQuestion {
-  /** The `app-confirm-dialog` on the page. */
   key: string;
-  /** "TASK #34" — what is being closed, as it is named everywhere. */
+  // "TASK #34"
   itemRef: string;
   title: string;
-  /** How many under it are not done. */
   openCount: number;
-  /** "subtask" or "task". */
+  // "subtask" or "task"
   childLabel: string;
 }
 
-/**
- * Closing a task with open subtasks, or a ticket with open tasks: asked, not refused and not done
- * silently (05-tasks, «Статусы»). A refusal made people close children one by one; silence left an
- * item "done" while its work was not. Mark all as done is the default, Only this task keeps the
- * Azure-like freedom, Cancel changes nothing.
- */
+// asked, not refused and not done silently: refusing made people close children one by one
+// Mark all as done is default, Only this keeps the freedom, Cancel changes nothing
 export function askToCloseOpenWork(
   confirmation: ConfirmationService,
   question: CloseOpenWorkQuestion,

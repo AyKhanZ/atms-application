@@ -19,11 +19,7 @@ interface CommentsScope {
 
 let nextRequestId = 0;
 
-/**
- * What the discussion of one task is doing right now: which comment is being edited and what is on
- * its way to the server. One per discussion, so a comment card does not pass it all through its
- * inputs. Every change goes to the store as an action.
- */
+// one per discussion so cards dont pass it through inputs, changes go to the store as actions
 @Injectable()
 export class CommentActionsService {
   private readonly store = inject(Store);
@@ -87,7 +83,7 @@ export class CommentActionsService {
       );
   }
 
-  /** The task on screen changed: whatever was open belonged to the previous one. */
+  // task changed, whatever was open belonged to the previous one
   setScope(scope: CommentsScope): void {
     this.scope = scope;
     this.request = null;
@@ -169,7 +165,6 @@ export class CommentActionsService {
     });
   }
 
-  /** The task page with this comment in view: the Details tab, scrolled to it. */
   linkTo(commentId: string): string {
     const tree = this.router.createUrlTree([], {
       relativeTo: this.route,
@@ -188,7 +183,7 @@ export class CommentActionsService {
   }
 }
 
-/** The server's own reason for a 400; otherwise what the status means for a comment. */
+// server reason for 400, otherwise by status
 function mutationMessage(error: WorkItemMutationError, fallback: string): string {
   if (error.message) return error.message;
   if (error.status === 403) return "You can't comment in this project any more.";

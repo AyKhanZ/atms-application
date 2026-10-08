@@ -9,7 +9,6 @@ import {
   UpdateCommentCommand,
 } from '../models/comments';
 
-/** Comments on one page: enough to read the recent discussion without scrolling far. */
 export const COMMENTS_PAGE_SIZE = 20;
 
 @Injectable({ providedIn: 'root' })
@@ -26,7 +25,7 @@ export class CommentsService {
     return this.http.get<CommentPageModel>(this.url(projectId), { params });
   }
 
-  /** One comment still there: what a pushed change puts on screen instead of a whole page. */
+  // one comment, used by realtime instead of reloading the page
   getComment(projectId: string, commentId: string, workTaskId?: string): Observable<CommentModel> {
     const params = workTaskId ? new HttpParams().set('workTaskId', workTaskId) : undefined;
     return this.http.get<CommentModel>(`${this.url(projectId)}/${commentId}`, { params });

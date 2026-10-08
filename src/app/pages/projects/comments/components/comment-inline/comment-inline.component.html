@@ -1,5 +1,4 @@
-<!-- Text tokens sit on one line with their tags: a line break around them would render as a space
-     between "Hello" and the bold word that follows it. -->
+<!-- keep tokens on one line with their tags, a line break would render as a space -->
 @for (token of tokens(); track $index) {
   @switch (token.kind) {
     @case ('text') {
@@ -25,7 +24,7 @@
       }}</a>
     }
     @case ('mention') {
-      <!-- Someone who left the project is still marked, only without a name to look up. -->
+      <!-- someone who left the project is still marked, just without a name -->
       <span class="comment-mention"
         >&#64;{{ lookups().people.get(token.userId) | personName: 'Unknown user' }}</span
       >
@@ -34,7 +33,7 @@
       @if (lookups().references.get(token.code); as view) {
         <app-comment-reference [view]="view" />
       } @else {
-        <!-- Unknown, or in a project the reader cannot open: plain text, the title stays hidden. -->
+        <!-- unknown or in a project the reader cant open: plain text, title stays hidden -->
         <ng-container>#{{ token.code }}</ng-container>
       }
     }

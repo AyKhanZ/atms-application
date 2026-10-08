@@ -20,7 +20,6 @@ export interface ParticipantDialogData {
   clientUsers: ParticipantCandidate[];
 }
 
-/** Everything the Add participant and Change role dialogs need: roles and the people to pick from. */
 @Injectable()
 export class ParticipantDialogDataService {
   private readonly dictionaries = inject(DictionaryService);

@@ -21,10 +21,12 @@ import { WorkItemAssigneeComponent } from '../../../../../shared/components/work
 import { TaskStatusBadgeComponent } from '../task-status-badge/task-status-badge.component';
 import { WorkItemRefComponent } from '../../../../../shared/components/work-item-ref/work-item-ref.component';
 import { WorkItemKind } from '../../../../../core/models/work-items';
+import { LoadingStateComponent } from '../../../../../shared/components/loading-state/loading-state.component';
 
 @Component({
   selector: 'app-work-task-list',
   imports: [
+    LoadingStateComponent,
     WorkItemRefComponent,
     ButtonModule,
     MenuModule,
@@ -50,11 +52,7 @@ export class WorkTaskListComponent implements OnDestroy {
   private readonly router = inject(Router);
   private readonly taskPages = this.store.selectSignal(WorkTasksStoreSelectors.getPages);
 
-  /**
-   * The list is reused for a ticket's tasks and for a task's subtasks, and both are reached by
-   * navigating between items on the same route. Angular reuses the component in that case, so the
-   * first page has to follow the inputs rather than a one-off ngOnInit call.
-   */
+  // angular reuses the component between ticket tasks and task subtasks, so follow the inputs, not ngOnInit
   private readonly queryKey = computed(
     () => `${this.projectId()}|${this.ticketId() ?? ''}|${this.parentTaskId() ?? ''}`,
   );

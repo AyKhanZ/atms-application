@@ -5,7 +5,7 @@
   overflow: hidden;
 }
 
-/* Sits under the drawer and over everything else, so a tap anywhere outside the menu closes it. */
+// tap outside the menu closes it
 .drawer-scrim {
   position: fixed;
   inset: 0;

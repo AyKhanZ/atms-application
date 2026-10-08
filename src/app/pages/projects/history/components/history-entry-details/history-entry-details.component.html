@@ -36,9 +36,7 @@
     <tbody>
       @for (change of item.changes; track $index) {
         @if (change.field === fields.Description && !created()) {
-          <!-- Up to 2000 characters each. A wide pane puts them side by side under New and Old,
-               like every other field; a narrow one, where a column would be a strip of a few
-               words, puts the new one over the old one, labelled. -->
+          <!-- up to 2000 chars each: side by side on a wide pane, new over old on a narrow one -->
           <tr>
             <th scope="row" class="changes__field">{{ change.field | historyFieldLabel }}</th>
             <td class="changes__cell" colspan="2">

@@ -6,8 +6,7 @@
     min-width: 0;
   }
 
-  /* A select or date picker is as wide as its text by default; in a narrow column it would stick
-     out past the field edge instead of shrinking. */
+  // a select is as wide as its text by default and would stick out of a narrow column
   .field > * {
     min-width: 0;
   }
@@ -45,8 +44,7 @@
     font-size: 0.8rem;
   }
 
-  /* The error and counter row keeps one fixed line height, so a message appearing under a field
-     does not push the fields below it down. */
+  // fixed line so an error doesnt push the fields down
   .field-error {
     min-height: 1.1rem;
     line-height: 1.1rem;

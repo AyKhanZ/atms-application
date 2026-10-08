@@ -15,15 +15,10 @@ import { filterPanelStyle } from '../task-filters/filter-option';
 import { FilterSummaryPipe } from '../task-filters/filter-summary.pipe';
 import { RemoteOptions } from '../../remote-options';
 
-/** How close to the end of the list the next page is asked for, so it arrives before it is needed. */
+// ask for the next page this close to the end so it arrives in time
 const nearEnd = 48;
 
-/**
- * A searchable pick of projects or tickets, each drawn as everywhere else: the kind's icon and code
- * in the kind's colour, then the title. The options come from the server a page at a time: typing
- * searches there, scrolling to the end reads the next page. The Project and Ticket filters are this
- * same control.
- */
+// options come a page at a time: typing searches on the server, scrolling loads the next page
 @Component({
   selector: 'app-ref-multiselect',
   imports: [FormsModule, MultiSelectModule, WorkItemRefComponent, FilterSummaryPipe],
@@ -35,7 +30,6 @@ export class RefMultiselectComponent {
   private readonly document = inject(DOCUMENT);
   private list: HTMLElement | null = null;
 
-  /** The id a `<label for>` points at. */
   readonly inputId = input.required<string>();
   readonly labelledBy = input.required<string>();
   readonly placeholder = input('All');
@@ -45,7 +39,7 @@ export class RefMultiselectComponent {
   readonly valueChange = output<string[]>();
 
   protected readonly panelStyle = filterPanelStyle;
-  /** The panel lives on the body; its own class is how this control finds its list again. */
+  // panel is on body, its class is how this control finds its list
   protected readonly panelClass = computed(() => `ref-multiselect-panel--${this.inputId()}`);
   protected readonly options = computed(() => this.source()?.options() ?? []);
   protected readonly loading = computed(() => this.source()?.loading() ?? false);

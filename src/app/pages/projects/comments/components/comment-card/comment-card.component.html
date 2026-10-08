@@ -20,7 +20,6 @@
     />
     <p class="card__meta">
       <strong class="card__author">{{ item.createdBy | personName: 'Unknown user' }}</strong>
-      <!-- The time is the comment's own link, as in Azure DevOps. -->
       <a
         class="card__when"
         [routerLink]="[]"
@@ -38,9 +37,7 @@
       }
     </p>
 
-    <!-- A deleted comment has nothing to do with it any more. -->
     @if (!editing() && !item.isDeleted) {
-      <!-- As in Azure DevOps: link and edit at hand, delete one step away behind ⋯. -->
       <div class="card__actions">
         <button
           type="button"
@@ -75,7 +72,6 @@
           </button>
         }
       </div>
-      <!-- A phone: every action behind one ⋯, so the name and the time keep the row. -->
       <button
         type="button"
         class="card__action card__actions-compact"
@@ -91,7 +87,7 @@
 
   <div class="card__body">
     @if (item.isDeleted) {
-      <!-- Kept in its place, like any card: who deleted it and when, never what it said. -->
+      <!-- who deleted it and when, never the text -->
       <p class="card__deleted">
         <i class="pi pi-trash" aria-hidden="true"></i>
         <span>
@@ -147,5 +143,5 @@
   </div>
 </article>
 
-<!-- One menu for both ⋯: Delete alone on a wide screen, every action on a phone. -->
+<!-- delete alone on a wide screen, every action on a phone -->
 <p-menu #menu [popup]="true" [model]="menuModel()" appendTo="body" />

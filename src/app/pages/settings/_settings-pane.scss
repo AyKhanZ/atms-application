@@ -1,5 +1,4 @@
-/// One tab of Settings: the form and its row of actions at the bottom. Both tabs use it, so the
-/// buttons sit in the same place whichever tab is open.
+// both tabs use it so the buttons sit in the same place
 @mixin pane {
   .settings-pane {
     display: grid;

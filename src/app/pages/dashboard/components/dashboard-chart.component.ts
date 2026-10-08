@@ -11,14 +11,21 @@ import {
   output,
   viewChild,
 } from '@angular/core';
-import { Chart, ChartConfiguration, ChartDataset, ChartType, LegendItem, registerables } from 'chart.js';
+import {
+  Chart,
+  ChartConfiguration,
+  ChartDataset,
+  ChartType,
+  LegendItem,
+  registerables,
+} from 'chart.js';
 
 Chart.register(...registerables);
 
 export interface DashboardChartSeries {
   label: string;
   values: number[];
-  /** CSS variable of the series colour, e.g. `--orange`. */
+  // css variable, e.g. --orange
   color: string;
 }
 
@@ -27,13 +34,6 @@ type ChartKind = 'line' | 'doughnut' | 'bar';
 const barLabelLength = 24;
 const doughnutLegendBesideMinWidth = 320;
 
-/**
- * One Chart.js chart that fills the box its card gives it and never sizes that box itself.
- *
- * The canvas is positioned out of the layout (see the styles), so the card decides the height and
- * the chart follows. When the canvas takes part in the layout, Chart.js and the card grow each other
- * on every resize and the chart gets taller with each window change.
- */
 @Component({
   selector: 'app-dashboard-chart',
   templateUrl: './dashboard-chart.component.html',
@@ -49,10 +49,9 @@ export class DashboardChartComponent implements OnDestroy {
   readonly kind = input.required<ChartKind>();
   readonly title = input.required<string>();
   readonly labels = input.required<string[]>();
-  /** Full labels for tooltips when the axis shows short ones. */
+  // full labels for tooltips when the axis shows short ones
   readonly tooltipLabels = input<string[]>([]);
   readonly series = input.required<DashboardChartSeries[]>();
-  /** Per-item colours of a doughnut or bar chart, as CSS variables. */
   readonly colors = input<string[]>([]);
   readonly disabledIndices = input<number[]>([]);
   readonly selected = output<number>();
@@ -65,9 +64,7 @@ export class DashboardChartComponent implements OnDestroy {
       );
       return `${title}: ${totals.join(', ')}`;
     }
-    const values = this.labels().map(
-      (label, index) => `${label} ${series[0]?.values[index] ?? 0}`,
-    );
+    const values = this.labels().map((label, index) => `${label} ${series[0]?.values[index] ?? 0}`);
     return `${title}: ${values.join(', ')}`;
   });
 
@@ -112,7 +109,7 @@ export class DashboardChartComponent implements OnDestroy {
     const colors = this.colors().map(token);
     const disabled = this.disabledIndices();
     const values = series[0]?.values ?? [];
-    // An empty chart is still drawn — a grey ring or an empty axis — so the card keeps its shape.
+    // empty chart is still drawn so the card keeps its shape
     const isEmpty = !series.some((item) => item.values.some((value) => value > 0));
     const titleOf = (index: number) => tooltipLabels[index] ?? labels[index] ?? '';
 
@@ -180,7 +177,10 @@ export class DashboardChartComponent implements OnDestroy {
               align: 'end',
               labels: { color: muted, font, usePointStyle: true, boxWidth: 8, boxHeight: 8 },
             },
-            tooltip: { ...tooltip, callbacks: { title: (items) => titleOf(items[0]?.dataIndex ?? 0) } },
+            tooltip: {
+              ...tooltip,
+              callbacks: { title: (items) => titleOf(items[0]?.dataIndex ?? 0) },
+            },
           },
           scales: {
             x: {
@@ -202,7 +202,7 @@ export class DashboardChartComponent implements OnDestroy {
     }
 
     if (kind === 'doughnut') {
-      // The legend always lists every category with its count, even when all of them are zero.
+      // legend lists every category, even with 0
       const legendItems = (): LegendItem[] =>
         labels.map((label, index) => ({
           text: `${label}  ${values[index] ?? 0}`,
@@ -234,7 +234,7 @@ export class DashboardChartComponent implements OnDestroy {
           animation: false,
           cutout: '68%',
           layout: { padding: 6 },
-          // Beside a narrow ring the legend squeezes it to a dot; below it the ring keeps its size.
+          // next to a narrow ring the legend squeezes it to a dot, so it goes under it
           onResize: (chart, size) => {
             const legend = chart.options.plugins?.legend;
             const position = size.width < doughnutLegendBesideMinWidth ? 'bottom' : 'right';
@@ -332,7 +332,6 @@ function shorten(label: string, length: number): string {
   return label.length > length ? `${label.slice(0, length - 1)}…` : label;
 }
 
-/** `#rrggbb` → `rgba(r, g, b, alpha)`; any other colour is returned as it is. */
 function withAlpha(color: string, alpha: number): string {
   const match = /^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(color);
   if (!match) return color;

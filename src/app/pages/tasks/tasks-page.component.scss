@@ -16,8 +16,7 @@
   overflow: hidden;
 }
 
-/* All three views reach the bottom of the screen: an empty board, a short list and a month all
-   fill the same card, so switching between them does not make it jump. */
+// all three views fill the same card so switching doesnt jump
 .tasks-body {
   --tasks-view-height: max(26rem, calc(100dvh - 20rem));
   display: grid;

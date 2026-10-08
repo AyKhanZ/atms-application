@@ -56,6 +56,7 @@ import {
   taskParentRoute,
   taskTabQueryParam,
 } from './task-details.utils';
+import { LoadingStateComponent } from '../../../../shared/components/loading-state/loading-state.component';
 
 interface TaskPageData {
   task: WorkTaskModel;
@@ -66,6 +67,7 @@ interface TaskPageData {
 @Component({
   selector: 'app-task-details',
   imports: [
+    LoadingStateComponent,
     WorkItemRefComponent,
     ButtonModule,
     ConfirmDialogComponent,
@@ -102,8 +104,7 @@ export class TaskDetailsComponent implements OnDestroy {
   private readonly injector = inject(Injector);
   private readonly sections = inject(FoldedSectionsService);
 
-  // Moving between a task and its subtasks stays on this route, so Angular reuses the component.
-  // The ids therefore follow paramMap and must not be read once from the snapshot.
+  // task <-> subtask stays on this route and angular reuses the component, so ids follow paramMap
   private projectId: string | null = null;
   private ticketId: string | null = null;
   private taskId: string | null = null;
@@ -116,21 +117,18 @@ export class TaskDetailsComponent implements OnDestroy {
   readonly canEdit = signal(false);
   readonly canDelete = signal(false);
   readonly canComment = signal(false);
-  /** Who can be mentioned in a comment: the project's members, read with the project. */
   readonly participants = signal<readonly WorkProjectParticipantModel[]>([]);
   readonly activeTab = signal<TaskTab>(parseTaskTab(this.route.snapshot.queryParamMap.get('tab')));
   readonly tabs = computed<readonly EntityTab<TaskTab>[]>(() => {
     const task = this.task();
-    // A subtask has no subtasks of its own, so the tab is not shown at all — an empty tab that
-    // exists only to say it can never hold anything is worse than no tab.
+    // subtasks cant have subtasks, so no tab at all
     const subtasks: EntityTab<TaskTab>[] = task?.isSubtask
       ? []
       : [
           {
             id: 'subtasks',
             label: 'Subtasks',
-            // Not the same icon as the ticket's Tasks tab: the two tabs sit one click apart and
-            // have to be told apart at a glance.
+            // different icon from the tickets Tasks tab, they are one click apart
             icon: 'pi-sitemap',
             badge: workItemProgressBadge(task?.doneSubtaskCount, task?.subtaskCount),
           },
@@ -180,10 +178,8 @@ export class TaskDetailsComponent implements OnDestroy {
     });
   }
 
-  /** The Details tab, scrolled to the discussion under the description. */
   openDiscussion(): void {
     this.selectTab('details');
-    // Folded earlier, it opens: the click asked to see the comments.
     this.sections.open('task.discussion').set(true);
     afterNextRender(
       () =>
@@ -194,15 +190,12 @@ export class TaskDetailsComponent implements OnDestroy {
     );
   }
 
-  /** Where the user came from; the parent when that is unknown, as after opening a shared link. */
+  // parent when unknown, e.g. after a shared link
   back(): void {
     if (!this.navigationHistory.back()) this.up();
   }
 
-  /**
-   * The item's parent. After a delete it replaces the gone page in the history, so Back from the
-   * parent does not lead to a page that no longer exists.
-   */
+  // after a delete it replaces the gone page so Back doesnt lead to it
   private up(replaceHistory = false): void {
     const task = this.task();
     const state = { replaceHistory };
@@ -258,7 +251,7 @@ export class TaskDetailsComponent implements OnDestroy {
   private apply(result: TaskPageData | null): void {
     if (!result) return;
 
-    // A task reached through a stale ticket id still resolves; send the user to its real ticket.
+    // stale ticket id: send to the real ticket
     if (result.task.workTicket.id !== this.ticketId) {
       void this.router.navigate(
         [
@@ -277,8 +270,7 @@ export class TaskDetailsComponent implements OnDestroy {
     this.task.set(result.task);
     this.participants.set(result.project.participants);
     this.comments.watch(result.task);
-    // ?tab=subtasks can arrive from a bookmark or from the parent's tab state, and a subtask has
-    // no such tab — fall back to Details instead of rendering an empty body.
+    // ?tab=subtasks can come from a bookmark, a subtask has no such tab
     if (result.task.isSubtask && this.activeTab() === 'subtasks') this.selectTab('details');
     this.applyPermissions(result.permissions);
     this.breadcrumbs.setTrail(
@@ -295,8 +287,7 @@ export class TaskDetailsComponent implements OnDestroy {
     this.canComment.set(permissions.includes(ProjectPermissions.Comment.Edit));
   }
 
-  /** A 403 means the cached permissions are already wrong; re-read them so the page stops
-   *  offering an action the server refuses. */
+  // 403 = cached permissions are wrong, re-read them
   private refreshPermissionsAfterForbidden(error: HttpErrorResponse): void {
     if (error.status !== 403 || !this.projectId) return;
     this.permissionsRefresh

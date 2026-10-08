@@ -62,8 +62,7 @@
   white-space: nowrap;
 }
 
-// A fixed cap, not a share of the row: a percentage is taken of the width the list has already
-// got, so the name would be cut even where the list could still grow to show it.
+// fixed cap not a percent, a percent is taken of the width the list already has
 .suggestion__meta {
   max-width: 16rem;
   flex: none;

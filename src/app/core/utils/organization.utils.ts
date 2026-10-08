@@ -1,4 +1,3 @@
-/** First letters of the first two words of the title, for a logo placeholder. */
 export function organizationInitials(title: string | null | undefined): string {
   return (
     (title ?? '')

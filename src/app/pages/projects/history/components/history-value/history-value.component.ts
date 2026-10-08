@@ -14,7 +14,7 @@ import { WorkGroupStatusBadgeComponent } from '../../../details/tabs/groups/comp
 import { TaskStatusBadgeComponent } from '../../../tasks/components/task-status-badge/task-status-badge.component';
 import { TicketStatusBadgeComponent } from '../../../tickets/components/ticket-status-badge/ticket-status-badge.component';
 
-/** One old or new value, drawn the way the same value looks everywhere else in the app. */
+// drawn the same way the value looks everywhere else
 @Component({
   selector: 'app-history-value',
   imports: [
@@ -43,8 +43,8 @@ export class HistoryValueComponent {
   readonly value = input.required<HistoryValueModel>();
   readonly entityType = input.required<HistoryEntityType>();
   readonly projectId = input.required<string>();
-  /** Only the dot of a status: for a mark whose status is named elsewhere. */
+  // when the status is named elsewhere
   readonly dotOnly = input(false);
-  /** A value that was replaced: every kind of value draws itself grey and struck through. */
+  // replaced: grey and struck through
   readonly muted = input(false);
 }

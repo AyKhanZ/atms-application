@@ -5,10 +5,10 @@ export interface UpdateWorkTaskCommand {
   statusId: number;
   deadline?: string | null;
   assigneeId?: string | null;
-  /** Ticket the task belongs to. The server ignores it when a parent task is given. */
+  // ignored by the server when parentWorkTaskId is set
   workTicketId: string;
-  /** Parent task for a subtask; null makes the item a top-level task. */
+  // null = top-level task
   parentWorkTaskId?: string | null;
-  /** Saving as Done: close the task's open subtasks too ("Mark all as done"). */
+  // Done also closes open subtasks ("Mark all as done")
   completeSubtasks?: boolean;
 }

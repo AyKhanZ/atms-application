@@ -12,10 +12,7 @@ import { ProfileAvatarComponent } from '../profile-avatar/profile-avatar.compone
 import { WorkItemRefComponent } from '../work-item-ref/work-item-ref.component';
 import { WorkItemStatusBadgeComponent } from '../work-item-status-badge/work-item-status-badge.component';
 
-/**
- * What one notification says: the work it is about, then who did what and when. The bell and the
- * Notifications page wrap it in their own row, which decides what a click does.
- */
+// bell and the page wrap it in their own row and decide what a click does
 @Component({
   selector: 'app-notification-item',
   imports: [

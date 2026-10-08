@@ -1,25 +1,19 @@
-/**
- * Turning a downloaded file into something the preview can draw. The two libraries are loaded
- * only here, on demand: nobody pays for them until a document or a sheet is actually opened.
- */
+// both libs are loaded only here on demand
 
-/** A sheet is looked at, not worked in: past this the file is a download away. */
+// a sheet is for looking, bigger ones are downloaded
 export const MAX_SHEET_ROWS = 500;
 export const MAX_SHEET_COLUMNS = 50;
 
 export interface SheetPreview {
   name: string;
   rows: string[][];
-  /** Letters over the columns, the way Excel labels them: A, B, … Z, AA. */
+  // A, B, ... Z, AA like excel
   columns: string[];
   truncated: boolean;
 }
 
-/**
- * UTF-8 first; a file that is not valid UTF-8 is read as Windows-1251, which is what an older
- * Russian or Azerbaijani Notepad or Excel file most likely is. A cut at a size limit can split the
- * last character, so a broken tail alone does not count as "not UTF-8".
- */
+// utf-8 first, otherwise windows-1251 (old ru/az notepad and excel files)
+// a cut at the size limit can break the last char, a broken tail alone isnt "not utf-8"
 export function decodeText(buffer: ArrayBuffer): string {
   const bytes = new Uint8Array(buffer);
   try {
@@ -29,10 +23,7 @@ export function decodeText(buffer: ArrayBuffer): string {
   }
 }
 
-/**
- * Excel in a Russian or Azerbaijani locale writes CSV with semicolons, elsewhere with commas.
- * Whichever the first line holds more of is the separator.
- */
+// excel in ru/az locale writes ; instead of , - whatever the first line has more of
 export function csvSeparator(text: string): string {
   const firstLine = text.slice(0, text.indexOf('\n') === -1 ? undefined : text.indexOf('\n'));
   const count = (separator: string) => firstLine.split(separator).length - 1;
@@ -51,10 +42,10 @@ export function columnLetter(index: number): string {
   return letter;
 }
 
-/** Every sheet as plain text cells: values as Excel would display them, no formulas, no HTML. */
+// values as excel shows them, no formulas, no html
 export async function readSheets(buffer: ArrayBuffer, csv: boolean): Promise<SheetPreview[]> {
   const XLSX = await import('xlsx');
-  // One row over the limit is read, so a cut sheet can say so.
+  // one row over the limit so a cut sheet can say so
   const sheetRows = MAX_SHEET_ROWS + 1;
   const workbook = csv
     ? (() => {
@@ -86,12 +77,8 @@ export async function readSheets(buffer: ArrayBuffer, csv: boolean): Promise<She
   });
 }
 
-/**
- * The page a document is drawn into: its own document inside a sandboxed iframe, so whatever the
- * file contains cannot run a script, reach the app's storage or restyle the app. Drawing is done
- * from here, by the app; the frame itself never runs code. Colours come from the app's tokens,
- * read once, since the frame cannot see the app's stylesheet.
- */
+// sandboxed iframe so the file cant run scripts, reach storage or restyle the app
+// colors are read once from app tokens, the frame cant see our css
 function documentFrame(frame: HTMLIFrameElement): Promise<Document> {
   const tokens = getComputedStyle(document.documentElement);
   const backdrop = tokens.getPropertyValue('--app-surface-muted').trim() || '#f7f8fa';
@@ -118,10 +105,7 @@ function documentFrame(frame: HTMLIFrameElement): Promise<Document> {
   });
 }
 
-/**
- * Draws a .docx into a sandboxed frame. Links the document carries are kept only when they go to
- * a web page or an e-mail address, and open in a new tab.
- */
+// links are kept only for web pages and emails, open in a new tab
 export async function renderDocument(
   blob: Blob,
   frame: HTMLIFrameElement,
@@ -135,16 +119,14 @@ export async function renderDocument(
   await renderAsync(blob, body, styles, {
     className: 'docx',
     inWrapper: true,
-    // On a phone the page reflows to the screen instead of being a 21 cm sheet to pan around.
+    // on a phone the page reflows instead of a 21cm sheet
     ignoreWidth: narrow,
     ignoreHeight: narrow,
     breakPages: !narrow,
     renderHeaders: true,
     renderFooters: true,
     renderFootnotes: true,
-    // A Word file can carry a piece of raw HTML ("altChunk"); docx-preview would put it in an
-    // iframe of its own with our origin and no sandbox — a script in a .docx would run as the
-    // signed-in user. It is not shown at all.
+    // altChunk (raw html) would go into an unsandboxed iframe with our origin, a script would run as the user, so its not shown
     renderAltChunks: false,
     experimental: false,
     useBase64URL: false,

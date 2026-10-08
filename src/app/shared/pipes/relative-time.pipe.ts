@@ -1,12 +1,6 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
-/**
- * Formats a timestamp as "2 hours ago" / "in 5 days", falling back to a plain date once the
- * distance stops being useful to read relatively.
- *
- * A pipe rather than a component method: the result depends only on its input, so Angular can
- * memoise it instead of recomputing `Intl.RelativeTimeFormat` on every change detection pass.
- */
+// "2 hours ago" / "in 5 days", plain date when too far; a pipe so angular memoises it
 @Pipe({ name: 'relativeTime' })
 export class RelativeTimePipe implements PipeTransform {
   transform(value?: string | Date | null): string {

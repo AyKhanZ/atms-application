@@ -1,5 +1,3 @@
-/// The moving grey of a loading placeholder. Lists, Search, Notifications and Settings share it so
-/// every skeleton in the app shimmers the same way.
 @mixin shimmer {
   background: linear-gradient(
     90deg,

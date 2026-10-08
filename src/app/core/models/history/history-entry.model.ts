@@ -9,9 +9,9 @@ export interface HistoryEntryModel {
   entityType: HistoryEntityType;
   action: HistoryAction;
   createdAt: string;
-  /** No author: a background job made the change. */
+  // null = made by a background job
   createdBy?: PersonModel | null;
-  /** The group or milestone an entry of the project history is about. */
+  // group or milestone, for project history
   subject?: HistoryValueModel | null;
   changes: HistoryChangeModel[];
 }

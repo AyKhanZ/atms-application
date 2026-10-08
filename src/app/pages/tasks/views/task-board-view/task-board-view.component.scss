@@ -7,8 +7,7 @@
   display: none;
 }
 
-/* Columns share the width equally and all end at the same line: the longest one sets the height,
-   as in Azure and Notion. No column scrolls on its own — the page scrolls, "Load more" adds. */
+// the longest column sets the height, no column scrolls on its own
 .board {
   display: grid;
   grid-template-columns: repeat(var(--columns, 3), minmax(0, 1fr));
@@ -17,8 +16,7 @@
   min-width: 0;
 }
 
-/* Columns are one neutral grey, as in Azure and Notion: three tinted columns fought the cards'
-   own colours. The status keeps its colour only in the dot before the title. */
+// one neutral grey, tinted columns fought the card colors
 .column {
   display: flex;
   flex-direction: column;
@@ -87,8 +85,7 @@
   font-weight: 700;
 }
 
-/* Reaches the bottom of the screen when the board is short, and simply grows past it when there
-   is more work. Always a place to drop into. */
+// always a place to drop into
 .column__list {
   display: flex;
   flex: 1;
@@ -98,8 +95,7 @@
   padding: 0.1rem;
 }
 
-/* Overdue work above the rest of the column, cut off by a dashed line: sized by its cards, never
-   stretched to the bottom. */
+// sized by its cards, never stretched down
 .column__list--late {
   flex: none;
   min-height: 0;
@@ -107,7 +103,6 @@
   border-bottom: 1px dashed var(--overdue-border-strong);
 }
 
-/* An empty column says so in the middle of the space a card would take, not in small print on top. */
 .column__empty {
   display: grid;
   flex: 1;
@@ -132,12 +127,10 @@
   color: var(--red-hover);
 }
 
-/* The shared Load more: white with a thin border, so on the grey column it is not lost. */
 .column__more {
   align-self: center;
 }
 
-/* Drag feedback: the lifted card floats, the gap it will land in is a dashed outline. */
 :host ::ng-deep .cdk-drag-preview {
   box-shadow: var(--shadow-card);
   border-radius: var(--radius-card);
@@ -197,7 +190,6 @@
     display: none;
   }
 
-  /* The switcher above already says which column this is, and how many are in it. */
   .column__head {
     display: none;
   }

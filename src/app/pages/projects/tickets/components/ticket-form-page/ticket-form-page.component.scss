@@ -25,7 +25,6 @@
   min-width: 0;
 }
 
-/* Context, not a heading: the group only says where the milestones below it live. */
 .milestone-group {
   color: var(--app-muted);
   font-size: 0.76rem;
@@ -121,9 +120,7 @@
   box-shadow: none;
 }
 
-/* place-items, not justify-items: with horizontal centring alone the grid items stretch to the
-   row height, so the spinner sat in a 24x77 box and its rotation swung the glyph around a wide
-   arc instead of turning it in place. Matches .ticket-state and the other loading panels. */
+// place-items not justify-items, otherwise the spinner swung around a wide arc
 .ticket-form-state {
   display: grid;
   place-items: center;

@@ -5,10 +5,7 @@ import { ProjectStatusBadgeComponent } from '../../../pages/projects/components/
 import { TaskStatusBadgeComponent } from '../../../pages/projects/tasks/components/task-status-badge/task-status-badge.component';
 import { TicketStatusBadgeComponent } from '../../../pages/projects/tickets/components/ticket-status-badge/ticket-status-badge.component';
 
-/**
- * The status of any work item, in the colours of its kind — projects, tickets and tasks each have a
- * scale of their own. One place to choose, for lists that mix the kinds: search, comment links.
- */
+// for lists that mix kinds (search, comment links), each kind has its own scale
 @Component({
   selector: 'app-work-item-status-badge',
   imports: [ProjectStatusBadgeComponent, TaskStatusBadgeComponent, TicketStatusBadgeComponent],

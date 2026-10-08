@@ -29,15 +29,14 @@ export class HistoryEffects {
   load$ = createEffect(() =>
     this.actions$.pipe(
       ofType(ActionsStore.load),
-      // One stream per history on screen, closed when it leaves: a group that never closed stayed in
-      // memory for every ticket and task opened until the page was reloaded.
+      // one stream per history on screen, closed when it leaves (they used to stay in memory)
       groupBy(({ historyKey }) => historyKey, { duration: (group) => this.gone(group.key) }),
       mergeMap((requests) =>
         requests.pipe(
           switchMap(({ historyKey, projectId, scope }) =>
             forkJoin({
               page: this.history.getHistory(projectId, scope),
-              // The status bar is a summary on top of the list: without it the list still works.
+              // status bar is a summary, the list works without it
               states: this.history.getStates(projectId, scope).pipe(catchError(() => of(null))),
             }).pipe(
               map(({ page, states }) => ActionsStore.loadSuccess({ historyKey, page, states })),
@@ -69,7 +68,7 @@ export class HistoryEffects {
                   }),
                 ),
               ),
-              // A reload starts the list over; a later page of the old list would land on it.
+              // a reload starts over, a later page of the old list would land on it
               takeUntil(
                 merge(
                   this.gone(historyKey),

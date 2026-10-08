@@ -24,7 +24,6 @@
   height: 0.72rem;
 }
 
-/* Bars grow with the level, so the shape reads as a scale even before the colour registers. */
 .work-item-priority__bar {
   width: 0.2rem;
   border-radius: 1px;
@@ -47,9 +46,7 @@
   background: currentcolor;
 }
 
-/* Warm ramp: grey, amber, orange, red. The temperature rises with the level, so the scale reads
-   even before the bars are counted. Red is reserved for Critical — giving it to High as well
-   would flatten the top of the scale. */
+// grey, amber, orange, red; red only for Critical
 .work-item-priority[data-tone='medium'] {
   color: var(--priority-medium);
 }
@@ -62,7 +59,7 @@
   color: var(--red-hover);
 }
 
-// After the tones, so a replaced priority is grey whatever its level; the bars still show the level.
+// after the tones so a replaced one is grey, bars still show the level
 .work-item-priority.work-item-priority--muted {
   @include replaced-value.muted;
 }

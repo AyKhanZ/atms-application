@@ -4,20 +4,7 @@ import { Store } from '@ngrx/store';
 import { UserListFilter } from '../models/users/users.models';
 import { UsersStoreActions, UsersStoreSelectors } from '../../store/users';
 
-/**
- * Сервис управления фильтрами списка пользователей.
- *
- * ПРИНЦИП: URL — единственный источник правды.
- * localStorage НЕ используется — он создавал race condition при F5.
- *
- * КАК РАБОТАЕТ F5:
- *   Браузер перезагружает тот же URL (например /users?page=2&pageSize=30&sortBy=name)
- *   → ngOnInit читает queryParams из URL → диспатчит loadUsers → всё восстанавливается.
- *
- * КАК РАБОТАЕТ СМЕНА ФИЛЬТРА:
- *   Пользователь меняет фильтр → applyFilter() → syncUrl() обновляет URL (replaceUrl: true)
- *   → Store обновляется → компонент рендерит новые данные.
- */
+// url is the only source of truth, no localStorage (it raced on F5)
 @Injectable()
 export class UsersFilterService {
   private readonly store = inject(Store);
@@ -34,10 +21,6 @@ export class UsersFilterService {
     ).length;
   });
 
-  /**
-   * Инициализация из URL. Вызывается в ngOnInit компонента.
-   * Если queryParams пустые — записывает дефолты в URL.
-   */
   initFromUrl(): void {
     const params = this.route.snapshot.queryParams;
 
@@ -55,17 +38,14 @@ export class UsersFilterService {
     this.store.dispatch(UsersStoreActions.setFilter({ filter }));
     this.store.dispatch(UsersStoreActions.loadUsers({ filter }));
 
-    // Если URL был без параметров — записываем дефолты чтобы URL всегда был полным
+    // url without params -> write defaults, so the url is always full
     const hasParams = Object.keys(params).length > 0;
     if (!hasParams) {
       this.syncUrl(filter);
     }
   }
 
-  /**
-   * Применяет частичный фильтр поверх текущего.
-   * По умолчанию сбрасывает страницу на 1 (resetPage=true).
-   */
+  // resets to page 1 by default
   applyFilter(partial: Partial<UserListFilter>, resetPage = true): void {
     const current = this.currentFilter();
     const updated: UserListFilter = {
@@ -108,11 +88,7 @@ export class UsersFilterService {
     });
   }
 
-  /**
-   * Обновляет URL без добавления записи в историю браузера (replaceUrl: true).
-   * Это значит что кнопка "назад" не будет листать каждый клик по фильтру.
-   * Только обязательные параметры всегда в URL, опциональные — только если заданы.
-   */
+  // replaceUrl so Back doesnt walk through every filter click
   private syncUrl(filter: UserListFilter): void {
     const queryParams: Record<string, unknown> = {
       page: filter.page,
@@ -128,8 +104,8 @@ export class UsersFilterService {
 
     void this.router.navigate(['/users'], {
       queryParams,
-      replaceUrl: true, // не засоряем историю браузера
-      queryParamsHandling: '', // полная замена params (не merge)
+      replaceUrl: true,
+      queryParamsHandling: '', // replace params, dont merge
     });
   }
 }

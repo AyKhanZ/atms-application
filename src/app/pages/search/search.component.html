@@ -52,7 +52,7 @@
         </div>
       }
 
-      <!-- Loads the next page on its own; the button stays as the way in when it cannot. -->
+      <!-- loads the next page by itself, the button is a fallback -->
       <div [appScrollSentinel]="hasMore() && !loading() && !failed()" (reached)="loadMore()"></div>
 
       @if (hasMore() && !loading()) {

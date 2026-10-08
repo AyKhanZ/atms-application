@@ -1,15 +1,6 @@
-/// The card every auth screen is built from: login, forgot password, reset password and email
-/// confirmation.
-///
-/// These rules used to be pasted into each page. Three copies drifted (different card widths and
-/// title sizes) and the fourth — email confirmation — never got the field rules at all, which is
-/// why its email input was a head shorter than the same input one screen earlier. One mixin now
-/// owns the shape; a page keeps only what is genuinely its own.
-///
-/// Order matters: include the mixins first, page-specific rules after, so a page can still
-/// override what it needs to.
+// card for login, forgot/reset password and email confirmation; was copied per page and drifted
+// include the mixins first, page rules after
 
-/// Centres the card in the viewport below the auth layout's logo bar.
 @mixin page {
   .container {
     display: flex;
@@ -27,8 +18,7 @@
   }
 }
 
-/// The card itself and its orange header band. `$width` is the only thing that varies: a form
-/// with the password rules panel needs more room than a single email field.
+// $width: the rules panel form needs more room than a single email field
 @mixin card($width: 520px) {
   .auth-card {
     width: min($width, calc(100vw - 32px));
@@ -78,11 +68,7 @@
   }
 }
 
-/// One labelled input with its error slot. The error slot keeps its height whether or not a
-/// message is showing, so the button below does not jump when validation fires.
-///
-/// The password selectors stay here even though only two pages have a password field: they are
-/// inert elsewhere, and splitting them out is how the copies started drifting in the first place.
+// error slot keeps its height so the button doesnt jump
 @mixin field {
   .field {
     display: flex;
@@ -179,9 +165,7 @@
   }
 }
 
-/// The submit button spans the form, and the secondary link sits on its own line above it,
-/// pushed to the right. Keeping them here is what makes "Back to login" land in the same place
-/// on every screen that has one.
+// keeps "Back to login" in the same place on every screen
 @mixin actions {
   .submit-btn {
     width: 100%;
@@ -207,10 +191,9 @@
   }
 }
 
-/// A one-line status above the form: "check your email", "password changed".
+// "check your email", "password changed"
 @mixin notice {
-  /* Sits between the header and the form, inset by the same padding as the form so its edges line
-     up with the fields below. */
+  // same inset as the form so the edges line up
   .auth-notice {
     margin: -0.75rem 2rem 1.25rem;
     padding: 0.75rem 1rem;

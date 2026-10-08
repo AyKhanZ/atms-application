@@ -1,4 +1,4 @@
-/** Task and subtask statuses. The numbers match the server's `WorkTaskStatusEnum`. */
+// same numbers as server WorkTaskStatusEnum
 export enum WorkTaskStatus {
   New = 1,
   InProgress = 2,

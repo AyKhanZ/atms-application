@@ -7,9 +7,7 @@
   <span class="row__identity">
     <app-work-item-ref class="row__code" [type]="item().itemType" [code]="item().code" />
 
-    <!-- The pieces sit tight against each other on purpose: a line break between them renders as a
-       real space and splits the word around the highlight. Left to itself the formatter puts the
-       breaks back, so this block is kept out of its hands. -->
+    <!-- no spaces between the pieces or the word splits around the highlight; prettier would add them back -->
     <!-- prettier-ignore -->
     <span class="row__title"
     >@for (part of titleParts(); track $index) {<span

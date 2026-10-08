@@ -39,8 +39,6 @@ export class EmailConfirmationComponent {
   });
   readonly subtitle = computed(() => {
     if (this.isSuccess()) {
-      // The note panel that used to carry this is gone, and the temporary password is the one
-      // thing on this screen the user actually needs, so it moves into the subtitle.
       return 'Your account is active. Sign in with the login and temporary password from your email.';
     }
 

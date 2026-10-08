@@ -1,6 +1,6 @@
 <app-confirm-dialog key="commentDelete" />
 
-<!-- The title and the folding come from the section around it, on the task page. -->
+<!-- title and folding come from the section around it -->
 <div class="discussion">
   @if (canWrite()) {
     <div class="discussion__new">
@@ -46,8 +46,7 @@
       </button>
     </p>
   } @else if (!comments().length && !linkedComment() && !linkedError()) {
-    <!-- As in Azure DevOps, the empty field above is the invitation; a line is left only for a
-         reader who cannot write, so the section does not look broken. -->
+    <!-- the empty field is the invitation, a line only for someone who cant write -->
     @if (!canWrite()) {
       <p class="discussion__state discussion__state--empty">No comments yet.</p>
     }

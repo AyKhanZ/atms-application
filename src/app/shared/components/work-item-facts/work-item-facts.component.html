@@ -23,8 +23,7 @@
       <dt>Deadline</dt>
       <dd>
         @if (item.deadline; as deadline) {
-          <!-- Overdue gets the same solid pill as the Tasks board, calendar and list; open work
-               otherwise says how far away it is, closed work only its date. -->
+          <!-- overdue = the same red pill as tasks; open work says how far, closed only the date -->
           @let overdue = deadline | isOverdue: item.closed;
           <span class="deadline-value" [class.deadline-value--overdue]="overdue">
             {{ deadline | date: 'dd.MM.yyyy' }}

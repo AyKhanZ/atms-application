@@ -23,8 +23,7 @@ export const PROJECTS_ROUTES: Routes = [
     loadComponent: () => import('./create/create.component').then((c) => c.ProjectCreateComponent),
   },
   {
-    // No breadcrumb entry: the trail already ends at the project being edited, and the page's
-    // own "Edit project" heading states the mode. A crumb here would only repeat it.
+    // no breadcrumb, the trail already ends at the project and the page says "Edit project"
     path: ':projectId/edit',
     data: { [transientInHistory]: true },
     canActivate: [
@@ -48,7 +47,6 @@ export const PROJECTS_ROUTES: Routes = [
       ),
   },
   {
-    // No breadcrumb entry — see the project edit route above.
     path: ':projectId/tickets/:ticketId/edit',
     data: { [transientInHistory]: true },
     canActivate: [
@@ -98,7 +96,7 @@ export const PROJECTS_ROUTES: Routes = [
   },
   {
     path: ':projectId/tickets/:ticketId',
-    // Follows its ticket id itself; a ticket of another project gets a fresh page.
+    // follows the ticket id itself, another project gets a fresh page
     data: { [recreateOnParamChange]: ['projectId'] },
     canActivate: [
       permissionGuard(Permissions.Project.View),
@@ -111,7 +109,7 @@ export const PROJECTS_ROUTES: Routes = [
   },
   {
     path: ':projectId',
-    // The page is built around one project id; another project gets a fresh page.
+    // another project = fresh page
     data: { [recreateOnParamChange]: true },
     canActivate: [
       permissionGuard(Permissions.Project.View),

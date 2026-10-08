@@ -21,14 +21,8 @@
 }
 
 .groups-tree {
-  /* Column widths for the group header. Every header is its own grid container, so
-     content-sized (`auto`) tracks would resolve independently per row and land at a
-     different x on each one — that is what made the status badge slide left on groups
-     with no milestones. Fixed tracks are what actually keeps the columns aligned.
-
-     The count track is sized for the widest counter ("12/34"), not for prose — the empty
-     state says "None" rather than "No milestones" precisely so this track can stay narrow.
-     A wide track here would push the badge away from the number it belongs with. */
+  // fixed tracks: every header is its own grid, auto tracks landed at different x (badge slid on empty groups)
+  // count track fits "12/34", thats why empty says "None"
   --group-status-col: 6.25rem;
   --group-count-col: 3.5rem;
 }
@@ -98,9 +92,7 @@
 
 .group-header {
   display: grid;
-  /* minmax keeps the tracks at their full width whenever there is room — which is what
-     aligns the rows — while still letting them shrink to their content instead of
-     squeezing the title when the container gets narrow. */
+  // full width when there is room (keeps rows aligned), shrinks before squeezing the title
   grid-template-columns:
     minmax(0, 1fr)
     minmax(min-content, var(--group-status-col))
@@ -113,8 +105,6 @@
   background: var(--app-surface-muted);
 }
 
-/* Both meta cells hug the right of their track so the badge sits next to the number it
-   describes; the slack in the row collects between the title and the meta cluster. */
 .group-status,
 .group-progress,
 .group-header .item-count {
@@ -247,8 +237,7 @@
   outline-offset: 1px;
 }
 
-/* Sized like .milestones-empty one level up, not like app-empty-state: that component fills a
-   tab body (22rem tall with a 5.5rem icon) and dwarfs a single milestone row. */
+// smaller than app-empty-state, that one fills a whole tab
 .milestone-empty {
   display: flex;
   align-items: center;
@@ -352,8 +341,7 @@
     margin-left: 0.5rem;
   }
 
-  // The count stays visible on a phone — it is the "how much work is here" signal — but the
-  // word is dropped so the number keeps its place next to the status chip.
+  // count stays on a phone, only the word goes
   .item-count__unit {
     display: none;
   }

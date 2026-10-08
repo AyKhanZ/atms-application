@@ -1,10 +1,6 @@
 import { Injectable, Signal, computed, signal } from '@angular/core';
 
-/**
- * How the side menu is drawn. Which one applies is decided by the width available, not by the
- * user: a phone has no room for a menu that is always there, and a 1440px screen has no reason
- * to hide one.
- */
+// picked by available width, not by the user
 export type SidenavMode = 'full' | 'icons' | 'hidden';
 
 @Injectable({
@@ -14,20 +10,19 @@ export class LayoutService {
   private readonly expandedWidth = 260;
   private readonly iconsWidth = 80;
 
-  /** Below 1024 the menu does not fit next to the content and becomes a drawer. */
+  // below 1024 menu becomes a drawer
   private readonly hasRoomForMenu = this.media('(min-width: 1024px)', (matches) => {
-    // Widening past the breakpoint puts the menu back on the page; an open drawer would then
-    // sit on top of the menu it stands in for.
+    // widening past the breakpoint brings the menu back, close the drawer or it sits on top
     if (matches) this.drawerOpen.set(false);
   });
 
-  /** Below 1280 there is room for the menu but not for its labels. */
+  // below 1280 no room for labels
   private readonly hasRoomForLabels = this.media('(min-width: 1280px)');
 
-  /** A phone: the width below which the stylesheets switch to their one-column layouts. */
+  // same breakpoint the stylesheets use for one column
   readonly isPhone = this.media('(max-width: 767px)');
 
-  /** The user's own choice, honoured only where there is room for labels in the first place. */
+  // user choice, only works where labels fit
   collapsed = signal(false);
   readonly drawerOpen = signal(false);
 
@@ -37,7 +32,7 @@ export class LayoutService {
     return this.collapsed() ? 'icons' : 'full';
   });
 
-  /** Width the page has to leave for the menu. A drawer floats over the page and reserves none. */
+  // drawer floats over the page, so 0
   sidenavWidth = computed(() => {
     switch (this.mode()) {
       case 'hidden':
@@ -49,10 +44,9 @@ export class LayoutService {
     }
   });
 
-  /** An open drawer is the full menu, so it shows labels whatever the screen is. */
+  // open drawer is the full menu
   readonly showLabels = computed(() => this.mode() === 'full' || this.drawerOpen());
 
-  /** Collapsing by hand only makes sense where the menu has labels to give up. */
   readonly canCollapse = computed(() => this.hasRoomForLabels());
 
   toggleSidebar(): void {
@@ -67,13 +61,9 @@ export class LayoutService {
     this.drawerOpen.set(false);
   }
 
-  /**
-   * The breakpoints are read through media queries, not from a resize handler: the query is the
-   * same width the stylesheet uses, so the two cannot drift apart, and it fires once when the
-   * threshold is crossed instead of on every pixel of a drag.
-   */
+  // media queries not resize events: same width as the css and fires once on the threshold
   private media(query: string, onChange?: (matches: boolean) => void): Signal<boolean> {
-    // No media queries outside a browser (the unit tests): the desktop layout.
+    // no matchMedia in unit tests, use desktop layout
     if (typeof window.matchMedia !== 'function') return signal(false).asReadonly();
     const list = window.matchMedia(query);
     const matches = signal(list.matches);

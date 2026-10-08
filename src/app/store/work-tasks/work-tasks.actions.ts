@@ -70,7 +70,7 @@ export const deleteTaskFailure = createAction(
   props<{ error: WorkItemMutationError }>(),
 );
 
-/** The list is gone: drop its page and cancel a load still on its way. */
+// also cancels a load still on its way
 export const clearPage = createAction(`${key} Clear Page`, props<{ requestKey: string }>());
 export const resetDetail = createAction(`${key} Reset Detail`);
 export const reset = createAction(`${key} Reset`);

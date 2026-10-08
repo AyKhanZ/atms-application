@@ -4,21 +4,15 @@ import { Actions, ofType } from '@ngrx/effects';
 import { filter } from 'rxjs';
 import { AuthStoreActions } from '../../store/auth';
 
-/** Pass as navigation state to take the current page's place instead of stacking on top of it. */
+// replace the current page instead of stacking on top
 export interface NavigationHistoryState {
   replaceHistory?: boolean;
 }
 
-/**
- * Route data key. Pages outside the working app — sign-in, onboarding, error pages — are not
- * places Back should lead to, so they are left out of the history.
- */
+// sign-in, onboarding and error pages are not places to go Back to
 export const skipNavigationHistory = 'skipNavigationHistory';
 
-/**
- * Route data key for a form. A form is a step on the way somewhere, not a place to come back to:
- * the page it leads to takes its place, so Back after saving skips it.
- */
+// forms are a step, not a place: Back after saving skips them
 export const transientInHistory = 'transientInHistory';
 
 interface Entry {
@@ -29,14 +23,8 @@ interface Entry {
 
 const limit = 50;
 
-/**
- * The pages the user went through, so Back returns where they came from rather than to the item's
- * parent. Search, the recent list and links jump across the tree, and walking back up it one
- * level at a time took three presses to reach the page the user had left.
- *
- * One entry per page, not per URL: switching a tab or a filter changes the query, and Back should
- * leave the page, not replay its tabs.
- */
+// pages the user went through, so Back goes where they came from, not to the parent
+// one entry per page, not per url: tabs and filters change the query
 @Injectable({ providedIn: 'root' })
 export class NavigationHistoryService {
   private readonly router = inject(Router);
@@ -47,16 +35,13 @@ export class NavigationHistoryService {
       .pipe(filter((event) => event instanceof NavigationEnd))
       .subscribe((event) => this.record(event.urlAfterRedirects));
 
-    // The next person to sign in on this tab must not step back into the last one's pages.
+    // next user on this tab cant step back into the last ones pages
     inject(Actions)
       .pipe(ofType(AuthStoreActions.logoutCompleted))
       .subscribe(() => (this.entries = []));
   }
 
-  /**
-   * Goes to the page before this one. Returns false when there is none — the page was opened
-   * from a link or after a reload — so the caller can fall back to the item's parent.
-   */
+  // false when there is no page before (opened by link or reload), caller falls back to parent
   back(): boolean {
     const previous = this.entries[this.entries.length - 2];
     if (!previous) return false;
@@ -78,18 +63,16 @@ export class NavigationHistoryService {
       | undefined;
     const last = this.entries[this.entries.length - 1];
 
-    // The same page with another tab or filter: remember where it was left, but as one stop.
+    // same page, another tab or filter: one stop
     if (last?.path === entry.path) {
       this.entries[this.entries.length - 1] = entry;
       return;
     }
 
-    // A sibling picked in the switcher, the page an item was deleted from, or a form left behind:
-    // this page stands in for the last one, so Back skips it.
+    // switcher sibling, deleted item page or left form: replaces the last entry
     if (last && (state?.replaceHistory || last.transient)) this.entries.pop();
 
-    // Back on a page already passed through — by this service, a form's Cancel or the browser —
-    // cuts the stack there, so the next Back goes further back rather than bouncing between two.
+    // back on a page already passed: cut the stack there so Back doesnt bounce between two
     const seen = this.entries.map((item) => item.path).lastIndexOf(entry.path);
     if (seen >= 0) this.entries = this.entries.slice(0, seen);
 

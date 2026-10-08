@@ -9,36 +9,28 @@ import {
 } from './comment-markdown.utils';
 import { NamedPerson, personFullName } from './person-name.utils';
 
-/** The editor's text and selection: what every toolbar action reads and returns. */
 export interface TextEdit {
   text: string;
   selectionStart: number;
   selectionEnd: number;
 }
 
-/** `@` or `#` being typed right before the caret, with what follows it so far. */
 export interface EditorTrigger {
   char: '@' | '#';
   query: string;
-  /** Where the `@` or `#` stands. */
   start: number;
 }
 
-/** A person as a mention needs them: the id stored in the text and the name shown in the field. */
 export interface MentionPerson extends NamedPerson {
   id: string;
 }
 
 const MENTION_TOKEN = /@\[user:([0-9a-fA-F-]{36})\]/g;
 
-// A name may have one space in it ("@Aykhan Ze"), a code or a word may not.
+// a name can have one space ("@Aykhan Ze"), a code or word cant
 const TRIGGER = /(?:^|[\s(])(?:(@)([\p{L}\p{N}.'-]*(?: [\p{L}\p{N}.'-]*)?)|(#)([\p{L}\p{N}]*))$/u;
 
-/**
- * Bold, italic and code: wraps the selection, or unwraps it when it is already wrapped. Without a
- * selection it inserts the marks around a placeholder and selects the placeholder, so typing
- * replaces it.
- */
+// no selection = insert marks around a placeholder and select it
 export function toggleWrap(edit: TextEdit, mark: string, placeholder: string): TextEdit {
   const { text, selectionStart: start, selectionEnd: end } = edit;
   const before = text.slice(start - mark.length, start);
@@ -61,7 +53,6 @@ export function toggleWrap(edit: TextEdit, mark: string, placeholder: string): T
   };
 }
 
-/** Bulleted or numbered list over every line the selection touches; again to take it off. */
 export type ListKind = 'bullets' | 'numbers' | 'checks';
 
 const LIST_MARKERS: Record<ListKind, RegExp> = {
@@ -75,7 +66,7 @@ export function toggleList(edit: TextEdit, kind: ListKind): TextEdit {
   const from = text.lastIndexOf('\n', selectionStart - 1) + 1;
   const newline = text.indexOf('\n', selectionEnd);
   const to = newline === -1 ? text.length : newline;
-  // The indent of a nested item stays; only the marker after it changes.
+  // nested item keeps its indent, only the marker changes
   const lines = text
     .slice(from, to)
     .split('\n')
@@ -104,10 +95,8 @@ export function toggleList(edit: TextEdit, kind: ListKind): TextEdit {
 
 const LIST_LINE = /^(\s*)(?:([-*])\s+(\[[ xX]\]\s+)?|(\d{1,3})([.)])\s+)(.*)$/;
 
-/**
- * Enter at the end of a list line starts the next item — `- `, `2. `, `- [ ] ` — as in Azure DevOps
- * and every editor. Enter on an empty item ends the list instead. Null when the line is no list.
- */
+// enter on a list line starts the next item, on an empty item ends the list
+// null = not a list line
 export function continueList(edit: TextEdit): TextEdit | null {
   const { text, selectionStart: caret, selectionEnd } = edit;
   if (caret !== selectionEnd) return null;
@@ -135,10 +124,7 @@ export function continueList(edit: TextEdit): TextEdit | null {
   };
 }
 
-/**
- * Tab and Shift+Tab on list lines: one level in or out, two spaces each, three levels at most.
- * Null when no selected line is a list line, so Tab in plain text still moves the focus on.
- */
+// 2 spaces a level, max 3 levels; null = no list line, so Tab still moves focus
 export function indentList(edit: TextEdit, direction: 1 | -1): TextEdit | null {
   const { text, selectionStart, selectionEnd } = edit;
   const from = text.lastIndexOf('\n', selectionStart - 1) + 1;
@@ -173,11 +159,7 @@ export function indentList(edit: TextEdit, direction: 1 | -1): TextEdit | null {
   };
 }
 
-/**
- * The highlight button with its colour: wraps the selection in `==green:…==` (yellow is plain
- * `==…==`); on a highlight already there it changes the colour, or takes it off when the colour
- * is the same.
- */
+// yellow is plain ==text==, same colour again takes it off
 export function toggleHighlight(edit: TextEdit, color: HighlightColor): TextEdit {
   const { text, selectionStart: start, selectionEnd: end } = edit;
   const open = color === 'yellow' ? '==' : `==${color}:`;
@@ -204,10 +186,7 @@ export function toggleHighlight(edit: TextEdit, color: HighlightColor): TextEdit
   };
 }
 
-/**
- * Ticks or unticks the check-list item on the given line of the stored text. A ticked item is done
- * with everything nested under it; an item opened again is no longer done above it either.
- */
+// ticking an item ticks everything under it, unticking unticks the ones above
 export function toggleCheck(text: string, line: number): string {
   const path = pathTo(parseCommentMarkdown(text), line);
   const item = path?.at(-1);
@@ -227,10 +206,9 @@ export function toggleCheck(text: string, line: number): string {
   return lines.join('\n');
 }
 
-/** The box of a check-list line; a line of another list has none and stays as it is. */
 const CHECK_BOX = /^(\s*[-*]\s+\[)[ xX](\])/;
 
-/** The item on the line and the items it is nested under, outermost first. */
+// outermost first
 function pathTo(blocks: readonly CommentBlock[], line: number): CommentListItem[] | null {
   const inList = (list: CommentList): CommentListItem[] | null => {
     for (const item of list.items) {
@@ -249,10 +227,6 @@ function pathTo(blocks: readonly CommentBlock[], line: number): CommentListItem[
   return null;
 }
 
-/**
- * The @ and # buttons: the mark at the caret, set apart from a word right before it, so the list of
- * people or work opens as if it was typed.
- */
 export function insertTriggerChar(edit: TextEdit, char: '@' | '#'): TextEdit {
   const { text, selectionStart: start, selectionEnd: end } = edit;
   const before = text.slice(0, start);
@@ -261,7 +235,6 @@ export function insertTriggerChar(edit: TextEdit, char: '@' | '#'): TextEdit {
   return { text: before + inserted + text.slice(end), selectionStart: caret, selectionEnd: caret };
 }
 
-/** `[text](https://)` with the part still to fill selected: the address, or the text when empty. */
 export function insertLink(edit: TextEdit): TextEdit {
   const { text, selectionStart: start, selectionEnd: end } = edit;
   const label = text.slice(start, end);
@@ -284,7 +257,6 @@ export function findTrigger(text: string, caret: number): EditorTrigger | null {
   return { char, query, start: caret - query.length - 1 };
 }
 
-/** Puts the picked person or work item in place of what was typed after `@` or `#`. */
 export function replaceTrigger(
   edit: TextEdit,
   trigger: EditorTrigger,
@@ -292,7 +264,7 @@ export function replaceTrigger(
 ): TextEdit {
   const { text, selectionStart: caret } = edit;
   const rest = text.slice(caret);
-  // One space after it, not two when the text already goes on with one.
+  // one space after it, not two
   const inserted = /^\s/.test(rest) ? insertion : `${insertion} `;
   const position = trigger.start + insertion.length + 1;
   return {
@@ -306,11 +278,8 @@ export function mentionLabel(person: NamedPerson): string {
   return `@${personFullName(person, 'Unknown user')}`;
 }
 
-/**
- * The field shows `@Aykhan Zeynalov`, the server stores `@[user:<id>]`. Opening a comment for editing
- * turns known mentions into names and remembers which name is which id; a mention of someone who
- * left the project stays a token, so saving does not lose it.
- */
+// field shows @Aykhan Zeynalov, server stores @[user:id]
+// a mention of someone who left stays a token so saving doesnt lose it
 export function mentionsToNames(
   text: string,
   people: readonly MentionPerson[],
@@ -327,7 +296,7 @@ export function mentionsToNames(
   return { text: shown, mentions };
 }
 
-/** Back to tokens before sending. The longest names first, so "@Ann Lee" is not cut to "@Ann". */
+// longest names first so "@Ann Lee" isnt cut to "@Ann"
 export function mentionsToTokens(text: string, mentions: ReadonlyMap<string, string>): string {
   const labels = [...mentions.keys()].sort((a, b) => b.length - a.length);
   if (!labels.length) return text;

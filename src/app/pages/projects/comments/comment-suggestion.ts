@@ -4,19 +4,17 @@ import { WorkItemKind } from '../../../core/models/work-items';
 import { MentionPerson } from '../../../core/utils/comment-editor.utils';
 import { personFullName } from '../../../core/utils/person-name.utils';
 
-/** Rows in the list under the editor: at most this many, as in 13-comments. */
 export const SUGGESTION_LIMIT = 8;
 
 export interface MentionCandidate extends MentionPerson {
   avatarPath?: string | null;
 }
 
-/** A row of the `@` or `#` list: a person to mention or work to link. */
 export type CommentSuggestion =
   | { kind: 'person'; person: MentionCandidate }
   | { kind: 'work'; item: GlobalSearchItemModel };
 
-/** People whose first or last name starts with what was typed; everyone for a bare `@`. */
+// everyone for a bare @
 export function personSuggestions(
   people: readonly MentionCandidate[],
   query: string,
@@ -32,10 +30,7 @@ export function personSuggestions(
     .map((person) => ({ kind: 'person', person }));
 }
 
-/**
- * A work item picked after `#`, in the shape the server sends with a saved comment — so the preview
- * shows it as the same badge, not as a bare `#41`.
- */
+// same shape as the server sends, so the preview shows the badge, not a bare #41
 export function referenceOf(item: GlobalSearchItemModel): CommentReferenceModel {
   const base = { code: item.code, title: item.title, status: item.status, isSubtask: false };
   switch (item.itemType) {
@@ -65,18 +60,14 @@ export function referenceOf(item: GlobalSearchItemModel): CommentReferenceModel 
   }
 }
 
-/** Rows under `#`: projects, tickets, tasks and subtasks together. */
 export const WORK_SUGGESTION_LIMIT = 10;
 
-/** What the global search looks for: a code, or three letters of a title and more. */
+// a code or 3+ letters of a title
 export function isSearchable(query: string): boolean {
   return /^\d+$/.test(query) || query.length >= 3;
 }
 
-/**
- * The global search's answer as rows. A query too short to search filters the recently opened
- * items instead, so a letter or two still narrows the list rather than emptying it.
- */
+// too short to search -> filter the recent items, so a letter still narrows the list
 export function workSuggestions(result: GlobalSearchModel, query: string): CommentSuggestion[] {
   const typed = query.toLocaleLowerCase();
   const items = isSearchable(query)

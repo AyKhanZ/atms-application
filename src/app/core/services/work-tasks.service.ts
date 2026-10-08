@@ -41,12 +41,11 @@ export class WorkTasksService {
     return this.http.put<void>(`${this.url(projectId)}/${workTaskId}`, command);
   }
 
-  /** Deletes the task together with its subtasks. */
+  // deletes subtasks too
   deleteWorkTask(projectId: string, workTaskId: string): Observable<void> {
     return this.http.delete<void>(`${this.url(projectId)}/${workTaskId}`);
   }
 
-  /** A card dropped on the board: status and place between two neighbours, nothing else. */
   moveWorkTask(
     projectId: string,
     workTaskId: string,
@@ -55,7 +54,6 @@ export class WorkTasksService {
     return this.http.patch<void>(`${this.url(projectId)}/${workTaskId}/position`, command);
   }
 
-  /** A card dropped on another day of the calendar. */
   updateWorkTaskDeadline(
     projectId: string,
     workTaskId: string,

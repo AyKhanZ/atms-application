@@ -111,7 +111,7 @@ export class WorkProjectsEffects {
       ),
     { dispatch: false },
   );
-  // A validation message is shown by the dialog under the email field; anything else needs a toast.
+  // validation message shows under the email field in the dialog, anything else is a toast
   inviteFailed$ = createEffect(
     () =>
       this.actions$.pipe(
@@ -147,7 +147,7 @@ export class WorkProjectsEffects {
       ),
     { dispatch: false },
   );
-  // Usually the invitation was accepted a moment ago: say so, and the page reloads to show the participant.
+  // usually it was just accepted: say so and reload to show the participant
   invitationNotCancelled$ = createEffect(
     () =>
       this.actions$.pipe(

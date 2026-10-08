@@ -2,7 +2,7 @@
   width: min(32rem, calc(100vw - 2rem));
 }
 
-/* The invite form takes 100-character names and emails: as wide as registering a user. */
+// 100-char names and emails, same width as registering a user
 :host ::ng-deep .participant-dialog--invite {
   width: min(48rem, calc(100vw - 2rem));
 }
@@ -19,7 +19,7 @@
   gap: 0.4rem;
 }
 
-/* Said before the person is chosen, so the last places are not a surprise after Add. */
+// said before picking so the last places arent a surprise
 .places-left {
   display: flex;
   align-items: center;
@@ -34,11 +34,9 @@
   font-size: 0.85rem;
 }
 
-/* Error on the left, a counter or a link on the right: the same row, so nothing pushes the next field. */
 .field-meta {
   display: flex;
-  /* Centre, not baseline: an empty error has no text, and baseline alignment pushed the link down
-     until the error appeared — the fields below jumped. */
+  // center not baseline, baseline pushed the link down until the error appeared
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
@@ -176,7 +174,7 @@
   }
 }
 
-/* Hidden, not destroyed: Back returns to the search with the typed text still in it. */
+// hidden not destroyed so Back keeps the typed search
 .dialog-mode--hidden {
   display: none;
 }

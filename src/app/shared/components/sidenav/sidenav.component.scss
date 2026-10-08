@@ -31,9 +31,7 @@
     width: var(--sidebar-icons-width);
   }
 
-  /* Below 1024px the menu is not part of the page any more: it waits off-screen and comes over
-     the content when asked. A permanent strip of icons costs 19% of a 375px screen, and the
-     content is what the person came for. */
+  // below 1024px the menu is a drawer, a strip of icons is 19% of a 375px screen
   &--drawer {
     width: var(--sidebar-width);
     transform: translateX(-100%);
@@ -136,8 +134,7 @@
   }
 }
 
-/* An icon on its own still has to be a 44px target, so the row keeps its height and only loses
-   the label. */
+// icon-only row keeps 44px height for touch
 .sidebar--icons .menu {
   padding-inline: 14px;
 

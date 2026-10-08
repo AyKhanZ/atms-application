@@ -5,9 +5,7 @@
   display: flex;
   align-items: center;
   gap: 1rem;
-  /* The bar holds account-level controls only; the trail lives above the page, where it has the
-     full content width and does not compete with them. The burger, when there is one, takes the
-     free left side. */
+  // account controls only, the breadcrumb lives above the page
   justify-content: space-between;
   padding-inline: 24px;
   flex-shrink: 0;
@@ -60,7 +58,6 @@ app-global-search {
     font-size: 1.25rem;
   }
 }
-
 
 .avatar-button {
   border: none;

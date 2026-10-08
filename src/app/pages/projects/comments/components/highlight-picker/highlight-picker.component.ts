@@ -1,10 +1,7 @@
 import { ChangeDetectionStrategy, Component, output, signal } from '@angular/core';
 import { HIGHLIGHT_COLORS, HighlightColor } from '../../../../../core/utils/comment-markdown.utils';
 
-/**
- * One control for the highlight: the button shows the colour used last and opens the palette; a
- * colour marks the selection, the same colour on a marked selection takes the mark off.
- */
+// button shows the last color; same color on a marked selection takes it off
 @Component({
   selector: 'app-highlight-picker',
   templateUrl: './highlight-picker.component.html',
@@ -18,7 +15,6 @@ export class HighlightPickerComponent {
   protected readonly color = signal<HighlightColor>('yellow');
   protected readonly open = signal(false);
 
-  /** The editor closes the palette when the focus leaves it. */
   close(): void {
     this.open.set(false);
   }

@@ -18,7 +18,7 @@
         View overdue tasks in List
       </button>
     } @else if (page()?.hasMore && !page()?.loading) {
-      <!-- A month is read up to a limit; past it the rest is left out, and the page says so. -->
+      <!-- a month is read up to a limit, the page says when the rest is left out -->
       <span class="head__cut" role="status">
         Showing the first {{ page()?.items?.length }} tasks of this month. Narrow the filters to see
         the rest.
@@ -41,7 +41,7 @@
 }
 
 @if (isPhone()) {
-  <!-- A month grid does not fit a phone: the days that have work, one after another. -->
+  <!-- month grid doesnt fit a phone: days with work one after another -->
   <div class="agenda">
     @for (day of agenda(); track day.key) {
       <section class="agenda__day" [class.agenda__day--today]="day.today">

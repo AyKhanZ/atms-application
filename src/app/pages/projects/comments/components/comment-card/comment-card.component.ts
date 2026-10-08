@@ -24,10 +24,6 @@ import { MentionCandidate } from '../../comment-suggestion';
 import { CommentEditorComponent } from '../comment-editor/comment-editor.component';
 import { CommentTextComponent } from '../comment-text/comment-text.component';
 
-/**
- * One comment as a card, as in Azure DevOps: who and when, the text, and its actions shown on hover —
- * copy link and edit at hand, delete behind ⋯ — instead of buttons that shout from every card.
- */
 @Component({
   selector: 'app-comment-card',
   imports: [
@@ -49,24 +45,22 @@ export class CommentCardComponent {
 
   readonly comment = input.required<CommentModel>();
   readonly people = input<readonly MentionCandidate[]>([]);
-  /** The task's project: work from it is listed under `#` without the project's name. */
+  // work from this project is listed under # without the project name
   readonly projectId = input<string | null>(null);
-  /** Opened from a link to this comment: marked for a moment so the eye finds it. */
   readonly target = input(false);
 
-  /** Taller than this, a comment is folded to {@link FOLDED_HEIGHT} with "Show more". */
   readonly long = signal(false);
   readonly unfolded = signal(false);
   private readonly text = viewChild('text', { read: ElementRef<HTMLElement> });
 
   readonly anchor = computed(() => commentAnchor(this.comment().id));
   readonly editing = computed(() => this.actions.editingId() === this.comment().id);
-  /** Everyone the text may mention: the members, and whoever it mentions already. */
+  // members and whoever the text already mentions
   readonly mentionable = computed<readonly MentionCandidate[]>(() => [
     ...this.people(),
     ...this.comment().mentions,
   ]);
-  /** Behind ⋯, as in Azure DevOps: only Delete, the one action worth a second step. */
+  // only Delete, the one action worth a second step
   readonly menuItems = computed<MenuItem[]>(() => {
     const comment = this.comment();
     return [
@@ -78,7 +72,6 @@ export class CommentCardComponent {
       },
     ];
   });
-  /** On a phone, where there is no hover and no room: every action in one menu. */
   readonly compactMenuItems = computed<MenuItem[]>(() => {
     const comment = this.comment();
     return [
@@ -94,7 +87,6 @@ export class CommentCardComponent {
     ];
   });
 
-  /** What the one menu of the card holds this time: Delete alone, or every action on a phone. */
   readonly menuModel = signal<MenuItem[]>([]);
 
   protected openMenu(menu: Menu, event: Event, items: MenuItem[]): void {
@@ -103,8 +95,7 @@ export class CommentCardComponent {
   }
 
   constructor() {
-    // The text is measured whole, past the fold: its own height says whether it is long. A link
-    // to the comment opens it unfolded — the reader came for all of it.
+    // measured whole, past the fold; a link to the comment opens it unfolded
     const observer =
       typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(() => this.measure());
     inject(DestroyRef).onDestroy(() => observer?.disconnect());
@@ -124,10 +115,10 @@ export class CommentCardComponent {
     const element = this.text()?.nativeElement;
     if (!element) return;
     const rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
-    // A fold that hides only a line or two costs a click for nothing: fold from a third more.
+    // folding only a line or two costs a click for nothing, fold from a third more
     this.long.set(element.offsetHeight > FOLDED_HEIGHT * rem * 1.35);
   }
 }
 
-/** The height of a folded comment, in rem; the stylesheet folds it to the same. */
+// same as in the stylesheet
 const FOLDED_HEIGHT = 18;

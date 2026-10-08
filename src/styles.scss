@@ -32,7 +32,7 @@
   --status-active-text: #1d4ed8;
   --status-done-bg: #edf8f1;
   --status-done-text: #256f45;
-  /* The dot before a status name: the only colour a status carries (styles/_status-dot.scss). */
+  // the only color a status has (styles/_status-dot.scss)
   --status-dot-new: #94a3b8;
   --status-dot-active: var(--orange);
   --status-dot-progress: #2563eb;
@@ -68,8 +68,7 @@
   --app-surface: var(--white);
   --app-surface-muted: var(--gray-bg);
   --app-border: var(--gray-border);
-  /* Guide line of a nesting tree. Structure, not identity, so it is grey like the icons it hangs
-     under — and darker than --app-border, which disappears on the muted surface. */
+  // grey like the icons, darker than --app-border which disappears on muted bg
   --app-guide-line: #d8dade;
   --app-black-border: var(--dark);
   --app-text: var(--dark);
@@ -89,35 +88,29 @@
   --gray-text-color: var(--gray-text);
   --radius-btn: 8px;
   --radius-card: 8px;
-  /* Kind of work. Ordered like Azure DevOps — the higher the level, the louder the colour — with
-     orange left out: it is the brand and the Active status. Dark shades, so each reads on white as
-     text. */
+  // higher level = louder color, no orange (brand and Active status), dark so it reads as text
   --kind-project: #7c3aed;
   --kind-ticket: #2563eb;
   --kind-task: #a16207;
   --kind-subtask: #be185d;
-  /* Kind of file, on the icon tile of an attachment: the colours people already know a PDF, a
-     Word and an Excel file by, so the type reads before the name does. */
+  // colors people know pdf/word/excel by
   --file-pdf: #dc2626;
   --file-document: #2563eb;
   --file-sheet: #16a34a;
   --file-image: #7c3aed;
   --file-archive: #b45309;
   --file-other: #64748b;
-  /* Open work past its deadline — the one thing on the Tasks page allowed to be loud. A tint and a
-     pill, never a stripe: the left edge already means the kind of work. */
+  // the only loud thing on the Tasks page; tint and pill, never a stripe (left edge = kind)
   --overdue-text: var(--red-hover);
   --overdue-bg: #fef2f2;
-  /* Marker colours for highlighted words in a comment: light, so dark text stays readable, and
-     none of them the orange accent. */
+  // light so text stays readable, none of them orange
   --highlight-yellow: #fef08a;
   --highlight-green: #bbf7d0;
   --highlight-blue: #bfdbfe;
   --highlight-pink: #fbcfe8;
   --highlight-purple: #ddd6fe;
   --overdue-border: #fecaca;
-  /* A one-line calendar chip has little surface: it needs the stronger tint. The strong border
-     marks an overdue board card and the line under the overdue cards. */
+  // one-line chip has little surface, needs the stronger tint
   --overdue-bg-strong: #fee2e2;
   --overdue-border-strong: #f87171;
 }
@@ -226,9 +219,7 @@ h6 {
   box-shadow: 0 1px 2px rgb(15 23 42 / 5%);
 }
 
-/* The kind of an item along the left edge of its details header, the way Azure DevOps marks a work
-   item. Only the header: down the whole card it framed the tabs and lists too, which are not the
-   item itself. Drawn as an inset shadow so the header content does not shift. */
+// only the header: on the whole card it framed tabs and lists too; inset shadow so nothing shifts
 .kind-stripe {
   box-shadow: inset 4px 0 0 var(--kind-stripe-color);
 }
@@ -245,10 +236,7 @@ h6 {
   --kind-stripe-color: var(--kind-subtask);
 }
 
-/* The body under a details page's tabs. A floor, not a fixed height: an empty tab with an Add
-   button above its message and one without used to differ, and the card jumped when moving
-   between them. Sized to hold the tallest empty tab — a task list with its toolbar. Content
-   longer than this simply grows past it. */
+// a floor, not fixed height, sized for the tallest empty tab (task list with toolbar) so the card doesnt jump
 .tab-body {
   display: grid;
   min-height: 17rem;
@@ -347,7 +335,7 @@ input:-webkit-autofill:focus {
   white-space: nowrap;
 }
 
-// PrimeNG's default `width: 1%` can ellipsize even two-digit page sizes.
+// primeng default width: 1% can cut even two-digit page sizes
 .pagination__size-select .p-select-label {
   width: auto;
   min-width: 0;
@@ -495,8 +483,7 @@ input:-webkit-autofill:focus {
   color: var(--red-hover);
 }
 
-/* The bell's panel: rows run edge to edge, so the popover gives up its own padding. On a phone it
-   keeps 0.5rem from each side of the screen. */
+// rows go edge to edge, on a phone 0.5rem from each side
 .notification-panel.p-popover {
   width: min(26rem, calc(100vw - 1rem));
   border-radius: var(--radius-card);
@@ -510,9 +497,7 @@ input:-webkit-autofill:focus {
   border-radius: 8px;
 }
 
-/* PrimeNG gives the toast a fixed 25rem and 20px from the edge, which runs off a phone screen on
-   the left. On a narrow screen it is pinned to both sides instead: 100vw would include a desktop
-   scrollbar and still touch the left edge. */
+// primeng toast is 25rem fixed and runs off a phone; 100vw would include the scrollbar
 @media (max-width: 480px) {
   .p-toast.p-toast-bottom-right {
     left: 1rem;
@@ -797,8 +782,7 @@ app-onboarding .confetti i:nth-child(5n) {
     grid-template-columns: 1fr;
   }
 
-  /* Widths are not clamped here any more: below 768px every overlay switches to the sheet below
-     instead of trying to point at its field and stay on screen at the same time. */
+  // below 768px every overlay is a sheet instead
   .p-select-option {
     white-space: normal;
     overflow-wrap: anywhere;
@@ -909,10 +893,7 @@ app-onboarding .confetti i:nth-child(5n) {
   }
 }
 
-/* Selects that pick a place in the plan behave like navigation, so hovering warms up instead of
-   turning grey — but hover only tints the background. Giving it the orange text as well made a
-   hovered row identical to the selected one, and after picking an item the list came back with
-   two rows that both looked chosen: the real selection and the row the pointer had left. */
+// hover only tints the background, orange text too made a hovered row look selected
 .work-group-parent-select-panel
   .p-select-option:not(.p-select-option-selected):not(.p-disabled):hover,
 .work-group-parent-select-panel
@@ -924,8 +905,6 @@ app-onboarding .confetti i:nth-child(5n) {
   background: var(--orange-light-hover);
 }
 
-/* The selected row is the one that must stand out: a deeper tint plus orange text, against the
-   hover tint above which carries neither. */
 .work-group-parent-select-panel .p-select-option.p-select-option-selected,
 .parent-select-panel .p-select-option.p-select-option-selected,
 .milestone-select-panel .p-select-option.p-select-option-selected {
@@ -933,15 +912,9 @@ app-onboarding .confetti i:nth-child(5n) {
   color: var(--orange-text-hover);
 }
 
-/* The panel is appended to the body, so the tree geometry cannot live in the component styles.
-   The row padding is deliberately moved off the row and onto the content inside it: that makes
-   each row's box exactly as tall as what it draws, so the guide lines of neighbouring rows meet
-   at the row boundary instead of having to bleed across a padding gap.
-   They must not bleed, because PrimeNG clips every option to its own box — `overflow: hidden` is
-   what keeps the click ripple inside the row, and removing it let a ripple as wide as the whole
-   panel wash over the list on every click. */
-/* A safety net for the anchored case: PrimeNG sizes a panel from its field, and a field as wide
-   as the page would give a panel wider than the window. Placement below 768px is the sheet. */
+// panel is on body so the tree geometry lives here
+// padding moved onto the content so guide lines meet at row edges; primeng clips options (overflow hidden keeps the ripple in the row)
+// a field as wide as the page would give a panel wider than the window
 .parent-select-panel.p-select-overlay,
 .milestone-select-panel.p-select-overlay,
 .assignee-select-panel.p-select-overlay,
@@ -949,14 +922,8 @@ app-onboarding .confetti i:nth-child(5n) {
   max-width: calc(100vw - 2rem);
 }
 
-/* Below the breakpoint set in app.config.ts PrimeNG stops anchoring an overlay to its field and
-   shows it as a sheet with a backdrop. A panel as wide as the screen cannot point at a field and
-   keep clear of both edges at once, so on a phone it stops trying and comes up from the bottom —
-   which is also where the thumb is. These rules only shape that sheet; the switch itself is a
-   PrimeNG option, not a CSS trick. */
-/* PrimeNG 21 puts its animation wrapper `p-motion` between the backdrop and the content. The
-   wrapper is inline, so a rule on a direct child no longer matched and the sheet shrank to the
-   width of its longest option, floating in the middle of the screen. */
+// below the app.config breakpoint primeng shows overlays as a bottom sheet, these rules only shape the sheet
+// primeng 21 puts p-motion between backdrop and content, without this the sheet shrank to its longest option
 .p-overlay-modal > p-motion {
   display: block;
   width: 100%;
@@ -978,8 +945,7 @@ app-onboarding .confetti i:nth-child(5n) {
   }
 }
 
-/* The folded levels of the trail. Without a cap the popup is as wide as the longest title, which
-   for a ticket is the whole screen. */
+// without a cap the popup is as wide as the longest title (whole screen for a ticket)
 .breadcrumbs-menu.p-menu {
   max-width: min(24rem, calc(100vw - 2rem));
 
@@ -1000,15 +966,12 @@ app-onboarding .confetti i:nth-child(5n) {
   font-weight: 400;
 }
 
-/* PrimeNG puts a 2px gap between rows; in a tree that gap is a 2px hole in every guide line.
-   The rows carry their own padding, so nothing is lost by closing it. */
+// primeng 2px row gap is a hole in every guide line
 .parent-select-panel .p-select-list {
   gap: 0;
 }
 
-/* A 24rem parent list is useful on a tall 27-inch workspace, but it obscures too much of an edit
-   form on the 768-1080px-high viewports typical of 14-16-inch laptops. PrimeNG sets this value
-   inline from scrollHeight, so the responsive cap intentionally wins with !important. */
+// 24rem is fine on a 27" screen but hides too much on 14-16" laptops; primeng sets it inline so !important
 @media (max-height: 75rem) {
   .parent-select-panel .p-select-list-container {
     max-height: 18rem !important;
@@ -1021,15 +984,12 @@ app-onboarding .confetti i:nth-child(5n) {
   }
 }
 
-/* The row sets a flat weight for every option, so the selected one has to be bolded here to stay
-   the one item in the list that reads as chosen. */
+// rows set a flat weight, so bold the selected one here
 .parent-select-panel .p-select-option-selected .parent-option {
   font-weight: 600;
 }
 
-/* One class for every "pick a person" dropdown. It used to be written for the ticket form only,
-   so the same control on the task form fell back to the full-size avatar and rendered a photo the
-   height of the whole row. */
+// for every "pick a person" dropdown, it was ticket-only and the task form showed a huge avatar
 .assignee-select-panel app-profile-avatar {
   --avatar-size: 1.25rem;
   --avatar-radius: 999px;
@@ -1046,9 +1006,7 @@ app-onboarding .confetti i:nth-child(5n) {
   box-shadow: none;
 }
 
-/* The confirm dialog is appended to the body, so its size cannot live in the component.
-   Without a cap the panel grew to the width of the screen on a desktop and touched the edges on
-   a phone; the margin keeps it off both. */
+// dialog is on body so its size lives here; without a cap it was screen-wide
 .app-confirm-dialog.p-dialog {
   width: min(27rem, calc(100vw - 2.5rem));
   max-width: calc(100vw - 2.5rem);
@@ -1107,17 +1065,14 @@ app-onboarding .confetti i:nth-child(5n) {
   color: var(--white);
 }
 
-/* The browser draws its own cross in type="search" fields: blue, without hover or pointer, and
-   only in Chromium. Search fields use app-input-clear instead, so the built-in one is hidden
-   everywhere — otherwise a new field would quietly bring it back. */
+// browser cross on search fields is blue with no hover, app-input-clear is used instead
 input[type='search']::-webkit-search-cancel-button,
 input[type='search']::-webkit-search-decoration {
   -webkit-appearance: none;
   appearance: none;
 }
 
-/* A sortable header is a label and its arrows. Let the column narrow and the arrows drop to a line
-   of their own under the label, which reads as a stray icon. Kept on one line in every table. */
+// dont let the sort arrows drop to their own line
 .p-datatable-sortable-column {
   white-space: nowrap;
 }

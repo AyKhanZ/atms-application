@@ -34,7 +34,6 @@ export class CommentsEffects {
   private readonly reset$ = this.actions$.pipe(
     ofType(ActionsStore.reset, AuthStoreActions.logoutCompleted),
   );
-  /** A pushed change together with the list of its task, when that list is on screen. */
   private readonly changes$ = this.realtime.commentChanged$.pipe(
     withLatestFrom(this.store.select(Selectors.getLists)),
     map(([event, lists]) => ({ event, list: lists[commentsKey(event.workTaskId)] })),
@@ -78,7 +77,7 @@ export class CommentsEffects {
                   }),
                 ),
               ),
-              // A reload starts the list over; a later page of the old list would land on it.
+              // a reload starts over, a later page of the old list would land on it
               takeUntil(merge(this.gone(listKey), this.reloaded(listKey))),
             ),
           ),
@@ -87,10 +86,8 @@ export class CommentsEffects {
     ),
   );
 
-  /**
-   * Read alone, and only from this task: a link with another task's comment in it finds nothing
-   * instead of showing it here. A second link before the answer replaces the first.
-   */
+  // only from this task, a link with another tasks comment finds nothing
+  // a second link replaces the first
   loadLinked$ = createEffect(() =>
     this.actions$.pipe(
       ofType(ActionsStore.loadLinked),
@@ -153,7 +150,7 @@ export class CommentsEffects {
           map(() => ActionsStore.removeSuccess({ listKey, commentId })),
           catchError((error: unknown) => {
             const refused = toMutationError(error);
-            // Already gone: for the user the result is the one they asked for.
+            // already gone = what the user wanted
             return refused.status === 404
               ? of(ActionsStore.removeSuccess({ listKey, commentId }))
               : of(ActionsStore.removeFailure({ commentId, error: refused }));
@@ -163,7 +160,7 @@ export class CommentsEffects {
     ),
   );
 
-  /** A deletion turns the card into a placeholder at once, before the read says who did it. */
+  // placeholder at once, before the read says who did it
   liveRemoved$ = createEffect(() =>
     this.changes$.pipe(
       filter(({ event }) => event.action === 'deleted'),
@@ -176,13 +173,8 @@ export class CommentsEffects {
     ),
   );
 
-  /**
-   * An added or changed comment is read alone and put in place — never the whole page, however
-   * many people watch the task. The user's own change comes back this way too and only refreshes
-   * what the answer already showed, whichever of the two arrives first. A deleted comment is read
-   * for its placeholder — who deleted it and when. An edit or a delete of a comment on a page not
-   * opened yet is not read at all; the one a link put above the list counts as on screen.
-   */
+  // one comment is read, never the whole page however many people watch
+  // own changes come back too and only refresh; changes on pages not opened yet arent read
   liveReceived$ = createEffect(() =>
     this.changes$.pipe(
       filter(
@@ -191,8 +183,7 @@ export class CommentsEffects {
           list.linked?.id === event.commentId ||
           list.items.some((item) => item.id === event.commentId),
       ),
-      // Quick changes of one comment: only the latest read lands, never an older one after it — a
-      // delete cancels the read of the edit before it.
+      // only the latest read lands, a delete cancels the read of the edit before it
       groupBy(({ event }) => event.commentId, {
         duration: (group) => group.pipe(debounceTime(30_000)),
       }),
@@ -203,7 +194,7 @@ export class CommentsEffects {
               map((comment) =>
                 ActionsStore.received({ listKey: commentsKey(event.workTaskId), comment }),
               ),
-              // Gone with its task in the meantime: nothing to show.
+              // gone with its task meanwhile
               catchError(() => EMPTY),
               takeUntil(this.gone(commentsKey(event.workTaskId))),
             ),
@@ -213,7 +204,7 @@ export class CommentsEffects {
     ),
   );
 
-  /** Pushes missed while the connection was down: every list on screen is read again. */
+  // pushes missed while offline: read every list on screen again
   reconnected$ = createEffect(() =>
     this.realtime.reconnected$.pipe(
       withLatestFrom(this.store.select(Selectors.getLists)),

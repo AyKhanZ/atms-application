@@ -22,7 +22,7 @@
     @for (item of current.items; track item.line) {
       <li [class.is-done]="current.style === 'checks' && item.checked">
         @if (current.style === 'checks') {
-          <!-- Clickable in the editor's preview only: a saved comment changes through Edit. -->
+          <!-- clickable only in the editor preview, a saved comment changes through Edit -->
           @if (checkable()) {
             <button
               type="button"

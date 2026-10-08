@@ -79,7 +79,7 @@
   font-size: 0.85rem;
 }
 
-/* Not signed in yet: invited and waiting for an account, or still in onboarding. */
+// invited and waiting for an account, or still in onboarding
 .invited-status {
   @include status-dot.base;
 
@@ -130,7 +130,6 @@
   color: var(--app-muted);
 }
 
-/* A narrow row is one card: the menu sits next to the name, the role under the email, in line with it. */
 @container (max-width: 48rem) {
   .participants-row {
     grid-template-columns: minmax(0, 1fr) auto;
