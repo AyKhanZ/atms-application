@@ -54,6 +54,24 @@
       <div class="panel panel-padding details-panel">
         <h2>Work</h2>
         <dl>
+          @if (user.organization; as organization) {
+            <div>
+              <dt>Organization</dt>
+              <dd>
+                <a
+                  class="organization-link"
+                  [routerLink]="['/organizations', organization.id]"
+                  [state]="{ returnUrl: returnUrl }"
+                >
+                  <app-organization-logo
+                    [logoPath]="organization.logoPath"
+                    [title]="organization.title"
+                  />
+                  <span>{{ organization.title }}</span>
+                </a>
+              </dd>
+            </div>
+          }
           <div>
             <dt>Position</dt>
             <dd>{{ display(user.position) }}</dd>

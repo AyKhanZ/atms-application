@@ -43,7 +43,11 @@
   font-weight: 800;
 }
 
+/* Pinned to the card: as a grid item its 100% height follows the picture, not the 16:10 card, and a
+   square logo was cut at the bottom instead of fitting. */
 .logo-card img {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: contain;
@@ -125,6 +129,7 @@
 
 .employees-panel {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 1rem;
 }
 
@@ -140,37 +145,78 @@
   color: var(--app-muted);
 }
 
-.employees-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
-  gap: 0.8rem;
+.section-heading p-tag {
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
-.employee-card {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: center;
-  gap: 0.9rem;
-  padding: 0.9rem;
+:host ::ng-deep .employees-table {
+  display: block;
+  // A grid child keeps its intrinsic width otherwise, and the table pushes the card off-screen on a
+  // phone instead of scrolling inside it.
+  min-width: 0;
+  overflow: visible;
   border: 1px solid var(--app-border);
   border-radius: 8px;
   background: var(--white);
-  --avatar-size: 3.25rem;
+  box-shadow: 0 1px 2px rgb(15 23 42 / 5%);
+}
+
+:host ::ng-deep .employees-table :is(.p-datatable-wrapper, .p-datatable-table-container) {
+  overflow-x: auto;
+  overflow-y: visible;
+  border-radius: 8px 8px 0 0;
+  scrollbar-width: thin;
+}
+
+:host ::ng-deep .employees-table .p-datatable-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+:host ::ng-deep .employees-table th {
+  background: var(--white);
+  color: var(--text);
+}
+
+:host ::ng-deep .employees-table td,
+:host ::ng-deep .employees-table th {
+  border-width: 0 0 1px;
+  border-color: var(--app-border);
+}
+
+:host ::ng-deep .employees-table .p-datatable-tbody > tr:last-child > td {
+  border-bottom: 0;
+}
+
+.employee-cell {
+  display: grid;
+  grid-template-columns: 2.25rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 14rem;
+  --avatar-size: 2.25rem;
+  --avatar-zoom-opacity: 0;
   --avatar-radius: 50%;
+  --avatar-font-size: 0.8rem;
 }
 
-.employee-card h3 {
-  margin: 0;
+.employee-cell span {
+  min-width: 0;
   overflow-wrap: anywhere;
+  font-weight: 650;
 }
 
-.employee-card p,
-.employee-card span {
-  display: block;
-  margin: 0.25rem 0 0;
-  color: var(--app-muted);
-  font-size: 0.82rem;
-  overflow-wrap: anywhere;
+.email-link {
+  color: inherit;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.email-link:hover {
+  color: var(--orange-text-hover);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 .empty-employees {
@@ -236,11 +282,5 @@
 
   .logo-card {
     width: min(100%, 22rem);
-  }
-}
-
-@container (max-width: 35rem) {
-  .employee-card {
-    grid-template-columns: 1fr;
   }
 }

@@ -17,21 +17,21 @@ import { ConfirmationService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DialogModule } from 'primeng/dialog';
+import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { HasPermissionDirective } from '../../../../core/directives/has-permission.directive';
 import { Permissions } from '../../../../core/enums/permissions.enum';
 import { BreadcrumbOverrideService } from '../../../../core/services/breadcrumb-override.service';
 import { ImageUrlService } from '../../../../core/services/image-url.service';
-import {
-  OrganizationModel,
-  OrganizationUserModel,
-} from '../../../../core/models/organizations/organizations.models';
+import { OrganizationModel } from '../../../../core/models/organizations/organizations.models';
+import { organizationInitials } from '../../../../core/utils/organization.utils';
 import {
   OrganizationsStoreActions,
   OrganizationsStoreSelectors,
 } from '../../../../store/organizations';
 import { BackButtonComponent } from '../../../../shared/components/back-button/back-button.component';
 import { ProfileAvatarComponent } from '../../../../shared/components/profile-avatar/profile-avatar.component';
+import { PersonInitialsPipe, PersonNamePipe } from '../../../../shared/pipes/person-name.pipe';
 import { OrganizationCreateDialogComponent } from '../components/organization-create-dialog/organization-create-dialog.component';
 
 @Component({
@@ -44,7 +44,10 @@ import { OrganizationCreateDialogComponent } from '../components/organization-cr
     DialogModule,
     HasPermissionDirective,
     OrganizationCreateDialogComponent,
+    PersonInitialsPipe,
+    PersonNamePipe,
     ProfileAvatarComponent,
+    TableModule,
     TagModule,
   ],
   providers: [ConfirmationService],
@@ -153,22 +156,8 @@ export class DetailsComponent implements OnInit, OnDestroy {
     }
   }
 
-  initials(value: OrganizationModel | OrganizationUserModel): string {
-    const parts = 'title' in value ? [value.title] : [value.name, value.surname];
-    return (
-      parts
-        .join(' ')
-        .split(/\s+/)
-        .filter(Boolean)
-        .slice(0, 2)
-        .map((part) => part[0])
-        .join('')
-        .toUpperCase() || 'O'
-    );
-  }
-
-  fullName(user: OrganizationUserModel): string {
-    return [user.name, user.surname].filter(Boolean).join(' ') || 'Unnamed user';
+  initials(organization: OrganizationModel): string {
+    return organizationInitials(organization.title);
   }
 
   display(value: string | number | null | undefined): string {

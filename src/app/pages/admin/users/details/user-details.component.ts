@@ -8,7 +8,7 @@ import {
   OnDestroy,
   OnInit,
 } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { TagModule } from 'primeng/tag';
 import { UserModel } from '../../../../core/models/users/users.models';
@@ -16,11 +16,19 @@ import { BreadcrumbOverrideService } from '../../../../core/services/breadcrumb-
 import { UserDisplayService } from '../../../../core/services/user-display.service';
 import { UsersStoreActions, UsersStoreSelectors } from '../../../../store/users';
 import { BackButtonComponent } from '../../../../shared/components/back-button/back-button.component';
+import { OrganizationLogoComponent } from '../../../../shared/components/organization-logo/organization-logo.component';
 import { ProfileAvatarComponent } from '../../../../shared/components/profile-avatar/profile-avatar.component';
 
 @Component({
   selector: 'app-user-details',
-  imports: [DatePipe, TagModule, BackButtonComponent, ProfileAvatarComponent],
+  imports: [
+    DatePipe,
+    RouterLink,
+    TagModule,
+    BackButtonComponent,
+    OrganizationLogoComponent,
+    ProfileAvatarComponent,
+  ],
   templateUrl: './user-details.component.html',
   styleUrl: './user-details.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -32,6 +40,9 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
   private readonly userDisplay = inject(UserDisplayService);
   private readonly breadcrumbOverride = inject(BreadcrumbOverrideService);
   private breadcrumbPath = '';
+
+  // Where the organization page returns to: this card, not the list the user came from.
+  protected returnUrl = '';
 
   readonly user = this.store.selectSignal(UsersStoreSelectors.getItem);
   readonly loading = this.store.selectSignal(UsersStoreSelectors.isLoading);
@@ -58,6 +69,7 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
     }
 
     this.breadcrumbPath = `/users/${id}`;
+    this.returnUrl = this.router.url;
 
     this.store.dispatch(UsersStoreActions.clearItem());
     this.store.dispatch(UsersStoreActions.loadUser({ id }));

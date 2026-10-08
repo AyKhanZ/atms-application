@@ -73,13 +73,10 @@
         <tr class="clickable-row" (click)="openDetails(organization)">
           <td>
             <div class="organization-cell">
-              <div class="organization-logo">
-                @if (organization.logoPath) {
-                  <img [src]="logoUrl(organization)" [alt]="organization.title" />
-                } @else {
-                  <span>{{ initials(organization) }}</span>
-                }
-              </div>
+              <app-organization-logo
+                [logoPath]="organization.logoPath"
+                [title]="organization.title"
+              />
               <span>{{ organization.title }}</span>
             </div>
           </td>

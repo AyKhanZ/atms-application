@@ -88,6 +88,8 @@ export class AddParticipantDialogComponent {
   /** Emails already in the project: refused here, before a request the server would turn down. */
   readonly participantEmails = input<string[]>([]);
   readonly invitedEmails = input<string[]>([]);
+  /** Free places of the project's 20; mentioned only when one or two are left. */
+  readonly placesLeft = input<number | null>(null);
   readonly submitted = output<WorkProjectParticipantCommand>();
   readonly invited = output<InviteWorkProjectParticipantCommand>();
   readonly selectedUserId = signal('');
@@ -127,6 +129,12 @@ export class AddParticipantDialogComponent {
     return text.includes('@') && Validators.email(new FormControl(text)) === null ? text : '';
   });
   readonly searchedEmailTaken = computed(() => this.takenEmailMessage(this.searchedEmail()));
+  readonly placesLeftNote = computed(() => {
+    const left = this.placesLeft();
+
+    if (left === null || left < 1 || left > 2) return '';
+    return left === 1 ? '1 place left' : `${left} places left`;
+  });
 
   readonly availableRoles = computed(() => {
     const user = this.users().find((candidate) => candidate.id === this.selectedUserId());

@@ -6,6 +6,7 @@ export interface OrganizationUserModel {
   surname: string;
   email: string;
   avatarPath?: string | null;
+  position?: string | null;
 }
 
 export interface OrganizationModel extends OrganizationListItemModel {

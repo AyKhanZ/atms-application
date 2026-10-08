@@ -62,6 +62,10 @@
         @if (form().controls.phoneNumber.touched) {
           @if (form().controls.phoneNumber.hasError('required')) {
             <small>Phone number is required.</small>
+          } @else if (form().controls.phoneNumber.hasError('phoneLength')) {
+            <small>Enter 9 digits after +994.</small>
+          } @else if (form().controls.phoneNumber.getError('server'); as serverError) {
+            <small>{{ serverError }}</small>
           } @else if (form().controls.phoneNumber.invalid) {
             <small>Enter a valid phone number.</small>
           }

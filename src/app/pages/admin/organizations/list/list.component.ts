@@ -25,7 +25,6 @@ import {
 } from '../../../../core/models/organizations/organizations.models';
 import { SortDirectionEnum } from '../../../../core/enums/sort-direction.enum';
 import { TableLazyLoadService } from '../../../../core/services/table-lazy-load.service';
-import { ImageUrlService } from '../../../../core/services/image-url.service';
 import {
   OrganizationsStoreActions,
   OrganizationsStoreSelectors,
@@ -36,6 +35,7 @@ import { FilterToggleButtonComponent } from '../../../../shared/components/filte
 import { CreateButtonComponent } from '../../../../shared/components/create-button/create-button.component';
 import { EditActionButtonComponent } from '../../../../shared/components/edit-action-button/edit-action-button.component';
 import { DeleteActionButtonComponent } from '../../../../shared/components/delete-action-button/delete-action-button.component';
+import { OrganizationLogoComponent } from '../../../../shared/components/organization-logo/organization-logo.component';
 import { OrganizationsFilterComponent } from '../components/filter-organizations.component/filter-organizations.component';
 import { OrganizationCreateDialogComponent } from '../components/organization-create-dialog/organization-create-dialog.component';
 import { OrganizationsListQueryService } from './services/organizations-list-query.service';
@@ -51,6 +51,7 @@ import { OrganizationsListQueryService } from './services/organizations-list-que
     FilterToggleButtonComponent,
     HasPermissionDirective,
     ListSearchComponent,
+    OrganizationLogoComponent,
     OrganizationsFilterComponent,
     OrganizationCreateDialogComponent,
     TableModule,
@@ -67,7 +68,6 @@ export class ListComponent implements OnInit, OnDestroy {
   private readonly confirmationService = inject(ConfirmationService);
   private readonly query = inject(OrganizationsListQueryService);
   private readonly tableLazyLoad = inject(TableLazyLoadService);
-  private readonly imageUrlService = inject(ImageUrlService);
   private readonly searchChanges = new Subject<string>();
   private readonly roles = this.store.selectSignal(UserStoreSelectors.getRoles);
   private readonly permissions = this.store.selectSignal(UserStoreSelectors.getPermissions);
@@ -176,22 +176,6 @@ export class ListComponent implements OnInit, OnDestroy {
   onSearchChange(search: string): void {
     this.searchTerm.set(search);
     this.searchChanges.next(search);
-  }
-
-  initials(organization: OrganizationListItemModel): string {
-    return (
-      organization.title
-        .split(/\s+/)
-        .filter(Boolean)
-        .slice(0, 2)
-        .map((part) => part[0])
-        .join('')
-        .toUpperCase() || 'O'
-    );
-  }
-
-  logoUrl(organization: OrganizationListItemModel): string | null {
-    return this.imageUrlService.normalize(organization.logoPath);
   }
 
   displayCreatedAt(organization: OrganizationListItemModel): string | null {

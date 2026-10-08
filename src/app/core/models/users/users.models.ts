@@ -1,5 +1,6 @@
 import { DictionaryModel } from '../dictionary.model';
 import { PaginationRequest, createPaginationRequest } from '../paginated.model';
+import { OrganizationListItemModel } from '../organizations/organization-list-item.model';
 
 export interface UserListItemModel {
   id: string;
@@ -21,6 +22,8 @@ export interface UserModel extends UserListItemModel {
   lockoutEnd: string;
   hasCompletedOnboarding: boolean;
   emailConfirmed: boolean;
+  /** Set for clients only; employees have no organization. */
+  organization?: Omit<OrganizationListItemModel, 'createdAt'> | null;
 }
 
 export interface UserListFilter extends PaginationRequest {

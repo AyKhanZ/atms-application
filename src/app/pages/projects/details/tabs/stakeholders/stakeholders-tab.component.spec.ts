@@ -1,9 +1,11 @@
 import { TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
 import { provideMockActions } from '@ngrx/effects/testing';
 import { MockStore, provideMockStore } from '@ngrx/store/testing';
 import { Action } from '@ngrx/store';
 import { ConfirmationService } from 'primeng/api';
+import { Tooltip } from 'primeng/tooltip';
 import { of, Subject } from 'rxjs';
 import { projectRoleIds } from '../../../../../core/constants/project-role-ids.constants';
 import { ProjectPermissions } from '../../../../../core/enums/project-permissions.enum';
@@ -17,6 +19,8 @@ import { OrganizationsService } from '../../../../../core/services/organizations
 import { ProjectAccessService } from '../../../../../core/services/project-access.service';
 import { WorkProjectsService } from '../../../../../core/services/work-projects.service';
 import { WorkProjectsStoreActions } from '../../../../../store/work-projects';
+import { AddParticipantDialogComponent } from './components/add-participant-dialog/add-participant-dialog.component';
+import { ParticipantListComponent } from './components/participant-list/participant-list.component';
 import { StakeholdersTabComponent } from './stakeholders-tab.component';
 
 describe('StakeholdersTabComponent', { timeout: 20_000 }, () => {
@@ -106,25 +110,78 @@ describe('StakeholdersTabComponent', { timeout: 20_000 }, () => {
     const fixture = render(project(participants, [invitation('i1'), invitation('i2')]));
 
     expect(fixture.componentInstance.participantsCount()).toBe(20);
+    expect(fixture.componentInstance.placesLeft()).toBe(0);
     const add = (fixture.nativeElement as HTMLElement).querySelector(
       '.add-participant-button',
     ) as HTMLButtonElement;
     expect(add.disabled).toBe(true);
   });
 
-  it('shows Invited for pending invitations and for participants who have not finished onboarding', () => {
-    const fixture = render(
-      project(
-        [participant('done', 'client'), participant('new', 'client', false)],
-        [invitation('i1')],
-      ),
-    );
+  it.each([
+    [0, 0, '0/20'],
+    [3, 2, '5/20'],
+    [18, 2, '20/20'],
+  ])(
+    'shows how many of the 20 places are taken (%i participants, %i invitations)',
+    (participantCount, invitationCount, expected) => {
+      const participants = Array.from({ length: participantCount }, (_, index) =>
+        participant(`p${index}`, 'client'),
+      );
+      const invitations = Array.from({ length: invitationCount }, (_, index) =>
+        invitation(`i${index}`),
+      );
+      const fixture = render(project(participants, invitations));
 
-    const rows = [
-      ...(fixture.nativeElement as HTMLElement).querySelectorAll('.participants-row'),
-    ].slice(1);
-    const invited = rows.map((row) => !!row.querySelector('.invited-status'));
-    expect(invited).toEqual([false, true, true]);
+      const counter = (fixture.nativeElement as HTMLElement).querySelector('.participants-count');
+      expect(counter?.textContent?.trim()).toBe(expected);
+    },
+  );
+
+  it('explains the disabled Add button with a tooltip only when the limit is reached', () => {
+    permissions = [ProjectPermissions.Participant.InviteClient];
+    const full = Array.from({ length: 20 }, (_, index) => participant(`p${index}`, 'client'));
+
+    const fixture = render(project(full, []));
+    const wrap = (fixture.nativeElement as HTMLElement).querySelector('.add-participant-wrap');
+    const tooltip = fixture.debugElement.query(By.directive(Tooltip)).injector.get(Tooltip);
+    expect(wrap).not.toBeNull();
+    expect(fixture.componentInstance.limitTooltip).toBe('Up to 20 participants in a project');
+    expect(tooltip.getOption('tooltipLabel')).toBe('Up to 20 participants in a project');
+    expect(tooltip.getOption('disabled')).toBe(false);
+
+    fixture.componentRef.setInput('project', project(full.slice(0, 19), []));
+    fixture.detectChanges();
+    expect(fixture.componentInstance.limitReached()).toBe(false);
+    expect(tooltip.getOption('disabled')).toBe(true);
+  });
+
+  it('refuses to open the Add dialog once the places are taken', () => {
+    permissions = [ProjectPermissions.Participant.InviteClient];
+    const full = Array.from({ length: 20 }, (_, index) => participant(`p${index}`, 'client'));
+    const fixture = render(project(full, []));
+
+    fixture.componentInstance.openAddDialog();
+
+    expect(fixture.componentInstance.addDialogVisible()).toBe(false);
+  });
+
+  it('passes the free places to the Add participant dialog', () => {
+    const fixture = render(project([participant('p1', 'client')], [invitation('i1')]));
+
+    const dialog = fixture.debugElement.query(By.directive(AddParticipantDialogComponent))
+      .componentInstance as AddParticipantDialogComponent;
+    expect(dialog.placesLeft()).toBe(18);
+  });
+
+  it('renders participants and invitations through the participant list', () => {
+    permissions = [ProjectPermissions.Participant.InviteClient];
+    const fixture = render(project([participant('p1', 'client')], [invitation('i1')]));
+
+    const list = fixture.debugElement.query(By.directive(ParticipantListComponent))
+      .componentInstance as ParticipantListComponent;
+    expect(list.participants().map((item) => item.id)).toEqual(['p1']);
+    expect(list.invitations().map((item) => item.id)).toEqual(['i1']);
+    expect(list.canCancelInvitations()).toBe(true);
   });
 
   it.each([
@@ -161,25 +218,21 @@ describe('StakeholdersTabComponent', { timeout: 20_000 }, () => {
     expect([...fixture.componentInstance.removableParticipantIds()]).toEqual(removable);
   });
 
-  it('gives an invitation row only Cancel invitation, and only to those who may invite', () => {
-    permissions = [ProjectPermissions.Participant.InviteClient];
-    const fixture = render(project([], [invitation('i1')]));
+  it('removes the participant after confirmation', () => {
+    permissions = [ProjectPermissions.Participant.Delete];
+    const dispatch = vi.spyOn(store, 'dispatch');
+    vi.spyOn(confirmation, 'confirm').mockImplementation((options) => {
+      expect(options.message).toContain('Diana p1');
+      options.accept?.();
+      return confirmation;
+    });
+    const fixture = render(project([participant('p1', 'staff')], []));
 
-    const menuButton = (fixture.nativeElement as HTMLElement).querySelector(
-      '.participants-row:last-child .row-menu-button',
+    fixture.componentInstance.confirmRemove(participant('p1', 'staff'));
+
+    expect(dispatch).toHaveBeenCalledWith(
+      WorkProjectsStoreActions.deleteProjectParticipant({ id: 'project-id', participantId: 'p1' }),
     );
-    expect(menuButton?.getAttribute('aria-label')).toContain('i1@client.com');
-    expect(fixture.componentInstance.invitationActions.map((action) => action.label)).toEqual([
-      'Cancel invitation',
-    ]);
-
-    permissions = [];
-    const withoutRight = render(project([], [invitation('i1')]));
-    expect(
-      (withoutRight.nativeElement as HTMLElement).querySelector(
-        '.participants-row .row-menu-button',
-      ),
-    ).toBeNull();
   });
 
   it('cancels the invitation after confirmation', () => {

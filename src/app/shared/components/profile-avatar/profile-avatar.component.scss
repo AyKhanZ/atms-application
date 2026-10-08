@@ -105,7 +105,9 @@
     border-radius: var(--avatar-radius, 1.5rem);
   }
 
+  /* No hover on a phone, so the lens stays visible. A small avatar in a list sets it to 0 from outside:
+     there the lens would cover the face. */
   .avatar::after {
-    opacity: 1;
+    opacity: var(--avatar-zoom-opacity, 1);
   }
 }

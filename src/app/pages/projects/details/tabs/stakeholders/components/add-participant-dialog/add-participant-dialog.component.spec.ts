@@ -138,6 +138,23 @@ describe('AddParticipantDialogComponent', { timeout: 20_000 }, () => {
     expect(component.form.controls.roleId.disabled).toBe(true);
   });
 
+  it.each([
+    [null, ''],
+    [0, ''],
+    [1, '1 place left'],
+    [2, '2 places left'],
+    [3, ''],
+    [20, ''],
+  ])('mentions the last places only when one or two are left (%s)', (placesLeft, expected) => {
+    fixture.componentRef.setInput('placesLeft', placesLeft);
+    fixture.componentRef.setInput('visible', true);
+    fixture.detectChanges();
+
+    expect(component.placesLeftNote()).toBe(expected);
+    const note = fixture.nativeElement.querySelector('.places-left') as HTMLElement | null;
+    expect(note?.textContent?.trim() ?? '').toBe(expected);
+  });
+
   it('emits a valid participant command', () => {
     const submitted = vi.fn();
     component.submitted.subscribe(submitted);

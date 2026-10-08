@@ -46,6 +46,7 @@ import { createNewPasswordForm } from '../../shared/components/new-password-fiel
 import { fromIsoDate, toIsoDate } from '../../core/utils/dashboard-query.utils';
 import { avatarErrorMessage } from '../../core/utils/profile-avatar.utils';
 import { validationMessage } from '../../core/utils/http-error.utils';
+import { showPhoneServerError } from '../../core/utils/phone-number.utils';
 
 type InvitationGroup = FormGroup<{
   name: FormControl<string>;
@@ -198,8 +199,7 @@ export class OnboardingComponent implements HasUnsavedChanges {
           this.applyModel(response);
           this.snackBar.success('Personal information saved.');
         },
-        error: (error: HttpErrorResponse) =>
-          this.handleError(error, 'Could not save personal information.'),
+        error: (error: HttpErrorResponse) => this.reportPersonalInfoError(error),
       });
   }
 
@@ -412,6 +412,13 @@ export class OnboardingComponent implements HasUnsavedChanges {
         Validators.maxLength(100),
       ]),
     });
+  }
+
+  private reportPersonalInfoError(error: HttpErrorResponse): void {
+    const phone = this.personalForm.controls.phoneNumber;
+    if (showPhoneServerError(phone, error, (message) => this.snackBar.error(message))) return;
+
+    this.handleError(error, 'Could not save personal information.');
   }
 
   private handleError(error: HttpErrorResponse, fallback: string): void {

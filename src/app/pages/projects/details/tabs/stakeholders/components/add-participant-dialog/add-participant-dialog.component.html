@@ -17,6 +17,13 @@
     [formGroup]="form"
     (ngSubmit)="submit()"
   >
+    @if (placesLeftNote(); as note) {
+      <p class="places-left" role="status">
+        <i class="pi pi-info-circle" aria-hidden="true"></i>
+        <span>{{ note }}</span>
+      </p>
+    }
+
     <div class="field">
       <label id="participantUserLabel" appLabelFor="participantUser">User or email</label>
       <p-select

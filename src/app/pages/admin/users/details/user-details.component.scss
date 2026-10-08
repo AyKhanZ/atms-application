@@ -88,6 +88,33 @@ dd {
   gap: 0.5rem;
 }
 
+.organization-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-width: 0;
+  color: inherit;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.organization-link span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.organization-link:hover {
+  color: var(--orange-text-hover);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.organization-link:focus-visible {
+  border-radius: 3px;
+  outline: 3px solid var(--orange-focus-outline);
+  outline-offset: 2px;
+}
+
 @container (max-width: 58rem) {
   .details-layout {
     grid-template-columns: 1fr;

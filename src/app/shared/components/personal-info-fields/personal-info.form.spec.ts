@@ -1,5 +1,5 @@
 import { FormControl } from '@angular/forms';
-import { birthDateInRange, yearsAgo } from './personal-info.form';
+import { birthDateInRange, createPersonalInfoForm, yearsAgo } from './personal-info.form';
 
 describe('birthDateInRange', () => {
   const check = (value: Date | null) => birthDateInRange(new FormControl<Date | null>(value));
@@ -22,5 +22,41 @@ describe('birthDateInRange', () => {
 
   it('leaves an empty value to the required validator', () => {
     expect(check(null)).toBeNull();
+  });
+});
+
+describe('phone number', () => {
+  const phone = () => {
+    const form = createPersonalInfoForm();
+    return form.controls.phoneNumber;
+  };
+
+  it('explains a short Azerbaijan number by the missing digits', () => {
+    const control = phone();
+    control.setValue('+994 50 123 45');
+
+    expect(control.hasError('phoneLength')).toBe(true);
+  });
+
+  it('accepts a full Azerbaijan number', () => {
+    const control = phone();
+    control.setValue('+994 50 123 45 00');
+
+    expect(control.errors).toBeNull();
+  });
+
+  it('checks the shape before the length', () => {
+    const control = phone();
+    control.setValue('+994 50 123 45 0x');
+
+    expect(control.hasError('pattern')).toBe(true);
+    expect(control.hasError('phoneLength')).toBe(false);
+  });
+
+  it('keeps the shape check for a number that is not a known country', () => {
+    const control = phone();
+    control.setValue('0501234567');
+
+    expect(control.hasError('pattern')).toBe(true);
   });
 });

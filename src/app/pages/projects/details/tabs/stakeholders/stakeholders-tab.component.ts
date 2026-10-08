@@ -12,37 +12,29 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 import { Actions, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
-import { ConfirmationService, MenuItem } from 'primeng/api';
+import { ConfirmationService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { Menu, MenuModule } from 'primeng/menu';
-import { forkJoin, of } from 'rxjs';
+import { TooltipModule } from 'primeng/tooltip';
 import { maxProjectParticipants } from '../../../../../core/constants/project-participants.constants';
 import { ProjectPermissions } from '../../../../../core/enums/project-permissions.enum';
-import {
-  OrganizationModel,
-  OrganizationUserModel,
-} from '../../../../../core/models/organizations/organization.model';
 import {
   InviteWorkProjectParticipantCommand,
   WorkProjectInvitationModel,
   WorkProjectModel,
-  WorkProjectParticipantCandidateModel,
   WorkProjectParticipantCommand,
   WorkProjectParticipantModel,
   WorkProjectRoleModel,
 } from '../../../../../core/models/work-projects';
-import { DictionaryService } from '../../../../../core/services/dictionary.service';
-import { ImageUrlService } from '../../../../../core/services/image-url.service';
-import { OrganizationsService } from '../../../../../core/services/organizations.service';
 import { ProjectAccessService } from '../../../../../core/services/project-access.service';
-import { WorkProjectsService } from '../../../../../core/services/work-projects.service';
-import { ProfileAvatarComponent } from '../../../../../shared/components/profile-avatar/profile-avatar.component';
-import { PersonInitialsPipe, PersonNamePipe } from '../../../../../shared/pipes/person-name.pipe';
+import { personFullName } from '../../../../../core/utils/person-name.utils';
 import { WorkProjectsStoreActions } from '../../../../../store/work-projects';
+import { OrganizationLogoComponent } from '../../../../../shared/components/organization-logo/organization-logo.component';
 import { AddParticipantDialogComponent } from './components/add-participant-dialog/add-participant-dialog.component';
 import { ChangeParticipantRoleDialogComponent } from './components/change-participant-role-dialog/change-participant-role-dialog.component';
-import { ParticipantCandidate, ParticipantSide } from './participant-candidate.model';
+import { ParticipantListComponent } from './components/participant-list/participant-list.component';
+import { ParticipantCandidate } from './participant-candidate.model';
+import { ParticipantDialogDataService } from './participant-dialog-data.service';
 import { InviteField, InviteServerError } from './invite-server-error.model';
 
 // The server names fields as in the command; anything else lands under the email.
@@ -57,34 +49,31 @@ const inviteFieldsByServerName: Partial<Record<string, InviteField>> = {
   imports: [
     ButtonModule,
     ConfirmDialogModule,
-    MenuModule,
+    TooltipModule,
     RouterLink,
-    ProfileAvatarComponent,
-    PersonNamePipe,
-    PersonInitialsPipe,
     AddParticipantDialogComponent,
     ChangeParticipantRoleDialogComponent,
+    OrganizationLogoComponent,
+    ParticipantListComponent,
   ],
   templateUrl: './stakeholders-tab.component.html',
   styleUrl: './stakeholders-tab.component.scss',
+  providers: [ParticipantDialogDataService],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StakeholdersTabComponent {
   private readonly store = inject(Store);
   private readonly actions$ = inject(Actions);
   private readonly confirmation = inject(ConfirmationService);
-  private readonly dictionaryService = inject(DictionaryService);
-  private readonly imageUrlService = inject(ImageUrlService);
-  private readonly organizationsService = inject(OrganizationsService);
+  private readonly dialogData = inject(ParticipantDialogDataService);
   private readonly projectAccess = inject(ProjectAccessService);
-  private readonly workProjectsService = inject(WorkProjectsService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
 
   readonly project = input.required<WorkProjectModel>();
   readonly isSaving = input(false);
-  readonly ProjectPermissions = ProjectPermissions;
   readonly maxParticipants = maxProjectParticipants;
+  readonly limitTooltip = `Up to ${maxProjectParticipants} participants in a project`;
   readonly projectReturnUrl = this.router.url;
 
   readonly roles = signal<WorkProjectRoleModel[]>([]);
@@ -95,12 +84,13 @@ export class StakeholdersTabComponent {
   readonly addDialogVisible = signal(false);
   readonly roleDialogVisible = signal(false);
   readonly inviteError = signal<InviteServerError | null>(null);
-  readonly selectedInvitation = signal<WorkProjectInvitationModel | null>(null);
 
   // Invitations still waiting for an account take a place: they become participants in seconds.
   readonly participantsCount = computed(
     () => this.project().participants.length + this.project().invitations.length,
   );
+  readonly placesLeft = computed(() => Math.max(0, this.maxParticipants - this.participantsCount()));
+  readonly limitReached = computed(() => this.placesLeft() === 0);
   readonly canInviteClient = computed(() =>
     this.projectPermissions().includes(ProjectPermissions.Participant.InviteClient),
   );
@@ -134,12 +124,6 @@ export class StakeholdersTabComponent {
           .map((participant) => participant.id),
       ),
   );
-  readonly canManageParticipants = computed(
-    () =>
-      this.canEditParticipants() ||
-      this.removableParticipantIds().size > 0 ||
-      (this.canInviteClient() && this.project().invitations.length > 0),
-  );
   // The dialog answers these itself instead of asking the server: the people are already on screen.
   readonly participantEmails = computed(() =>
     this.project().participants.map((participant) => participant.email),
@@ -157,43 +141,6 @@ export class StakeholdersTabComponent {
       ...(this.canInviteEmployee() ? this.teamMembers() : []),
     ];
     return candidates.filter((user) => !selectedUserIds.has(user.id));
-  });
-  readonly invitationActions: MenuItem[] = [
-    {
-      label: 'Cancel invitation',
-      icon: 'pi pi-times',
-      styleClass: 'participant-menu-danger',
-      command: () => {
-        const invitation = this.selectedInvitation();
-        if (invitation) this.confirmCancelInvitation(invitation);
-      },
-    },
-  ];
-  readonly participantActions = computed<MenuItem[]>(() => {
-    const actions: MenuItem[] = [];
-    if (this.canEditParticipants()) {
-      actions.push({
-        label: 'Change role',
-        icon: 'pi pi-pencil',
-        command: () => {
-          const participant = this.selectedParticipant();
-          if (participant) this.openRoleDialog(participant);
-        },
-      });
-    }
-    const selected = this.selectedParticipant();
-    if (selected && this.removableParticipantIds().has(selected.id)) {
-      actions.push({
-        label: 'Remove',
-        icon: 'pi pi-trash',
-        styleClass: 'participant-menu-danger',
-        command: () => {
-          const participant = this.selectedParticipant();
-          if (participant) this.confirmRemove(participant);
-        },
-      });
-    }
-    return actions;
   });
 
   constructor() {
@@ -222,45 +169,16 @@ export class StakeholdersTabComponent {
       );
   }
 
-  fullName(participant: WorkProjectParticipantModel): string {
-    return `${participant.name} ${participant.surname}`.trim();
-  }
-
-  initials(participant: WorkProjectParticipantModel): string {
-    const initials = `${participant.name?.[0] ?? ''}${participant.surname?.[0] ?? ''}`;
-
-    return initials.toUpperCase() || 'U';
-  }
-
-  organizationInitials(title: string): string {
-    return title
-      .split(/\s+/)
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((part) => part[0])
-      .join('')
-      .toUpperCase();
-  }
-
-  logoUrl(value?: string | null): string | null {
-    return this.imageUrlService.normalize(value);
-  }
-
   isInternal(): boolean {
     return this.project().projectKind.code.toLowerCase() === 'internal';
   }
 
   openAddDialog(): void {
-    if (!this.canInvite() || this.participantsCount() >= this.maxParticipants) return;
+    if (!this.canInvite() || this.limitReached()) return;
 
     this.inviteError.set(null);
 
     this.loadDialogData(() => this.addDialogVisible.set(true));
-  }
-
-  openParticipantMenu(event: Event, participant: WorkProjectParticipantModel, menu: Menu): void {
-    this.selectedParticipant.set(participant);
-    menu.toggle(event);
   }
 
   openRoleDialog(participant: WorkProjectParticipantModel): void {
@@ -306,7 +224,7 @@ export class StakeholdersTabComponent {
     this.confirmation.confirm({
       key: 'projectParticipantDanger',
       header: 'Remove participant',
-      message: `Remove ${this.fullName(participant)} from this project?`,
+      message: `Remove ${personFullName(participant)} from this project?`,
       icon: 'pi pi-exclamation-triangle',
       acceptLabel: 'Remove',
       rejectLabel: 'Cancel',
@@ -321,11 +239,6 @@ export class StakeholdersTabComponent {
         );
       },
     });
-  }
-
-  openInvitationMenu(event: Event, invitation: WorkProjectInvitationModel, menu: Menu): void {
-    this.selectedInvitation.set(invitation);
-    menu.toggle(event);
   }
 
   confirmCancelInvitation(invitation: WorkProjectInvitationModel): void {
@@ -350,38 +263,14 @@ export class StakeholdersTabComponent {
   }
 
   private loadDialogData(complete: () => void): void {
-    const project = this.project();
-
-    forkJoin({
-      roles: this.dictionaryService.getProjectRoleDictionaries(),
-      teamMembers: this.workProjectsService.getTeamMembers(),
-      organization:
-        !this.isInternal() && project.organization?.id
-          ? this.organizationsService.getOrganization(project.organization.id)
-          : of(null as OrganizationModel | null),
-    })
+    this.dialogData
+      .load(this.project(), this.isInternal())
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(({ roles, teamMembers, organization }) => {
+      .subscribe(({ roles, teamMembers, clientUsers }) => {
         this.roles.set(roles);
-        this.teamMembers.set(teamMembers.map((user) => toParticipantCandidate(user, 'team')));
-        this.clientUsers.set(
-          (organization?.users ?? []).map((user) => toParticipantCandidate(user, 'client')),
-        );
+        this.teamMembers.set(teamMembers);
+        this.clientUsers.set(clientUsers);
         complete();
       });
   }
-}
-
-function toParticipantCandidate(
-  user: WorkProjectParticipantCandidateModel | OrganizationUserModel,
-  side: ParticipantSide,
-): ParticipantCandidate {
-  return {
-    id: user.id,
-    name: user.name,
-    surname: user.surname,
-    email: user.email,
-    avatarPath: 'avatarPath' in user ? user.avatarPath : null,
-    side,
-  };
 }

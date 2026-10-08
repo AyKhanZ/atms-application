@@ -29,13 +29,32 @@ export function validationMessage(
   error: HttpErrorResponse,
   preferredField?: string,
 ): string | null {
-  if (error.status !== 400) return null;
+  const preferred = preferredField ? validationErrorFor(error, preferredField) : null;
+  return preferred ?? validationErrors(error).find((item) => item.error)?.error ?? null;
+}
+
+/** The message for one field of a 400, or null. Matching ignores case: the API sends `PhoneNumber`. */
+export function validationErrorFor(error: HttpErrorResponse, field: string): string | null {
+  return validationErrors(error).find((item) => sameField(item.field, field))?.error ?? null;
+}
+
+/** The first 400 message that is not `field`, or null. */
+export function validationErrorExcept(error: HttpErrorResponse, field: string): string | null {
+  return (
+    validationErrors(error).find((item) => item.error && !sameField(item.field, field))?.error ??
+    null
+  );
+}
+
+function validationErrors(error: HttpErrorResponse): { field?: string; error?: string }[] {
+  if (error.status !== 400) return [];
 
   const errors = error.error?.errors as { field?: string; error?: string }[] | undefined;
-  const preferred = preferredField
-    ? errors?.find((item) => item.field?.toLowerCase() === preferredField.toLowerCase())?.error
-    : undefined;
-  return preferred ?? errors?.find((item) => item.error)?.error ?? null;
+  return Array.isArray(errors) ? errors : [];
+}
+
+function sameField(actual: string | undefined, expected: string): boolean {
+  return actual?.toLowerCase() === expected.toLowerCase();
 }
 
 /**
