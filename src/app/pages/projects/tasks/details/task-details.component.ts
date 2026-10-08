@@ -56,6 +56,7 @@ import {
   taskParentRoute,
   taskTabQueryParam,
 } from './task-details.utils';
+import { LoadingStateComponent } from '../../../../shared/components/loading-state/loading-state.component';
 
 interface TaskPageData {
   task: WorkTaskModel;
@@ -66,6 +67,7 @@ interface TaskPageData {
 @Component({
   selector: 'app-task-details',
   imports: [
+    LoadingStateComponent,
     WorkItemRefComponent,
     ButtonModule,
     ConfirmDialogComponent,

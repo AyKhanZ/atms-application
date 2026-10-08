@@ -21,10 +21,12 @@ import { WorkItemAssigneeComponent } from '../../../../../shared/components/work
 import { TaskStatusBadgeComponent } from '../task-status-badge/task-status-badge.component';
 import { WorkItemRefComponent } from '../../../../../shared/components/work-item-ref/work-item-ref.component';
 import { WorkItemKind } from '../../../../../core/models/work-items';
+import { LoadingStateComponent } from '../../../../../shared/components/loading-state/loading-state.component';
 
 @Component({
   selector: 'app-work-task-list',
   imports: [
+    LoadingStateComponent,
     WorkItemRefComponent,
     ButtonModule,
     MenuModule,

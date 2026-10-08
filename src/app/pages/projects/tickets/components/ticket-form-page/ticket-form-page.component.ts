@@ -67,6 +67,7 @@ import {
   WorkTicketsStoreSelectors,
 } from '../../../../../store/work-tickets';
 import { WorkItemMutationError } from '../../../../../core/models/work-items';
+import { LoadingStateComponent } from '../../../../../shared/components/loading-state/loading-state.component';
 
 interface TicketFormNavigationState {
   milestone?: MilestoneOptionModel;
@@ -76,6 +77,7 @@ interface TicketFormNavigationState {
 @Component({
   selector: 'app-ticket-form-page',
   imports: [
+    LoadingStateComponent,
     ReactiveFormsModule,
     ButtonModule,
     ConfirmDialogModule,

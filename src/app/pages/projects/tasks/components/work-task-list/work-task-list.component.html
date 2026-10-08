@@ -8,9 +8,7 @@
   }
   <!-- only the first page replaces the list, replacing on next pages made the page jump -->
   @if (loading() && items().length === 0) {
-    <div class="tasks-state" role="status">
-      <i class="pi pi-spin pi-spinner"></i> Loading tasks...
-    </div>
+    <app-loading-state text="Loading tasks..." />
   } @else if (items().length === 0 && !loadError()) {
     <!-- same panel as other tabs, a thin line looks like a broken list -->
     <app-empty-state

@@ -94,7 +94,7 @@ describe('WorkTaskListComponent', () => {
     fixture.detectChanges();
 
     expect(element.querySelectorAll('.task-row')).toHaveLength(1);
-    expect(element.querySelector('.tasks-state')).toBeNull();
+    expect(element.querySelector('app-loading-state')).toBeNull();
   });
 
   it('does not navigate to edit without permission', async () => {

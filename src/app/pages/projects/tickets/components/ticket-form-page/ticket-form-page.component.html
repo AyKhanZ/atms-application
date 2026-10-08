@@ -29,10 +29,7 @@
   </div>
 
   @if (loading()) {
-    <section class="panel ticket-form-state" role="status">
-      <i class="pi pi-spin pi-spinner"></i>
-      <span>Loading ticket form...</span>
-    </section>
+    <section class="panel"><app-loading-state text="Loading ticket form..." /></section>
   } @else if (loadError()) {
     <section class="panel ticket-form-state ticket-form-state--error" role="alert">
       <i class="pi pi-exclamation-circle"></i>

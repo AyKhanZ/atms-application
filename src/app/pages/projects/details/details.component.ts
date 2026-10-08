@@ -45,12 +45,14 @@ import { WorkGroupExpansionStateService } from './tabs/groups/work-group-expansi
 import { StakeholdersTabComponent } from './tabs/stakeholders/stakeholders-tab.component';
 import { NavigationHistoryService } from '../../../core/services/navigation-history.service';
 import { RealtimeService } from '../../../core/services/realtime.service';
+import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state.component';
 
 type ProjectTab = 'details' | 'stakeholders' | 'groups' | 'attachments' | 'history';
 
 @Component({
   selector: 'app-project-details',
   imports: [
+    LoadingStateComponent,
     WorkItemRefComponent,
     DatePipe,
     ButtonModule,

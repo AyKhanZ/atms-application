@@ -40,6 +40,7 @@ import { BackButtonComponent } from '../../../../../shared/components/back-butto
 import { eligibleTaskAssignees } from './task-assignee-options';
 import { TaskFormContextService } from './task-form-context.service';
 import { TaskFormFieldsComponent } from '../task-form-fields/task-form-fields.component';
+import { LoadingStateComponent } from '../../../../../shared/components/loading-state/loading-state.component';
 
 interface TaskFormNavigationState {
   returnUrl?: unknown;
@@ -48,6 +49,7 @@ interface TaskFormNavigationState {
 @Component({
   selector: 'app-task-form-page',
   imports: [
+    LoadingStateComponent,
     ButtonModule,
     ConfirmDialogModule,
     ConfirmDialogComponent,

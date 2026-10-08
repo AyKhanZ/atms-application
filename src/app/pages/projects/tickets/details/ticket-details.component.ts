@@ -53,10 +53,12 @@ import {
   ticketHasTasks,
   ticketTabQueryParam,
 } from './ticket-details.utils';
+import { LoadingStateComponent } from '../../../../shared/components/loading-state/loading-state.component';
 
 @Component({
   selector: 'app-ticket-details',
   imports: [
+    LoadingStateComponent,
     WorkItemRefComponent,
     ButtonModule,
     ConfirmDialogComponent,

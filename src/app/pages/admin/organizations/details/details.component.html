@@ -118,7 +118,7 @@
       }
     </section>
   } @else if (loading()) {
-    <div class="panel panel-padding">Loading organization...</div>
+    <section class="panel"><app-loading-state text="Loading organization..." /></section>
   } @else {
     <div class="panel panel-padding">Organization was not found.</div>
   }

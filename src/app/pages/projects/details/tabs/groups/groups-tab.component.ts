@@ -46,6 +46,7 @@ import {
   MilestoneTicketPageState,
 } from './components/milestone-ticket-list/milestone-ticket-list.component';
 import { EmptyStateComponent } from '../../../../../shared/components/empty-state/empty-state.component';
+import { LoadingStateComponent } from '../../../../../shared/components/loading-state/loading-state.component';
 
 interface SelectedWorkGroup {
   item: WorkGroupModel;
@@ -55,6 +56,7 @@ interface SelectedWorkGroup {
 @Component({
   selector: 'app-groups-tab',
   imports: [
+    LoadingStateComponent,
     EmptyStateComponent,
     ButtonModule,
     ConfirmDialogComponent,
