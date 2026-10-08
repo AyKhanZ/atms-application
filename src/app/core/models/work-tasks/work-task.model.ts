@@ -19,12 +19,12 @@ export interface WorkTaskModel {
   status: DictionaryModel;
   priority: DictionaryModel;
   deadline?: string | null;
-  /** When it last moved to Done. */
+  // last time it moved to Done
   doneAt?: string | null;
   assignee?: WorkItemAssigneeModel | null;
   subtaskCount: number;
   doneSubtaskCount: number;
-  /** Comments and replies still there; sent with the details of one task only. */
+  // only in single task details
   commentsCount?: number;
   updatedAt?: string | null;
   updatedBy?: AuditUserModel | null;

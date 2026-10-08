@@ -51,11 +51,7 @@ import {
   tasksPageParams,
 } from './tasks-page.utils';
 
-/**
- * Tasks and subtasks from every project the user is in, as a board, a calendar or a list (see
- * Specs/09-task-views). Everything the page shows lives in its address, so a view can be shared and
- * survives a refresh; the last one used in this browser opens when the address says nothing.
- */
+// everything is in the url so it can be shared and survives refresh; last view opens on a bare url
 @Component({
   selector: 'app-tasks-page',
   imports: [
@@ -91,12 +87,10 @@ export class TasksPageComponent implements OnDestroy {
   readonly state = computed<TasksPageState>(() =>
     parseTasksPage(this.params(), this.me()?.id ?? null),
   );
-  /** What the views ask the server for. */
   readonly query = computed<WorkTaskBoardQuery>(() => this.state().filter);
 
-  /** What is in the search box now; the address follows it after a pause in typing. */
+  // url follows after a pause in typing
   readonly searchTerm = linkedSignal(() => this.state().filter.search);
-  /** Closed by default, as on the other lists; the count on the button says what is in use. */
   readonly filtersOpen = signal(false);
   readonly activeFilterCount = computed(() => {
     const filter = this.state().filter;
@@ -118,16 +112,14 @@ export class TasksPageComponent implements OnDestroy {
     { id: 'list', label: 'List', icon: 'pi-list' },
   ];
 
-  /** Editing is checked per project by the server; this only keeps drag handles from people who
-   *  can edit nothing at all, such as the client. */
+  // server checks per project, this only hides drag handles from people who cant edit anything (clients)
   readonly canMove = computed(() => this.permissions().includes(Permissions.Project.Edit));
-  /** Assigned to: the viewer and nobody else. */
   readonly onlyMine = computed(() => {
     const { assigneeUserIds, unassigned } = this.state().filter;
     const meId = this.me()?.id;
     return !!meId && !unassigned && assigneeUserIds.length === 1 && assigneeUserIds[0] === meId;
   });
-  /** What an empty list says: the plain truth for the default "my tasks", else that filters hid it. */
+  // plain text for default "my tasks", else say filters hid it
   readonly emptyText = computed(() => {
     const filter = this.state().filter;
     const meId = this.me()?.id;
@@ -143,12 +135,10 @@ export class TasksPageComponent implements OnDestroy {
     return hasFilters(filter) ? 'No matching tasks' : 'No tasks yet';
   });
 
-  /** Cards name their project unless the page is narrowed to one. */
   readonly showProject = computed(() => this.state().filter.projectIds.length !== 1);
-  /** Bumped to make the view reload everything, after the server refused a move. */
+  // bumped to reload everything after the server refused a move
   readonly reloadToken = signal(0);
 
-  /** The filter dropdowns' options and the statuses the board builds its columns from. */
   readonly options = inject(TaskFilterOptionsService);
 
   constructor() {
@@ -160,13 +150,11 @@ export class TasksPageComponent implements OnDestroy {
       }
     });
 
-    // People and tickets depend on the projects chosen, and the choices must stay named.
     effect(() => {
       const { projectIds, workTicketIds } = this.state().filter;
       untracked(() => this.options.select(projectIds, workTicketIds));
     });
 
-    // The last page used, remembered for the next visit.
     effect(() => {
       const params = tasksPageParams(this.state(), this.me()?.id ?? null);
       untracked(() => rememberTasksPage(params));
@@ -176,8 +164,7 @@ export class TasksPageComponent implements OnDestroy {
       .pipe(debounceTime(300), takeUntilDestroyed(this.destroyRef))
       .subscribe((search) => this.navigate({ filter: { ...this.state().filter, search } }));
 
-    // Someone else may have moved cards meanwhile: coming back to the tab reads the view again, at
-    // most once a minute so switching between two tabs does not flood the server.
+    // someone may have moved cards meanwhile, reload on coming back, max once a minute
     inject(VisiblePageRefreshService)
       .onReturn('tasks-page', 60_000)
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -196,7 +183,7 @@ export class TasksPageComponent implements OnDestroy {
     this.actions$
       .pipe(ofType(TaskBoardStoreActions.moveTaskSuccess), takeUntilDestroyed(this.destroyRef))
       .subscribe(({ completeSubtasks }) => {
-        // Closed subtasks moved too; reload so their cards are where they now belong.
+        // closed subtasks moved too, reload so their cards are right
         if (completeSubtasks) this.reloadToken.update((token) => token + 1);
         else this.store.dispatch(TaskBoardStoreActions.loadCounts({ query: this.query() }));
       });
@@ -229,7 +216,7 @@ export class TasksPageComponent implements OnDestroy {
   }
 
   clearFilters(): void {
-    // The search box has its own clear; the panel's Clear resets what the panel holds.
+    // search has its own clear, panel Clear resets only the panel
     this.navigate({ filter: { ...clearedFilter(), search: this.state().filter.search } });
   }
 
@@ -253,12 +240,12 @@ export class TasksPageComponent implements OnDestroy {
     void this.router.navigate([], {
       relativeTo: this.route,
       queryParams: tasksPageParams(next, this.me()?.id ?? null),
-      // Filters are refinements of one page, not steps to go back through.
+      // filters arent steps to go back through
       replaceUrl: true,
     });
   }
 
-  /** Opened with a bare address: the last view and filters used here, if any. */
+  // bare url opens the last view and filters
   private restoreLastIfEmpty(): void {
     if (this.route.snapshot.queryParamMap.keys.length > 0) return;
     const last = lastTasksPage();

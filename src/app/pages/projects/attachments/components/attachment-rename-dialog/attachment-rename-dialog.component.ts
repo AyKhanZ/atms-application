@@ -25,7 +25,7 @@ export interface AttachmentRenameEvent {
   fileName: string;
 }
 
-/** Only the name before the extension is editable: the type was checked when it was uploaded. */
+// only the name is editable, the type was checked on upload
 @Component({
   selector: 'app-attachment-rename-dialog',
   imports: [FormsModule, ButtonModule, DialogModule, InputTextModule],

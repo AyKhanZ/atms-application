@@ -9,8 +9,7 @@
   container-type: inline-size;
 }
 
-// Columns of minmax(0, 1fr): a long unbreakable line — a work-item title — is cut inside its card
-// instead of widening the column past the facts beside it.
+// minmax(0, 1fr) so a long title is cut inside the card instead of widening the column
 .discussion {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -18,7 +17,6 @@
   padding-top: 1rem;
 }
 
-// The field sits beside the reader's own face, as a comment of theirs will.
 .discussion__new {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
@@ -96,7 +94,6 @@
   font-size: 0.85rem;
 }
 
-// A phone: no room for the face beside the field.
 @container (max-width: 30rem) {
   .discussion__new {
     grid-template-columns: minmax(0, 1fr);

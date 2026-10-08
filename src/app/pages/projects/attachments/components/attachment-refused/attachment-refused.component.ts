@@ -11,11 +11,8 @@ interface RefusedGroup {
   fileNames: string[];
 }
 
-/**
- * Files that were not added, and why. A banner rather than rows in the list: a refused file drawn
- * like a stored one, with a tile and a name, read as "attached, with a warning". Files refused
- * for the same reason share one line — ten `.md` files are one problem, not ten.
- */
+// a banner, not rows: a refused file drawn like a stored one reads as "attached"
+// same reason = one line, ten .md files are one problem
 @Component({
   selector: 'app-attachment-refused',
   templateUrl: './attachment-refused.component.html',

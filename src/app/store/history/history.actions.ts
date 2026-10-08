@@ -3,7 +3,7 @@ import { HistoryPageModel, HistoryScope, HistoryStateModel } from '../../core/mo
 
 const key = '[history]';
 
-/** The first page and the statuses, read again every time the tab opens. */
+// read again every time the tab opens
 export const load = createAction(
   `${key} Load`,
   props<{ historyKey: string; projectId: string; scope: HistoryScope }>(),
@@ -30,7 +30,7 @@ export const loadMoreFailure = createAction(
   props<{ historyKey: string; error: string }>(),
 );
 
-/** The history is gone from the screen: drop it and cancel a load still on its way. */
+// also cancels a load still on its way
 export const clear = createAction(`${key} Clear`, props<{ historyKey: string }>());
 
 export const reset = createAction(`${key} Reset`);

@@ -51,9 +51,9 @@ export class GlobalSearchComponent {
   private lastPointer = { x: -1, y: -1 };
 
   readonly open = signal(false);
-  /** Width from the field's left edge to the window's, less a margin; null until measured. */
+  // null until measured
   readonly room = signal<number | null>(null);
-  /** Follows the layout's phone breakpoint; writable so a test can pin it. */
+  // writable so a test can pin it
   readonly isMobile = linkedSignal(() => this.layout.isPhone());
   readonly query = this.store.selectSignal(GlobalSearchStoreSelectors.getPopupQuery);
   readonly loading = this.store.selectSignal(GlobalSearchStoreSelectors.isPopupLoading);
@@ -64,7 +64,7 @@ export class GlobalSearchComponent {
 
   private readonly response = this.store.selectSignal(GlobalSearchStoreSelectors.getPopupResult);
 
-  /** Only asked for once the query is long enough; until then the server would refuse it. */
+  // shorter queries the server refuses
   readonly searchable = computed(() => isSearchable(this.query()));
 
   private readonly cachedRecent = this.store.selectSignal(
@@ -72,8 +72,7 @@ export class GlobalSearchComponent {
   );
   readonly recent = computed(() => this.cachedRecent() ?? []);
 
-  /** The box has just opened and the recent list is still on its way: nothing is drawn yet, so the
-   *  empty-state hint does not flash for a blink before the list replaces it. */
+  // recent list still on its way: draw nothing so the empty hint doesnt flash
   readonly waitingForRecent = computed(
     () => this.query().trim().length === 0 && this.cachedRecent() === null && !this.failed(),
   );
@@ -91,7 +90,7 @@ export class GlobalSearchComponent {
       .filter((group) => group.items.length > 0);
   });
 
-  /** The chip narrows what is shown; it is not another request, the answer already has everything. */
+  // chip only narrows what is shown, no new request
   readonly groups = computed(() => {
     const filter = this.filter();
     return filter === null
@@ -111,7 +110,6 @@ export class GlobalSearchComponent {
     ];
   });
 
-  /** Everything a keyboard can land on, in the order it is drawn. */
   readonly selectable = computed<GlobalSearchItemModel[]>(() =>
     this.searchable() ? this.groups().flatMap((group) => group.items) : this.recent(),
   );
@@ -121,8 +119,7 @@ export class GlobalSearchComponent {
   );
 
   constructor() {
-    // The field is sized by the layout: a sidebar folding or a window resized moves and resizes
-    // it without any event of its own, so it is watched directly.
+    // sidebar folding or a window resize moves the field without an event, so watch it directly
     if (typeof ResizeObserver === 'function') {
       const observer = new ResizeObserver(() => this.measureRoom());
       observer.observe(this.host.nativeElement);
@@ -180,15 +177,8 @@ export class GlobalSearchComponent {
     this.activeId.set(null);
   }
 
-  /**
-   * The pointer and the arrows move one and the same highlight. Nothing is lit until one of them
-   * picks a row: a row lit in advance reads as already chosen, and next to a hovered one it made
-   * two rows look selected.
-   *
-   * Only a pointer that really moved counts. When the arrows scroll the list, the rows slide under
-   * a resting cursor and the browser reports that as hovering — which used to snatch the highlight
-   * straight back from the keyboard.
-   */
+  // nothing lit until the pointer or arrows pick a row
+  // only real pointer moves count, arrow scrolling slides rows under the cursor and the browser reports hover
   point(id: string, event: MouseEvent): void {
     if (event.clientX === this.lastPointer.x && event.clientY === this.lastPointer.y) return;
     this.lastPointer = { x: event.clientX, y: event.clientY };
@@ -206,8 +196,6 @@ export class GlobalSearchComponent {
     void this.router.navigate(['/search'], { queryParams: { q: query, type } });
   }
 
-  /** Room from the field's left edge to the window's right edge, measured when the box opens and
-   *  whenever the field changes size while it is open. */
   private measureRoom(): void {
     if (!this.open()) return;
     const shell = this.host.nativeElement.querySelector<HTMLElement>('.search-shell');
@@ -253,7 +241,7 @@ export class GlobalSearchComponent {
     }
 
     if (event.key === 'Enter') {
-      // Only from the field: a focused chip or row handles Enter itself.
+      // only from the field, a focused chip or row handles Enter itself
       if (!(event.target instanceof HTMLInputElement)) return;
       const item = this.selectable().find((value) => value.id === this.activeId());
       if (item) {
@@ -264,8 +252,7 @@ export class GlobalSearchComponent {
     }
 
     if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') return;
-    // Anywhere inside the box, not just the field: after a click on a filter chip focus sits on
-    // the chip, and the arrows went dead there.
+    // anywhere in the box, after clicking a chip the arrows went dead
     if (!(event.target instanceof Node) || !this.host.nativeElement.contains(event.target)) return;
 
     const items = this.selectable();
@@ -284,8 +271,7 @@ export class GlobalSearchComponent {
     this.scrollIntoView(items[next].id);
   }
 
-  /** Looked up inside this component, not across the page: the overlay lives in its own template,
-   *  and a document-wide search would find whatever else carried the same marker. */
+  // inside this component only, a page-wide search finds other markers too
   private scrollIntoView(id: string): void {
     queueMicrotask(() => {
       this.host.nativeElement

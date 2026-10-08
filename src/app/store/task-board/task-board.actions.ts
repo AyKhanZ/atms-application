@@ -10,7 +10,7 @@ import { WorkTaskModel, WorkTaskPageModel } from '../../core/models/work-tasks';
 
 const key = '[task board]';
 
-/** One page of a list; `append` adds it under what is loaded, otherwise it replaces it. */
+// append adds under, otherwise replaces
 export const loadPage = createAction(
   `${key} Load Page`,
   props<{
@@ -30,17 +30,17 @@ export const loadPageFailure = createAction(
   props<{ key: string; error: string }>(),
 );
 
-/** The lists a view shows now; every other list is dropped. */
+// every other list is dropped
 export const keepPages = createAction(`${key} Keep Pages`, props<{ keys: string[] }>());
 
-/** Every page of a list at once, following the cursor — a calendar month. */
+// follows the cursor, for a calendar month
 export const loadAll = createAction(
   `${key} Load All`,
   props<{ key: string; query: WorkTaskBoardQuery; order: WorkTaskBoardOrder }>(),
 );
 export const loadAllSuccess = createAction(
   `${key} Load All Success`,
-  /** `hasMore`: the month has more than the pages read — it was cut at the limit. */
+  // true = the month was cut at the limit
   props<{ key: string; items: WorkTaskModel[]; hasMore: boolean }>(),
 );
 
@@ -63,10 +63,7 @@ export const loadAssigneesSuccess = createAction(
   props<{ assignees: WorkTaskBoardAssigneeModel[] }>(),
 );
 
-/**
- * A card dropped on the board. The reducer moves it at once — the board must not wait for the
- * server — and the effect sends it. A failure is reported and the page reloads what moved.
- */
+// reducer moves it at once, the effect sends it; on failure the page reloads what moved
 export const moveTask = createAction(
   `${key} Move Task`,
   props<{
@@ -86,11 +83,11 @@ export const moveTaskSuccess = createAction(
 );
 export const moveTaskFailure = createAction(
   `${key} Move Task Failure`,
-  /** `from`, `to`: the lists the card left and went to; they no longer show the truth. */
+  // lists the card left and went to, they no longer show the truth
   props<{ error: WorkItemMutationError; from: string; to: string }>(),
 );
 
-/** A card dropped on another day of the calendar. Same optimistic move as the board. */
+// same optimistic move as the board
 export const changeDeadline = createAction(
   `${key} Change Deadline`,
   props<{ task: WorkTaskModel; from: string; to: string; deadline: string | null }>(),
@@ -101,9 +98,8 @@ export const changeDeadlineSuccess = createAction(
 );
 export const changeDeadlineFailure = createAction(
   `${key} Change Deadline Failure`,
-  /** `from`, `to`: the lists the card left and went to; they no longer show the truth. */
+  // lists the card left and went to, they no longer show the truth
   props<{ error: WorkItemMutationError; from: string; to: string }>(),
 );
 
-/** Leaving the page: nothing it loaded is kept. */
 export const reset = createAction(`${key} Reset`);

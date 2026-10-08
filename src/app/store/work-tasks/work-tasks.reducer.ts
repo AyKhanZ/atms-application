@@ -107,7 +107,7 @@ const reducer = createReducer(
     }),
   ),
   on(Actions.reset, (): WorkTasksState => initialWorkTasksState),
-  // Everything here is the signed-in user's; none of it may outlive the session.
+  // users data, cant outlive the session
   on(AuthStoreActions.logoutCompleted, (): WorkTasksState => initialWorkTasksState),
 );
 

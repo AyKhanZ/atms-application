@@ -32,7 +32,6 @@
   min-width: 0;
 }
 
-/* The work first, named the way every list names it; a long title takes two lines at most. */
 .item__subject {
   display: -webkit-box;
   overflow: hidden;
@@ -50,8 +49,7 @@
   vertical-align: -0.05em;
 }
 
-/* The one thing that stands out, and only while it is unread: read and unread differ by weight,
-   not by a fill that would read as the selected row. */
+// unread = bold, not a fill that looks like the selected row
 .item__title {
   font-weight: 400;
 }

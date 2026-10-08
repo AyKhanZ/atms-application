@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { WorkItemKind } from '../../../core/models/work-items';
 
-/** One chip of a one-choice filter; search filters by kind of work, other lists by their own value. */
 export interface SearchFilterChip<T = WorkItemKind | null> {
   type: T;
   label: string;

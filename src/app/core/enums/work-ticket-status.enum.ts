@@ -1,4 +1,4 @@
-/** Ticket statuses. The numbers match the server's `WorkTicketStatusEnum`. */
+// same numbers as server WorkTicketStatusEnum
 export enum WorkTicketStatus {
   New = 1,
   InProgress = 2,

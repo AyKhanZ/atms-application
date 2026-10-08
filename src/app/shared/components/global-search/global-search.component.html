@@ -55,7 +55,6 @@
           </div>
         } @else if (!searchable()) {
           @if (waitingForRecent()) {
-            <!-- Drawn once the list arrives; see waitingForRecent. -->
           } @else if (query().trim().length === 0 && recent().length > 0) {
             <h2 class="body__title">Recently opened</h2>
             @for (item of recent(); track item.id) {

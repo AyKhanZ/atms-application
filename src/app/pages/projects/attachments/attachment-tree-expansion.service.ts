@@ -2,15 +2,11 @@ import { Injectable } from '@angular/core';
 
 export interface AttachmentTreeExpansion {
   expanded: Set<string>;
-  /** Nodes already given their default state, so a reload does not reopen what was closed. */
+  // so a reload doesnt reopen what was closed
   seen: Set<string>;
 }
 
-/**
- * Which branches of an attachments tree are open, kept while the details page lives: leaving the
- * Attachments tab for Details and coming back finds the tree as it was left. Provided by each
- * details page, so it goes away with the page.
- */
+// open branches kept while the details page lives, provided per details page
 @Injectable()
 export class AttachmentTreeExpansionService {
   private readonly states = new Map<string, AttachmentTreeExpansion>();

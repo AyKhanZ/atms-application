@@ -14,8 +14,7 @@
   overflow: hidden;
 }
 
-/* Folded levels are taken out of flow rather than removed, so the component can still measure
-   them and know when there is room to show them again. */
+// out of flow, not removed, so they can still be measured
 .crumb--hidden {
   position: absolute;
   top: 0;
@@ -26,14 +25,11 @@
 
 .crumb {
   display: flex;
-  /* No shrinking: shrinking is distributed by width, so a short level like «Projects» would be
-     eaten down to two letters while a long title next to it keeps half its text. Levels are
-     either shown whole or folded away. */
+  // no shrinking: "Projects" would be eaten to two letters, levels are shown whole or folded
   flex: 0 0 auto;
   align-items: center;
 
-  /* The level you are on is the one exception: once everything else is folded it is all that is
-     left, and it has to give way rather than run off the edge. */
+  // the current level is the exception, it gives way instead of running off the edge
   &--last {
     min-width: 0;
     flex: 0 1 auto;
@@ -85,7 +81,7 @@
     line-height: 1rem;
   }
 
-  /* Same cap the component measures with. Keep the two in step. */
+  // same cap the component measures with, keep in sync
   &__title {
     max-width: 15rem;
     overflow: hidden;

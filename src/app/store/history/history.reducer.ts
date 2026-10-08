@@ -27,8 +27,7 @@ function update(
 
 const reducer = createReducer(
   initialHistoryState,
-  // Opening the tab again keeps the rows already shown: the list is almost certainly the same, and
-  // a skeleton over it would only flash.
+  // keep rows on reopen, a skeleton would only flash
   on(
     Actions.load,
     (state, { historyKey }): HistoryState =>
@@ -59,8 +58,7 @@ const reducer = createReducer(
     Actions.loadMoreSuccess,
     (state, { historyKey, page }): HistoryState =>
       update(state, historyKey, (list) => {
-        // A set, not a search of the whole list for every new row: after many pages that was
-        // thousands of comparisons per page.
+        // set, not searching the whole list per row (thousands of comparisons after many pages)
         const known = new Set(list.items.map((item) => item.id));
         return {
           ...list,

@@ -22,7 +22,7 @@ export interface UserModel extends UserListItemModel {
   lockoutEnd: string;
   hasCompletedOnboarding: boolean;
   emailConfirmed: boolean;
-  /** Set for clients only; employees have no organization. */
+  // clients only
   organization?: Omit<OrganizationListItemModel, 'createdAt'> | null;
 }
 

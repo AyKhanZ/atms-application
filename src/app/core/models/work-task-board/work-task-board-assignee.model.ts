@@ -1,4 +1,4 @@
-/** A person the "Assigned to" filter offers — one entry per person, across projects. */
+// one per person across projects
 export interface WorkTaskBoardAssigneeModel {
   id: string;
   name: string;

@@ -44,7 +44,6 @@ import { WorkItemKind } from '../../../../../core/models/work-items';
 })
 export class TaskParentSelectComponent implements OnDestroy {
   protected readonly kinds = WorkItemKind;
-  /** A subtask hangs under a task, a task under a ticket. */
   protected readonly parentKind = computed(() =>
     this.isSubtask() ? WorkItemKind.Task : WorkItemKind.Ticket,
   );
@@ -106,21 +105,18 @@ export class TaskParentSelectComponent implements OnDestroy {
     );
   }
 
-  /** Group, then milestone, then ticket — the same icons the Plan tab and Location use. */
+  // same icons as Plan and Location
   groupLevelIcon(index: number): string {
     return ['pi-folder', 'pi-flag', 'pi-ticket'][index] ?? 'pi-ticket';
   }
 
-  /** Indent of one tree level, in rem. Matches the step the guide line is drawn at in the
-   *  stylesheet, so widening the hierarchy means changing both together. */
+  // same step as the guide line in the css, change both together
   readonly treeStep = 1.2;
 
-  /** One step deeper than the last header line: a ticket sits under Group › Milestone, a task
-   *  one level further under its ticket. */
+  // ticket under group > milestone, task one deeper
   readonly optionDepth = computed(() => (this.isSubtask() ? 3 : 2));
   readonly optionIndent = computed(() => this.levelIndent(this.optionDepth()));
 
-  /** Left offset of a row that sits `depth` levels deep, in rem. */
   levelIndent(depth: number): number {
     return depth * this.treeStep;
   }

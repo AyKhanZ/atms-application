@@ -22,10 +22,8 @@ import { AttachmentListSkeletonComponent } from '../components/attachment-list-s
 import { AttachmentPreviewDialogComponent } from '../components/attachment-preview-dialog/attachment-preview-dialog.component';
 import { AttachmentTreeComponent } from '../components/attachment-tree/attachment-tree.component';
 
-/** Past this many files only the first task starts open; below it the whole tree does. */
 const OPEN_ALL_UP_TO = 20;
 
-/** Every file in the ticket, under the task or subtask it was added to. Read-only. */
 @Component({
   selector: 'app-ticket-attachments-tab',
   imports: [

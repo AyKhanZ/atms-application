@@ -3,16 +3,8 @@ import { DictionaryModel } from '../../../core/models/dictionary.model';
 
 export type WorkItemPriorityTone = 'low' | 'medium' | 'high' | 'critical';
 
-/**
- * Priority is an ordinal scale, status is a set of categories — so they must not look alike.
- *
- * Drawn as a level meter rather than a chip: the filled bars say "two out of three" where the
- * word alone says nothing about the scale, and the shape is unmistakably not a status chip
- * whatever colours the two end up sharing.
- *
- * This is deliberately not the arrow icon that was tried and rejected before: arrows encode a
- * direction nobody could rank (was ⇊ below ↓?), bars encode a quantity that reads at a glance.
- */
+// a meter not a chip, priority is a scale and status is categories
+// arrows were tried and dropped, nobody could rank ⇊ vs ↓
 @Component({
   selector: 'app-work-item-priority',
   template: `
@@ -35,7 +27,7 @@ export type WorkItemPriorityTone = 'low' | 'medium' | 'high' | 'critical';
 })
 export class WorkItemPriorityComponent {
   readonly priority = input.required<DictionaryModel>();
-  /** A priority that was replaced: grey and struck through. */
+  // replaced: grey and struck through
   readonly muted = input(false);
 
   protected readonly steps = [1, 2, 3] as const;
@@ -55,7 +47,6 @@ export function workItemPriorityTone(code: string): WorkItemPriorityTone {
   return 'low';
 }
 
-/** Critical shares the highest level and alert colour with High. */
 export function priorityLevel(tone: WorkItemPriorityTone): number {
   switch (tone) {
     case 'critical':

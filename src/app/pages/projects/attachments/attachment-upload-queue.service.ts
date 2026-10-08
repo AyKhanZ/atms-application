@@ -9,7 +9,6 @@ import { AttachmentsStoreActions, AttachmentsStoreSelectors } from '../../../sto
 import { RefusedAttachment } from './components/attachment-refused/attachment-refused.component';
 import { AttachmentUploadRow } from './components/attachment-upload-list/attachment-upload-list.component';
 
-/** The task or subtask files are added to. */
 export interface AttachmentUploadTarget {
   projectId: string;
   workTaskId: string;
@@ -17,11 +16,7 @@ export interface AttachmentUploadTarget {
   kind: 'task' | 'subtask';
 }
 
-/**
- * Adding files to one task: what is refused before sending and why, what is on its way, and
- * Retry for what the network dropped. Provided by the tab, so it lives and goes with it; the
- * uploads themselves run in the store and finish even if the tab is left.
- */
+// provided by the tab, uploads run in the store and finish even if the tab is left
 @Injectable()
 export class AttachmentUploadQueueService {
   private readonly store = inject(Store);
@@ -30,17 +25,14 @@ export class AttachmentUploadQueueService {
 
   readonly target = signal<AttachmentUploadTarget | null>(null);
 
-  /** Refused here, before sending: wrong type, empty, too big, or no room left on the task. */
+  // wrong type, empty, too big or no room left
   private readonly rejected = signal<RefusedAttachment[]>([]);
   private readonly mine = computed(() => {
     const target = this.target();
     return target ? this.uploads().filter((upload) => upload.listKey === target.listKey) : [];
   });
 
-  /**
-   * Only what is on its way, or stopped by the network and worth another try. A file the rules
-   * refused is not a row: it never became an attachment and must not look like one.
-   */
+  // refused files are not rows, they never became attachments
   readonly rows = computed<AttachmentUploadRow[]>(() =>
     this.mine()
       .filter((upload) => !upload.error || upload.retryable)
@@ -54,7 +46,6 @@ export class AttachmentUploadQueueService {
       })),
   );
 
-  /** Refused here or by the server; one banner for all of them. */
   readonly refused = computed<RefusedAttachment[]>(() => [
     ...this.rejected(),
     ...this.mine()
@@ -66,16 +57,12 @@ export class AttachmentUploadQueueService {
       })),
   ]);
 
-  /**
-   * Any number of files at once; the only limit is the task's 100. Files past the room left are
-   * refused here with that reason, in the same banner as a wrong type, instead of being sent to
-   * fail one by one on the server.
-   */
+  // only limit is 100 per task, files over it are refused here instead of failing one by one on the server
   add(chosen: File[], stored: number): void {
     const target = this.target();
     if (!target) return;
 
-    // A new pick starts a new answer: the banner speaks only about the files just chosen.
+    // banner speaks only about the files just picked
     this.dismissRefused();
     const inFlight = this.mine().filter((upload) => !upload.error).length;
     let room = MAX_ATTACHMENTS_PER_TASK - stored - inFlight;
@@ -107,7 +94,6 @@ export class AttachmentUploadQueueService {
     this.send(target, crypto.randomUUID(), file);
   }
 
-  /** Cancels a file in flight or forgets a failed or refused one. */
   dismiss(uploadId: string): void {
     this.rejected.update((rows) => rows.filter((row) => row.id !== uploadId));
     this.store.dispatch(AttachmentsStoreActions.dismissUpload({ uploadId }));

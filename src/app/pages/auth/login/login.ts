@@ -42,7 +42,7 @@ export class LoginComponent {
   });
 
   isLoading = this.store.selectSignal(AuthStoreSelectors.isLoading);
-  /** Set by the page that sent the user here: reset password, or "forgot password" in Settings. */
+  // set by reset password or "forgot password" in settings
   readonly notice = loginNotice(history.state as LoginNavigationState | null);
 
   onSubmit(): void {

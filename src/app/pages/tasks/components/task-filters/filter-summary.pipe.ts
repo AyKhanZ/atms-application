@@ -1,10 +1,7 @@
 import { Pipe, PipeTransform } from '@angular/core';
 import { FilterOption } from './filter-option';
 
-/**
- * "Payment Gateway +1": the first choice by name, so the field says what it holds. Empty when
- * nothing is chosen — the placeholder ("All", "Anyone") is drawn by the dropdown itself.
- */
+// "Payment Gateway +1"; empty when nothing is chosen, the dropdown draws the placeholder
 @Pipe({ name: 'filterSummary' })
 export class FilterSummaryPipe implements PipeTransform {
   transform(selected: readonly FilterOption<unknown>[] | null | undefined): string {

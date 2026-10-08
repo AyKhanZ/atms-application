@@ -19,7 +19,7 @@ export interface AttachmentTreeGroupModel {
   milestones: AttachmentTreeMilestoneModel[];
 }
 
-/** A project's plan levels that hold files, with counts; files are read per ticket. */
+// only levels with file counts, files are loaded per ticket
 export interface AttachmentTreeModel {
   fileCount: number;
   groups: AttachmentTreeGroupModel[];

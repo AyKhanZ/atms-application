@@ -13,7 +13,6 @@ import {
 const pageOf = (state: TaskBoardState, key: string): TaskBoardPageState =>
   state.pages[key] ?? emptyTaskBoardPage;
 
-/** Takes the card out of `from` and puts the updated one into `to` at `index`. */
 function moveCard(
   state: TaskBoardState,
   task: WorkTaskModel,
@@ -34,7 +33,7 @@ function moveCard(
   return { ...state, pages };
 }
 
-/** A subtask closed or reopened: its parent's progress, wherever the parent's card is shown. */
+// subtask closed or reopened: update the parents progress wherever its card is
 function countSubtask(state: TaskBoardState, task: WorkTaskModel, status: number): TaskBoardState {
   const parentId = task.parentWorkTask?.id;
   const wasDone = task.status.id === WorkTaskStatus.Done;
@@ -52,24 +51,21 @@ function countSubtask(state: TaskBoardState, task: WorkTaskModel, status: number
   return { ...state, pages };
 }
 
-/** A refused change: the two lists it touched are emptied, to be read again, rather than go on
- *  showing a move the server never made. */
+// refused change: empty both lists to read again instead of showing a move the server never made
 function forget(state: TaskBoardState, keys: string[]): TaskBoardState {
   const pages = { ...state.pages };
   for (const key of keys) if (pages[key]) pages[key] = { ...pages[key], items: [] };
   return { ...state, pages };
 }
 
-/** An answer for a list the view has dropped meanwhile changes nothing: it must not come back. */
+// list the view dropped meanwhile must not come back
 function answer(state: TaskBoardState, key: string, page: TaskBoardPageState): TaskBoardState {
   return key in state.pages ? { ...state, pages: { ...state.pages, [key]: page } } : state;
 }
 
 const reducer = createReducer(
   initialTaskBoardState,
-  // A list being read again keeps what it shows until the answer comes: a refresh on returning to
-  // the tab must not blank the board into skeletons for a moment. A refused move empties its two
-  // lists first (below), so those do not go on showing it.
+  // keep rows while reloading, coming back to the tab shouldnt blank the board; refused moves empty their lists first
   on(
     Actions.loadPage,
     (state, { key }): TaskBoardState => ({
@@ -77,8 +73,7 @@ const reducer = createReducer(
       pages: { ...state.pages, [key]: { ...pageOf(state, key), loading: true, error: null } },
     }),
   ),
-  // Only the lists on screen are kept: every filter and order used to leave its own lists behind
-  // for as long as the page stayed open.
+  // only lists on screen are kept, every filter used to leave its lists behind
   on(
     Actions.keepPages,
     (state, { keys }): TaskBoardState => ({
@@ -134,7 +129,7 @@ const reducer = createReducer(
     return moveCard(state, task, { ...task, deadline }, from, to, target.items.length);
   }),
   on(Actions.reset, (): TaskBoardState => initialTaskBoardState),
-  // Everything here is the signed-in user's; none of it may outlive the session.
+  // users data, cant outlive the session
   on(AuthStoreActions.logoutCompleted, (): TaskBoardState => initialTaskBoardState),
 );
 

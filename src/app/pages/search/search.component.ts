@@ -64,7 +64,6 @@ export class SearchComponent implements OnDestroy {
 
   readonly empty = computed(() => !this.loading() && !this.failed() && this.items().length === 0);
 
-  /** Every kind stays clickable: the page is where you widen a search, not where you are stuck. */
   readonly chips: SearchFilterChip[] = workItemKindOrder.map((type) => ({
     type,
     label: workItemKinds[type].pluralLabel,
@@ -78,13 +77,12 @@ export class SearchComponent implements OnDestroy {
         void this.router.navigate([], {
           relativeTo: this.route,
           queryParams: { q: value, type: this.itemType() },
-          // Replace, not push: every letter would otherwise become a step in the back button.
+          // replace, not push, or every letter is a Back step
           replaceUrl: true,
         });
       });
 
-    // The query and the type live in the address, so the page survives a refresh and the link
-    // can be sent to someone else. This is also the single place a load starts from.
+    // query and type in the url so refresh works and the link can be shared; the only place loading starts
     this.route.queryParamMap.pipe(takeUntilDestroyed()).subscribe((params) => {
       const type = Number(params.get('type'));
       this.query.set(params.get('q') ?? '');
@@ -99,7 +97,7 @@ export class SearchComponent implements OnDestroy {
     this.store.dispatch(GlobalSearchStoreActions.resetPage());
   }
 
-  /** The field answers at once, the address and the request wait for a pause in typing. */
+  // field updates at once, url and request wait for a pause
   changeQuery(value: string): void {
     this.query.set(value);
     this.typing.next(value);
@@ -113,8 +111,7 @@ export class SearchComponent implements OnDestroy {
     });
   }
 
-  /** Where the user came from. The page has no parent, so a page opened from a link falls back
-   *  to the dashboard. Switching the kind or the query stays one stop in the history. */
+  // dashboard when opened by link; switching kind or query is one stop in history
   back(): void {
     if (!this.navigationHistory.back()) void this.router.navigateByUrl('/dashboard');
   }
@@ -123,7 +120,6 @@ export class SearchComponent implements OnDestroy {
     void this.router.navigateByUrl(workItemRoute(item));
   }
 
-  /** Called by the sentinel when the end of the list comes into view, and by the button below it. */
   loadMore(): void {
     if (this.loading() || !this.hasMore()) return;
     this.load(this.cursor());

@@ -41,7 +41,7 @@ export class SettingsPasswordComponent {
   private readonly snackBar = inject(SnackBarService);
   private readonly destroyRef = inject(DestroyRef);
 
-  /** The address the reset link goes to. Null while the profile is still loading. */
+  // null while the profile loads
   readonly email = input<string | null>(null);
 
   readonly forgotPasswordDialog = FORGOT_PASSWORD_DIALOG;
@@ -56,10 +56,7 @@ export class SettingsPasswordComponent {
     nonNullable: true,
     validators: Validators.required,
   });
-  /**
-   * Anything typed at all. Judged by the values, not by dirty: typing a letter and deleting it
-   * leaves nothing to submit and nothing to lose.
-   */
+  // by values not dirty, typing a letter and deleting it is nothing
   readonly hasInput = toSignal(
     merge(this.currentPassword.valueChanges, this.passwordForm.valueChanges).pipe(
       map(() => this.typedAnything()),
@@ -72,7 +69,7 @@ export class SettingsPasswordComponent {
   constructor() {
     this.destroyRef.onDestroy(() => clearTimeout(this.pulseTimeout));
 
-    // A server error describes the value that was sent; once the user edits it, the error is stale.
+    // server error is about the sent value, editing makes it stale
     this.currentPassword.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe(() => this.currentPasswordError.set(''));
@@ -107,7 +104,7 @@ export class SettingsPasswordComponent {
       return;
     }
 
-    // Whose session this request belongs to; checked again when the answer arrives.
+    // checked again when the answer comes
     const owner = this.sessionOwner();
     this.saving.set(true);
     this.auth
@@ -116,15 +113,11 @@ export class SettingsPasswordComponent {
         newPassword: password,
         confirmPassword,
       })
-      // Deliberately not cut off when the page is left: unsubscribing aborts the request, but the
-      // server may already have changed the password and revoked the old refresh token. The new
-      // pair must still be stored, or the next token refresh signs the user out.
+      // not cancelled on leaving: the server may have already changed the password, the new tokens must be stored or the next refresh signs the user out
       .pipe(finalize(() => this.saving.set(false)))
       .subscribe({
         next: (tokens) => {
-          // Logged out, or someone else logged in, while the request was in flight: storing the pair
-          // would sign the first user back in over the current session. Revoke it instead; nothing
-          // else holds it.
+          // logged out or someone else logged in meanwhile: storing would sign the first user back in, revoke instead
           if (!owner || this.sessionOwner() !== owner) {
             this.auth
               .logout({ refreshToken: tokens.refreshToken })
@@ -182,10 +175,10 @@ export class SettingsPasswordComponent {
       )
       .subscribe({
         next: () => {
-          // Nothing typed here survives the sign-out, so the unsaved-changes guard must not ask.
+          // nothing typed here survives sign-out, the guard shouldnt ask
           this.discard();
           this.session.logout(false);
-          // The address travels in navigation state, not the URL, so it stays out of history.
+          // in navigation state not the url, so it stays out of history
           const state: LoginNavigationState = { resetSentTo: email };
           void this.router.navigate(['/login'], { state });
         },

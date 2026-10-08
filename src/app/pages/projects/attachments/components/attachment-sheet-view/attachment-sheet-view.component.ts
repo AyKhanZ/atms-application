@@ -1,10 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, input, signal } from '@angular/core';
 import { MAX_SHEET_COLUMNS, MAX_SHEET_ROWS, SheetPreview } from '../../attachment-content';
 
-/**
- * An Excel or CSV file as a read-only grid: column letters on top, row numbers on the left, a tab
- * per sheet — the frame people know the data from. Cells are plain text; no formula runs here.
- */
+// cells are plain text, no formula runs
 @Component({
   selector: 'app-attachment-sheet-view',
   templateUrl: './attachment-sheet-view.component.html',

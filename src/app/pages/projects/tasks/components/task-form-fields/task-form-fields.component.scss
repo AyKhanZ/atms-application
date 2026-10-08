@@ -2,16 +2,13 @@
   display: block;
 }
 
-/* Four tracks like the ticket form, even though a task fills only one or two of them: the
-   selects then get the same width as Type / Priority / Status on a ticket instead of stretching
-   across half the form. */
+// four tracks like the ticket form so selects have the same width
 .task-classification-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 1rem;
 }
 
-/* Same split as the ticket form: classification on one row, ownership on the next. */
 .task-ownership-grid {
   display: grid;
   grid-template-columns: minmax(0, 2fr) minmax(14rem, 1fr);

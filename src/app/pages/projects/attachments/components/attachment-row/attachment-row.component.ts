@@ -13,10 +13,7 @@ import {
 } from '../../../../../shared/pipes/attachment.pipe';
 import { PersonShortNamePipe } from '../../../../../shared/pipes/person-name.pipe';
 
-/**
- * One file: type tile, name, size, who added it and when, and what can be done with it. The same
- * row in a task's own list and in every tree, so a file looks alike wherever it is found.
- */
+// same row in the task list and every tree
 @Component({
   selector: 'app-attachment-row',
   imports: [
@@ -35,7 +32,7 @@ import { PersonShortNamePipe } from '../../../../../shared/pipes/person-name.pip
 })
 export class AttachmentRowComponent {
   readonly attachment = input.required<AttachmentModel>();
-  /** Rename and Delete; only on the task or subtask the file belongs to. */
+  // only on the task the file belongs to
   readonly editable = input(false);
   readonly pending = input(false);
 
@@ -46,10 +43,7 @@ export class AttachmentRowComponent {
 
   readonly canPreview = computed(() => canPreviewAttachment(this.attachment()));
 
-  /**
-   * Everything the row offers. On a phone the eye and the arrow give way to this menu, so it holds
-   * Preview and Download too, not only the editing actions.
-   */
+  // on a phone the eye and the arrow go into this menu too
   readonly menuItems = computed<MenuItem[]>(() => {
     const file = this.attachment();
     const items: MenuItem[] = [];

@@ -41,7 +41,7 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
   private readonly breadcrumbOverride = inject(BreadcrumbOverrideService);
   private breadcrumbPath = '';
 
-  // Where the organization page returns to: this card, not the list the user came from.
+  // organization page returns here, not to the list
   protected returnUrl = '';
 
   readonly user = this.store.selectSignal(UsersStoreSelectors.getItem);

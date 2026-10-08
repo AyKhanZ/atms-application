@@ -15,8 +15,7 @@ function mapLists(
 
 const reducer = createReducer(
   initialAttachmentsState,
-  // A reload keeps the rows already shown: opening the tab again must not flash a skeleton over a
-  // list that is almost certainly unchanged.
+  // reload keeps the rows, a skeleton over an unchanged list would only flash
   on(
     Actions.loadList,
     (state, { listKey }): AttachmentsState => ({
@@ -184,7 +183,7 @@ const reducer = createReducer(
     }),
   ),
   on(Actions.reset, (): AttachmentsState => initialAttachmentsState),
-  // Everything here is the signed-in user's; none of it may outlive the session.
+  // users data, cant outlive the session
   on(AuthStoreActions.logoutCompleted, (): AttachmentsState => initialAttachmentsState),
 );
 

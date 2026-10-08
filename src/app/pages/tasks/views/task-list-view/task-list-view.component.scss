@@ -12,7 +12,7 @@
   min-width: 0;
 }
 
-/* The table of the other lists, so a row and a sort arrow behave the same everywhere. */
+// same table as other lists
 :host ::ng-deep .tasks-table {
   display: block;
   overflow: visible;
@@ -23,7 +23,7 @@
 }
 
 :host ::ng-deep .tasks-table :is(.p-datatable-wrapper, .p-datatable-table-container) {
-  /* As tall as the board and the calendar, so switching views does not make the card jump. */
+  // as tall as board and calendar so the card doesnt jump
   min-height: var(--tasks-view-height, 26rem);
   overflow-x: auto;
   overflow-y: visible;
@@ -100,7 +100,6 @@
   background: var(--orange-light-hover);
 }
 
-/* The kind along the left edge and in the code, as on the board card and the details header. */
 .code-cell {
   @include entity-code.base;
   color: var(--kind-task);
@@ -114,7 +113,7 @@
   box-shadow: inset 3px 0 0 var(--kind-subtask);
 }
 
-/* Overdue rows come first and are tinted, so the top of the list reads as "deal with this". */
+// overdue rows first and tinted
 :host ::ng-deep .overdue-row td {
   background: var(--overdue-bg);
 }
@@ -179,7 +178,6 @@
   justify-self: center;
 }
 
-/* Phone: the table gives way to two-line rows. */
 .rows {
   display: grid;
   gap: 0.5rem;

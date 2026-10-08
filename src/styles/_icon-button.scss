@@ -1,9 +1,4 @@
-/// A square button that is only an icon — the eye, the arrow, the ⋮ of a row. Borderless until
-/// hovered, so a column of them does not read as a row of boxes.
-///
-/// Usage:
-///   @use 'icon-button';
-///   .icon-button { @include icon-button.base; }
+// borderless until hover so a column of them doesnt look like boxes
 @mixin base($size: 2.25rem) {
   display: grid;
   width: $size;

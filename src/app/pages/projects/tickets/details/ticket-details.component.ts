@@ -106,7 +106,7 @@ export class TicketDetailsComponent implements OnDestroy {
   readonly canCreateTask = signal(false);
   readonly canEditTask = signal(false);
   readonly activeTab = signal<TicketTab>('details');
-  /** Built here rather than as a template literal, which would allocate on every change detection. */
+  // computed, a template literal would allocate on every change detection
   readonly facts = computed<WorkItemFacts | null>(() => {
     const ticket = this.ticket();
     if (!ticket) return null;
@@ -137,9 +137,7 @@ export class TicketDetailsComponent implements OnDestroy {
   });
 
   constructor() {
-    // Claim both crumb slots up front. Without this the trail is a segment shorter until the
-    // request lands and then visibly jumps; a placeholder keeps its shape and only sharpens
-    // the label once the real titles arrive.
+    // placeholders so the breadcrumb doesnt jump when titles arrive
     this.breadcrumbOverride.set(this.projectBreadcrumbPath, 'Project');
 
     this.route.queryParamMap.pipe(takeUntilDestroyed()).subscribe((params) => {
@@ -185,7 +183,7 @@ export class TicketDetailsComponent implements OnDestroy {
     });
   }
 
-  /** Where the user came from; the ticket's place in the plan when that is unknown. */
+  // plan when unknown
   back(): void {
     if (!this.navigationHistory.back()) this.viewInPlan();
   }
@@ -201,8 +199,7 @@ export class TicketDetailsComponent implements OnDestroy {
   confirmDelete(): void {
     const ticket = this.ticket();
     if (!ticket || !this.canDelete() || this.deleting()) return;
-    // Blocked and confirmed deletions are both answered in the same dialog, the way a task does
-    // it: a toast for the refusal put the explanation somewhere the user was not looking.
+    // blocked and confirmed delete in the same dialog, a toast was easy to miss
     this.confirmation.confirm(
       ticketHasTasks(ticket)
         ? ticketDeleteBlockedConfirmation(ticket)
@@ -210,7 +207,7 @@ export class TicketDetailsComponent implements OnDestroy {
     );
   }
 
-  /** After a delete the plan replaces the gone page in the history, so Back does not return to it. */
+  // after a delete it replaces the gone page so Back doesnt return to it
   viewInPlan(replaceHistory = false): void {
     const ticket = this.ticket();
     if (!this.projectId) return;
@@ -273,8 +270,7 @@ export class TicketDetailsComponent implements OnDestroy {
     this.canEditTask.set(permissions.includes(ProjectPermissions.Task.Edit));
   }
 
-  /** A 403 means the cached permissions are already wrong; re-read them so the page stops
-   *  offering an action the server refuses. */
+  // 403 = cached permissions are wrong, re-read them
   private refreshPermissionsAfterForbidden(error: HttpErrorResponse): void {
     if (error.status !== 403 || !this.projectId) return;
     this.permissionsRefresh

@@ -22,7 +22,7 @@ import { MAX_ATTACHMENT_SIZE_MB } from '../../core/utils/attachment.utils';
 import { AuthStoreActions } from '../auth';
 import * as ActionsStore from './attachments.actions';
 
-/** Files sent at once. The rest wait their turn, so ten files do not split one connection ten ways. */
+// so ten files dont split one connection ten ways
 const PARALLEL_UPLOADS = 3;
 
 @Injectable()
@@ -37,7 +37,7 @@ export class AttachmentsEffects {
   loadList$ = createEffect(() =>
     this.actions$.pipe(
       ofType(ActionsStore.loadList),
-      // One stream per list on screen, closed when it leaves, not kept for every list ever opened.
+      // one stream per list on screen, closed when it leaves
       groupBy(({ listKey }) => listKey, { duration: (group) => this.listGone(group.key) }),
       mergeMap((requests) =>
         requests.pipe(
@@ -81,9 +81,7 @@ export class AttachmentsEffects {
     this.actions$.pipe(
       ofType(ActionsStore.upload),
       mergeMap(({ uploadId, listKey, projectId, workTaskId }) => {
-        // Only three files go at once; the rest wait here, where the cancel below cannot hear
-        // them yet. A file cancelled while waiting is already gone from the registry, so its
-        // turn comes and nothing is sent.
+        // waiting files cant hear the cancel yet; a cancelled one is gone from the registry so nothing is sent
         const file = this.uploadFiles.get(uploadId);
         if (!file) return EMPTY;
 
@@ -102,7 +100,7 @@ export class AttachmentsEffects {
           filter((action) => action !== null),
           catchError((error: unknown) => {
             const retryable = isTransient(error);
-            // Kept only while Retry can use it; a refused file will not be sent again.
+            // kept only while Retry can use it
             if (!retryable) this.uploadFiles.delete(uploadId);
             return of(
               ActionsStore.uploadFailure({ uploadId, error: uploadErrorMessage(error), retryable }),
@@ -122,7 +120,6 @@ export class AttachmentsEffects {
     ),
   );
 
-  /** A dismissed or cancelled upload, or the end of the session, lets go of the files it held. */
   releaseFiles$ = createEffect(
     () =>
       merge(
@@ -163,7 +160,6 @@ export class AttachmentsEffects {
     ),
   );
 
-  /** The list left the screen: its load is cancelled and its stream closed. */
   private listGone(listKey: string): Observable<unknown> {
     return merge(
       this.reset$,
@@ -193,7 +189,7 @@ function uploadErrorMessage(error: unknown): string {
   return validationMessage(error) ?? 'The file could not be uploaded. Try again.';
 }
 
-/** No answer or a server fault: the file itself was not judged, so a retry can succeed. */
+// file wasnt judged, retry can work
 function isTransient(error: unknown): boolean {
   return !(error instanceof HttpErrorResponse) || error.status === 0 || error.status >= 500;
 }

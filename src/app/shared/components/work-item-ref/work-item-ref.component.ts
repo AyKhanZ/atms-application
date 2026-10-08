@@ -2,10 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
 import { WorkItemKind } from '../../../core/models/work-items';
 import { workItemKinds } from './work-item-kinds';
 
-/**
- * "TASK #34" with the kind's icon in front, in the kind's colour — the header of a details page,
- * search rows, lists and trees. Tables keep the bare code.
- */
+// tables keep the bare code
 @Component({
   selector: 'app-work-item-ref',
   host: {
@@ -29,13 +26,10 @@ import { workItemKinds } from './work-item-kinds';
 export class WorkItemRefComponent {
   readonly type = input.required<WorkItemKind>();
   readonly code = input.required<number | string>();
-  /**
-   * Off in a tree of one kind — the switcher, the parent select — where the same word on every row
-   * would only take width. Icon, colour and type of the code stay, so the row still looks alike.
-   */
+  // off in a tree of one kind, the same word on every row only takes width
   readonly labelled = input(true);
   readonly showCode = input(true);
-  /** A work item that was replaced, as the history shows an old parent or ticket. */
+  // replaced item, like an old parent in history
   readonly muted = input(false);
 
   readonly kind = computed(() => workItemKinds[this.type()]);

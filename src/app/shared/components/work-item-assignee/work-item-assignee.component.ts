@@ -22,7 +22,7 @@ export class WorkItemAssigneeComponent {
   readonly compact = input(false);
   readonly shortName = input(false);
   readonly avatarOnly = input(false);
-  /** A person who was replaced, as the history shows an old assignee. */
+  // replaced person, like an old assignee in history
   readonly muted = input(false);
   readonly assignee = input<WorkItemAssigneeModel | null | undefined>(null);
 }

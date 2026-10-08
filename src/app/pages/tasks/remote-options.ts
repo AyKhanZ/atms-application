@@ -13,23 +13,16 @@ import {
 } from 'rxjs';
 import { FilterOption } from './components/task-filters/filter-option';
 
-/** One page of options and where the next one starts; null when there is no next. */
+// null = no next page
 export interface OptionsPage {
   options: FilterOption[];
   next: string | null;
 }
 
-/** A pause in typing before the server is asked. */
 const typingPause = 300;
 
-/**
- * The options of one searchable dropdown read from the server a page at a time: a page when it
- * opens, another page for every search term, the next page when the list is scrolled to its end.
- * Only what the user reaches is ever loaded, however many projects or tickets there are.
- *
- * A chosen option stays in the list even when the current page does not hold it — after a search,
- * or when the choice came with a shared link — so the field can still name it.
- */
+// only what the user reaches is loaded
+// a chosen option stays even if the current page doesnt have it (search, shared link)
 export class RemoteOptions {
   private readonly loaded = signal<FilterOption[]>([]);
   private readonly known = signal<ReadonlyMap<string, FilterOption>>(new Map());
@@ -37,13 +30,13 @@ export class RemoteOptions {
   private readonly typed = new Subject<string>();
   private readonly asked = new Subject<{ term: string; next: string | null }>();
   private term = '';
-  /** Ids being read to be named, so a choice made twice is not read twice. */
+  // so a choice made twice isnt read twice
   private readonly naming = new Set<string>();
   private next: string | null = null;
 
   readonly loading = signal(false);
   readonly hasMore = signal(false);
-  /** The chosen options not on the current page first, then the page. */
+  // chosen ones not on the page first, then the page
   readonly options = computed(() => {
     const loaded = this.loaded();
     const onPage = new Set(loaded.map((option) => option.value));
@@ -69,7 +62,7 @@ export class RemoteOptions {
         switchMap((request) => {
           this.term = request.term;
           this.loading.set(true);
-          // A failed page leaves the list as it was: the dropdown still works with what it has.
+          // a failed page leaves the list as it was
           return this.fetch(request.term, request.next).pipe(
             map((page) => ({ page, append: request.next !== null })),
             catchError(() => of(null)),
@@ -89,17 +82,14 @@ export class RemoteOptions {
       });
   }
 
-  /** The first page, without a search term. */
   reload(): void {
     this.asked.next({ term: '', next: null });
   }
 
-  /** What the user types into the dropdown's search box. */
   search(term: string): void {
     this.typed.next(term);
   }
 
-  /** The list was scrolled to its end. */
   more(): void {
     if (!this.loading() && this.next) this.asked.next({ term: this.term, next: this.next });
   }
@@ -110,7 +100,7 @@ export class RemoteOptions {
     this.hasMore.set(false);
   }
 
-  /** The chosen values; any the list has not seen yet are read one by one to be named. */
+  // unseen ids are read one by one to be named
   choose(ids: readonly string[]): void {
     this.chosen.set(ids);
     for (const id of ids) {

@@ -22,11 +22,7 @@ import { AttachmentListSkeletonComponent } from '../components/attachment-list-s
 import { AttachmentPreviewDialogComponent } from '../components/attachment-preview-dialog/attachment-preview-dialog.component';
 import { AttachmentTreeComponent } from '../components/attachment-tree/attachment-tree.component';
 
-/**
- * Every file in the project along the whole plan: group, milestone, ticket, task, subtask. The
- * plan levels come with counts; a ticket's files are read when its branch is opened, so a project
- * with thousands of files never loads them all.
- */
+// ticket files are loaded when the branch opens, so thousands of files never load at once
 @Component({
   selector: 'app-project-attachments-tab',
   imports: [
@@ -59,7 +55,7 @@ export class ProjectAttachmentsTabComponent implements OnDestroy {
       : [];
   });
 
-  /** Groups and milestones are the map and start open; a ticket opens on demand. */
+  // groups and milestones start open, tickets on demand
   readonly openByDefault = (node: AttachmentTreeNode) => node.kind !== 'ticket';
 
   readonly previewing = signal<AttachmentModel | null>(null);

@@ -5,10 +5,7 @@ import { HighlightPickerComponent } from '../highlight-picker/highlight-picker.c
 
 export type CommentFormat = 'bold' | 'italic' | 'code' | 'link' | ListKind;
 
-/**
- * The formatting row under the editor, as in Azure DevOps: @ and #, then the marks, then the lists.
- * It only says which tool was pressed; the editor applies it to the text and the selection.
- */
+// only says which tool was pressed, the editor applies it
 @Component({
   selector: 'app-comment-toolbar',
   imports: [HighlightPickerComponent],
@@ -17,7 +14,7 @@ export type CommentFormat = 'bold' | 'italic' | 'code' | 'link' | ListKind;
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CommentToolbarComponent {
-  /** What the editor is called, for the screen reader: "Comment formatting". */
+  // for screen readers: "Comment formatting"
   readonly label = input('Comment');
 
   readonly triggered = output<'@' | '#'>();
@@ -26,7 +23,6 @@ export class CommentToolbarComponent {
 
   private readonly picker = viewChild.required(HighlightPickerComponent);
 
-  /** The editor closes the palette when the focus leaves it. */
   closePalette(): void {
     this.picker().close();
   }

@@ -5,7 +5,7 @@ import { projectApiUrl } from '../constants/api-url.constants';
 import { GlobalSearchModel, GlobalSearchPageModel } from '../models/global-search';
 import { WorkItemKind } from '../models/work-items';
 
-/** Route segment the API expects for each kind. The palette sends the number, the page the name. */
+// palette sends the number, the page sends the name
 const itemTypeRoutes: Record<WorkItemKind, string> = {
   [WorkItemKind.Project]: 'project',
   [WorkItemKind.Ticket]: 'ticket',
@@ -22,7 +22,7 @@ export class GlobalSearchService {
     return this.http.get<GlobalSearchModel>(this.url, { params });
   }
 
-  /** Empty query: the server answers with the recently opened items instead of matches. */
+  // empty query = server returns recent items
   recent(): Observable<GlobalSearchModel> {
     return this.http.get<GlobalSearchModel>(this.url);
   }

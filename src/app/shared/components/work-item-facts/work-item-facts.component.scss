@@ -31,9 +31,7 @@ dt {
   font-size: 0.84rem;
 }
 
-/* Plain-text values (the deadline) had no size of their own and fell back to 16px, while every
-   badge in this column sits at 0.78-0.86rem. One band for the whole panel: the label and the
-   value share a size and differ by weight and colour. */
+// plain values fell back to 16px next to 0.8rem badges, one size for the panel
 dd {
   min-width: 0;
   margin: 0;
@@ -43,9 +41,7 @@ dd {
   text-align: right;
 }
 
-/* A missing value is not a value: it keeps the row's position but drops the weight and colour,
-   the same way the assignee shows "Unassigned". Bold dark text here read as the loudest thing in
-   the panel while saying that nothing is set. */
+// missing value is light, bold dark text was the loudest thing saying nothing is set
 .fact-empty {
   color: var(--app-muted);
   font-weight: 400;

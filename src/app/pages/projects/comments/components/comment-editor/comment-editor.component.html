@@ -48,7 +48,6 @@
     }
   </div>
 
-  <!-- The same row as under a description field: the problem on the left, the count on the right. -->
   <div class="editor__meta" [id]="id + '-help'">
     <small class="editor__error" [attr.role]="error() ? 'alert' : null">{{ error() }}</small>
     @if (active()) {
@@ -66,7 +65,6 @@
       />
 
       <div class="editor__actions">
-        <!-- The Cancel of every form in the project: outlined, with its cross. -->
         <button pButton type="button" severity="secondary" [outlined]="true" (click)="cancel()">
           <i class="pi pi-times" aria-hidden="true"></i><span>Cancel</span>
         </button>

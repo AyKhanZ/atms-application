@@ -29,7 +29,7 @@ export class ParticipantListComponent {
   readonly participants = input.required<WorkProjectParticipantModel[]>();
   readonly invitations = input.required<WorkProjectInvitationModel[]>();
   readonly canChangeRole = input(false);
-  /** Participants the current user may remove; the server decides the same per participant. */
+  // server checks the same per participant
   readonly removableParticipantIds = input<ReadonlySet<string>>(new Set<string>());
   readonly canCancelInvitations = input(false);
 

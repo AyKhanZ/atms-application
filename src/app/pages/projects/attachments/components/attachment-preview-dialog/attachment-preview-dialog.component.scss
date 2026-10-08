@@ -1,6 +1,4 @@
-/* One size for every kind of file, the way Drive and Teams open a file: nearly the whole screen.
-   The window does not jump between a small picture and a wide sheet, a landscape page and a
-   40-column table get the room they need, and there is one layout to get right instead of five. */
+// one size for every file kind (like drive and teams), no jumping and one layout to get right
 :host ::ng-deep .attachment-preview-dialog {
   width: min(96rem, 95vw);
   height: 90vh;
@@ -11,7 +9,6 @@
   padding: 1rem 1.25rem 0.75rem;
 }
 
-/* The body takes whatever the header and footer leave, and each kind fills it. */
 :host ::ng-deep .attachment-preview-dialog .p-dialog-content {
   display: flex;
   flex: 1;
@@ -44,11 +41,11 @@
   font-size: 0.78rem;
 }
 
-/* A neutral backdrop: a photo with white edges must still show where it ends. */
+// neutral backdrop so a photo with white edges still shows where it ends
 .preview-body {
   display: grid;
   flex: 1;
-  /* One column exactly as wide as the body: an auto track grows to its widest child. */
+  // auto track would grow to its widest child
   grid-template-columns: minmax(0, 1fr);
   grid-template-rows: minmax(0, 1fr);
   min-width: 0;
@@ -60,7 +57,6 @@
   background: var(--app-surface-muted);
 }
 
-/* A picture is shown whole, as large as the window allows, never stretched past its own size. */
 .preview-body img {
   display: block;
   max-width: 100%;
@@ -75,14 +71,12 @@
   border: 0;
 }
 
-/* Text reads from the top-left like a document, not centred like a picture. */
 .preview-body[data-kind='text'] {
   display: block;
   overflow: auto;
   background: var(--app-surface);
 }
 
-/* A document and a sheet fill the body and scroll inside themselves. */
 .preview-body[data-kind='document'] > app-attachment-document-view,
 .preview-body[data-kind='sheet'] > app-attachment-sheet-view {
   place-self: stretch;
@@ -123,7 +117,6 @@
   text-align: center;
 }
 
-/* In the text body, which is a block, the spinner fills it rather than sitting at the top. */
 .preview-body[data-kind='text'] > .preview-state {
   height: 100%;
 }
@@ -137,7 +130,6 @@
   color: var(--red-hover);
 }
 
-/* On a phone the dialog is the screen: nothing around it is usable while it is open anyway. */
 @media (max-width: 767px) {
   :host ::ng-deep .attachment-preview-dialog {
     width: 100vw;

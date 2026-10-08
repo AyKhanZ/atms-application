@@ -1,5 +1,5 @@
 export interface WorkItemAssigneeModel {
-  /** The project participant. */
+  // participant id, not user id
   id: string;
   name: string;
   surname: string;

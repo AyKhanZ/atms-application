@@ -1,5 +1,4 @@
-// The box is sized by the card; the canvas is absolutely positioned inside it, so its size can never
-// push the box. Without this the chart and the card grow each other on every window resize.
+// canvas is absolute so it never pushes the box, otherwise chart and card grow each other on resize
 :host {
   display: block;
   position: relative;

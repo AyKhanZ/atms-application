@@ -4,17 +4,13 @@
   display: block;
 }
 
-/* Description, facts column and every breakpoint come from the shared body, which the ticket
-   page includes as well. */
 @include work-item-details.body;
 
-/* Here the content sets the height, not the shared minimum: the discussion is the last part, and
-   folded it must leave no empty band under it, as in Azure DevOps. */
+// content sets the height here, folded discussion must leave no empty band
 .work-item-details-content {
   min-height: 0;
 }
 
-/* The description and the discussion share the left column, each folding on its title. */
 .task-main {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -24,8 +20,6 @@
   padding: 1.5rem;
 }
 
-/* Room of its own even for two lines, so the discussion does not stick to a short description;
-   folded, it goes and the discussion moves up. */
 .task-description {
   min-height: clamp(14rem, 32vh, 22rem);
 }

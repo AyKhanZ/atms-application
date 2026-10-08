@@ -17,14 +17,10 @@ import { FilterSummaryPipe } from './filter-summary.pipe';
 import { RemoteOptions } from '../../remote-options';
 import { WorkItemAssigneeComponent } from '../../../../shared/components/work-item-assignee/work-item-assignee.component';
 
-/** "Nobody" in the Assigned to list; never a real user id. */
+// never a real user id
 const unassigned = 'none';
 
-/**
- * The filter panel of the Tasks page, opened by the Filter button the way the Projects, Users and
- * Organizations lists do it. Unlike those, a choice applies at once: a board is looked at while it
- * is being narrowed, and an Apply step would only slow that down.
- */
+// unlike other lists a choice applies at once, Apply would only slow narrowing down
 @Component({
   selector: 'app-task-filters',
   imports: [
@@ -45,12 +41,10 @@ const unassigned = 'none';
 export class TaskFiltersComponent {
   readonly filter = input.required<WorkTaskBoardFilter>();
   readonly calendar = input(false);
-  /** Projects and tickets are searched on the server and read a page at a time. */
+  // searched on the server, a page at a time
   readonly projects = input<RemoteOptions | null>(null);
   readonly tickets = input<RemoteOptions | null>(null);
-  /** The signed-in user, listed as "Me". */
   readonly me = input<FilterOption | null>(null);
-  /** Everyone else who can be assigned, by name. */
   readonly people = input<FilterOption[]>([]);
   readonly statuses = input<FilterOption<number>[]>([]);
   readonly priorities = input<FilterOption<number>[]>([]);
@@ -74,9 +68,9 @@ export class TaskFiltersComponent {
       ] satisfies (FilterOption<WorkTaskBoardDeadline> & { disabled?: boolean })[],
   );
 
-  /** Tickets of different projects in one list mean nothing; one project has to be chosen first. */
+  // tickets from different projects mean nothing, pick one project first
   readonly ticketsEnabled = computed(() => this.filter().projectIds.length === 1);
-  /** Says why the field is off and how to turn it on, not just that it is. */
+  // says why its off and how to turn it on
   readonly ticketPlaceholder = computed(() => {
     const projects = this.filter().projectIds.length;
     if (projects === 1) return 'All';
@@ -85,7 +79,7 @@ export class TaskFiltersComponent {
       : 'Select only one project to filter by ticket';
   });
 
-  /** Me and Unassigned together at the top — the two picked most — then everyone else. */
+  // Me and Unassigned on top, then everyone else
   readonly peopleOptions = computed<FilterOption[]>(() => {
     const me = this.me();
     const special = [...(me ? [me] : []), { value: unassigned, label: 'Unassigned' }];
@@ -104,7 +98,7 @@ export class TaskFiltersComponent {
 
   change(patch: Partial<WorkTaskBoardFilter>): void {
     const next = { ...this.filter(), ...patch };
-    // Tickets belong to the project they were picked in; another project choice drops them.
+    // another project choice drops the picked tickets
     if (patch.projectIds && next.projectIds.length !== 1) next.workTicketIds = [];
     this.filterChange.emit(next);
   }

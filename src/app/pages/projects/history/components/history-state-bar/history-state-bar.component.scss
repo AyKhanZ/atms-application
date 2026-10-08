@@ -6,12 +6,11 @@
   container-type: inline-size;
 }
 
-// One line, scrolled sideways when it is longer than the tab.
 .state-track {
   display: flex;
   align-items: flex-start;
   margin: 0;
-  // Room between the names and the scrollbar, which otherwise sits right under them.
+  // room between the names and the scrollbar
   padding: 0 0 1.25rem;
   overflow-x: auto;
   list-style: none;
@@ -24,8 +23,6 @@
   }
 }
 
-// As Azure DevOps draws it: what happened above the arrow, who and when under it, the status it
-// led to at its point.
 .state-step {
   display: grid;
   flex: none;
@@ -49,7 +46,6 @@
   white-space: nowrap;
 }
 
-// Grey, like the guide lines of Plan and Location: the arrows are structure, not an accent.
 .state-step__arrow {
   position: relative;
   grid-area: arrow;
@@ -68,8 +64,7 @@
   }
 }
 
-// A status is a dot and its name, as everywhere. Only the current one sits on the current-item
-// background, the one accent of the graph.
+// only the current status has the background
 .state-step__status {
   grid-area: status;
   display: inline-flex;
@@ -112,14 +107,13 @@
   white-space: nowrap;
 }
 
-// Only a phone folds the earlier statuses; a wide tab scrolls to them.
+// only a phone folds the earlier statuses
 .state-more {
   display: none;
 }
 
-// Phone: a column from the newest down, the way a phone scrolls anyway. A sideways line hid half the
-// statuses from anyone who did not think to swipe it. The arrow becomes a grey rail with a ring at
-// each status; the newest three show, the rest wait behind "Show N earlier".
+// phone: column from the newest down, a sideways line hid half the statuses
+// newest 3 show, rest behind "Show N earlier"
 @container (max-width: 34rem) {
   .state-track {
     flex-direction: column-reverse;
@@ -144,7 +138,6 @@
     display: none;
   }
 
-  // "Moved to Closed" says what the box beside it already shows.
   .state-step__label {
     display: none;
   }
@@ -157,7 +150,6 @@
     height: auto;
     margin: 0;
 
-    // A small hollow ring at each status, grey like the rail.
     &::after {
       top: 0.95rem;
       right: auto;
@@ -181,7 +173,6 @@
   }
 }
 
-// The same button as Load more under a list.
 .state-more__button {
   @include quiet-button.base;
 }

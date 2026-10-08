@@ -20,18 +20,14 @@ interface TrailStep {
 })
 export class SearchResultRowComponent {
   readonly item = input.required<GlobalSearchItemModel>();
-  /** The text that was typed, so the part that matched can be picked out of the title. */
   readonly query = input('');
   readonly active = input(false);
-  /** Off where the owner drives the highlight itself, so hover and arrows never light two rows. */
+  // off where the owner drives the highlight, so two rows never light
   readonly followsPointer = input(true);
 
   readonly kind = computed(() => workItemKinds[this.item().itemType]);
 
-  /**
-   * Where the item sits, outermost first. A project has no trail — it is the trail. The project
-   * itself opens the chain because search crosses projects and the name alone is ambiguous.
-   */
+  // project opens the chain, search crosses projects and the name alone is ambiguous
   readonly trail = computed<TrailStep[]>(() => {
     const item = this.item();
     if (item.itemType === WorkItemKind.Project) return [];
@@ -61,7 +57,7 @@ export class SearchResultRowComponent {
     return steps.length > 2 ? [steps[0], steps[steps.length - 1]] : steps;
   });
 
-  /** The title split into plain and matched pieces, so the match can be marked without innerHTML. */
+  // so the match is marked without innerHTML
   readonly titleParts = computed<{ text: string; matched: boolean }[]>(() => {
     const title = this.item().title;
     const query = this.query().trim();

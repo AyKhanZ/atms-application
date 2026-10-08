@@ -57,7 +57,7 @@
   min-width: 0;
 }
 
-/* Same look as the "17/20 participants" counter in the project form. */
+// same as the "17/20 participants" counter in the project form
 .participants-count {
   color: var(--app-muted);
   font-size: 0.85rem;
@@ -77,7 +77,6 @@
   font-weight: 800;
 }
 
-/* Lets the hover reach the wrapper, where the "up to 20" tooltip lives. */
 .add-participant-button:disabled {
   pointer-events: none;
 }

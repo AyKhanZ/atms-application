@@ -9,9 +9,7 @@ ol {
   padding-left: 1.25rem;
 }
 
-// Each level its own marker, as in Azure DevOps and Word: ● ○ ■ and 1 a i. Set for every level,
-// the first too: the comments themselves sit in a list, and the browser would draw the first
-// level of a comment as if it were already nested. The child combinator keeps a level to its list.
+// each level its own marker (● ○ ■, 1 a i), set for level 0 too: comments sit in a list and the browser would draw it as nested
 :host([data-level='0']) > ul {
   list-style-type: disc;
 }
@@ -56,14 +54,12 @@ li + li,
     column-gap: 0.5rem;
   }
 
-  // A list under a ticked item starts under its text, not under the box.
   .list__nested {
     grid-column: 2;
   }
 }
 
-// Read-only boxes are quiet grey, so a saved comment does not look like a form to tick. The ones
-// that can be clicked — in the editor's preview — take the orange of every other control.
+// read-only boxes are grey so a saved comment doesnt look like a form
 .checklist__box {
   display: inline-grid;
   width: 0.95rem;

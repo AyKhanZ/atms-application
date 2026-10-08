@@ -14,7 +14,6 @@ import { WorkItemRefComponent } from '../../../../shared/components/work-item-re
 })
 export class TaskContextComponent {
   readonly task = input.required<WorkTaskModel>();
-  /** A Project line above the parent, when the page mixes several projects. */
   readonly showProject = input(false);
   protected readonly taskKind = WorkItemKind.Task;
   protected readonly projectKind = WorkItemKind.Project;

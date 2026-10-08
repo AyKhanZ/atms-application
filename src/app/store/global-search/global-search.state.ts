@@ -24,11 +24,8 @@ export interface GlobalSearchState {
   popupResult: GlobalSearchModel;
   popupLoading: boolean;
   popupError: string | null;
-  /**
-   * Recently opened items, kept while the box stays open. Clearing the field shows them at once
-   * instead of flashing the empty-state hint for the moment the request takes. Null until the
-   * first answer: the box waits for it rather than drawing a hint that is replaced a blink later.
-   */
+  // kept while the box is open so clearing the field shows them at once
+  // null until the first answer, the box waits instead of flashing the hint
   popupRecent: GlobalSearchItemModel[] | null;
   page: GlobalSearchPageState;
 }

@@ -16,6 +16,7 @@ import { HealthService } from '../services/health.service';
  *   F5 → authInitializer восстанавливает accessModel в Store
  *       → Guard видит isLoggedIn=true → пропускает на нужный роут
  */
+// restores the session from localStorage before the first guard, otherwise F5 sends to /login
 export async function authInitializer(): Promise<void> {
   const auth = inject(AuthSessionService);
   const health = inject(HealthService);

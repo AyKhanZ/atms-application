@@ -4,10 +4,9 @@ import { Observable } from 'rxjs';
 import { projectApiUrl } from '../constants/api-url.constants';
 import { NotificationPageModel, NotificationSummaryModel } from '../models/notifications';
 
-/** The bell shows the newest ten; the rest is on the Notifications page. */
+// bell shows the newest 10, the rest is on the Notifications page
 export const NOTIFICATIONS_LATEST_SIZE = 10;
 
-/** One page of the Notifications page; Load more brings the next. */
 export const NOTIFICATIONS_PAGE_SIZE = 20;
 
 @Injectable({ providedIn: 'root' })

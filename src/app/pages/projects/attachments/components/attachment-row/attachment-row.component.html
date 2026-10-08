@@ -18,7 +18,7 @@
     (click)="open()"
   >
     <span class="file-name__text">{{ file.fileName }}</span>
-    <!-- The columns do not fit on a phone; their facts move under the name as one quiet line. -->
+    <!-- columns dont fit on a phone, they go under the name -->
     <span class="file-name__meta">
       {{ file.size | fileSize }} · {{ file.createdBy | personShortName }} ·
       {{ file.createdAt | date: 'd MMM' }}

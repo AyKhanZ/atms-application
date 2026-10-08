@@ -6,14 +6,9 @@ import { DashboardActivityModel } from '../../core/models/dashboard';
 import { WorkItemKind } from '../../core/models/work-items';
 import { historySummary, historyValueText } from '../../core/utils/history.utils';
 
-/**
- * The dot says which status the work arrived at, in the colours of the status dots everywhere else:
- * created — New, moved — the new status, deleted — red. Any other edit has no status to show and
- * gets a hollow grey dot.
- */
+// created = New, moved = the new status, deleted = red, other edits = hollow grey
 export type DashboardActivityTone = 'new' | 'progress' | 'done' | 'deleted' | 'edited';
 
-/** One feed row: what it is about, what happened to it, and the colour of its dot. */
 export interface DashboardActivityLine {
   kind: WorkItemKind;
   code: string;
@@ -32,7 +27,7 @@ export function dashboardActivityLine(activity: DashboardActivityModel): Dashboa
     tone,
   });
 
-  // A group or milestone has no page of its own: the row is about its project.
+  // groups and milestones have no page, the row is about the project
   if (
     entry.entityType === HistoryEntityType.WorkGroup ||
     entry.entityType === HistoryEntityType.Milestone

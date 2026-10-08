@@ -17,13 +17,7 @@ import { WorkTicketModel } from '../../../../../core/models/work-tickets';
 import { Router } from '@angular/router';
 import { WorkItemKind } from '../../../../../core/models/work-items';
 
-/**
- * Where the ticket sits in the project plan: the group → milestone path, the switcher for
- * sibling tickets, and the one way out to the Plan tab.
- *
- * The group and milestone are deliberately not links — they are layers inside the Plan tab
- * rather than pages of their own, so navigating to them goes through "View in Plan".
- */
+// group and milestone arent links, they are layers inside Plan, so "View in Plan"
 @Component({
   selector: 'app-ticket-location',
   imports: [ButtonModule, WorkItemJumpComponent],
@@ -36,7 +30,7 @@ export class TicketLocationComponent {
   protected readonly kinds = WorkItemKind;
   readonly ticket = input.required<WorkTicketModel>();
 
-  /** The tree above the switcher, repeated inside the panel so the list is visibly scoped. */
+  // repeated inside the panel so the list is visibly scoped
   readonly jumpContext = computed<WorkItemJumpContext[]>(() => [
     { icon: 'pi-folder', title: this.ticket().groupTitle },
     { icon: 'pi-flag', title: this.ticket().milestoneTitle },
@@ -64,7 +58,7 @@ export class TicketLocationComponent {
   }
 
   selectSibling(id: string): void {
-    // A sibling stands in for this page: Back returns where the user came from, not to it.
+    // sibling replaces this page so Back goes where the user came from
     void this.router.navigate(['/projects', this.ticket().workProjectId, 'tickets', id], {
       state: { replaceHistory: true },
     });

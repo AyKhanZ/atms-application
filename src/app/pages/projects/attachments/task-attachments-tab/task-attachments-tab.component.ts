@@ -40,13 +40,9 @@ import { AttachmentUploadListComponent } from '../components/attachment-upload-l
 import { AttachmentUploadZoneComponent } from '../components/attachment-upload-zone/attachment-upload-zone.component';
 import { AttachmentRefusedComponent } from '../components/attachment-refused/attachment-refused.component';
 
-/** Past this many files a tree opens only its first branch; below it everything is open. */
 const OPEN_ALL_UP_TO = 20;
 
-/**
- * A task's or subtask's own files, the only place they are added, renamed and deleted. A task
- * also shows what its subtasks hold, read-only, since it is their parent.
- */
+// the only place files are added, renamed and deleted; subtask files are read-only here
 @Component({
   selector: 'app-task-attachments-tab',
   imports: [
@@ -119,7 +115,6 @@ export class TaskAttachmentsTabComponent implements OnDestroy {
   readonly subtasksOpenByDefault = (node: AttachmentTreeNode) =>
     countFiles(this.subtaskNodes()) <= OPEN_ALL_UP_TO || node.key === this.firstSubtaskKey();
 
-  /** Lists this tab asked for, cleared when it goes or moves to another task. */
   private loadedKeys = new Set<string>();
   readonly previewing = signal<AttachmentModel | null>(null);
   readonly renaming = signal<AttachmentModel | null>(null);
@@ -129,7 +124,7 @@ export class TaskAttachmentsTabComponent implements OnDestroy {
   });
 
   constructor() {
-    // The same component serves a task and then its subtask when the route changes under it.
+    // same component serves a task and then its subtask when the route changes
     effect(() => {
       const projectId = this.projectId();
       const scopes = [this.ownScope(), this.subtasksScope()].filter((scope) => scope !== null);
@@ -141,7 +136,6 @@ export class TaskAttachmentsTabComponent implements OnDestroy {
       });
     });
 
-    // Uploads go to the task on screen; the same tab serves a task and then its subtask.
     effect(() => {
       const task = this.task();
       const listKey = this.ownKey();

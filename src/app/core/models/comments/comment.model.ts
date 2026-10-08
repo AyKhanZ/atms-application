@@ -6,16 +6,16 @@ export interface CommentModel {
   text: string;
   createdAt: string;
   createdBy: PersonModel;
-  /** Null while the comment was never edited. */
+  // null if never edited
   updatedAt: string | null;
-  /** A placeholder in its place: no text, only who deleted it and when. */
+  // deleted = placeholder, no text
   isDeleted: boolean;
   deletedAt: string | null;
-  /** Null until the server names them — just after a delete seen on this screen. */
+  // null until the server sends it, right after a delete on this screen
   deletedBy: PersonModel | null;
   canEdit: boolean;
   canDelete: boolean;
-  /** The people `@[user:id]` in the text points at, by their current names. */
+  // people from @[user:id] in the text
   mentions: PersonModel[];
   references: CommentReferenceModel[];
 }

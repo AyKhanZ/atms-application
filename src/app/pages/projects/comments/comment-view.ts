@@ -3,14 +3,12 @@ import { WorkItemKind } from '../../../core/models/work-items';
 import { MentionPerson } from '../../../core/utils/comment-editor.utils';
 import { workItemRoute } from '../../../core/utils/work-item-route.utils';
 
-/** A `#41` the reader can open, ready for the template: its kind and the page it leads to. */
 export interface CommentReferenceView {
   reference: CommentReferenceModel;
   kind: WorkItemKind;
   route: string[];
 }
 
-/** What the inline tokens look up: people by id and work by code, both sent with the comment. */
 export interface CommentLookups {
   people: ReadonlyMap<string, MentionPerson>;
   references: ReadonlyMap<string, CommentReferenceView>;

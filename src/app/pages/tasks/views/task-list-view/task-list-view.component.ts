@@ -40,7 +40,6 @@ import { defaultListOrder, filterKey } from '../../tasks-page.utils';
 
 const pageSize = 20;
 
-/** One part of the list: overdue work, or everything else. */
 interface ListSource {
   key: string;
   overdue: boolean;
@@ -54,12 +53,7 @@ const sorts: Record<string, WorkTaskBoardSort> = {
   priority: WorkTaskBoardSort.Priority,
 };
 
-/**
- * Everything the filters let through, one row each — subtasks as rows of their own, not tucked
- * under their task, so every filter and order treats them alike. The only view that shows work
- * without a deadline and reads well on a phone. The table is the one the other lists use, so a
- * row, a header and a sort arrow behave here exactly as they do in Projects and Users.
- */
+// subtasks are own rows so filters and sorting treat them the same; only view that shows work without a deadline
 @Component({
   selector: 'app-task-list-view',
   imports: [
@@ -82,12 +76,10 @@ const sorts: Record<string, WorkTaskBoardSort> = {
 })
 export class TaskListViewComponent {
   private readonly store = inject(Store);
-  /** A phone has no room for six columns: two-line rows instead of the table. */
   readonly isPhone = inject(LayoutService).isPhone;
 
   readonly query = input.required<WorkTaskBoardQuery>();
   readonly reloadToken = input(0);
-  /** What an empty list says, chosen by the page from its filters. */
   readonly emptyText = input('No tasks yet');
   readonly openTask = output<WorkTaskModel>();
   readonly order = input<WorkTaskBoardOrder>(defaultListOrder);
@@ -101,8 +93,7 @@ export class TaskListViewComponent {
   private readonly key = computed(
     () => `list|${filterKey(this.query())}|${orderKey(this.order())}`,
   );
-  /** Overdue work first, then the rest, each in the chosen order — whatever column sorts it.
-   *  A deadline filter leaves only one of the two. */
+  // overdue first, then the rest; a deadline filter leaves only one
   private readonly sources = computed<ListSource[]>(() => {
     const key = this.key();
     const deadline = this.query().deadline;
@@ -110,8 +101,7 @@ export class TaskListViewComponent {
     const onTime: ListSource = { key: `${key}|on-time`, overdue: false };
     return deadline === 'overdue' ? [late] : deadline === 'none' ? [onTime] : [late, onTime];
   });
-  /** Both sources read as one list: the rest shows only once the overdue part is all loaded.
-   *  Undefined until the first request for these filters goes out. */
+  // the rest shows only after the overdue part is fully loaded
   readonly page = computed<TaskBoardPageState | undefined>(() => {
     const pages = this.sources().map((source) => this.pages()[source.key]);
     if (pages.some((page) => !page)) return undefined;
@@ -133,7 +123,7 @@ export class TaskListViewComponent {
     source: () => ({ filter: filterKey(this.query()), page: this.page() }),
     computation: ({ filter, page }, previous) => ({
       filter,
-      // Keep rows only while reordering the same result set, never across a filter/access change.
+      // keep rows only when re-sorting the same results, never across a filter change
       items:
         page && (!page.loading || page.items.length > 0)
           ? page.items
@@ -166,7 +156,7 @@ export class TaskListViewComponent {
     return task.id;
   }
 
-  /** The next page of the overdue part while it has more, then of the rest. */
+  // overdue part first while it has more
   loadMore(): void {
     const source = this.sources().find((candidate) => this.pages()[candidate.key]?.hasMore);
     const page = source && this.pages()[source.key];

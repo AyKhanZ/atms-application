@@ -97,7 +97,7 @@ export class ProjectDetailsComponent implements OnDestroy {
   readonly ProjectPermissions = ProjectPermissions;
   readonly Roles = Roles;
   readonly activeTab = signal<ProjectTab>('details');
-  /** Plan is only offered to people who can see it, so the strip mirrors the old *hasProjectAccess. */
+  // Plan only for people who can see it
   readonly tabs = computed<EntityTab<ProjectTab>[]>(() => [
     { id: 'details', label: 'Details', icon: 'pi-align-left' },
     { id: 'stakeholders', label: 'Stakeholders', icon: 'pi-users' },
@@ -113,15 +113,14 @@ export class ProjectDetailsComponent implements OnDestroy {
   constructor() {
     void this.realtime.joinProject(this.id).catch(() => undefined);
     this.breadcrumbPath = `/projects/${this.id}`;
-    // Placeholder so the trail does not visibly grow a segment once the project loads.
+    // placeholder so the breadcrumb doesnt grow a segment after load
     this.breadcrumbOverride.set(this.breadcrumbPath, 'Project');
     effect(() => {
       const project = this.project();
       if (project)
         this.breadcrumbOverride.set(this.breadcrumbPath, `#${project.code} ${project.title}`);
     });
-    // Once per opening: the page is built per project id, while the project itself is reloaded
-    // after an edit or on coming back to the tab — that is not the user opening it again.
+    // once per opening, reloads after edit are not "opened again"
     this.recent.track(WorkItemKind.Project, this.id);
     this.route.queryParamMap.pipe(takeUntilDestroyed()).subscribe((params) => {
       this.activeTab.set(parseProjectTab(params.get('tab')));
@@ -129,9 +128,7 @@ export class ProjectDetailsComponent implements OnDestroy {
       this.focusedMilestoneId.set(params.get('milestoneId'));
       if (groupId) this.workGroupExpansionState.set(this.id, new Set([groupId]));
     });
-    // The project is loaded on its own schedule: once on open, again when the user comes back to
-    // the tab after a long absence, and after their own changes. It is deliberately not tied to
-    // the permissions stream — those are unrelated concerns with different refresh reasons.
+    // loaded on open, after a long absence and after own changes, not tied to permissions
     this.store.dispatch(WorkProjectsStoreActions.loadProject({ id: this.id }));
     this.visiblePageRefresh
       .onReturn(`project:${this.id}`)
@@ -198,13 +195,11 @@ export class ProjectDetailsComponent implements OnDestroy {
     });
   }
 
-  /** Where the user came from; the project list when that is unknown. */
   back(): void {
     if (!this.navigationHistory.back()) this.toList();
   }
 
-  /** The project list. After a delete it replaces the gone page in the history, so Back from the
-   *  list does not return to it. */
+  // after a delete it replaces the gone page so Back doesnt return to it
   private toList(replaceHistory = false): void {
     void this.router.navigateByUrl('/projects', { state: { replaceHistory } });
   }

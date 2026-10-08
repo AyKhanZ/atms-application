@@ -6,7 +6,6 @@ import {
   ATTACHMENT_TYPES_TITLE,
 } from '../../../../../core/utils/attachment.utils';
 
-/** Drop files onto it or pick them with the button; it hands over whatever was chosen. */
 @Component({
   selector: 'app-attachment-upload-zone',
   imports: [ButtonModule],
@@ -20,11 +19,10 @@ export class AttachmentUploadZoneComponent {
 
   protected readonly accept = ATTACHMENT_ACCEPT;
   protected readonly hint = ATTACHMENT_HINT;
-  /** The exact extensions, on hover: the hint names kinds, not every suffix. */
   protected readonly typesTitle = ATTACHMENT_TYPES_TITLE;
   readonly dragging = signal(false);
 
-  /** dragenter and dragleave fire for every child the pointer crosses; the depth tells real ones. */
+  // dragenter/dragleave fire for every child, the depth tells the real ones
   private dragDepth = 0;
 
   dragEnter(event: DragEvent): void {
@@ -55,7 +53,7 @@ export class AttachmentUploadZoneComponent {
 
   picked(input: HTMLInputElement): void {
     const files = Array.from(input.files ?? []);
-    // Cleared so picking the same file again after a failure still fires a change.
+    // so picking the same file again still fires change
     input.value = '';
     if (files.length) this.filesChosen.emit(files);
   }

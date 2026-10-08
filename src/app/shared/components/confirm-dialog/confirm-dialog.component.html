@@ -20,7 +20,7 @@
 
       <footer class="confirm__actions">
         @if (cancelLabel(confirmation); as label) {
-          <!-- A third way out: neither answer, the dialog just closes. -->
+          <!-- closes with neither answer -->
           <button pButton type="button" text="true" (click)="dialog.close()">{{ label }}</button>
         }
         @if (!isNotice(confirmation)) {

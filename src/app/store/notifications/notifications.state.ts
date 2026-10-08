@@ -1,14 +1,13 @@
 import { NotificationModel } from '../../core/models/notifications';
 
-/** The Notifications page: one list, All or Unread, read by cursor. */
 export interface NotificationPageState {
   unreadOnly: boolean;
-  /** Newest first. */
+  // newest first
   items: NotificationModel[];
   nextCursor: string | null;
   hasMore: boolean;
   loaded: boolean;
-  /** The first page. */
+  // first page
   loading: boolean;
   loadingMore: boolean;
   error: string | null;
@@ -17,10 +16,10 @@ export interface NotificationPageState {
 
 export interface NotificationsState {
   unreadCount: number;
-  /** The bell's newest ten, read when the panel first opens and kept fresh by pushes after that. */
+  // read when the panel first opens, then kept fresh by pushes
   latest: NotificationModel[];
   latestLoaded: boolean;
-  /** The panel is on screen: only then a push reads the newest ten again. */
+  // only then a push rereads the newest ten
   latestOpen: boolean;
   latestLoading: boolean;
   latestError: string | null;

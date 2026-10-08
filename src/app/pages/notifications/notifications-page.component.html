@@ -85,7 +85,7 @@
         </div>
       }
 
-      <!-- Loads the next page on its own; the button stays as the way in when it cannot. -->
+      <!-- loads the next page by itself, the button is a fallback -->
       <div
         [appScrollSentinel]="page().hasMore && !page().loadingMore && !page().loadMoreError"
         (reached)="loadMore()"

@@ -4,7 +4,6 @@ import { PersonNamePipe } from '../../../../../shared/pipes/person-name.pipe';
 import { CommentLookups } from '../../comment-view';
 import { CommentReferenceComponent } from '../comment-reference/comment-reference.component';
 
-/** One line of a comment, token by token; bold and italic draw their inside with itself. */
 @Component({
   selector: 'app-comment-inline',
   imports: [CommentReferenceComponent, PersonNamePipe],

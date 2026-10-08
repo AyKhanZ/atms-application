@@ -11,9 +11,7 @@ import {
 
 type ReadChange = (item: NotificationModel) => NotificationModel;
 
-/**
- * The bell and the page can show the same notification: a read on one shows on the other at once.
- */
+// bell and page can show the same notification, a read shows on both at once
 function changeEverywhere(state: NotificationsState, change: ReadChange): NotificationsState {
   const items = state.page.items.map(change);
   return {
@@ -49,7 +47,7 @@ const reducer = createReducer(
   ),
   on(Actions.panelOpened, (state): NotificationsState => ({ ...state, latestOpen: true })),
   on(Actions.panelClosed, (state): NotificationsState => ({ ...state, latestOpen: false })),
-  // Opening the panel again keeps the rows already shown; a skeleton over them would only flash.
+  // keep rows on reopen, a skeleton would only flash
   on(
     Actions.loadLatest,
     (state): NotificationsState => ({ ...state, latestLoading: true, latestError: null }),
@@ -71,7 +69,7 @@ const reducer = createReducer(
       latestError: error,
     }),
   ),
-  // Another filter is another list: its rows are not kept. The same filter read again keeps them.
+  // another filter is another list; the same filter keeps its rows
   on(
     Actions.loadPage,
     (state, { unreadOnly }): NotificationsState =>
@@ -104,7 +102,7 @@ const reducer = createReducer(
     (state): NotificationsState => updatePage(state, { loadingMore: true, loadMoreError: null }),
   ),
   on(Actions.loadMorePageSuccess, (state, { page }): NotificationsState => {
-    // A row merged and moved up in the meantime can come again on a later page: keep it once.
+    // a row merged and moved up can come again on a later page, keep it once
     const shown = new Set(state.page.items.map((item) => item.id));
     return updatePage(state, {
       items: [...state.page.items, ...page.items.filter((item) => !shown.has(item.id))],
@@ -123,7 +121,7 @@ const reducer = createReducer(
     (state): NotificationsState => ({ ...state, page: initialNotificationPageState }),
   ),
   on(Actions.markRead, (state, { id }): NotificationsState => {
-    // Not on screen, or read already: the count is the server's to tell.
+    // not on screen or already read: the server tells the count
     const unreadCount = isShown(state, id, false)
       ? Math.max(0, state.unreadCount - 1)
       : state.unreadCount;

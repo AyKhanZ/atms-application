@@ -1,12 +1,6 @@
 @use 'skeleton';
 
-/// The states of a cursor-paged list between its rows: grey bars while a page loads, and a line with
-/// Retry when it could not. Search and Notifications share them so the two cannot drift apart.
-///
-/// Usage:
-///   @use 'list-state';
-///   .list__skeleton { @include list-state.skeleton; }
-///   .list__error { @include list-state.error; }
+// skeleton and retry line for cursor-paged lists, shared by search and notifications
 
 @mixin skeleton {
   display: grid;

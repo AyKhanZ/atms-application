@@ -6,7 +6,7 @@ import { matchesJumpSearch } from './work-item-jump-search';
 
 export type WorkItemJumpLoader = (search: string, cursor?: string) => Observable<WorkItemJumpPage>;
 
-/** One instance per Location. Keeps server search mode fixed by the unfiltered first page. */
+// one per Location, server search mode is fixed by the first unfiltered page
 @Injectable()
 export class WorkItemJumpState {
   private readonly destroyRef = inject(DestroyRef);

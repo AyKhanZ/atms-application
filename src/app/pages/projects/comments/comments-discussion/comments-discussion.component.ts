@@ -37,11 +37,7 @@ import { MentionCandidate } from '../comment-suggestion';
 import { CommentCardComponent } from '../components/comment-card/comment-card.component';
 import { CommentEditorComponent } from '../components/comment-editor/comment-editor.component';
 
-/**
- * The Discussion under a task's description, as in Azure DevOps (13-comments): the field on top,
- * the newest comments under it, 20 at a time. It watches the task while shown, so comments of others
- * appear without a reload, and scrolls to a comment a link points at.
- */
+// watches the task while shown so others comments appear without reload
 @Component({
   selector: 'app-comments-discussion',
   imports: [
@@ -68,7 +64,7 @@ export class CommentsDiscussionComponent implements OnDestroy {
 
   readonly projectId = input.required<string>();
   readonly workTaskId = input.required<string>();
-  /** Comment edit — every project role has it; only someone outside the project reads without it. */
+  // every project role has it, only outsiders read without it
   readonly canWrite = input(false);
   readonly participants = input<readonly WorkProjectParticipantModel[]>([]);
 
@@ -80,7 +76,7 @@ export class CommentsDiscussionComponent implements OnDestroy {
   private readonly lists = this.store.selectSignal(CommentsStoreSelectors.getLists);
   readonly list = computed<CommentListState | undefined>(() => this.lists()[this.key()]);
   readonly comments = computed(() => this.list()?.items ?? []);
-  /** A linked comment no page read so far holds, shown above the list. */
+  // linked comment no loaded page has, shown above the list
   readonly linkedComment = computed(() => this.list()?.linked ?? null);
   readonly linkedError = computed(() => this.list()?.linkedError ?? null);
   readonly loading = computed(() => {
@@ -90,7 +86,7 @@ export class CommentsDiscussionComponent implements OnDestroy {
   readonly error = computed(
     () => !!this.list()?.error && !this.comments().length && !this.linkedComment(),
   );
-  /** Mentions store the user's id, not the participant row's. */
+  // mentions store the user id, not the participant id
   readonly people = computed<MentionCandidate[]>(() =>
     this.participants().map((participant) => ({
       id: participant.userId,
@@ -101,9 +97,8 @@ export class CommentsDiscussionComponent implements OnDestroy {
   );
 
   private readonly fragment = toSignal(inject(ActivatedRoute).fragment, { initialValue: null });
-  /** The comment a link points at, while it is marked. */
   readonly targetId = signal<string | null>(null);
-  /** The link already followed: a later change to the list must not scroll back to it. */
+  // link already followed, a later list change shouldnt scroll back
   private targetDone: string | null = null;
   private opened: { key: string; workTaskId: string } | null = null;
 
@@ -119,7 +114,7 @@ export class CommentsDiscussionComponent implements OnDestroy {
         this.opened = { key, workTaskId };
         this.actions.setScope({ listKey: key, projectId, workTaskId });
         void this.realtime.watchTask(projectId, workTaskId);
-        // Folded and opened again: the list stayed in the store, kept live by the page's watch.
+        // folded and opened again: the list stayed in the store
         const kept = this.lists()[key];
         if (!kept || kept.error) this.load();
       });
@@ -163,10 +158,7 @@ export class CommentsDiscussionComponent implements OnDestroy {
     this.actions.send(text, () => this.newComment()?.reset());
   }
 
-  /**
-   * A link to a comment: scroll to it once it is on screen. One no page read so far holds is read
-   * alone and shown above the list, instead of paging back to it — once, even when it is not found.
-   */
+  // a comment not on loaded pages is read alone and shown above the list, once even if not found
   private findTarget(fragment: string | null, list: CommentListState | undefined): void {
     const id = fragment?.startsWith('comment-') ? fragment.slice('comment-'.length) : null;
     if (!list) return;
@@ -207,7 +199,7 @@ export class CommentsDiscussionComponent implements OnDestroy {
     );
   }
 
-  /** The list itself stays: the task page drops it when it leaves the task (TaskCommentsService). */
+  // task page drops the list when it leaves the task
   private close(): void {
     if (!this.opened) return;
     void this.realtime.unwatchTask(this.opened.workTaskId);

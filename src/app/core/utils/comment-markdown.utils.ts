@@ -1,12 +1,7 @@
-/**
- * The comment markup (13-comments, «Текст и форматирование»): bold, italic, coloured highlight,
- * code, links, bulleted, numbered and check lists nested up to three levels, `@[user:id]` mentions
- * and `#41` references. The text becomes tokens that the template draws with ordinary elements —
- * HTML in a comment is never parsed, only shown as text, so there is nothing to sanitise. Anything
- * not recognised stays plain text.
- */
+// html in a comment is never parsed, only shown as text, so nothing to sanitize
+// anything not recognised stays plain text
 
-/** The marker colours a highlight can take; `==text==` without one is yellow. */
+// plain ==text== is yellow
 export const HIGHLIGHT_COLORS = ['yellow', 'green', 'blue', 'pink', 'purple'] as const;
 export type HighlightColor = (typeof HIGHLIGHT_COLORS)[number];
 
@@ -24,11 +19,9 @@ export type CommentListStyle = 'bullets' | 'numbers' | 'checks';
 
 export interface CommentListItem {
   tokens: CommentInline[];
-  /** Ticked, for an item of a check list. */
   checked: boolean;
-  /** The line of the text it stands on, to tick it there. */
+  // line in the text, to tick it there
   line: number;
-  /** Lists indented under this item. */
   children: CommentList[];
 }
 
@@ -40,15 +33,13 @@ export interface CommentList {
 
 export type CommentBlock = { kind: 'paragraph'; lines: CommentInline[][] } | CommentList;
 
-/** Deeper than this reads badly, a phone above all: an item further in stays at the third level. */
+// deeper reads badly on a phone, further items stay on the third level
 export const MAX_LIST_LEVEL = 2;
-/** Spaces for one level; Tab in the editor adds them. */
 export const LIST_INDENT = 2;
 
 const LIST_LINE = /^(\s*)(?:[-*]\s+\[([ xX])\]\s+|([-*])\s+|\d{1,3}[.)]\s+)(.*)$/;
 
-// Earlier alternatives win at the same position: a code span or a link swallows the `#41`, `@`
-// and `**` inside it, as the server does when it looks for references.
+// earlier alternatives win: code span or link swallow #41, @ and ** inside, same as the server
 const INLINE = new RegExp(
   [
     '`(?<code>[^`\\n]+)`',
@@ -56,7 +47,7 @@ const INLINE = new RegExp(
     '@\\[user:(?<mention>[0-9a-fA-F-]{36})\\]',
     '\\*\\*(?<bold>(?:(?!\\*\\*).)+?)\\*\\*',
     `==(?:(?<color>${HIGHLIGHT_COLORS.join('|')}):)?(?<highlight>(?:(?!==).)+?)==`,
-    // Not inside a word, so snake_case_names stay as they are.
+    // not inside a word, so snake_case stays
     '(?<![\\p{L}\\p{N}_])_(?<italic>[^_\\s](?:[^_\\n]*[^_\\s])?)_(?![\\p{L}\\p{N}_])',
     '(?<url>https?:\\/\\/[^\\s<]*[^\\s<.,;:!?)\\]\'"])',
     '(?<![\\p{L}\\p{N}_#])#(?<reference>\\d+)\\b',
@@ -65,7 +56,7 @@ const INLINE = new RegExp(
 );
 
 interface ListLine {
-  /** Spaces before the marker, a tab counting as one level. */
+  // tab counts as one level
   indent: number;
   style: CommentListStyle;
   item: CommentListItem;
@@ -90,8 +81,7 @@ function listLine(line: string, index: number): ListLine | null {
 export function parseCommentMarkdown(text: string): CommentBlock[] {
   const blocks: CommentBlock[] = [];
   let paragraph: CommentInline[][] = [];
-  // The lists open at each level with the indent they started at, outermost first. A blank or a
-  // plain line closes them all.
+  // open lists per level, a blank or plain line closes them all
   const open: { indent: number; list: CommentList }[] = [];
 
   const closeParagraph = () => {
@@ -99,8 +89,7 @@ export function parseCommentMarkdown(text: string): CommentBlock[] {
     paragraph = [];
   };
 
-  // As in Markdown, the level comes from the indent next to the items above, not from a count of
-  // spaces: two lines indented alike are one level, however many spaces that is.
+  // level comes from the indent of the items above, not the count of spaces (like markdown)
   const addItem = ({ indent, style, item }: ListLine) => {
     while ((open.at(-1)?.indent ?? -1) > indent) open.pop();
 
@@ -114,7 +103,6 @@ export function parseCommentMarkdown(text: string): CommentBlock[] {
     }
 
     const parent = open.at(-1);
-    // Past the third level an item stays on the third, beside the one above it.
     if (parent && open.length > MAX_LIST_LEVEL) {
       parent.list.items.push(item);
       return;

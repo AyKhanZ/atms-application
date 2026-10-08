@@ -1,7 +1,6 @@
 @use 'list-state';
 
-/* Same header as the ticket and task pages: the back button stays beside the title while there is
-   room, and only on a narrow page drops under it and takes the full width. */
+// same header as ticket and task pages
 .search-page-header {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;

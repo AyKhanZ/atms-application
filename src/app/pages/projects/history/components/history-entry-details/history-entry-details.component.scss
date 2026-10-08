@@ -63,7 +63,6 @@
   }
 }
 
-// A label, not a heading: muted and regular, like the labels of the Details tab.
 .changes__field {
   min-width: 0;
   color: var(--app-muted);
@@ -71,16 +70,13 @@
   font-weight: 400;
 }
 
-// One size for every value, the size of the description: plain text at 1rem next to 0.8rem
-// badges read as two different fonts.
+// one size for every value, 1rem text next to 0.8rem badges looked like two fonts
 .changes__cell {
   min-width: 0;
   font-size: 0.875rem;
 }
 
-// A light marker behind each value, as Azure DevOps has it: the new one green, the old one grey and
-// struck through. Both the same shape, so a pair reads as the same thing before and after. Soft on
-// purpose — a marker, not a button.
+// new green, old grey struck through, same shape so they read as a pair
 .change-value {
   display: inline-flex;
   max-width: 100%;
@@ -93,18 +89,17 @@
   background: var(--history-new-bg);
 }
 
-// The marker only; the value inside draws itself grey and struck through (`muted`).
 .change-value--old {
   background: var(--app-surface-muted);
 }
 
-// At creation every value is new: nothing to tell apart, so no marker.
+// on creation everything is new, no marker
 .changes--created .change-value--new {
   padding: 0;
   background: none;
 }
 
-// A type is a chip with a colour of its own: a marker behind it made a box inside a box.
+// a marker behind a chip made a box inside a box
 .change-value--chip {
   padding: 0;
   background: none;
@@ -116,7 +111,6 @@
   font-style: italic;
 }
 
-// A long text: the new one over the old one while the pane is narrow.
 .text-change {
   display: grid;
   gap: 1rem;
@@ -130,7 +124,6 @@
   min-width: 0;
 }
 
-// The same as the New and Old over the columns of the table.
 .text-change__label {
   color: var(--app-muted);
   font-size: 0.8rem;
@@ -150,8 +143,7 @@
   background: var(--history-new-bg);
 }
 
-// Struck through like every other old value; a thin line in the text's own grey, so the paragraph
-// can still be read.
+// thin line in the text grey so it can still be read
 .text-change__block--old {
   color: var(--app-muted);
   text-decoration: line-through;
@@ -159,8 +151,7 @@
   background: var(--app-surface-muted);
 }
 
-// Side by side, each under its own column, whenever the table has columns: the gap is the padding
-// between two cells. Only the phone layout, which has no columns, puts them one over the other.
+// side by side whenever the table has columns
 @container (width > 34rem) {
   .text-change {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -171,9 +162,7 @@
   }
 }
 
-// Phone: the field, and under it one line — old → new. The arrow says which is which, so there are
-// no New and Old labels to mix up with the values; a long title wraps with the arrow leading the new
-// one. A description keeps its two blocks, labelled.
+// phone: old -> new in one line, the arrow tells which is which; description keeps two labelled blocks
 @container (max-width: 34rem) {
   .details-head {
     grid-template-columns: auto minmax(0, 1fr);
@@ -231,7 +220,7 @@
     content: '→';
   }
 
-  // Filled for the first time: nothing to cross out, so no dash and no arrow either.
+  // filled for the first time: no dash, no arrow
   .changes tr:has(td[data-label='Old'] .change-value--empty) {
     td[data-label='Old'] {
       display: none;

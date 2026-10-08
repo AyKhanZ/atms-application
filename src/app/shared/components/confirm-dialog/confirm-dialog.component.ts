@@ -3,35 +3,19 @@ import { Confirmation } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 
-/**
- * A question with two answers and a way out: accept, reject, or Cancel that closes with neither.
- * `reject` receives `ConfirmEventType.REJECT` for the second answer and `CANCEL` for Cancel, the
- * close button and Escape alike.
- */
+// reject gets REJECT for the second answer and CANCEL for cancel, close button and escape
 export interface ChoiceConfirmation extends Confirmation {
   cancelLabel: string;
 }
 
-/** How loud the dialog is. `danger` is for something that destroys data. */
+// danger = destroys data
 export type ConfirmTone = 'warning' | 'danger';
 
-/**
- * Tone of a confirmation, passed as `acceptButtonProps: confirmTone('danger')`: the accept button
- * says how serious the action is, and the dialog takes its colour from the same place.
- */
 export function confirmTone(tone: ConfirmTone): { severity: 'danger' | 'primary' } {
   return { severity: tone === 'danger' ? 'danger' : 'primary' };
 }
 
-/**
- * The project's confirm dialog: a tinted status icon, the question, what happens, then the
- * buttons.
- *
- * It is PrimeNG's `p-confirmDialog` in headless mode rather than a dialog of our own, so the
- * focus trap, Escape handling and the ConfirmationService API stay exactly as they are — only
- * the inside is ours. The default rendering put the icon beside the text and stretched the panel
- * to the width of the screen, which read as a page, not as a warning.
- */
+// primeng p-confirmDialog in headless mode so focus trap, escape and ConfirmationService stay as is, only the inside is ours
 @Component({
   selector: 'app-confirm-dialog',
   imports: [ButtonModule, ConfirmDialogModule],
@@ -40,7 +24,6 @@ export function confirmTone(tone: ConfirmTone): { severity: 'danger' | 'primary'
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ConfirmDialogComponent {
-  /** Matches the `key` the caller passes to `ConfirmationService.confirm()`. */
   readonly key = input.required<string>();
 
   tone(confirmation: Confirmation): ConfirmTone {
@@ -49,25 +32,13 @@ export class ConfirmDialogComponent {
     return confirmation.acceptButtonProps?.severity === 'danger' ? 'danger' : 'warning';
   }
 
-  /**
-   * Two different things share this dialog:
-   *
-   * - a **question** the user answers — "Delete ticket?" — Cancel plus the action;
-   * - a **notice** that states why something cannot happen — "This ticket can't be deleted yet"
-   *   — nothing to decide, one button to dismiss.
-   *
-   * The caller already says which it is by whether a reject button exists, so there is no extra
-   * flag to keep in sync. A notice is never red: nothing destructive is about to happen.
-   */
+  // question (cancel + action) or notice (one button); decided by whether a reject button exists
+  // a notice is never red
   isNotice(confirmation: Confirmation): boolean {
     return confirmation.rejectVisible === false;
   }
 
-  /**
-   * The message is written as "what it is about" on the first line and "what that means" on the
-   * rest. Splitting them lets the dialog give the subject its own line instead of burying a long
-   * ticket title in quotes inside a sentence, which is what made these dialogs unreadable.
-   */
+  // first line is the subject, the rest is what it means, so a long title gets its own line
   subject(confirmation: Confirmation): string {
     const [first, ...rest] = (confirmation.message ?? '').split('\n');
 
@@ -80,7 +51,7 @@ export class ConfirmDialogComponent {
     return (rest.length > 0 ? rest.join(' ') : first).trim();
   }
 
-  /** Present only on a ChoiceConfirmation: then Cancel stands apart from the second answer. */
+  // only on ChoiceConfirmation
   cancelLabel(confirmation: Confirmation): string | null {
     const label = (confirmation as Partial<ChoiceConfirmation>).cancelLabel;
     return typeof label === 'string' && label.length > 0 ? label : null;

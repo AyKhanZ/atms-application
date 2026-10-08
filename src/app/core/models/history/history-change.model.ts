@@ -4,7 +4,7 @@ import { HistoryValueModel } from './history-value.model';
 
 export interface HistoryChangeModel {
   field: HistoryField;
-  /** Whose role changed, for a stakeholder change. */
+  // for stakeholder changes
   person?: PersonModel | null;
   oldValue?: HistoryValueModel | null;
   newValue?: HistoryValueModel | null;

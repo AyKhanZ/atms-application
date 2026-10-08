@@ -3,9 +3,7 @@
   min-width: 0;
 }
 
-/* One line per task, as in Notion: the title first, the kind along the left edge (the same edge
-   as the board card and the details header), the assignee as a small avatar. The code, ticket,
-   state and priority live in the hover card, not in the cell. */
+// one line per task like notion, code/ticket/state/priority are in the hover card
 .chip {
   --kind-color: var(--kind-task);
 
@@ -39,14 +37,13 @@
   font-size: 0.72rem;
 }
 
-/* Done steps back; overdue is tinted red — the one thing on a calendar allowed to be loud. */
+// done steps back, overdue is red - the only loud thing on a calendar
 .chip--done .chip__title {
   color: var(--app-muted);
   text-decoration: line-through;
 }
 
-/* The strong red tint, red bold title and the solid "8d" pill make it the first thing on the
-   month. No red border around it: the border hid the kind stripe on the left. */
+// no red border, it hid the kind stripe on the left
 .chip--overdue,
 .chip--overdue:hover {
   background: var(--overdue-bg-strong);
@@ -81,12 +78,10 @@
   --assignee-avatar-size: 1rem;
 }
 
-/* The agenda has the width for the code and the name: two lines, code and person on top. */
 .chip:focus-visible {
   outline: 2px solid var(--orange-focus-outline);
 }
 
-/* The phone's agenda has the width for the code and the name: two lines, code and person on top. */
 .chip--phone {
   flex-wrap: wrap;
   height: auto;

@@ -47,11 +47,7 @@ export function createPersonalInfoForm(): PersonalInfoForm {
   });
 }
 
-/**
- * What a save would send, as one comparable string: trimmed text, the calendar date, the ids and
- * the chosen photo. Two values with the same snapshot need no save, so typing a letter and
- * deleting it again does not count as a change.
- */
+// same snapshot = no save, typing a letter and deleting it isnt a change
 export function personalInfoSnapshot(value: ReturnType<PersonalInfoForm['getRawValue']>): string {
   const birthDate = value.birthDate
     ? [value.birthDate.getFullYear(), value.birthDate.getMonth(), value.birthDate.getDate()]
@@ -75,7 +71,7 @@ export function personalInfoSnapshot(value: ReturnType<PersonalInfoForm['getRawV
 
 const internationalShape = /^\+[0-9 ()-]{7,19}$/;
 
-/** Shape first, then the country length. A +994 number of the wrong length never reaches the server. */
+// a +994 number of wrong length never reaches the server
 function phoneNumberShape(control: AbstractControl<string>): ValidationErrors | null {
   const value = control.value.trim();
   if (!value) return null;
@@ -84,15 +80,11 @@ function phoneNumberShape(control: AbstractControl<string>): ValidationErrors | 
   return hasWrongAzerbaijanLength(value) ? { phoneLength: true } : null;
 }
 
-/** Local midnight `years` years before today: the edges of the allowed birth-date range. */
 export function yearsAgo(years: number, now = new Date()): Date {
   return new Date(now.getFullYear() - years, now.getMonth(), now.getDate());
 }
 
-/**
- * 18 to 100 years old, the same range the server checks. The calendar greys out other dates, but a
- * date typed by hand would otherwise reach the server unchecked.
- */
+// 18 to 100 like the server; the calendar greys out dates but a typed one would get through
 export function birthDateInRange(control: AbstractControl<Date | null>): ValidationErrors | null {
   const value = control.value;
   if (!value) return null;

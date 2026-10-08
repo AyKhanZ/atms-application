@@ -27,7 +27,6 @@ import { HistoryAuthorAvatarComponent } from '../history-author-avatar/history-a
 import { LoadMoreButtonComponent } from '../../../../../shared/components/load-more-button/load-more-button.component';
 import { HistoryValueComponent } from '../history-value/history-value.component';
 
-/** The entries, newest first, in groups by day. One of them is the one shown on the right. */
 @Component({
   selector: 'app-history-list',
   imports: [
@@ -62,7 +61,7 @@ export class HistoryListComponent {
   readonly loadMore = output<void>();
 
   protected readonly collapsed = signal<ReadonlySet<HistoryGroupLabel>>(new Set());
-  /** The rows a keyboard can reach: those of open groups, in the order they are drawn. */
+  // rows of open groups, in drawing order
   private readonly visible = computed(() =>
     this.groups()
       .filter((group) => !this.collapsed().has(group.label))

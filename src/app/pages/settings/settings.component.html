@@ -12,8 +12,7 @@
       <button pButton type="button" [outlined]="true" (click)="load()">Retry</button>
     </div>
   } @else {
-    <!-- While loading, the real page is drawn with every control shimmering: the skeleton is the
-         page itself, so nothing moves when the data arrives. -->
+    <!-- skeleton is the page itself so nothing moves when data arrives -->
     <div
       class="panel settings-card"
       [class.settings-card--loading]="loading()"

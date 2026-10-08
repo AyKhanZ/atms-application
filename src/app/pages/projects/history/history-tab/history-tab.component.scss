@@ -31,8 +31,7 @@
   min-width: 0;
 }
 
-// Each column scrolls on its own, so a long list does not carry the details off the screen. How
-// tall they may get is measured by `appHistoryPaneHeight`: down to the bottom of the page.
+// each column scrolls on its own, height comes from appHistoryPaneHeight
 .history-pane {
   min-width: 0;
   max-height: var(--history-pane-height, 36rem);
@@ -92,7 +91,7 @@
   gap: 0.4rem;
 }
 
-// Narrow tab: one column. The list first; a chosen entry takes its place with a way back.
+// narrow: list first, a chosen entry replaces it
 @container (max-width: 48rem) {
   .history-columns {
     grid-template-columns: minmax(0, 1fr);

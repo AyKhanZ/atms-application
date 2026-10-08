@@ -25,7 +25,7 @@ export const DEFAULT_DASHBOARD_QUERY: DashboardQuery = {
 
 const isoDate = /^\d{4}-\d{2}-\d{2}$/;
 
-/** Reads the dashboard query from the address; anything unknown falls back to the last 30 days. */
+// unknown -> last 30 days
 export function dashboardQueryFromParams(params: ParamMap): DashboardQuery {
   const projectId = params.get('projectId') || null;
   const period = params.get('period');
@@ -60,7 +60,7 @@ export function sameDashboardQuery(left: DashboardQuery, right: DashboardQuery):
   );
 }
 
-/** Local calendar date as yyyy-MM-dd, the way the date pickers show it. */
+// local date, same as the date pickers show
 export function toIsoDate(date: Date): string {
   const month = `${date.getMonth() + 1}`.padStart(2, '0');
   const day = `${date.getDate()}`.padStart(2, '0');

@@ -50,7 +50,6 @@
             [code]="item.code"
           />
           <h2>{{ item.title }}</h2>
-          <!-- As in Azure DevOps: how much has been said, one click from the discussion. -->
           <button type="button" class="task-comments-link" (click)="openDiscussion()">
             <i class="pi pi-comments" aria-hidden="true"></i>
             <span>{{ comments.count() }} {{ comments.count() === 1 ? 'comment' : 'comments' }}</span>
@@ -76,7 +75,7 @@
         (select)="selectTab($event)"
       />
 
-      <!-- One height for every tab, so moving between empty ones does not resize the card. -->
+      <!-- one height for every tab so the card doesnt resize -->
       <div class="tab-body">
         @if (activeTab() === 'details') {
           <app-task-details-tab

@@ -1,5 +1,5 @@
 @if (steps().length) {
-  <!-- Focusable so the keyboard can scroll it; the steps themselves are not interactive. -->
+  <!-- focusable so the keyboard can scroll it -->
   <ol
     #track
     class="state-track"
@@ -7,7 +7,7 @@
     aria-label="Status changes"
     [class.is-expanded]="expanded()"
   >
-    <!-- First in the markup, last on a phone: the column there runs from the newest down. -->
+    <!-- first in markup, last on a phone (newest on top there) -->
     @if (hiddenOnPhone() > 0) {
       <li class="state-more">
         <button type="button" class="state-more__button" (click)="expanded.set(true)">

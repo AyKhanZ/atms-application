@@ -6,8 +6,7 @@
   min-width: 0;
 }
 
-/* Fixed tracks for size, author and date: every row is its own grid, and content-sized tracks
-   would put the columns at a different x on each line (the Plan header had that bug). */
+// fixed tracks: every row is its own grid, content-sized tracks put columns at different x (Plan had that bug)
 .file-row {
   display: grid;
   grid-template-columns: 2.25rem minmax(0, 1fr) 4.75rem 8.5rem 6.25rem auto;
@@ -103,12 +102,11 @@
   outline-offset: 1px;
 }
 
-/* Keeps Download in the same place on rows that cannot be previewed. */
+// keeps Download in place on rows without preview
 .file-actions__gap {
   width: 2.25rem;
 }
 
-/* On a wide screen the eye and the arrow are all a read-only row needs. */
 .file-row:not(.file-row--editable) .file-actions__menu {
   display: none;
 }
@@ -119,7 +117,6 @@
     gap: 0.6rem;
   }
 
-  /* The avatar stays, the name moves to its tooltip. */
   .file-author ::ng-deep .assignee-chip > span {
     display: none;
   }

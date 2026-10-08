@@ -3,21 +3,21 @@ import { NotificationParametersModel } from './notification-parameters.model';
 
 export interface NotificationModel {
   id: string;
-  /** `NotificationType`. */
+  // NotificationType
   type: number;
   createdAt: string;
   readAt: string | null;
-  /** Who did it; `null` when the system did, as with deadline reminders. */
+  // null = system (deadline reminders)
   actor: PersonModel | null;
   projectId: string;
-  /** `NotificationEntityType`. */
+  // NotificationEntityType
   entityType: number;
   entityId: string;
-  /** The ticket the task is in now; `null` for a project or a deleted task. */
+  // current ticket, null for project or deleted task
   workTicketId: string | null;
-  /** Where the task stands now (`WorkTaskStatus`); `null` for a project or a deleted task. */
+  // current WorkTaskStatus, null for project or deleted task
   taskStatusId: number | null;
-  /** The task's deadline now, which may have moved since the notification was written. */
+  // current deadline, can differ from the one in the text
   taskDeadline: string | null;
   commentId: string | null;
   parameters: NotificationParametersModel;

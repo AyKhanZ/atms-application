@@ -16,7 +16,7 @@ export function ticketHasTasks(ticket: Pick<WorkTicketModel, 'totalTaskCount'>):
   return (ticket.totalTaskCount ?? 0) > 0;
 }
 
-/** A ticket with tasks is not deleted: they would be left without a ticket. Says what to do. */
+// tasks would be left without a ticket
 export function ticketDeleteBlockedConfirmation(ticket: WorkTicketModel): Confirmation {
   const taskCount = ticket.totalTaskCount ?? 0;
   const tasks = taskCount === 1 ? 'task' : 'tasks';

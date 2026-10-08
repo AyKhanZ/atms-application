@@ -61,7 +61,7 @@
   }
 }
 
-/* A hollow ring on a read row, so the place to click is there to find; filled when unread. */
+// hollow ring when read so there is something to click, filled when unread
 .row__dot {
   width: 0.625rem;
   height: 0.625rem;
@@ -109,7 +109,6 @@
   margin: 0.5rem 0;
 }
 
-/* On a phone the one action takes the row it stands in. */
 @container (max-width: 30rem) {
   .notifications-header .page-actions,
   .notifications-header__read-all {

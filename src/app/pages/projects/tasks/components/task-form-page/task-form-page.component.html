@@ -44,8 +44,7 @@
         (submitForm)="submit()"
       >
         <div task-parent>
-          <!-- Editable in both modes: moving a task to another ticket, or a subtask to another
-               task, is the same kind of change as moving a ticket to another milestone. -->
+          <!-- editable in both modes, moving to another ticket/task is a normal change -->
           @if (projectId && ticketId) {
             <app-task-parent-select
               [projectId]="projectId"

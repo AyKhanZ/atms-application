@@ -1,7 +1,4 @@
-/// Details body shared by Ticket and Task: description on the left, facts and location on the
-/// right. The two pages had their own copies and drifted — different description colour, a
-/// different collapse breakpoint, and only one of them lifted Location above the description on a
-/// narrow screen. Both now include this mixin, so a change lands on both or on neither.
+// shared by ticket and task, they had their own copies and drifted
 @mixin body {
   .work-item-details-content {
     display: grid;
@@ -58,8 +55,7 @@
       border-left: 0;
     }
 
-    /* Location last in the source, first on a narrow screen: "where am I" comes before the
-       facts once the columns stack. It is the last child in both pages. */
+    // location is last in the source but first on narrow screens
     .work-item-information > :last-child {
       order: -1;
     }

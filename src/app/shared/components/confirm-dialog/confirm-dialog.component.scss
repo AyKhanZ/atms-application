@@ -1,6 +1,4 @@
-/* Headless mode gives us the bare panel, so the surface is ours to draw. It is built like every
-   other panel in the app — head, body, footer separated by hairlines — so a dialog reads as part
-   of the same product and not as a page from somewhere else. */
+// headless mode gives the bare panel, built like every other panel in the app
 .confirm {
   --confirm-accent-bg: var(--orange-light);
   --confirm-accent-text: var(--orange-text-hover);
@@ -48,15 +46,13 @@
   line-height: 1.3;
 }
 
-/* Text is left-aligned and kept to a readable measure: centred paragraphs turn a three-line
-   message into a ragged block that the eye skips. */
+// left aligned, centred paragraphs are hard to read
 .confirm__body {
   display: grid;
   gap: 0.4rem;
   padding: 1.15rem 1.35rem;
 }
 
-/* The thing being acted on, on its own line — the one part the user has to recognise. */
 .confirm__subject {
   display: -webkit-box;
   overflow: hidden;
@@ -95,8 +91,7 @@
   min-height: 2.5rem;
 }
 
-/* The theme paints every filled button in the brand orange, so a destructive accept has to be
-   claimed explicitly — an orange "Delete" next to a red icon says two different things. */
+// theme paints every filled button orange, a destructive accept has to be red explicitly
 .confirm[data-tone='danger'] .confirm__actions button:last-child {
   border-color: var(--red-hover);
   background: var(--red-hover);
@@ -121,9 +116,7 @@
   }
 }
 
-/* Cancel sits on the footer's grey band, and an outlined button on grey reads as part of the
-   band. White fill puts it back on the surface without competing with the action next to it.
-   `:not(:last-child)` because a notice has a single button and that one is the action. */
+// white fill so cancel doesnt melt into the grey footer; a notice has one button and its the action
 .confirm__actions button:not(:last-child) {
   border-color: var(--app-border);
   background: var(--white);

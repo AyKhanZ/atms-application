@@ -1,13 +1,11 @@
 @use 'toolbar-button';
 
-// The colours open under the button.
 :host {
   position: relative;
   display: inline-flex;
   flex: none;
 }
 
-// The glyph and its arrow in one button, a little wider than the other tools.
 .highlight__button {
   @include toolbar-button.base;
 
@@ -89,8 +87,7 @@
   }
 }
 
-// A phone: the toolbar scrolls sideways and would clip the colours, so they open under the
-// editor's bar, at its left, instead of under this button.
+// on a phone the toolbar scrolls and would clip the colors, so they open under the editor bar
 @container (max-width: 28rem) {
   :host {
     position: static;

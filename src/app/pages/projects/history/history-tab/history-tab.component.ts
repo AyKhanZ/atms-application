@@ -29,10 +29,6 @@ import { HistoryListComponent } from '../components/history-list/history-list.co
 import { HistoryStateBarComponent } from '../components/history-state-bar/history-state-bar.component';
 import { HistoryPaneHeightDirective } from '../history-pane-height.directive';
 
-/**
- * The History tab of a project, ticket, task or subtask: how the status went on top, the entries on
- * the left, what the chosen one changed on the right. On a narrow tab the two take turns.
- */
 @Component({
   selector: 'app-history-tab',
   imports: [
@@ -54,14 +50,14 @@ export class HistoryTabComponent implements OnDestroy {
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly injector = inject(Injector);
   private readonly sections = inject(FoldedSectionsService);
-  /** Folded on one item, folded on the next: kept for every History tab. */
+  // kept for every History tab
   protected readonly statesOpen = this.sections.open('history.states');
   protected readonly entriesOpen = this.sections.open('history.entries');
 
   readonly projectId = input.required<string>();
   readonly scope = input.required<HistoryScope>();
   readonly subject = input.required<HistorySubject>();
-  /** The status on the page header, for an item whose status never changed on record. */
+  // for an item whose status never changed
   readonly currentStatus = input<DictionaryModel | null>(null);
 
   protected readonly skeletonRows = [0, 1, 2, 3, 4];
@@ -89,19 +85,18 @@ export class HistoryTabComponent implements OnDestroy {
   readonly error = computed(() => !!this.list()?.error && !this.entries().length);
 
   private readonly selectedId = signal<string | null>(null);
-  /** The newest entry until another one is chosen. */
+  // newest until another is chosen
   readonly selected = computed<HistoryEntryModel | null>(
     () =>
       this.entries().find((entry) => entry.id === this.selectedId()) ?? this.entries()[0] ?? null,
   );
-  /** Narrow tab only: the details are shown in place of the list. */
+  // narrow tab only
   readonly detailsOpen = signal(false);
 
   private loadedKey: string | null = null;
 
   constructor() {
-    // Keyed by the string, not the scope object: a parent passing a fresh object each time would
-    // otherwise reload on every change detection.
+    // keyed by the string, a fresh scope object from the parent would reload every change detection
     effect(() => {
       const key = this.key();
       untracked(() => {
@@ -147,7 +142,6 @@ export class HistoryTabComponent implements OnDestroy {
     this.detailsOpen.set(true);
   }
 
-  /** Back to the list, on the row that was open. */
   closeDetails(): void {
     const id = this.selected()?.id;
     this.detailsOpen.set(false);

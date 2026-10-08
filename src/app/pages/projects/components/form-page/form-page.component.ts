@@ -327,8 +327,7 @@ export class ProjectFormPageComponent implements OnDestroy {
     if (this.hasUnsavedChanges()) event.preventDefault();
   }
 
-  /** Back where the form was opened from. Where the details page leads next is the navigation
-   *  history's business, not the form's, so nothing is handed on. */
+  // where to go next is navigation history business, not the forms
   private navigateToCancelUrl(): void {
     void this.router.navigateByUrl(this.cancelUrl);
   }

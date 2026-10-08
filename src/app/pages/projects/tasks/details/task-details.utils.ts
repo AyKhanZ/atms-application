@@ -17,11 +17,7 @@ export function taskTabQueryParam(tab: TaskTab): string | null {
   return tab === 'details' ? null : tab;
 }
 
-/**
- * The whole trail at once instead of renamed route segments: a subtask has no segment of its own
- * for the parent task, and without this crumb the trail jumps straight from the ticket to the
- * subtask.
- */
+// subtask route has no segment for the parent task, without this the trail jumps from ticket to subtask
 export function taskBreadcrumbTrail(
   project: Pick<WorkProjectModel, 'code' | 'title'>,
   task: WorkTaskModel,
@@ -54,7 +50,6 @@ export function taskBreadcrumbTrail(
   return items;
 }
 
-/** Where a task sits: its parent task's Subtasks tab, or its ticket's Tasks tab. */
 export function taskParentRoute(task: WorkTaskModel): { commands: string[]; queryParams: Params } {
   const ticket = ['/projects', task.workProjectId, 'tickets', task.workTicket.id];
   return task.parentWorkTask?.id
@@ -62,11 +57,7 @@ export function taskParentRoute(task: WorkTaskModel): { commands: string[]; quer
     : { commands: ticket, queryParams: { tab: 'tasks' } };
 }
 
-/**
- * A task goes with its subtasks (05-tasks, «Удаление»): a subtask cannot live without its parent,
- * and deleting them one by one first was the chore this replaced. The dialog says what else goes,
- * so nothing disappears unannounced. Undo follows in the message after the delete.
- */
+// deletes subtasks too, the dialog says what else goes
 export function taskDeleteConfirmation(task: WorkTaskModel, accept: () => void): Confirmation {
   const kind = task.isSubtask ? 'subtask' : 'task';
   const subtasks = task.subtaskCount === 1 ? 'subtask' : 'subtasks';

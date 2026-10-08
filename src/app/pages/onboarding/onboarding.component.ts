@@ -356,7 +356,7 @@ export class OnboardingComponent implements HasUnsavedChanges {
     if (this.hasUnsavedChanges()) event.preventDefault();
   }
 
-  /** By value, not dirty: a field edited and put back is not a change worth a warning. */
+  // by value not dirty, edited and put back is not a change
   private personalInfoChanged(): boolean {
     return personalInfoSnapshot(this.personalForm.getRawValue()) !== this.savedPersonalSnapshot;
   }

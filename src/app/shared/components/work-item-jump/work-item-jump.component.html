@@ -38,7 +38,6 @@
         <app-input-clear (cleared)="clearSearch()" />
       }
     </div>
-    <!-- The ancestors, stepped like the Location tree, so the list is visibly scoped to them. -->
     <header class="work-item-jump-context">
       @for (level of context(); track level.title; let index = $index) {
         <span

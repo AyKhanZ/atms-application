@@ -2,10 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, input, signal } f
 import { ImageUrlService } from '../../../core/services/image-url.service';
 import { organizationInitials } from '../../../core/utils/organization.utils';
 
-/**
- * Small square logo of an organization, or its initials when there is no image.
- * Size is set from outside with `--organization-logo-size` (default 2.25rem).
- */
+// size from outside with --organization-logo-size (default 2.25rem)
 @Component({
   selector: 'app-organization-logo',
   imports: [],

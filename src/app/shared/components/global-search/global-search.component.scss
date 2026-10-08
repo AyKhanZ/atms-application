@@ -39,10 +39,8 @@
   left: 0;
   display: flex;
   flex-direction: column;
-  /* Between the phone layout and a full sidebar the field shrinks to ~26rem, and a row that narrow
-     falls apart into three lines. So the list is at least 44rem, spilling right of the field over
-     the bell and avatar — but never past the window: --search-room is the width measured from the
-     field's left edge to the window's, set when the box opens. */
+  // between phone and full sidebar the field is ~26rem and rows break into 3 lines, so the list is min 44rem
+  // but never past the window: --search-room is set when the box opens
   width: max(100%, min(44rem, var(--search-room, 100%)));
   max-height: min(35rem, calc(100dvh - 5rem));
   overflow: hidden;

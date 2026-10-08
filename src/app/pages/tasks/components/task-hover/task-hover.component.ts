@@ -10,11 +10,7 @@ import { WorkItemAssigneeComponent } from '../../../../shared/components/work-it
 import { OverdueBadgeComponent } from '../../../../shared/components/overdue-badge/overdue-badge.component';
 import { TaskStatusBadgeComponent } from '../../../projects/tasks/components/task-status-badge/task-status-badge.component';
 
-/**
- * Everything a one-line calendar chip leaves out, on hover, drawn the way the rest of BAIM draws
- * it: the kind stripe, projects and parents with their icon and code, the state badge, the person
- * with their avatar. Shown with `pTooltip` and the `task-hover` style class.
- */
+// shown with pTooltip and the task-hover style class
 @Component({
   selector: 'app-task-hover',
   host: { '[class.is-subtask]': 'task().isSubtask' },

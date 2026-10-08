@@ -6,7 +6,7 @@
   container-type: inline-size;
 }
 
-// Two columns on a wide card: ten rows in one column would be taller than the charts above.
+// two columns on a wide card, ten rows in one would be taller than the charts
 @container (min-width: 64rem) {
   .dashboard-activity-list {
     display: grid;
@@ -14,7 +14,7 @@
     align-content: start;
     column-gap: 1.5rem;
   }
-  // Both columns end on the same row: an odd last entry is left out rather than hanging alone.
+  // odd last item is hidden so both columns end on the same row
   .dashboard-activity-list li:last-child:nth-child(odd):not(:first-child) {
     display: none;
   }
@@ -26,8 +26,7 @@
   align-items: center;
   gap: 0.75rem;
 }
-// The dot is the status the work arrived at, as the status dots everywhere else; an edit that
-// changed no status has nothing to colour and is a hollow ring.
+// no status change = hollow ring
 .dashboard-activity__dot {
   width: 0.5rem;
   height: 0.5rem;

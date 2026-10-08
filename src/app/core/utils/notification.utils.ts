@@ -9,30 +9,24 @@ import { commentAnchor } from './comment-anchor.utils';
 import { isOverdueTask, startOfDay, startOfToday } from './deadline.utils';
 import { personShortName } from './person-name.utils';
 
-/** The work a notification is about, named as it was when the notification was written. */
+// named as it was when the notification was written
 export interface NotificationSubject {
   kind: WorkItemKind;
   code: string | null;
   title: string;
 }
 
-/**
- * One notification the way a row draws it: the work it is about on the first line, the way every
- * list names work, and who did what on the second, in plain text — only the title stands out.
- */
 export interface NotificationView {
   subject: NotificationSubject;
-  /** "Leyla M."; `null` for a deadline reminder, which nobody sent. */
+  // null for a deadline reminder
   actor: string | null;
-  /** "assigned it to you", "moved it to", "Due today", "Was due 5 Oct". */
+  // "assigned it to you", "moved it to", "Due today", "Was due 5 Oct"
   action: string;
-  /** The status a task was moved to, drawn as the status dot every list uses. */
   status: DictionaryModel | null;
-  /** The deadline the overdue pill counts from: only while the task is open and late now. */
+  // only while the task is still open and late
   overdueDeadline: string | null;
 }
 
-/** Where a notification leads: a route and, for a comment, the comment on the task's page. */
 export interface NotificationLink {
   commands: string[];
   fragment?: string;
@@ -44,10 +38,10 @@ const statuses: Record<number, DictionaryModel> = {
   [WorkTaskStatus.Done]: { id: WorkTaskStatus.Done, code: 'Done', name: 'Done' },
 };
 
-/** The server's `WorkTaskKindEnum.Subtask`. */
+// server WorkTaskKindEnum.Subtask
 const subtaskKind = 2;
 
-/** "TASK #41 Payment form", as it was called when the notification was written. */
+// "TASK #41 Payment form"
 export function notificationTaskLabel(parameters: NotificationParametersModel): string {
   const kind = parameters.taskKind === subtaskKind ? 'SUBTASK' : 'TASK';
   const code = parameters.taskCode ? ` #${parameters.taskCode}` : '';
@@ -55,10 +49,7 @@ export function notificationTaskLabel(parameters: NotificationParametersModel): 
   return `${kind}${code}${title}`;
 }
 
-/**
- * What a row shows, built here from the type and the parameters: the server keeps no text, so a
- * renamed person reads with their new name and the interface language is the interface's.
- */
+// server keeps no text, so new names and the ui language are used
 export function notificationView(notification: NotificationModel, now = new Date()): NotificationView {
   const subject = notificationSubject(notification);
   const actor = isSystemNotification(notification)
@@ -86,7 +77,7 @@ export function notificationView(notification: NotificationModel, now = new Date
     case NotificationType.Mentioned:
       return view('mentioned you in a comment');
     case NotificationType.DueToday: {
-      // A reminder read on a later day says the date, not "today".
+      // reminder read on a later day shows the date, not "today"
       const deadline = parseDeadline(notification.parameters.deadline);
       const today = !deadline || deadline.getTime() === startOfToday(now).getTime();
       return withOverdue(view(today ? 'Due today' : `Due ${formatDeadline(deadline)}`), notification, now);
@@ -115,10 +106,7 @@ function notificationSubject(notification: NotificationModel): NotificationSubje
   };
 }
 
-/**
- * A reminder carries the red pill only while the task is still late: the reminder is about the
- * past, the pill about now — a task done or given a new date since is not overdue any more.
- */
+// red pill only while the task is still late, done or moved since = no pill
 function withOverdue(view: NotificationView, notification: NotificationModel, now: Date): NotificationView {
   const { taskStatusId, taskDeadline } = notification;
   const overdue =
@@ -128,22 +116,18 @@ function withOverdue(view: NotificationView, notification: NotificationModel, no
   return overdue ? { ...view, overdueDeadline: taskDeadline } : view;
 }
 
-/** The unread count as the bell and the tab title show it: "3", "99+", nothing for zero. */
+// "3", "99+", null for zero
 export function unreadBadge(count: number): string | null {
   return count > 99 ? '99+' : count > 0 ? `${count}` : null;
 }
 
-/**
- * The tab title with the unread count in front, as Gmail and GitHub show it: seen while the tab is in
- * the background, without a sound. A count already in front is replaced, not stacked.
- */
+// like gmail and github; an existing count is replaced, not stacked
 export function titleWithUnread(title: string, count: number): string {
   const base = title.replace(/^\(\d+\+?\) /, '');
   const badge = unreadBadge(count);
   return badge ? `(${badge}) ${base}` : base;
 }
 
-/** The comment a notification was about is gone: say so instead of leading to nothing. */
 export function notificationShowsDeletedComment(notification: NotificationModel): boolean {
   return (
     notification.commentDeleted &&
@@ -152,7 +136,6 @@ export function notificationShowsDeletedComment(notification: NotificationModel)
   );
 }
 
-/** Sent by the system, not by a person: a deadline reminder. */
 export function isSystemNotification(notification: NotificationModel): boolean {
   return (
     notification.type === NotificationType.DueToday ||
@@ -160,10 +143,7 @@ export function isSystemNotification(notification: NotificationModel): boolean {
   );
 }
 
-/**
- * The page a notification opens, or `null` when what it points to was deleted. A comment opens on
- * the task's Details, scrolled to the comment — a deleted one shows its placeholder there.
- */
+// null when the target was deleted; a comment opens on task Details scrolled to it
 export function notificationLink(notification: NotificationModel): NotificationLink | null {
   if (notification.entityDeleted) return null;
 
@@ -185,20 +165,17 @@ export function notificationLink(notification: NotificationModel): NotificationL
     : { commands };
 }
 
-/** "project", "task" or "subtask": what the Notice names when the target was deleted. */
 export function notificationDeletedTarget(notification: NotificationModel): string {
   if (notification.entityType === NotificationEntityType.Project) return 'project';
   return notification.parameters.taskKind === subtaskKind ? 'subtask' : 'task';
 }
 
-/** Notifications of one day on the Notifications page. */
 export interface NotificationDayGroup {
-  /** "Today", "Yesterday", "28 Sep", or "28 Dec 2025" for another year. */
+  // "Today", "Yesterday", "28 Sep", "28 Dec 2025"
   label: string;
   items: NotificationModel[];
 }
 
-/** The page's rows by day, in the order they come — newest first. */
 export function groupNotificationsByDay(
   items: readonly NotificationModel[],
   now = new Date(),
@@ -223,7 +200,7 @@ export function groupNotificationsByDay(
   return groups;
 }
 
-/** A `yyyy-MM-dd` date as local midnight: parsed as UTC it would be the day before west of Greenwich. */
+// as local midnight, parsed as utc it would be the day before west of greenwich
 function parseDeadline(value: string | null): Date | null {
   if (!value) return null;
   const [year, month, day] = value.split('-').map(Number);

@@ -210,7 +210,6 @@ export class DashboardEffects {
   );
 }
 
-/** A refused range says what to fix; a lost connection and anything else say so plainly. */
 function loadErrorText(error: unknown): string {
   if (isServerUnavailable(error)) return "Can't reach the server. Check the connection and try again.";
   const message = error instanceof HttpErrorResponse ? validationMessage(error) : null;

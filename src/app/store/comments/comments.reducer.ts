@@ -17,7 +17,6 @@ const emptyList: Omit<
   loadMoreError: null,
 };
 
-/** What a list keeps across reads of its pages: deletions it saw and the comment a link points at. */
 const keptAcrossReads: Pick<
   CommentListState,
   'removedIds' | 'linked' | 'linkedId' | 'linkedError'
@@ -28,7 +27,7 @@ const keptAcrossReads: Pick<
   linkedError: null,
 };
 
-/** The comment as a placeholder: who wrote it stays, what it said goes. */
+// author stays, text goes
 function placeholder(comment: CommentModel): CommentModel {
   return {
     ...comment,
@@ -43,10 +42,7 @@ function placeholder(comment: CommentModel): CommentModel {
   };
 }
 
-/**
- * What a read brought, with the comments deleted after it started turned into placeholders: a delete
- * cannot be undone, so a late answer never shows the text again.
- */
+// deleted after the read started -> placeholder, a late answer never shows the text again
 function live(list: CommentListState, items: readonly CommentModel[]): CommentModel[] {
   return items.map((item) =>
     !item.isDeleted && list.removedIds.includes(item.id) ? placeholder(item) : item,
@@ -59,17 +55,13 @@ function update(
   change: (list: CommentListState) => CommentListState,
 ): CommentsState {
   const list = state.lists[listKey];
-  // A late answer for a list that already left the screen must not bring it back.
+  // late answer for a list that left must not bring it back
   if (!list) return state;
   return { ...state, lists: { ...state.lists, [listKey]: change(list) } };
 }
 
-/**
- * The one way a comment reaches the list, whether the user sent it or a push brought it: whichever
- * of the two comes second finds it there and only refreshes it, so nothing is shown twice. A deleted
- * one never turns live again, and a placeholder of a comment not on screen is not added on top — it
- * belongs further down, on a page not read yet.
- */
+// whichever comes second (own send or push) only refreshes, nothing shown twice
+// a deleted one never comes back; a placeholder not on screen isnt added on top
 function put(list: CommentListState, comment: CommentModel): CommentListState {
   if (list.linked?.id === comment.id) {
     return list.linked.isDeleted && !comment.isDeleted ? list : { ...list, linked: comment };
@@ -80,7 +72,6 @@ function put(list: CommentListState, comment: CommentModel): CommentListState {
   return { ...list, items: [comment, ...list.items] };
 }
 
-/** A page reached the linked comment: it leaves the top and stays in its place in the list. */
 function settleLinked(list: CommentListState): CommentListState {
   return list.linked && list.items.some((item) => item.id === list.linked?.id)
     ? { ...list, linked: null }
@@ -96,7 +87,7 @@ function replace(list: CommentListState, comment: CommentModel): CommentListStat
 
 const reducer = createReducer(
   initialCommentsState,
-  // Opening the task again keeps the comments already shown; a skeleton over them would only flash.
+  // keep comments already shown, a skeleton would only flash
   on(
     Actions.load,
     (state, { listKey, projectId, workTaskId }): CommentsState => ({
@@ -166,7 +157,7 @@ const reducer = createReducer(
     (state, { listKey, comment }): CommentsState =>
       update(state, listKey, (list) => put(list, comment)),
   ),
-  // The card turns into a placeholder at once; who deleted it and when come with the read after.
+  // who and when come with the read after
   on(
     Actions.removeSuccess,
     Actions.removedElsewhere,
@@ -195,7 +186,6 @@ const reducer = createReducer(
         linkedError: null,
       })),
   ),
-  // Already on a page by the time it came: refreshed there, nothing above the list.
   on(
     Actions.loadLinkedSuccess,
     (state, { listKey, comment }): CommentsState =>

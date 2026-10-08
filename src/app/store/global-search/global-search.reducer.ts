@@ -96,7 +96,7 @@ const reducer = createReducer(
     Actions.resetPage,
     (state): GlobalSearchState => ({ ...state, page: initialGlobalSearchState.page }),
   ),
-  // Results and recent items are the signed-in user's; none of them may outlive the session.
+  // users data, cant outlive the session
   on(AuthStoreActions.logoutCompleted, (): GlobalSearchState => initialGlobalSearchState),
 );
 

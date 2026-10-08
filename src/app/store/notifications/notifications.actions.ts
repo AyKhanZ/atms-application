@@ -10,7 +10,7 @@ export const loadSummarySuccess = createAction(
 );
 export const loadSummaryFailure = createAction(`${key} Load Summary Failure`);
 
-/** The bell's panel opened: its rows are read again and kept fresh while it stays open. */
+// rows read again and kept fresh while open
 export const panelOpened = createAction(`${key} Panel Opened`);
 export const panelClosed = createAction(`${key} Panel Closed`);
 
@@ -41,10 +41,10 @@ export const loadMorePageFailure = createAction(
   props<{ error: string }>(),
 );
 
-/** The page left the screen: drop its list and cancel a read still on its way. */
+// also cancels a read still on its way
 export const resetPage = createAction(`${key} Reset Page`);
 
-/** Read at once on screen; a failure reads the truth back from the server. */
+// optimistic, a failure reads the truth back
 export const markRead = createAction(`${key} Mark Read`, props<{ id: string }>());
 export const markReadSuccess = createAction(`${key} Mark Read Success`, props<{ id: string }>());
 export const markReadFailure = createAction(`${key} Mark Read Failure`, props<{ id: string }>());
@@ -63,12 +63,12 @@ export const markAllRead = createAction(`${key} Mark All Read`);
 export const markAllReadSuccess = createAction(`${key} Mark All Read Success`);
 export const markAllReadFailure = createAction(`${key} Mark All Read Failure`);
 
-/** A new notification, or one merged into an unread one, known from its push. */
+// new or merged into an unread one
 export const received = createAction(
   `${key} Received`,
   props<{ id: string; unreadCount: number }>(),
 );
-/** Something was read or made unread, here or in another tab. */
+// here or in another tab
 export const readElsewhere = createAction(
   `${key} Read Elsewhere`,
   props<{ unreadCount: number }>(),

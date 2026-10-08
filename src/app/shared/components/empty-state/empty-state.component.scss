@@ -2,11 +2,9 @@
   display: block;
 }
 
-/* About the height of two or three list rows. Taller, it outweighed a filled tab: adding the
-   first task made the card shrink, as if content had been taken away rather than added. */
+// about two or three rows, taller made the card shrink when the first item was added
 .empty-state {
   display: grid;
-  /* Fills the tab body it sits in, so the message is centred in it. */
   height: 100%;
   min-height: 9rem;
   place-items: center;

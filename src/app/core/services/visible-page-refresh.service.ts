@@ -4,26 +4,14 @@ import { filter, fromEvent, map, Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class VisiblePageRefreshService {
-  /**
-   * Minimum gap between refreshes. `visibilitychange` fires on every alt-tab, on opening or
-   * closing devtools and on minimising the window, so without this a user switching between two
-   * tabs produces a request per switch.
-   */
+  // visibilitychange fires on every alt-tab and devtools toggle, without a gap every switch is a request
   private static readonly defaultMinGapMs = 600_000;
 
   private readonly document = inject(DOCUMENT);
   private lastEmittedAt = new Map<string, number>();
 
-  /**
-   * Emits when the user comes back to an already open page, never on a timer.
-   *
-   * There used to be an `interval()` here as well. It was removed: project structure and project
-   * permissions change rarely, the user's own changes already trigger a reload, and the backend
-   * checks permissions on every request anyway — so polling cost requests without buying
-   * freshness anyone could notice.
-   *
-   * @param key identifies the caller so two watchers do not consume each other's gap.
-   */
+  // only when the user comes back to the page, no timer
+  // key = caller, so two watchers dont eat each others gap
   onReturn(key: string, minGapMs = VisiblePageRefreshService.defaultMinGapMs): Observable<void> {
     return fromEvent(this.document, 'visibilitychange').pipe(
       filter(() => this.isVisible()),

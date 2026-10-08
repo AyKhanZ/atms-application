@@ -8,7 +8,7 @@ export function hasCompletedOnboarding(accessToken: string | null | undefined): 
   return claims?.onboarding_completed === true || claims?.onboarding_completed === 'true';
 }
 
-/** The id of the user the token belongs to, or null for no token or one that does not decode. */
+// null if no token or it doesnt decode
 export function tokenSubject(accessToken: string | null | undefined): string | null {
   return readClaims(accessToken)?.sub ?? null;
 }

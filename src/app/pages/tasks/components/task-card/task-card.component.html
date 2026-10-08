@@ -26,8 +26,7 @@
   <app-work-item-assignee class="card__assignee" [assignee]="task().assignee" />
   <app-task-context [task]="task()" [showProject]="showProject()" />
 
-  <!-- Priority always first, so the eye finds it in the same place on every card. A date only
-       when it asks for action: overdue, due today or tomorrow. The rest is on the task. -->
+  <!-- priority always first; a date only when it needs action (overdue, today, tomorrow) -->
   <footer class="card__meta">
     <app-work-item-priority [priority]="task().priority" />
     @if (!task().isSubtask && task().subtaskCount > 0) {

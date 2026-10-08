@@ -43,8 +43,7 @@
   font-weight: 800;
 }
 
-/* Pinned to the card: as a grid item its 100% height follows the picture, not the 16:10 card, and a
-   square logo was cut at the bottom instead of fitting. */
+// as a grid item 100% height follows the picture, not the 16:10 card, square logos were cut
 .logo-card img {
   position: absolute;
   inset: 0;
@@ -152,8 +151,7 @@
 
 :host ::ng-deep .employees-table {
   display: block;
-  // A grid child keeps its intrinsic width otherwise, and the table pushes the card off-screen on a
-  // phone instead of scrolling inside it.
+  // without it the table pushes the card off-screen on a phone
   min-width: 0;
   overflow: visible;
   border: 1px solid var(--app-border);

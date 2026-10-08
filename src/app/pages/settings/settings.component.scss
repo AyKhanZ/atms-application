@@ -13,9 +13,7 @@
   overflow: hidden;
 }
 
-/* Both tabs share one grid cell, so the card is as tall as the taller tab and keeps its height when
-   the other one is opened. On a narrow screen the profile is much taller, so there the hidden tab
-   simply goes away instead of leaving a blank area under the password. */
+// both tabs in one grid cell so the card keeps its height; on narrow screens the hidden tab goes away
 .settings-panes {
   display: grid;
   min-width: 0;
@@ -37,7 +35,7 @@
   }
 }
 
-/* The same two columns as onboarding step 1: a large photo, then the fields. */
+// same columns as onboarding step 1
 .profile-layout {
   display: grid;
   grid-template-columns: minmax(14rem, 18rem) minmax(0, 1fr);
@@ -63,7 +61,7 @@
   font-size: 0.78rem;
 }
 
-/* Keeps its line even when empty, so an error appearing does not move anything. */
+// keeps its line when empty so an error doesnt move anything
 .profile-photo__error {
   min-height: 1.1rem;
   color: var(--red-hover);
@@ -71,8 +69,7 @@
   line-height: 1.1rem;
 }
 
-/* Below ~60rem the fields column would get too narrow next to the photo, so the photo moves on top
-   while it can still be large. */
+// under ~60rem the fields get too narrow next to the photo, photo goes on top
 @container (max-width: 60rem) {
   .profile-layout {
     grid-template-columns: minmax(0, 1fr);
@@ -97,7 +94,6 @@
   margin: 0;
 }
 
-/* Loading: every label, control and button becomes a shimmering block of its own size. */
 :host ::ng-deep .settings-card--loading {
   label,
   .counter,

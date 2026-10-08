@@ -199,7 +199,7 @@ export class RealtimeService {
       try {
         await connection.invoke('JoinProject', projectId);
       } catch {
-        // A failed join must not prevent other groups or the screen from refreshing.
+        // one failed join shouldnt stop the others
       }
     }
 
@@ -208,7 +208,7 @@ export class RealtimeService {
       try {
         await connection.invoke('WatchTask', projectId, taskId);
       } catch {
-        // Continue restoring the remaining subscriptions before notifying the screen.
+        // same, keep restoring the rest
       }
     }
 

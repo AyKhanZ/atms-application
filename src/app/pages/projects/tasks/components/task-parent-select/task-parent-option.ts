@@ -47,11 +47,7 @@ export function taskParentOption(task: WorkTaskModel): TaskParentOption {
   };
 }
 
-/**
- * The parent of an item being edited, built from the item itself: a subtask carries its parent's
- * code and title, and a top-level task belongs to its ticket. Saves a second request just to
- * preselect the control.
- */
+// built from the item itself, saves a request just to preselect
 export function editedTaskParentOption(
   task: WorkTaskModel | null | undefined,
   ticket: WorkTicketModel | null | undefined,
@@ -93,16 +89,12 @@ export function editedTaskParentOption(
 
 export interface TaskParentGroup {
   label: string;
-  /** Ancestors of the group, outermost first, rendered as indented lines above its items. */
+  // outermost first
   path: string[];
   items: TaskParentOption[];
 }
 
-/**
- * Buckets the options by their place in the plan and keeps the full chain, so the dropdown reads
- * like the Plan tab rather than as one flat list: a ticket sits under Group › Milestone, a task
- * one level deeper under its ticket.
- */
+// grouped like the Plan tab, not a flat list
 export function groupParentOptions(options: TaskParentOption[]): TaskParentGroup[] {
   const groups = new Map<string, TaskParentGroup>();
   for (const option of options) {

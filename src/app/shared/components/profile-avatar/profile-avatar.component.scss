@@ -22,7 +22,7 @@
   color: var(--app-primary);
   font-size: var(--avatar-font-size, 2rem);
   font-weight: 800;
-  /* A small avatar in a list sets it to none from outside, the way it sets --avatar-size. */
+  // a small avatar in a list sets it to none from outside
   box-shadow: var(--avatar-shadow, 0 6px 16px rgba(15, 23, 42, 0.08));
   transition:
     transform 0.18s ease,
@@ -105,8 +105,7 @@
     border-radius: var(--avatar-radius, 1.5rem);
   }
 
-  /* No hover on a phone, so the lens stays visible. A small avatar in a list sets it to 0 from outside:
-     there the lens would cover the face. */
+  // no hover on a phone so the lens stays; small avatars set it to 0, the lens would cover the face
   .avatar::after {
     opacity: var(--avatar-zoom-opacity, 1);
   }

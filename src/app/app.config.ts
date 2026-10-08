@@ -110,9 +110,7 @@ export const appConfig: ApplicationConfig = {
     provideAnimationsAsync(),
     providePrimeNG({
       ripple: true,
-      // On a narrow screen a panel is about as wide as the window, so anchoring it to its field
-      // means it either points at the field or stays clear of the edges — never both. Below this
-      // width every overlay comes up as a sheet from the bottom with a backdrop instead.
+      // on phones every overlay opens as a bottom sheet, anchored to the field it doesnt fit a narrow screen
       overlayOptions: {
         responsive: { breakpoint: '768px', direction: 'bottom' },
       },
@@ -164,12 +162,11 @@ export const appConfig: ApplicationConfig = {
       NotificationsEffects,
     ]),
     provideAppInitializer(authInitializer),
-    // Started before the first navigation, so Back knows the page the user arrived from.
+    // started before the first navigation so Back knows where the user came from
     provideAppInitializer(() => {
       inject(NavigationHistoryService);
     }),
     provideZonelessChangeDetection(),
-    // Redux DevTools
     provideStoreDevtools({
       maxAge: 25,
       logOnly: !isDevMode(),

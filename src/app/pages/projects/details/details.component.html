@@ -58,7 +58,7 @@
         (select)="selectTab($event)"
       />
 
-      <!-- One height for every tab, so moving between empty ones does not resize the card. -->
+      <!-- one height for every tab so the card doesnt resize between them -->
       <div class="tab-body">
         @if (activeTab() === 'details') {
           <div class="details-content">

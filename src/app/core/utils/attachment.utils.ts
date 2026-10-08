@@ -1,11 +1,9 @@
 import { AttachmentScope } from '../models/attachments';
 
-/** Mirrors `AttachmentsOptions` on the server, which checks every rule again. */
+// same as server AttachmentsOptions, server checks everything again
 export const MAX_ATTACHMENT_SIZE_MB = 25;
 export const MAX_ATTACHMENT_SIZE_BYTES = MAX_ATTACHMENT_SIZE_MB * 1024 * 1024;
-/** Files one task or subtask can hold, as the server allows it. */
 export const MAX_ATTACHMENTS_PER_TASK = 100;
-/** Longest name before the extension, as the server allows it. */
 export const MAX_ATTACHMENT_BASE_NAME_LENGTH = 200;
 
 export const ATTACHMENT_EXTENSIONS: readonly string[] = [
@@ -33,15 +31,13 @@ export const ATTACHMENT_ACCEPT = ATTACHMENT_EXTENSIONS.map((extension) => `.${ex
   ',',
 );
 
-/** Size first: it is the rule people run into. Office types by the names clients know them by. */
 export const ATTACHMENT_HINT = `Up to ${MAX_ATTACHMENT_SIZE_MB} MB each · PDF, Word, Excel, PowerPoint, images, text, ZIP`;
 
-/** The exact list, for the hint's tooltip. */
 export const ATTACHMENT_TYPES_TITLE = `Allowed: ${ATTACHMENT_EXTENSIONS.map((extension) => `.${extension}`).join(', ')}`;
 
 const INVALID_NAME_CHARACTERS = /[\\/:*?"<>|\u0000-\u001f]/;
 
-/** How a file opens in the preview; a type missing here is downloaded instead. */
+// types not here are downloaded
 export type AttachmentPreviewKind = 'image' | 'pdf' | 'text' | 'document' | 'sheet';
 
 const PREVIEW_KINDS: Readonly<Record<string, AttachmentPreviewKind>> = {
@@ -68,7 +64,7 @@ export function attachmentListKey(scope: AttachmentScope): string {
   }
 }
 
-/** "Report.v2.pdf" → { base: "Report.v2", extension: ".pdf" }. */
+// "Report.v2.pdf" -> { base: "Report.v2", extension: ".pdf" }
 export function splitFileName(fileName: string): { base: string; extension: string } {
   const dot = fileName.lastIndexOf('.');
   return dot > 0
@@ -80,7 +76,7 @@ export function fileExtension(fileName: string): string {
   return splitFileName(fileName).extension.slice(1).toLowerCase();
 }
 
-/** 512 B, 38 KB, 2.4 MB — one decimal only where it carries information. */
+// 512 B, 38 KB, 2.4 MB
 export function formatFileSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
   const kilobytes = bytes / 1024;
@@ -117,7 +113,6 @@ export function attachmentIcon(fileName: string): string {
   }
 }
 
-/** Which `--file-*` colour the icon tile takes. */
 export function attachmentTone(fileName: string): string {
   switch (attachmentIcon(fileName)) {
     case 'pi-file-pdf':
@@ -135,16 +130,10 @@ export function attachmentTone(fileName: string): string {
   }
 }
 
-/**
- * A .docx or a spreadsheet is a zip unpacked in the browser to be drawn. Past this size it is only
- * downloaded: a crafted 25 MB archive can unpack to gigabytes and take the tab down with it.
- */
+// docx/xlsx is a zip unpacked in the browser, a crafted 25MB file can unpack to gigabytes and kill the tab
 export const MAX_OFFICE_PREVIEW_BYTES = 10 * 1024 * 1024;
 
-/**
- * Images, PDF and text the browser shows itself; .docx and Excel are drawn from the file in the
- * browser. The old binary .doc and PowerPoint have no such reader and are downloaded.
- */
+// old .doc and powerpoint have no browser reader, downloaded
 export function attachmentPreviewKind(file: {
   contentType: string;
   size: number;
@@ -158,7 +147,7 @@ export function canPreviewAttachment(file: { contentType: string; size: number }
   return attachmentPreviewKind(file) !== null;
 }
 
-/** Why the file cannot be sent, or null. The server checks the content as well. */
+// null = ok, the server checks the content too
 export function attachmentFileError(file: File): string | null {
   if (!ATTACHMENT_EXTENSIONS.includes(fileExtension(file.name))) {
     return "This file type isn't supported. Use PDF, Word, Excel, PowerPoint, images, text or ZIP.";
@@ -170,7 +159,6 @@ export function attachmentFileError(file: File): string | null {
   return null;
 }
 
-/** Why the new name cannot be saved, or null. */
 export function attachmentNameError(baseName: string): string | null {
   const name = baseName.trim();
   if (!name) return 'Enter a file name.';

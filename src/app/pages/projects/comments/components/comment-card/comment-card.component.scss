@@ -24,8 +24,6 @@
   }
 }
 
-// A deleted comment is a card like the rest; only its text says so, grey and quiet, and nothing in
-// it reacts to the pointer.
 .card.is-deleted:hover {
   border-color: var(--app-border);
 }
@@ -45,7 +43,7 @@
   }
 }
 
-// Reached from a link: an orange ring that fades once the eye has found it.
+// orange ring from a link, fades out
 .card.is-target {
   border-color: var(--orange);
   box-shadow: 0 0 0 3px var(--orange-focus-ring);
@@ -90,7 +88,7 @@
   }
 }
 
-// Quiet until wanted: the actions show up on hover or keyboard focus, as in Azure DevOps.
+// actions show on hover or focus
 .card__actions {
   display: flex;
   gap: 0.125rem;
@@ -103,7 +101,7 @@
   opacity: 1;
 }
 
-// A touch screen has no hover: the actions stay visible there.
+// no hover on touch screens, keep them visible
 @media (hover: none) {
   .card__actions {
     opacity: 1;
@@ -136,8 +134,7 @@
   margin: 0.5rem 0 0 2.6rem;
 }
 
-// A long comment folded to 18rem — the same number as FOLDED_HEIGHT — fading out at the fold so
-// the cut reads as "there is more", not as a broken card.
+// 18rem = FOLDED_HEIGHT, fades out so the cut reads as "there is more"
 .card__text.is-folded {
   max-height: 18rem;
   overflow: hidden;
@@ -187,7 +184,6 @@
     margin-left: 0;
   }
 
-  // One ⋯ instead of three buttons: the room goes to the author and the time.
   .card__actions {
     display: none;
   }

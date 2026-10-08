@@ -35,12 +35,11 @@ export class WorkItemJumpComponent implements OnInit {
   readonly current = input.required<WorkItemJumpItem>();
   readonly items = input.required<WorkItemJumpItem[]>();
   readonly groupLabel = input.required<string>();
-  /** Ancestors of the listed items, outermost first. Rendered as the panel header. */
+  // outermost first
   readonly context = input<readonly WorkItemJumpContext[]>([]);
-  /** Not shown any more — the trigger reads as a select on its own. Kept for assistive tech. */
+  // not shown any more, kept for screen readers
   readonly label = input('Switch item');
-  /** Kind of the entity being switched: its icon and colour, so the trigger reads as one more
-   *  tree level and matches the same item everywhere else. */
+  // icon and color of the kind so the trigger reads as one more tree level
   readonly kind = input(WorkItemKind.Ticket);
   readonly loading = input(false);
   readonly loadError = input(false);
@@ -52,7 +51,7 @@ export class WorkItemJumpComponent implements OnInit {
   readonly more = output<void>();
   readonly retry = output<void>();
   readonly open = signal(false);
-  /** Same threshold the select overlays use: under it the panel is a sheet, not a pointer. */
+  // same as select overlays, under it the panel is a sheet
   private static readonly sheetBreakpoint = 768;
   readonly sheet = signal(false);
   ngOnInit(): void {
@@ -105,8 +104,7 @@ export class WorkItemJumpComponent implements OnInit {
     if (!trigger || !panel) return;
     const anchor = trigger.getBoundingClientRect();
     const viewport = {
-      // clientWidth, not innerWidth: innerWidth counts the scrollbar, so the panel was laid out
-      // 15px wider than the visible area and its right edge ended up under the scrollbar.
+      // clientWidth not innerWidth, innerWidth counts the scrollbar (panel was 15px too wide)
       width: document.documentElement.clientWidth,
       height: window.innerHeight,
       topInset: document.querySelector('app-topbar')?.getBoundingClientRect().bottom ?? 0,
@@ -115,8 +113,7 @@ export class WorkItemJumpComponent implements OnInit {
     this.sheet.set(sheet);
 
     if (sheet) {
-      // A sheet is placed by the stylesheet, so anything measured earlier has to go — otherwise
-      // a width from a wider window survives the resize and the sheet comes up narrow.
+      // a sheet is placed by css, drop old measures or it comes up narrow after resize
       for (const property of ['width', 'maxHeight', 'left', 'top']) {
         panel.style.removeProperty(property.replace(/[A-Z]/g, (c) => '-' + c.toLowerCase()));
       }
@@ -129,7 +126,7 @@ export class WorkItemJumpComponent implements OnInit {
     const placement = workItemJumpPosition(anchor, viewport);
     panel.style.width = placement.width + 'px';
     panel.style.maxHeight = placement.maxHeight + 'px';
-    // Native top-layer rendering avoids clipping and does not enlarge the page's scroll area.
+    // top layer: no clipping and doesnt grow the page scroll
     panel.showPopover();
     const position = workItemJumpPosition(anchor, viewport, panel.getBoundingClientRect().height);
     panel.style.left = position.left + 'px';

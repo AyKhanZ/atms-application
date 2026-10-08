@@ -25,7 +25,6 @@
   white-space: nowrap;
 }
 
-/* Unassigned is an absence, not an emphasis — same weight as a name, only lighter. */
 .assignee-chip--unassigned {
   color: var(--assignee-empty-color, var(--app-muted));
 }
@@ -56,7 +55,7 @@
   box-shadow: none;
 }
 
-/* List rows. The numbers come from the ticket row, which is the reference for both lists. */
+// same numbers as the ticket row
 :host.compact {
   --assignee-gap: 0.35rem;
   --assignee-font-size: 0.8rem;
@@ -72,7 +71,6 @@
   flex: 0 0 auto;
 }
 
-/* A replaced person: the name grey and struck through, the avatar faded. */
 :host.muted .assignee-chip span {
   @include replaced-value.muted;
 }

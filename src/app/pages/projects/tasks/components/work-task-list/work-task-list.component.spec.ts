@@ -75,8 +75,7 @@ describe('WorkTaskListComponent', () => {
     expect(component.taskActions().map((item) => item.label)).toEqual(canEdit ? ['Edit'] : []);
   });
 
-  /* Loading the next page used to swap the rows for "Loading tasks..." and back, so the page
-     collapsed and jumped. The rows stay and only the button spins. */
+  // the rows used to swap for a spinner on the next page and the page jumped
   it('keeps the rows on screen while the next page loads', async () => {
     const { fixture, element } = await setup(false);
     const service = TestBed.inject(WorkTasksService) as unknown as {

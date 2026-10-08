@@ -1,9 +1,3 @@
-/// A tool of a formatting toolbar — B, I, a list — and the highlight button beside them: flat until
-/// hovered, orange when it is. Kept here so the toolbar and the highlight picker cannot drift apart.
-///
-/// Usage:
-///   @use 'toolbar-button';
-///   button { @include toolbar-button.base; }
 @mixin base($size: 2rem) {
   display: inline-grid;
   width: $size;

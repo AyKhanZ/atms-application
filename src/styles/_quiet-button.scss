@@ -1,9 +1,4 @@
-/// A white secondary button with a thin border that turns orange on hover: Clear in the filter
-/// panels and Load more under a list. Kept here so the two cannot drift apart.
-///
-/// Usage:
-///   @use 'quiet-button';
-///   .more { @include quiet-button.base; }
+// Clear in filter panels and Load more under lists
 
 @mixin base {
   display: inline-flex;

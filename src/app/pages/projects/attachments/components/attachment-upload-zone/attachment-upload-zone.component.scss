@@ -70,8 +70,7 @@
   display: none;
 }
 
-/* A phone has no pointer to drag with: the zone becomes a plain full-width button with the rules
-   under it. */
+// no drag on a phone, the zone is a plain button
 @container (max-width: 34rem) {
   .upload-zone {
     grid-template-columns: 1fr;

@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { SkeletonModule } from 'primeng/skeleton';
 
-/** The outline of a file list while it loads, in place of a "Loading…" line. */
 @Component({
   selector: 'app-attachment-list-skeleton',
   imports: [SkeletonModule],

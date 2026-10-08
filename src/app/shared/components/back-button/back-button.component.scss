@@ -14,8 +14,7 @@
   color: var(--app-primary);
   cursor: pointer;
   font-weight: 700;
-  /* Same width on every page. It used to be set from outside, page by page, and the pages that
-     forgot got a narrower button. */
+  // same width everywhere, pages that set it themselves forgot sometimes
   min-width: 7.75rem;
   padding: 0.6rem 0.9rem;
   transition:

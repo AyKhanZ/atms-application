@@ -1,5 +1,4 @@
-/* Shown inside PrimeNG's tooltip, which lives on the body: its frame becomes a white card instead
-   of a dark bubble. Scoped by the style class, so other tooltips keep their look. */
+// inside the primeng tooltip on body: a white card, scoped by the class so other tooltips stay the same
 ::ng-deep .p-tooltip.task-hover {
   max-width: 22rem;
 }
@@ -17,13 +16,12 @@
   display: none;
 }
 
-/* The kind along the left edge, as on the chip it opens from and on the details header. */
 :host {
   --kind-color: var(--kind-task);
 
   display: grid;
   gap: 0.35rem;
-  /* One width for every task, whatever its title: the card does not jump from chip to chip. */
+  // one width so the card doesnt jump between chips
   width: 20rem;
   max-width: calc(100vw - 2rem);
   padding: 0.75rem 0.9rem 0.8rem 1.05rem;
@@ -61,7 +59,6 @@
   margin: 0;
 }
 
-/* One line each, like the parent on the board card: icon, code, name cut with "…". */
 .hover__item {
   align-items: center;
   gap: 0.35rem;

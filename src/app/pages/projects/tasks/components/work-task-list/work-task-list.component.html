@@ -6,15 +6,13 @@
       </button>
     </header>
   }
-  <!-- Only the first page swaps the list for this line. A next page loads under the rows already
-       shown, with the spinner on Load more: replacing them made the page collapse and jump back. -->
+  <!-- only the first page replaces the list, replacing on next pages made the page jump -->
   @if (loading() && items().length === 0) {
     <div class="tasks-state" role="status">
       <i class="pi pi-spin pi-spinner"></i> Loading tasks...
     </div>
   } @else if (items().length === 0 && !loadError()) {
-    <!-- The same panel Attachments, History and the Plan tab show: this is a tab body, and a thin
-         line in it reads as a broken list rather than an empty one. -->
+    <!-- same panel as other tabs, a thin line looks like a broken list -->
     <app-empty-state
       [icon]="parentTaskId() ? 'pi-sitemap' : 'pi-list-check'"
       [title]="parentTaskId() ? 'No subtasks yet' : 'No tasks yet'"
@@ -34,8 +32,6 @@
             (click)="open(task)"
             [attr.aria-label]="'View task ' + task.title"
           >
-            <!-- Named the way a details header and a search row name it, so a task looks alike
-                 wherever it shows. -->
             <app-work-item-ref
               [type]="parentTaskId() ? kinds.Subtask : kinds.Task"
               [code]="task.code"
