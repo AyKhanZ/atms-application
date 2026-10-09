@@ -13,6 +13,7 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { ConfirmationService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { SkeletonModule } from 'primeng/skeleton';
@@ -26,11 +27,11 @@ import { ImageUrlService } from '../../core/services/image-url.service';
 import { ProfileService } from '../../core/services/profile.service';
 import { LanguageService } from '../../core/services/language.service';
 import { SnackBarService } from '../../core/services/snack-bar.service';
-import { toUiLanguage } from '../../core/i18n/active-language';
+import { currentLanguage, toUiLanguage } from '../../core/i18n/active-language';
 import { fromIsoDate, toIsoDate } from '../../core/utils/dashboard-query.utils';
 import { serverErrorMessage, validationMessage } from '../../core/utils/http-error.utils';
 import { showPhoneServerError } from '../../core/utils/phone-number.utils';
-import { avatarErrorMessage } from '../../core/utils/profile-avatar.utils';
+import { avatarErrorKey } from '../../core/utils/profile-avatar.utils';
 import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component';
 import {
   EntityTab,
@@ -43,7 +44,6 @@ import {
   personalInfoSnapshot,
 } from '../../shared/components/personal-info-fields/personal-info.form';
 import { PersonInitialsPipe, PersonNamePipe } from '../../shared/pipes/person-name.pipe';
-import { ImageFileValidator } from '../../shared/validators/image-file.validator';
 import { UserStoreActions } from '../../store/user';
 import { SettingsPasswordComponent } from './settings-password/settings-password.component';
 import { SettingsPhotoComponent } from './settings-photo/settings-photo.component';
@@ -65,6 +65,7 @@ const UNSAVED_CHANGES_DIALOG = 'settingsUnsavedChanges';
     PersonInitialsPipe,
     SettingsPasswordComponent,
     SettingsPhotoComponent,
+    TranslocoDirective,
   ],
   providers: [ConfirmationService],
   templateUrl: './settings.component.html',
@@ -81,14 +82,18 @@ export class SettingsComponent implements HasUnsavedChanges {
   private readonly imageUrls = inject(ImageUrlService);
   private readonly snackBar = inject(SnackBarService);
   private readonly uiLanguage = inject(LanguageService);
+  private readonly transloco = inject(TranslocoService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly passwordPanel = viewChild(SettingsPasswordComponent);
 
   readonly unsavedChangesDialog = UNSAVED_CHANGES_DIALOG;
-  readonly tabs: EntityTab<SettingsTab>[] = [
-    { id: 'profile', label: 'Profile', icon: 'pi-user' },
-    { id: 'security', label: 'Security', icon: 'pi-lock' },
-  ];
+  readonly tabs = computed<EntityTab<SettingsTab>[]>(() => {
+    currentLanguage();
+    return [
+      { id: 'profile', label: this.transloco.translate('common.profile'), icon: 'pi-user' },
+      { id: 'security', label: this.transloco.translate('common.security'), icon: 'pi-lock' },
+    ];
+  });
   // both tabs stay rendered and keep input, so only leaving the page asks; tab in the url like project details
   readonly activeTab = toSignal(
     this.route.queryParamMap.pipe(
@@ -96,7 +101,6 @@ export class SettingsComponent implements HasUnsavedChanges {
     ),
     { initialValue: 'profile' },
   );
-  readonly photoHint = inject(ImageFileValidator).hint;
   readonly loading = signal(true);
   readonly loadFailed = signal(false);
   readonly saving = signal(false);
@@ -157,14 +161,14 @@ export class SettingsComponent implements HasUnsavedChanges {
   }
 
   onAvatarChange(value: FileUploadValue): void {
-    this.avatarError.set(value.errors ? avatarErrorMessage(value.errors) : '');
+    this.avatarError.set(value.errors ? this.transloco.translate(avatarErrorKey(value.errors)) : '');
     if (!value.errors) this.personalForm.controls.avatar.setValue(value.file);
   }
 
   save(): void {
     if (this.saving() || !this.personalChanged()) return;
     const hasAvatar = Boolean(this.personalForm.controls.avatar.value || this.avatarUrl());
-    if (!hasAvatar) this.avatarError.set('Choose a profile photo.');
+    if (!hasAvatar) this.avatarError.set(this.transloco.translate('validation.photoRequired'));
     this.personalForm.markAllAsTouched();
     if (this.personalForm.invalid || !hasAvatar) return;
 
@@ -211,7 +215,7 @@ export class SettingsComponent implements HasUnsavedChanges {
             this.uiLanguage.rememberAndReload(nextLanguage);
             return;
           }
-          this.snackBar.success('Profile saved.');
+          this.snackBar.success(this.transloco.translate('settings.profileSaved'));
         },
         error: (error: HttpErrorResponse) => this.reportPersonalInfoError(error),
       });
@@ -222,7 +226,8 @@ export class SettingsComponent implements HasUnsavedChanges {
     if (showPhoneServerError(phone, error, (message) => this.snackBar.error(message))) return;
 
     this.snackBar.error(
-      validationMessage(error) ?? serverErrorMessage(error, 'Could not save the profile.'),
+      validationMessage(error) ??
+        serverErrorMessage(error, this.transloco.translate('settings.profileSaveFailed')),
     );
   }
 
@@ -239,10 +244,10 @@ export class SettingsComponent implements HasUnsavedChanges {
     return new Promise((resolve) => {
       this.confirmation.confirm({
         key: UNSAVED_CHANGES_DIALOG,
-        header: 'Discard changes?',
-        message: 'You have unsaved changes. Leave without saving?',
-        acceptLabel: 'Discard',
-        rejectLabel: 'Stay',
+        header: this.transloco.translate('settings.discardTitle'),
+        message: this.transloco.translate('settings.discardMessage'),
+        acceptLabel: this.transloco.translate('common.discard'),
+        rejectLabel: this.transloco.translate('settings.stay'),
         accept: () => resolve(true),
         reject: () => resolve(false),
       });

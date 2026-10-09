@@ -1,6 +1,7 @@
 import { DOCUMENT } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
+import { TranslocoService } from '@jsverse/transloco';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import {
@@ -37,6 +38,7 @@ export class DashboardEffects {
   private readonly projects = inject(WorkProjectsService);
   private readonly dictionaries = inject(DictionaryService);
   private readonly realtime = inject(RealtimeService);
+  private readonly transloco = inject(TranslocoService);
   private readonly joinedProjects = new Set<string>();
   private readonly exit$ = this.actions$.pipe(
     ofType(ActionsStore.leave, AuthStoreActions.logoutCompleted),
@@ -60,7 +62,7 @@ export class DashboardEffects {
         this.dashboard.getDashboard(query).pipe(
           map((model) => ActionsStore.loadSuccess({ query, model })),
           catchError((error: unknown) =>
-            of(ActionsStore.loadFailure({ query, error: loadErrorText(error) })),
+            of(ActionsStore.loadFailure({ query, error: this.loadErrorText(error) })),
           ),
           takeUntil(this.exit$),
         ),
@@ -208,10 +210,10 @@ export class DashboardEffects {
       ),
     { dispatch: false },
   );
-}
 
-function loadErrorText(error: unknown): string {
-  if (isServerUnavailable(error)) return "Can't reach the server. Check the connection and try again.";
-  const message = error instanceof HttpErrorResponse ? validationMessage(error) : null;
-  return message ?? "Couldn't load the dashboard. Try again.";
+  private loadErrorText(error: unknown): string {
+    if (isServerUnavailable(error)) return this.transloco.translate('dashboard.loadUnreachable');
+    const message = error instanceof HttpErrorResponse ? validationMessage(error) : null;
+    return message ?? this.transloco.translate('dashboard.loadFailed');
+  }
 }

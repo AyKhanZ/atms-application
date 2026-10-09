@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Title } from '@angular/platform-browser';
+import { TranslocoService } from '@jsverse/transloco';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Action, Store } from '@ngrx/store';
 import {
@@ -37,6 +38,7 @@ export class NotificationsEffects {
   private readonly realtime = inject(RealtimeService);
   private readonly snackBar = inject(SnackBarService);
   private readonly title = inject(Title);
+  private readonly transloco = inject(TranslocoService);
   private readonly reset$ = this.actions$.pipe(
     ofType(ActionsStore.reset, AuthStoreActions.logoutCompleted),
   );
@@ -76,7 +78,7 @@ export class NotificationsEffects {
         this.notifications.getNotifications({ pageSize: NOTIFICATIONS_LATEST_SIZE }).pipe(
           map(({ items }) => ActionsStore.loadLatestSuccess({ items })),
           catchError(() =>
-            of(ActionsStore.loadLatestFailure({ error: "Couldn't load notifications." })),
+            of(ActionsStore.loadLatestFailure({ error: this.transloco.translate('notifications.loadFailed') })),
           ),
           takeUntil(this.reset$),
         ),
@@ -91,7 +93,7 @@ export class NotificationsEffects {
         this.notifications.getNotifications({ pageSize: NOTIFICATIONS_PAGE_SIZE, unreadOnly }).pipe(
           map((page) => ActionsStore.loadPageSuccess({ page })),
           catchError(() =>
-            of(ActionsStore.loadPageFailure({ error: "Couldn't load notifications." })),
+            of(ActionsStore.loadPageFailure({ error: this.transloco.translate('notifications.loadFailed') })),
           ),
           takeUntil(this.pageGone$),
         ),
@@ -117,7 +119,7 @@ export class NotificationsEffects {
                 catchError(() =>
                   of(
                     ActionsStore.loadMorePageFailure({
-                      error: "Couldn't load more notifications. Try again.",
+                      error: this.transloco.translate('notifications.loadMoreFailed'),
                     }),
                   ),
                 ),
@@ -171,7 +173,7 @@ export class NotificationsEffects {
         ActionsStore.markUnreadFailure,
         ActionsStore.markAllReadFailure,
       ),
-      tap(() => this.snackBar.error("Couldn't update notifications. Try again.")),
+      tap(() => this.snackBar.error(this.transloco.translate('notifications.updateFailed'))),
       withLatestFrom(this.latestOpen$, this.page$),
       mergeMap(([, latestOpen, page]) => [
         ActionsStore.loadSummary(),

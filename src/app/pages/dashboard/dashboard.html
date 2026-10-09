@@ -1,7 +1,7 @@
-<section class="dashboard-page">
+<section class="dashboard-page" *transloco="let t">
   <header class="dashboard-header">
     <div class="dashboard-heading">
-      <h1>Dashboard</h1>
+      <h1>{{ t('nav.dashboard') }}</h1>
       @if (scopeText()) {
         <p>{{ scopeText() }}</p>
       }
@@ -10,7 +10,7 @@
     <app-dashboard-toolbar
       [projectOptions]="projectOptions()"
       [projectId]="query().projectId ?? ''"
-      [periodOptions]="periodOptions"
+      [periodOptions]="periodOptions()"
       [period]="selectedPeriod()"
       [customFrom]="customFrom()"
       [customTo]="customTo()"
@@ -36,7 +36,7 @@
     <div class="panel dashboard-error" role="alert">
       <i class="pi pi-exclamation-triangle" aria-hidden="true"></i>
       <span>{{ error() }}</span>
-      <button type="button" (click)="refresh()">Retry</button>
+      <button type="button" (click)="refresh()">{{ t('common.retry') }}</button>
     </div>
   }
 
@@ -48,7 +48,7 @@
           class="panel dashboard-kpi"
           [style.--tone]="'var(' + kpi.tone + ')'"
           [disabled]="!kpi.clickable"
-          [title]="kpi.clickable ? 'Show these tasks' : ''"
+          [title]="kpi.clickable ? t('dashboard.showTasks') : ''"
           (click)="openKpi(kpi.key)"
         >
           <span class="dashboard-kpi__icon" aria-hidden="true"
@@ -61,7 +61,7 @@
             <span
               class="dashboard-kpi__delta"
               [class.is-down]="kpi.delta < 0"
-              title="Compared with the period of the same length before"
+              [title]="t('dashboard.deltaHint')"
             >
               {{ kpi.delta >= 0 ? '▲' : '▼' }} {{ kpi.delta < 0 ? -kpi.delta : kpi.delta }}%
             </span>
@@ -74,14 +74,14 @@
       <section class="panel dashboard-card dashboard-card--main">
         <header class="dashboard-card__header">
           <div>
-            <h2>Task flow</h2>
-            <small>How many tasks became New, In progress and Done, {{ granularityText() }}</small>
+            <h2>{{ t('dashboard.taskFlow') }}</h2>
+            <small>{{ t('dashboard.taskFlowHint', { when: granularityText() }) }}</small>
           </div>
         </header>
         <div class="dashboard-card__chart">
           <app-dashboard-chart
             kind="line"
-            title="Task flow"
+            [title]="t('dashboard.taskFlow')"
             [labels]="mainLabels()"
             [tooltipLabels]="mainTooltipLabels()"
             [series]="mainSeries()"
@@ -93,14 +93,14 @@
         <section class="panel dashboard-card">
           <header class="dashboard-card__header">
             <div>
-              <h2>Tasks by status</h2>
-              <small>All tasks right now</small>
+              <h2>{{ t('dashboard.byStatus') }}</h2>
+              <small>{{ t('dashboard.byStatusHint') }}</small>
             </div>
           </header>
           <div class="dashboard-card__chart">
             <app-dashboard-chart
               kind="doughnut"
-              title="Tasks by status"
+              [title]="t('dashboard.byStatus')"
               [labels]="statusLabels()"
               [series]="statusSeries()"
               [colors]="statusColors()"
@@ -111,14 +111,14 @@
         <section class="panel dashboard-card">
           <header class="dashboard-card__header">
             <div>
-              <h2>Not done, by priority</h2>
-              <small>New and In progress</small>
+              <h2>{{ t('dashboard.byPriority') }}</h2>
+              <small>{{ t('dashboard.byPriorityHint') }}</small>
             </div>
           </header>
           <div class="dashboard-card__chart">
             <app-dashboard-chart
               kind="doughnut"
-              title="Tasks not done by priority"
+              [title]="t('dashboard.byPriority')"
               [labels]="priorityLabels()"
               [series]="prioritySeries()"
               [colors]="priorityColors()"
@@ -134,14 +134,14 @@
         <section class="panel dashboard-card">
           <header class="dashboard-card__header">
             <div>
-              <h2>Who has the most tasks not done</h2>
-              <small>Top 8 · the rest are in Others</small>
+              <h2>{{ t('dashboard.workloadTitle') }}</h2>
+              <small>{{ t('dashboard.workloadHint') }}</small>
             </div>
           </header>
           <div class="dashboard-card__chart">
             <app-dashboard-chart
               kind="bar"
-              title="Tasks not done by person"
+              [title]="t('dashboard.workloadChart')"
               [labels]="workloadLabels()"
               [tooltipLabels]="workloadTooltips()"
               [series]="workloadSeries()"
@@ -158,11 +158,11 @@
             <h2>
               {{
                 data.secondaryChart.key === 'byProject'
-                  ? 'Projects with the most tasks not done'
-                  : 'Tickets with the most tasks not done'
+                  ? t('dashboard.byProjectTitle')
+                  : t('dashboard.byTicketTitle')
               }}
             </h2>
-            <small>Top 8, most first</small>
+            <small>{{ t('dashboard.secondaryHint') }}</small>
           </div>
         </header>
         <div class="dashboard-card__chart">
@@ -170,8 +170,8 @@
             kind="bar"
             [title]="
               data.secondaryChart.key === 'byProject'
-                ? 'Tasks not done by project'
-                : 'Tasks not done by ticket'
+                ? t('dashboard.byProjectChart')
+                : t('dashboard.byTicketChart')
             "
             [labels]="secondaryLabels()"
             [tooltipLabels]="secondaryLabels()"
@@ -196,7 +196,7 @@
       (selected)="openRef($event)"
     />
   } @else if (loading()) {
-    <div class="dashboard-skeleton" aria-label="Loading dashboard">
+    <div class="dashboard-skeleton" [attr.aria-label]="t('dashboard.loading')">
       <div class="dashboard-kpis">
         @for (_ of [1, 2, 3, 4, 5, 6]; track _) {
           <div class="panel dashboard-skeleton__block dashboard-skeleton__kpi"></div>

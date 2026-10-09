@@ -5,6 +5,7 @@ import { ConfirmationService } from 'primeng/api';
 import { NotificationEntityType } from '../../../core/enums/notification-entity-type.enum';
 import { NotificationModel } from '../../../core/models/notifications';
 import {
+  notificationKindKey,
   notificationLink,
   notificationTaskLabel,
 } from '../../../core/utils/notification.utils';
@@ -37,10 +38,13 @@ export class NotificationOpenerService {
   }
 
   private noticeDeleted(notification: NotificationModel): void {
+    const kind = this.transloco
+      .translate(notificationKindKey(notification.parameters))
+      .toLocaleUpperCase(this.transloco.getActiveLang());
     const name =
       notification.entityType === NotificationEntityType.Project
-        ? (notification.parameters.projectTitle ?? 'Project')
-        : notificationTaskLabel(notification.parameters);
+        ? (notification.parameters.projectTitle ?? this.transloco.translate('workItem.kind.project'))
+        : notificationTaskLabel(notification.parameters, kind);
 
     this.confirmation.confirm({
       key: NOTIFICATION_NOTICE_KEY,

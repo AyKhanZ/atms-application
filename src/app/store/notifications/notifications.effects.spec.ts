@@ -13,6 +13,7 @@ import { SnackBarService } from '../../core/services/snack-bar.service';
 import { AuthStoreActions } from '../auth';
 import * as Actions from './notifications.actions';
 import { NotificationsEffects } from './notifications.effects';
+import { translocoTestingProviders } from '../../core/testing/transloco-testing';
 import { initialNotificationsState, NotificationsState } from './notifications.state';
 
 type EffectName = {
@@ -88,6 +89,7 @@ describe('NotificationsEffects', () => {
     };
     TestBed.configureTestingModule({
       providers: [
+        ...translocoTestingProviders(),
         NotificationsEffects,
         provideMockActions(() => actions),
         provideMockStore({ initialState: { notifications: initialNotificationsState } }),

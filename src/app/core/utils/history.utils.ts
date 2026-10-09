@@ -1,5 +1,5 @@
 import { formatDate } from '@angular/common';
-import { angularLocale } from '../i18n/active-language';
+import { angularLocale, currentLanguage } from '../i18n/active-language';
 import { HistoryAction } from '../enums/history-action.enum';
 import { HistoryEntityType } from '../enums/history-entity-type.enum';
 import { HistoryField } from '../enums/history-field.enum';
@@ -100,17 +100,18 @@ export function groupHistory(entries: HistoryEntryModel[], now = new Date()): Hi
     .map((label) => ({ label, entries: groups.get(label) ?? [] }));
 }
 
-// "just now", "5 min ago", "3 hours ago" within a day, then "9 Sep" or "12 Aug 2025"
+// "now", "5 minutes ago", "3 hours ago" within a day in the ui language, then "9 Sep" or "12 Aug 2025"
 export function historyShortTime(value: string, now = new Date()): string {
   const date = new Date(value);
   if (!Number.isFinite(date.getTime())) return '';
 
   const minutes = Math.floor((now.getTime() - date.getTime()) / 60_000);
-  if (minutes < 1) return 'just now';
-  if (minutes < 60) return `${minutes} min ago`;
+  const relative = new Intl.RelativeTimeFormat(currentLanguage(), { numeric: 'auto' });
+  if (minutes < 1) return relative.format(0, 'second');
+  if (minutes < 60) return relative.format(-minutes, 'minute');
 
   const hours = Math.floor(minutes / 60);
-  if (hours < 24) return hours === 1 ? '1 hour ago' : `${hours} hours ago`;
+  if (hours < 24) return relative.format(-hours, 'hour');
 
   if (date.getFullYear() === now.getFullYear()) return format(date, 'd MMM');
   return format(date, 'd MMM y');

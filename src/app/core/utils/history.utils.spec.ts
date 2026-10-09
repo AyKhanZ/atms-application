@@ -69,8 +69,8 @@ describe('historyShortTime', () => {
   const now = new Date(2026, 8, 24, 15, 0);
 
   it.each([
-    [new Date(2026, 8, 24, 14, 59, 30), 'just now'],
-    [new Date(2026, 8, 24, 14, 55), '5 min ago'],
+    [new Date(2026, 8, 24, 14, 59, 30), 'now'],
+    [new Date(2026, 8, 24, 14, 55), '5 minutes ago'],
     [new Date(2026, 8, 24, 14, 0), '1 hour ago'],
     [new Date(2026, 8, 24, 5, 10), '9 hours ago'],
     [new Date(2026, 8, 23, 15, 30), '23 hours ago'],

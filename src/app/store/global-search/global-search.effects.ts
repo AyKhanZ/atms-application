@@ -1,4 +1,5 @@
 import { Injectable, inject } from '@angular/core';
+import { TranslocoService } from '@jsverse/transloco';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { catchError, concat, EMPTY, map, of, switchMap, takeUntil, timer } from 'rxjs';
 import { GlobalSearchService } from '../../core/services/global-search.service';
@@ -9,6 +10,7 @@ import * as ActionsStore from './global-search.actions';
 export class GlobalSearchEffects {
   private readonly actions$ = inject(Actions);
   private readonly service = inject(GlobalSearchService);
+  private readonly transloco = inject(TranslocoService);
 
   searchPopup$ = createEffect(() =>
     this.actions$.pipe(
@@ -31,7 +33,7 @@ export class GlobalSearchEffects {
                   of(
                     ActionsStore.searchPopupFailure({
                       query,
-                      error: 'Search is unavailable. Please try again in a moment.',
+                      error: this.transloco.translate('search.unavailable'),
                     }),
                   ),
                 ),
@@ -58,7 +60,7 @@ export class GlobalSearchEffects {
               ActionsStore.loadPageFailure({
                 query: trimmed,
                 itemType,
-                error: 'Results could not be loaded.',
+                error: this.transloco.translate('search.loadFailed'),
               }),
             ),
           ),

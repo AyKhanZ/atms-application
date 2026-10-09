@@ -1,8 +1,8 @@
 <app-confirm-dialog [key]="noticeKey" />
 
-<section class="page">
+<section class="page" *transloco="let t">
   <div class="page-header notifications-header">
-    <h1 class="page-title">Notifications</h1>
+    <h1 class="page-title">{{ t('notifications.title') }}</h1>
     <div class="page-actions">
       <button
         type="button"
@@ -11,30 +11,32 @@
         (click)="markAllRead()"
       >
         <i class="pi pi-check" aria-hidden="true"></i>
-        Mark all as read
+        {{ t('notifications.markAllRead') }}
       </button>
     </div>
   </div>
 
   <article class="panel notifications-panel">
     <app-search-filters
-      label="Show"
-      [chips]="chips"
+      [label]="t('notifications.show')"
+      [chips]="chips()"
       [active]="filter()"
       (select)="changeFilter($event)"
     />
 
     <div class="notifications-panel__list">
       @for (group of groups(); track group.label) {
-        <section class="day" [attr.aria-label]="group.label">
-          <h2 class="day__label">{{ group.label }}</h2>
+        <section class="day" [attr.aria-label]="group.day === 'today' ? t('common.today') : group.day === 'yesterday' ? t('notifications.yesterday') : group.label">
+          <h2 class="day__label">
+            {{ group.day === 'today' ? t('common.today') : group.day === 'yesterday' ? t('notifications.yesterday') : group.label }}
+          </h2>
           @for (item of group.items; track item.id) {
             <div class="row" [class.row--unread]="!item.readAt">
               <button
                 type="button"
                 class="row__toggle"
-                [attr.aria-label]="item.readAt ? 'Mark as unread' : 'Mark as read'"
-                [title]="item.readAt ? 'Mark as unread' : 'Mark as read'"
+                [attr.aria-label]="item.readAt ? t('notifications.markUnread') : t('notifications.markRead')"
+                [title]="item.readAt ? t('notifications.markUnread') : t('notifications.markRead')"
                 (click)="toggleRead(item)"
               >
                 <span class="row__dot"></span>
@@ -51,14 +53,14 @@
         @if (filter() === 'unread') {
           <app-empty-state
             icon="pi-check-circle"
-            title="You're all caught up"
-            description="Nothing unread. Everything you got is under All."
+            [title]="t('notifications.caughtUp')"
+            [description]="t('notifications.emptyUnread')"
           />
         } @else {
           <app-empty-state
             icon="pi-bell"
-            title="You're all caught up"
-            description="When someone assigns you work, mentions you or a deadline comes, it shows up here."
+            [title]="t('notifications.caughtUp')"
+            [description]="t('notifications.emptyAll')"
           />
         }
       }
@@ -74,14 +76,14 @@
       @if (page().error; as error) {
         <div class="notifications-panel__error" role="alert">
           <span>{{ error }}</span>
-          <button type="button" (click)="retry()">Retry</button>
+          <button type="button" (click)="retry()">{{ t('common.retry') }}</button>
         </div>
       }
 
       @if (page().loadMoreError; as error) {
         <div class="notifications-panel__error" role="alert">
           <span>{{ error }}</span>
-          <button type="button" (click)="loadMore()">Retry</button>
+          <button type="button" (click)="loadMore()">{{ t('common.retry') }}</button>
         </div>
       }
 

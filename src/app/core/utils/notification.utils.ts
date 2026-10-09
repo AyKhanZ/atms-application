@@ -19,10 +19,12 @@ export interface NotificationSubject {
 
 export interface NotificationView {
   subject: NotificationSubject;
-  // null for a deadline reminder
+  // null for a deadline reminder; a missing person becomes notifications.someone at display
   actor: string | null;
-  // "assigned it to you", "moved it to", "Due today", "Was due 5 Oct"
-  action: string;
+  // the phrase owns {actor}, so the name can sit wherever the language puts it
+  includeActor: boolean;
+  actionKey: string;
+  actionParams: Record<string, string>;
   status: DictionaryModel | null;
   // only while the task is still open and late
   overdueDeadline: string | null;
@@ -46,9 +48,23 @@ const statuses: Record<number, DictionaryModel> = {
 // server WorkTaskKindEnum.Subtask
 const subtaskKind = 2;
 
-// "TASK #41 Payment form"
-export function notificationTaskLabel(parameters: NotificationParametersModel): string {
-  const kind = parameters.taskKind === subtaskKind ? 'SUBTASK' : 'TASK';
+export function notificationKindKey(parameters: NotificationParametersModel): string {
+  return parameters.taskKind === subtaskKind ? 'workItem.kind.subtask' : 'workItem.kind.task';
+}
+
+export function notificationStatusKey(code: string): string | null {
+  if (code === 'New') return 'workItem.status.new';
+  if (code === 'InProgress') return 'workItem.status.inProgress';
+  if (code === 'Done') return 'workItem.status.done';
+  return null;
+}
+
+// "TASK #41 Payment form"; kindLabel is the translated word, already cased for the line
+export function notificationTaskLabel(
+  parameters: NotificationParametersModel,
+  kindLabel?: string,
+): string {
+  const kind = kindLabel ?? (parameters.taskKind === subtaskKind ? 'SUBTASK' : 'TASK');
   const code = parameters.taskCode ? ` #${parameters.taskCode}` : '';
   const title = parameters.taskTitle ? ` ${parameters.taskTitle}` : '';
   return `${kind}${code}${title}`;
@@ -64,51 +80,68 @@ export function notificationView(
     ? null
     : notification.actor
       ? personShortName(notification.actor)
-      : 'Someone';
-  const view = (action: string, status: DictionaryModel | null = null): NotificationView => ({
+      : null;
+  const view = (
+    actionKey: string,
+    status: DictionaryModel | null = null,
+    actionParams: Record<string, string> = {},
+    includeActor = true,
+  ): NotificationView => ({
     subject,
     actor,
-    action,
+    includeActor,
+    actionKey,
+    actionParams,
     status,
     overdueDeadline: null,
   });
 
   switch (notification.type) {
     case NotificationType.TaskAssigned:
-      return view('assigned it to you');
+      return view('notifications.actions.assigned');
     case NotificationType.TaskStatusChanged: {
       const status = statuses[notification.parameters.toStatusId ?? 0];
-      return status ? view('moved it to', status) : view('changed its status');
+      return status
+        ? view('notifications.actions.moved', status)
+        : view('notifications.actions.statusChanged');
     }
     case NotificationType.CommentAdded:
-      return view('commented');
+      return view('notifications.actions.commented');
     case NotificationType.Mentioned:
-      return view('mentioned you in a comment');
+      return view('notifications.actions.mentioned');
     case NotificationType.DueToday: {
       // reminder read on a later day shows the date, not "today"
       const deadline = parseDeadline(notification.parameters.deadline);
       const today = !deadline || deadline.getTime() === startOfToday(now).getTime();
       return withOverdue(
-        view(today ? 'Due today' : `Due ${formatDeadline(deadline)}`),
+        today
+          ? view('notifications.actions.dueToday', null, {}, false)
+          : view('notifications.actions.dueOn', null, { date: formatDeadline(deadline!) }, false),
         notification,
         now,
       );
     }
     case NotificationType.TaskOverdue: {
       const deadline = deadlineLabel(notification.parameters.deadline);
-      return withOverdue(view(deadline ? `Was due ${deadline}` : 'Overdue'), notification, now);
+      return withOverdue(
+        deadline
+          ? view('notifications.actions.wasDue', null, { date: deadline }, false)
+          : view('common.overdue', null, {}, false),
+        notification,
+        now,
+      );
     }
     case NotificationType.AddedToProject:
-      return view('added you to the project');
+      return view('notifications.actions.added');
     default:
-      return view('sent you a notification');
+      return view('notifications.actions.sent');
   }
 }
 
 function notificationSubject(notification: NotificationModel): NotificationSubject {
   const parameters = notification.parameters;
   if (notification.entityType === NotificationEntityType.Project) {
-    return { kind: WorkItemKind.Project, code: null, title: parameters.projectTitle ?? 'Project' };
+    return { kind: WorkItemKind.Project, code: null, title: parameters.projectTitle ?? '' };
   }
 
   return {
@@ -187,8 +220,9 @@ export function notificationDeletedTarget(notification: NotificationModel): stri
 }
 
 export interface NotificationDayGroup {
-  // "Today", "Yesterday", "28 Sep", "28 Dec 2025"
+  // "Today", "Yesterday", or a formatted date; day picks the translation
   label: string;
+  day: 'today' | 'yesterday' | 'date';
   items: NotificationModel[];
 }
 
@@ -202,15 +236,21 @@ export function groupNotificationsByDay(
   for (const item of items) {
     const day = startOfDay(item.createdAt);
     const days = Math.round((today.getTime() - day.getTime()) / 86_400_000);
+    const dayKind: NotificationDayGroup['day'] =
+      days <= 0 ? 'today' : days === 1 ? 'yesterday' : 'date';
     const label =
-      days <= 0
+      dayKind === 'today'
         ? 'Today'
-        : days === 1
+        : dayKind === 'yesterday'
           ? 'Yesterday'
-          : formatDate(day, day.getFullYear() === now.getFullYear() ? 'd MMM' : 'd MMM y', angularLocale());
+          : formatDate(
+              day,
+              day.getFullYear() === now.getFullYear() ? 'd MMM' : 'd MMM y',
+              angularLocale(),
+            );
     const last = groups.at(-1);
     if (last?.label === label) last.items.push(item);
-    else groups.push({ label, items: [item] });
+    else groups.push({ label, day: dayKind, items: [item] });
   }
 
   return groups;

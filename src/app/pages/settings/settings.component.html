@@ -1,15 +1,15 @@
 <app-confirm-dialog [key]="unsavedChangesDialog" />
 
-<section class="page">
+<section class="page" *transloco="let t">
   <div class="page-header">
-    <h1 class="page-title">Settings</h1>
+    <h1 class="page-title">{{ t('nav.settings') }}</h1>
   </div>
 
   @if (loadFailed()) {
     <div class="panel settings-error" role="alert">
       <i class="pi pi-exclamation-circle" aria-hidden="true"></i>
-      <p>Could not load your settings.</p>
-      <button pButton type="button" [outlined]="true" (click)="load()">Retry</button>
+      <p>{{ t('settings.loadFailed') }}</p>
+      <button pButton type="button" [outlined]="true" (click)="load()">{{ t('common.retry') }}</button>
     </div>
   } @else {
     <!-- skeleton is the page itself so nothing moves when data arrives -->
@@ -20,16 +20,16 @@
       [attr.aria-busy]="loading()"
     >
       <app-entity-tabs
-        [tabs]="tabs"
+        [tabs]="tabs()"
         [active]="activeTab()"
-        ariaLabel="Settings sections"
+        [ariaLabel]="t('settings.sections')"
         (select)="selectTab($event)"
       />
 
       <div class="settings-panes">
         <form
           class="settings-pane"
-          aria-label="Profile"
+          [attr.aria-label]="t('common.profile')"
           [class.settings-pane--hidden]="activeTab() !== 'profile'"
           [attr.inert]="activeTab() !== 'profile' ? '' : null"
           [formGroup]="personalForm"
@@ -51,10 +51,10 @@
                 severity="secondary"
                 [outlined]="true"
                 icon="pi pi-camera"
-                label="Change photo"
+                [label]="t('settings.changePhoto')"
                 (click)="photo.choose()"
               ></button>
-              <small class="profile-photo__hint">{{ photoHint }}</small>
+              <small class="profile-photo__hint">{{ t('common.imageHint') }}</small>
               <small class="profile-photo__error" role="alert">{{ avatarError() }}</small>
             </div>
 
@@ -75,7 +75,7 @@
               [disabled]="!personalChanged() || saving()"
               (click)="discard()"
             >
-              Discard
+              {{ t('common.discard') }}
             </button>
             <button
               pButton
@@ -83,7 +83,7 @@
               [loading]="saving()"
               [disabled]="!personalChanged() || saving()"
             >
-              Save
+              {{ t('common.save') }}
             </button>
           </footer>
         </form>

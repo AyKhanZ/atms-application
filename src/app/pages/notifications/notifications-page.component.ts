@@ -1,4 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnDestroy, computed, inject } from '@angular/core';
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
+import { currentLanguage } from '../../core/i18n/active-language';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
@@ -31,6 +33,7 @@ type NotificationFilter = 'all' | 'unread';
     NotificationItemComponent,
     ScrollSentinelDirective,
     SearchFiltersComponent,
+    TranslocoDirective,
   ],
   templateUrl: './notifications-page.component.html',
   styleUrl: './notifications-page.component.scss',
@@ -42,17 +45,24 @@ export class NotificationsPageComponent implements OnDestroy {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly opener = inject(NotificationOpenerService);
+  private readonly transloco = inject(TranslocoService);
 
   protected readonly noticeKey = NOTIFICATION_NOTICE_KEY;
-  readonly chips: SearchFilterChip<NotificationFilter>[] = [
-    { type: 'all', label: 'All', disabled: false },
-    { type: 'unread', label: 'Unread', disabled: false },
-  ];
+  readonly chips = computed<SearchFilterChip<NotificationFilter>[]>(() => {
+    currentLanguage();
+    return [
+      { type: 'all', label: this.transloco.translate('search.all'), disabled: false },
+      { type: 'unread', label: this.transloco.translate('notifications.unread'), disabled: false },
+    ];
+  });
 
   readonly page = this.store.selectSignal(NotificationsStoreSelectors.getPage);
   readonly unreadCount = this.store.selectSignal(NotificationsStoreSelectors.getUnreadCount);
   readonly filter = computed<NotificationFilter>(() => (this.page().unreadOnly ? 'unread' : 'all'));
-  readonly groups = computed(() => groupNotificationsByDay(this.page().items));
+  readonly groups = computed(() => {
+    currentLanguage();
+    return groupNotificationsByDay(this.page().items);
+  });
   readonly firstLoad = computed(() => this.page().loading && this.page().items.length === 0);
   readonly empty = computed(
     () => this.page().loaded && !this.page().loading && !this.page().error && this.page().items.length === 0,

@@ -21,21 +21,21 @@
       [code]="view.subject.code ?? ''"
       [showCode]="!!view.subject.code"
     />
-    <span class="item__title">{{ view.subject.title }}</span>
+    <span class="item__title">{{ view.subject.title || t('workItem.kind.project') }}</span>
   </span>
 
   <span class="item__line">
     @if (view.overdueDeadline) {
       <app-overdue-badge [deadline]="view.overdueDeadline" />
     }
-    <span>
-      @if (view.actor) {
-        <span class="item__actor">{{ view.actor }}</span>
-      }
-      {{ view.action }}
-    </span>
-    @if (view.status) {
-      <app-work-item-status-badge [kind]="view.subject.kind" [status]="view.status" />
+    @let action = actionParts(view);
+    <span
+      >{{ action.before }}@if (action.actor) {<span class="item__actor">{{ action.actor }}</span>}{{
+        action.after
+      }}</span
+    >
+    @if (view.status; as status) {
+      <app-work-item-status-badge [kind]="view.subject.kind" [status]="statusName(status)" />
     }
     <span class="item__separator" aria-hidden="true">·</span>
     <time [attr.datetime]="item.createdAt" [title]="item.createdAt | historyTime: 'full'">

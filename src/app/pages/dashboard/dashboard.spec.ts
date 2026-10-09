@@ -8,6 +8,7 @@ import { DashboardModel } from '../../core/models/dashboard';
 import { VisiblePageRefreshService } from '../../core/services/visible-page-refresh.service';
 import { Features } from '../../store/features.enum';
 import { initialDashboardState } from '../../store/dashboard/dashboard.state';
+import { translocoTestingProviders } from '../../core/testing/transloco-testing';
 import { Dashboard } from './dashboard';
 
 const model: DashboardModel = {
@@ -51,6 +52,7 @@ describe('Dashboard navigation', () => {
     TestBed.configureTestingModule({
       imports: [Dashboard],
       providers: [
+        ...translocoTestingProviders(),
         provideMockStore({
           initialState: { [Features.Dashboard]: { ...initialDashboardState, active: true, model } },
         }),

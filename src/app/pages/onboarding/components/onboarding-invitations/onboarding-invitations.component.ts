@@ -9,6 +9,7 @@ import {
   output,
 } from '@angular/core';
 import { FormArray, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { TranslocoDirective } from '@jsverse/transloco';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { SkeletonModule } from 'primeng/skeleton';
@@ -22,7 +23,7 @@ export type InvitationGroup = FormGroup<{
 
 @Component({
   selector: 'app-onboarding-invitations',
-  imports: [ReactiveFormsModule, ButtonModule, InputTextModule, SkeletonModule, TooltipModule],
+  imports: [ReactiveFormsModule, ButtonModule, InputTextModule, SkeletonModule, TooltipModule, TranslocoDirective],
   templateUrl: './onboarding-invitations.component.html',
   styleUrl: './onboarding-invitations.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

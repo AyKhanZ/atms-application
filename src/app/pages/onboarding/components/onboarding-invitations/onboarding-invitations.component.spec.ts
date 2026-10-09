@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { translocoTestingProviders } from '../../../../core/testing/transloco-testing';
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
 import {
   InvitationGroup,
@@ -16,6 +17,7 @@ describe('OnboardingInvitationsComponent', () => {
   const render = async (rows: FormArray<InvitationGroup>, max = 6) => {
     await TestBed.configureTestingModule({
       imports: [OnboardingInvitationsComponent],
+      providers: [...translocoTestingProviders()],
     }).compileComponents();
     const fixture = TestBed.createComponent(OnboardingInvitationsComponent);
     fixture.componentRef.setInput('rows', rows);

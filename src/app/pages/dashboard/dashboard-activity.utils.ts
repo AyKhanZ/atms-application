@@ -17,13 +17,22 @@ export interface DashboardActivityLine {
   tone: DashboardActivityTone;
 }
 
-export function dashboardActivityLine(activity: DashboardActivityModel): DashboardActivityLine {
+export type Translate = (key: string, params?: Record<string, string>) => string;
+
+export function dashboardActivityLine(
+  activity: DashboardActivityModel,
+  translate: Translate,
+): DashboardActivityLine {
   const { entry, subject } = activity;
-  const line = (change: string, tone: DashboardActivityTone): DashboardActivityLine => ({
+  const line = (
+    change: string,
+    tone: DashboardActivityTone,
+    capitalizeChange = false,
+  ): DashboardActivityLine => ({
     kind: subjectKind(activity),
     code: subject.code,
     title: subject.title,
-    change: capitalize(change),
+    change: capitalizeChange ? capitalize(change) : change,
     tone,
   });
 
@@ -33,19 +42,24 @@ export function dashboardActivityLine(activity: DashboardActivityModel): Dashboa
     entry.entityType === HistoryEntityType.Milestone
   ) {
     const tone = entry.action === HistoryAction.Deleted ? 'deleted' : 'edited';
-    return line(historySummary(entry, 'project'), tone);
+    return line(historySummary(entry, 'project'), tone, true);
   }
 
-  if (entry.action === HistoryAction.Created) return line('created', 'new');
-  if (entry.action === HistoryAction.Deleted) return line('deleted', 'deleted');
+  if (entry.action === HistoryAction.Created) return line(translate('dashboard.activity.created'), 'new');
+  if (entry.action === HistoryAction.Deleted) return line(translate('dashboard.activity.deleted'), 'deleted');
 
   const status = entry.changes.find((change) => change.field === HistoryField.Status)?.newValue;
   const tone = status ? statusTone(status.id) : 'edited';
   if (entry.changes.length === 1 && status) {
-    return line(`moved to ${historyValueText(HistoryField.Status, status)}`, tone);
+    return line(
+      translate('dashboard.activity.movedTo', {
+        status: historyValueText(HistoryField.Status, status),
+      }),
+      tone,
+    );
   }
 
-  return line(historySummary(entry, subject.type), tone);
+  return line(historySummary(entry, subject.type), tone, true);
 }
 
 function statusTone(statusId: string): DashboardActivityTone {

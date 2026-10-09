@@ -57,7 +57,13 @@
     "currentPassword": "Cari şifrə",
     "newPassword": "Yeni şifrə",
     "confirmPassword": "Şifrəni təkrarlayın",
-    "imageHint": "JPG, JPEG, JFIF, PNG və ya WEBP. Ən çox 5 MB."
+    "imageHint": "JPG, JPEG, JFIF, PNG və ya WEBP. Ən çox 5 MB.",
+    "discard": "İmtina et",
+    "apply": "Tətbiq et",
+    "profile": "Profil",
+    "security": "Təhlükəsizlik",
+    "overdue": "Vaxtı keçib",
+    "done": "Hazırdır"
   },
   "nav": {
     "dashboard": "İcmal",
@@ -101,7 +107,15 @@
     "lowercase": "Kiçik hərf (məsələn, a, b)",
     "digit": "Rəqəm (məsələn, 1, 2, 3)",
     "symbol": "Simvol (məsələn, @, #, !)",
-    "passwordsMatch": "Şifrələr uyğundur"
+    "passwordsMatch": "Şifrələr uyğundur",
+    "passwordDifferent": "Yeni şifrə cari şifrədən fərqli olmalıdır.",
+    "currentPasswordIncorrect": "Cari şifrə yanlışdır.",
+    "photoRequired": "Profil şəkli seçin.",
+    "avatarType": "JPG, JPEG, JFIF, PNG və ya WEBP şəklindən istifadə edin.",
+    "avatarSize": "Şəkil 5 MB-dan böyük olmamalıdır.",
+    "avatarName": "Fayl adı çox uzundur.",
+    "avatarDimensions": "Şəklin ölçüsü çox böyükdür və ya yanlışdır.",
+    "avatarInvalid": "Uyğun profil şəkli seçin."
   },
   "auth": {
     "welcome": "Xoş gəlmisiniz!",
@@ -161,7 +175,8 @@
     "showAll": "Hamısını göstər",
     "resultTypes": "Nəticə növləri",
     "all": "Hamısı",
-    "recent": "Son baxılanlar"
+    "recent": "Son baxılanlar",
+    "loadFailed": "Nəticələri yükləmək mümkün olmadı."
   },
   "notifications": {
     "title": "Bildirişlər",
@@ -173,7 +188,28 @@
     "someone": "Kimsə",
     "taskDeleted": "Bu tapşırıq silinib",
     "projectDeleted": "Bu layihə silinib",
-    "cannotOpen": "Artıq açmaq mümkün deyil"
+    "cannotOpen": "Artıq açmaq mümkün deyil",
+    "yesterday": "Dünən",
+    "show": "Göstər",
+    "markRead": "Oxunmuş et",
+    "markUnread": "Oxunmamış et",
+    "emptyUnread": "Oxunmamış yoxdur. Hamısı «Hamısı» bölməsindədir.",
+    "emptyAll": "Sizə tapşırıq təyin ediləndə, şərhdə qeyd olunanda və ya son tarix çatanda burada görünəcək.",
+    "loadFailed": "Bildirişləri yükləmək mümkün olmadı.",
+    "loadMoreFailed": "Daha çox bildiriş yükləmək mümkün olmadı. Yenidən cəhd edin.",
+    "updateFailed": "Bildirişləri yeniləmək mümkün olmadı. Yenidən cəhd edin.",
+    "actions": {
+      "assigned": "{actor} sizə tapşırıq təyin etdi",
+      "moved": "{actor} statusu dəyişdi:",
+      "commented": "{actor} şərh yazdı",
+      "mentioned": "{actor} sizi şərhdə qeyd etdi",
+      "added": "{actor} sizi layihəyə əlavə etdi",
+      "dueToday": "Bu gün bitməlidir",
+      "dueOn": "Son tarix: {date}",
+      "wasDue": "Son tarix {date} idi",
+      "statusChanged": "{actor} statusu dəyişdi",
+      "sent": "{actor} bildiriş göndərdi"
+    }
   },
   "workItem": {
     "kind": {
@@ -198,6 +234,161 @@
       "week": "{count} həftə",
       "month": "{count} ay",
       "year": "{count} il"
+    },
+    "status": {
+      "new": "Yeni",
+      "inProgress": "İşdə",
+      "done": "Hazır"
+    }
+  },
+  "onboarding": {
+    "completeProfile": "Profili tamamlayın",
+    "progress": "Hesabın qurulmasının gedişi",
+    "invite": "Dəvətlər",
+    "loading": "Hesabın qurulması yüklənir",
+    "loadFailed": "Qurulmanı yükləmək mümkün olmadı",
+    "loadFailedHint": "Bağlantını yoxlayın və yenidən cəhd edin.",
+    "profilePhoto": "Profil şəkli",
+    "choosePhoto": "Şəkil seç",
+    "photoPreview": "Profil şəklinin önizləməsi",
+    "continue": "Davam et",
+    "skip": "Hələlik keç",
+    "ready": "Bitirməyə hazırdır",
+    "everythingReady": "Hər şey hazırdır",
+    "finishHint": "Qurulmanı bitirmək və işə başlamaq üçün «Tamamla» düyməsini basın.",
+    "personalInfo": "Şəxsi məlumatlar",
+    "teamInvitations": "Həmkar dəvətləri",
+    "skipped": "Keçildi",
+    "complete": "Tamamla",
+    "setupComplete": "Qurulma tamamlandı",
+    "welcome": "BAIM-ə xoş gəlmisiniz",
+    "accountReady": "Hesab hazırdır. İşə başlaya bilərsiniz.",
+    "goToDashboard": "İcmala keç",
+    "invitationsQueued": "{count, plural, other {# dəvət yoldadır}}",
+    "personalSaved": "Şəxsi məlumatlar yadda saxlanıldı.",
+    "passwordSaved": "Yeni şifrə yadda saxlanıldı.",
+    "passwordSaveFailed": "Şifrəni yadda saxlamaq mümkün olmadı.",
+    "invitationsReady": "Dəvətlər göndərilməyə hazırdır.",
+    "invitationsSaveFailed": "Dəvətləri yadda saxlamaq mümkün olmadı.",
+    "skipNotice": "Həmkarları sonra «İstifadəçilər» bölməsindən dəvət etmək olar.",
+    "skipFailed": "Dəvətləri keçmək mümkün olmadı.",
+    "completeFailed": "Qurulmanı tamamlamaq mümkün olmadı.",
+    "conflict": "Səhifə başqa yerdə yenilənib. Onu yeniləyin və yenidən cəhd edin.",
+    "personalSaveFailed": "Şəxsi məlumatları yadda saxlamaq mümkün olmadı.",
+    "added": "{count, plural, other {#/{max} əlavə edildi}}",
+    "colleague": "Həmkar {index}",
+    "nameFor": "Dəvət {index} üçün ad",
+    "surnameFor": "Dəvət {index} üçün soyad",
+    "emailFor": "Dəvət {index} üçün e-poçt",
+    "emailPlaceholder": "name@company.com",
+    "removeUser": "İstifadəçini çıxar",
+    "addUser": "Daha bir istifadəçi əlavə et",
+    "inviteLimit": "Bir dəfəyə ən çox {max, plural, other {# istifadəçi}} dəvət etmək olar.",
+    "readyToSend": "{count, plural, other {# göndərilməyə hazırdır}}"
+  },
+  "settings": {
+    "loadFailed": "Parametrləri yükləmək mümkün olmadı.",
+    "sections": "Parametr bölmələri",
+    "changePhoto": "Şəkli dəyiş",
+    "changePassword": "Şifrəni dəyiş",
+    "passwordNote": "Şifrəni dəyişmək digər cihazlardakı seansları bağlayır.",
+    "passwordChanged": "Şifrə dəyişdirildi.",
+    "tooManyAttempts": "Çox sayda cəhd. 15 dəqiqə sonra yenidən cəhd edin.",
+    "changeFailed": "Şifrəni dəyişmək mümkün olmadı.",
+    "resetTitle": "Şifrə sıfırlansın?",
+    "resetMessage": "Seansı bağlayıb sıfırlama keçidini {email} ünvanına göndərəcəyik. Davam edilsin?",
+    "sendLink": "Keçid göndər",
+    "resetLinkFailed": "Şifrə sıfırlama keçidini göndərmək mümkün olmadı.",
+    "discardTitle": "Dəyişikliklərdən imtina edilsin?",
+    "discardMessage": "Saxlanılmamış dəyişikliklər var. Saxlamadan çıxılsın?",
+    "stay": "Qal",
+    "profileSaved": "Profil yadda saxlanıldı.",
+    "profileSaveFailed": "Profili yadda saxlamaq mümkün olmadı."
+  },
+  "dashboard": {
+    "loading": "İcmal yüklənir",
+    "showTasks": "Bu tapşırıqları göstər",
+    "deltaHint": "Eyni uzunluqlu əvvəlki dövrlə müqayisədə",
+    "allProjects": "Bütün layihələr",
+    "searchProjects": "Layihə axtarışı",
+    "period": "Dövr",
+    "from": "Başlanğıc",
+    "to": "Son",
+    "showRange": "Bu dövrü göstər",
+    "refresh": "Yenilə",
+    "updatedNow": "İndicə yeniləndi",
+    "updatedAgo": "{count, plural, other {# dəq.}} əvvəl yeniləndi",
+    "taskFlow": "Tapşırıq axını",
+    "taskFlowHint": "Neçə tapşırıq yeni, işdə və hazır oldu, {when}",
+    "byStatus": "Tapşırıqlar statusa görə",
+    "byStatusHint": "Bütün tapşırıqlar indi",
+    "byPriority": "Bitməmişlər prioritetə görə",
+    "byPriorityHint": "Yeni və işdə",
+    "workloadTitle": "Ən çox bitməmiş tapşırığı olanlar",
+    "workloadHint": "İlk 8 · qalanları «Digərləri» bölməsində",
+    "workloadChart": "Bitməmiş tapşırıqlar şəxslərə görə",
+    "byProjectTitle": "Ən çox bitməmiş tapşırığı olan layihələr",
+    "byTicketTitle": "Ən çox bitməmiş tapşırığı olan tiketlər",
+    "secondaryHint": "İlk 8, çoxdan aza",
+    "byProjectChart": "Bitməmiş tapşırıqlar layihələrə görə",
+    "byTicketChart": "Bitməmiş tapşırıqlar tiketlərə görə",
+    "tasksNotDone": "Bitməmiş tapşırıqlar",
+    "others": "Digərləri",
+    "otherPeople": "Digər şəxslər",
+    "loadUnreachable": "Serverə çatmaq olmur. Bağlantını yoxlayın və yenidən cəhd edin.",
+    "loadFailed": "İcmalı yükləmək mümkün olmadı. Yenidən cəhd edin.",
+    "range": {
+      "both": "Başlanğıc və bitmə tarixini seçin",
+      "order": "Başlanğıc tarixi bitmə tarixindən sonra ola bilməz",
+      "untilToday": "Bu günə qədər tarix seçin",
+      "year": "Bir il və ya daha qısa dövr seçin"
+    },
+    "periodOption": {
+      "last7": "Son 7 gün",
+      "last30": "Son 30 gün",
+      "thisMonth": "Bu ay",
+      "last6": "Son 6 ay",
+      "last12": "Son 12 ay",
+      "custom": "Öz dövrü"
+    },
+    "kpi": {
+      "open": "Bitməmiş",
+      "created": "Yeni tapşırıqlar",
+      "openHint": "Yeni və işdə",
+      "inProgressHint": "Hazırda işdədir",
+      "overdueHint": "Son tarix keçib",
+      "unassignedHint": "Bitməmiş, icraçı yoxdur"
+    },
+    "granularity": {
+      "hour": "saatlıq",
+      "day": "günlük",
+      "month": "aylıq"
+    },
+    "series": {
+      "new": "Yeni",
+      "inProgress": "İşdə",
+      "done": "Hazır"
+    },
+    "deadlines": {
+      "title": "Yaxın son tarixlər",
+      "hint": "Bitməmiş, son tarix yaxın 7 gündə",
+      "total": "Son tarixi yaxın 7 gündə olan tapşırıqlar",
+      "empty": "Yaxın 7 gündə son tarix yoxdur",
+      "nearest": "Ən yaxın {shown}, cəmi {total}"
+    },
+    "activity": {
+      "title": "Son dəyişikliklər",
+      "hint": "İş üzrə son dəyişikliklər",
+      "empty": "Hələ dəyişiklik yoxdur",
+      "system": "Sistem",
+      "created": "Yaradıldı",
+      "deleted": "Silindi",
+      "movedTo": "Keçirildi: {status}"
+    },
+    "chart": {
+      "category": "Kateqoriya",
+      "tasks": "Tapşırıqlar",
+      "taskCount": "{count, plural, other {# tapşırıq}}"
     }
   }
 }

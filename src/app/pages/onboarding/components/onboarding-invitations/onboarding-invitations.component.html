@@ -19,25 +19,26 @@
     }
   </div>
 } @else {
+  <ng-container *transloco="let t">
   <div class="invite-count">
-    <span>{{ rows().length }}/{{ max() }} added</span>
+    <span>{{ t('onboarding.added', { count: rows().length, max: max() }) }}</span>
   </div>
   <div class="invite-table">
     <div class="invite-head">
-      <span>Name</span><span>Surname</span><span>Email</span><span></span>
+      <span>{{ t('common.name') }}</span><span>{{ t('common.surname') }}</span><span>{{ t('common.email') }}</span><span></span>
     </div>
     @for (row of rows().controls; track row; let index = $index) {
       <div class="invite-row" [formGroup]="row">
         <div class="invite-row__header">
-          <strong>Colleague {{ index + 1 }}</strong>
+          <strong>{{ t('onboarding.colleague', { index: index + 1 }) }}</strong>
           @if (rows().length > 1) {
             <button
               type="button"
               class="remove-row"
-              pTooltip="Remove user"
+              [pTooltip]="t('onboarding.removeUser')"
               (click)="remove.emit(index)"
             >
-              <i class="pi pi-trash"></i><span class="sr-only">Remove user</span>
+              <i class="pi pi-trash"></i><span class="sr-only">{{ t('onboarding.removeUser') }}</span>
             </button>
           }
         </div>
@@ -45,14 +46,14 @@
           <input
             pInputText
             maxlength="50"
-            placeholder="Name"
-            [attr.aria-label]="'Name for invitation ' + (index + 1)"
+            [placeholder]="t('common.name')"
+            [attr.aria-label]="t('onboarding.nameFor', { index: index + 1 })"
             formControlName="name"
           />
           <div class="field-line">
             <small>
               @if (row.controls.name.touched && row.controls.name.hasError('required')) {
-                Name is required.
+                {{ t('validation.nameRequired') }}
               }
             </small>
             @if (row.controls.name.value.length) {
@@ -64,14 +65,14 @@
           <input
             pInputText
             maxlength="100"
-            placeholder="Surname"
-            [attr.aria-label]="'Surname for invitation ' + (index + 1)"
+            [placeholder]="t('common.surname')"
+            [attr.aria-label]="t('onboarding.surnameFor', { index: index + 1 })"
             formControlName="surname"
           />
           <div class="field-line">
             <small>
               @if (row.controls.surname.touched && row.controls.surname.hasError('required')) {
-                Surname is required.
+                {{ t('validation.surnameRequired') }}
               }
             </small>
             @if (row.controls.surname.value.length) {
@@ -84,16 +85,16 @@
             pInputText
             type="email"
             maxlength="100"
-            placeholder="name@company.com"
-            [attr.aria-label]="'Email for invitation ' + (index + 1)"
+            [placeholder]="t('onboarding.emailPlaceholder')"
+            [attr.aria-label]="t('onboarding.emailFor', { index: index + 1 })"
             formControlName="email"
           />
           <div class="field-line">
             <small>
               @if (row.controls.email.touched && row.controls.email.hasError('required')) {
-                Email is required.
+                {{ t('validation.emailRequired') }}
               } @else if (row.controls.email.touched && row.controls.email.hasError('email')) {
-                Enter a valid email.
+                {{ t('validation.email') }}
               }
             </small>
             @if (row.controls.email.value.length) {
@@ -105,10 +106,10 @@
           <button
             type="button"
             class="remove-row remove-row--desktop"
-            pTooltip="Remove user"
+            [pTooltip]="t('onboarding.removeUser')"
             (click)="remove.emit(index)"
           >
-            <i class="pi pi-trash"></i><span class="sr-only">Remove user</span>
+            <i class="pi pi-trash"></i><span class="sr-only">{{ t('onboarding.removeUser') }}</span>
           </button>
         }
       </div>
@@ -123,10 +124,11 @@
       [disabled]="!canAdd"
       (click)="add.emit()"
     >
-      Add another user
+      {{ t('onboarding.addUser') }}
     </button>
     @if (!canAdd) {
-      <small>You can invite up to {{ max() }} users at a time.</small>
+      <small>{{ t('onboarding.inviteLimit', { max: max() }) }}</small>
     }
   </div>
+  </ng-container>
 }
