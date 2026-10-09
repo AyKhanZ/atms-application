@@ -1,16 +1,16 @@
-<div class="work-item-details-content">
+<div class="work-item-details-content" *transloco="let t">
   <div class="task-main">
-    <app-collapsible-section title="Description" [(open)]="descriptionOpen">
+    <app-collapsible-section [title]="t('common.description')" [(open)]="descriptionOpen">
       <div class="task-description">
         @if (task().description; as description) {
           <p class="description">{{ description }}</p>
         } @else {
-          <p class="inline-empty">No description has been added.</p>
+          <p class="inline-empty">{{ t('projects.noDescription') }}</p>
         }
       </div>
     </app-collapsible-section>
 
-    <app-collapsible-section id="discussion" title="Discussion" [(open)]="discussionOpen">
+    <app-collapsible-section id="discussion" [title]="t('common.discussion')" [(open)]="discussionOpen">
       <app-comments-discussion
         [projectId]="task().workProjectId"
         [workTaskId]="task().id"

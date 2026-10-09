@@ -1,5 +1,6 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { translocoTestingProviders } from '../../core/testing/transloco-testing';
 import { Store } from '@ngrx/store';
 import { of } from 'rxjs';
 import { DictionaryService } from '../../core/services/dictionary.service';
@@ -21,6 +22,7 @@ describe('TaskFilterOptionsService', () => {
     );
     TestBed.configureTestingModule({
       providers: [
+        ...translocoTestingProviders(),
         TaskFilterOptionsService,
         {
           provide: Store,

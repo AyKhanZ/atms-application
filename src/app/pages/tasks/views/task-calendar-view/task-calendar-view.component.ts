@@ -26,6 +26,7 @@ import { TaskCalendarChipComponent } from '../../components/task-calendar-chip/t
 import { filterKey } from '../../tasks-page.utils';
 import { CalendarDayCapacityDirective } from './calendar-day-capacity.directive';
 import { angularLocale } from '../../../../core/i18n/active-language';
+import { TranslocoDirective } from '@jsverse/transloco';
 import { AppDatePipe } from '../../../../shared/pipes/app-date.pipe';
 
 interface Day {
@@ -50,6 +51,7 @@ const dayKey = (date: Date): string =>
     CdkDrag,
     CalendarDayCapacityDirective,
     TaskCalendarChipComponent,
+    TranslocoDirective,
   ],
   templateUrl: './task-calendar-view.component.html',
   styleUrl: './task-calendar-view.component.scss',

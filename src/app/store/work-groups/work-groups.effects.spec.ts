@@ -4,6 +4,7 @@ import { provideMockActions } from '@ngrx/effects/testing';
 import { provideMockStore } from '@ngrx/store/testing';
 import { Subject, throwError } from 'rxjs';
 import { SnackBarService } from '../../core/services/snack-bar.service';
+import { translocoTestingProviders } from '../../core/testing/transloco-testing';
 import { WorkGroupsService } from '../../core/services/work-groups.service';
 import { WorkGroupsEffects } from './work-groups.effects';
 import * as WorkGroupsStoreActions from './work-groups.actions';
@@ -32,6 +33,7 @@ describe('WorkGroupsEffects', () => {
     TestBed.configureTestingModule({
       providers: [
         WorkGroupsEffects,
+        ...translocoTestingProviders(),
         provideMockActions(() => actions$),
         provideMockStore(),
         { provide: WorkGroupsService, useValue: service },

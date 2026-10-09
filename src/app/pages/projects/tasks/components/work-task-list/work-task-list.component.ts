@@ -11,7 +11,9 @@ import {
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { MenuItem } from 'primeng/api';
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { ButtonModule } from 'primeng/button';
+import { currentLanguage } from '../../../../../core/i18n/active-language';
 import { Menu, MenuModule } from 'primeng/menu';
 import { WorkTaskFilter, WorkTaskModel } from '../../../../../core/models/work-tasks';
 import { WorkTasksStoreActions, WorkTasksStoreSelectors } from '../../../../../store/work-tasks';
@@ -34,6 +36,7 @@ import { LoadingStateComponent } from '../../../../../shared/components/loading-
     LoadMoreButtonComponent,
     WorkItemAssigneeComponent,
     TaskStatusBadgeComponent,
+    TranslocoDirective,
   ],
 
   templateUrl: './work-task-list.component.html',
@@ -50,6 +53,7 @@ export class WorkTaskListComponent implements OnDestroy {
 
   private readonly store = inject(Store);
   private readonly router = inject(Router);
+  private readonly transloco = inject(TranslocoService);
   private readonly taskPages = this.store.selectSignal(WorkTasksStoreSelectors.getPages);
 
   // angular reuses the component between ticket tasks and task subtasks, so follow the inputs, not ngOnInit
@@ -86,9 +90,10 @@ export class WorkTaskListComponent implements OnDestroy {
 
   readonly selectedTask = signal<WorkTaskModel | null>(null);
   readonly taskActions = computed<MenuItem[]>(() => {
+    currentLanguage();
     const task = this.selectedTask();
     return task && this.canEdit()
-      ? [{ label: 'Edit', icon: 'pi pi-pencil', command: () => this.edit(task) }]
+      ? [{ label: this.transloco.translate('common.edit'), icon: 'pi pi-pencil', command: () => this.edit(task) }]
       : [];
   });
 

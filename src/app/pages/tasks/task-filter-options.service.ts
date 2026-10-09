@@ -1,6 +1,8 @@
 import { DestroyRef, Injectable, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { TranslocoService } from '@jsverse/transloco';
 import { Store } from '@ngrx/store';
+import { currentLanguage } from '../../core/i18n/active-language';
 import { Observable, catchError, map, of } from 'rxjs';
 import { DictionaryModel } from '../../core/models/dictionary.model';
 import { WorkItemKind } from '../../core/models/work-items';
@@ -33,6 +35,7 @@ const ticketOption = (ticket: { id: string; code: string; title: string }): Filt
 export class TaskFilterOptionsService {
   private readonly store = inject(Store);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly transloco = inject(TranslocoService);
   private readonly dictionaries = inject(DictionaryService);
   private readonly projectsService = inject(WorkProjectsService);
   private readonly ticketsService = inject(WorkTicketsService);
@@ -65,8 +68,11 @@ export class TaskFilterOptionsService {
   );
   readonly priorityOptions = signal<FilterOption<number>[]>([]);
   readonly meOption = computed<FilterOption | null>(() => {
+    currentLanguage();
     const person = this.me();
-    return person ? { value: person.id, label: 'Me', person } : null;
+    return person
+      ? { value: person.id, label: this.transloco.translate('common.me'), person }
+      : null;
   });
   readonly peopleOptions = computed<FilterOption[]>(() => {
     const meId = this.me()?.id;

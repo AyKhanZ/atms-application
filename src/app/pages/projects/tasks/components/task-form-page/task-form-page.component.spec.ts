@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { translocoTestingProviders } from '../../../../../core/testing/transloco-testing';
 import { provideEffects } from '@ngrx/effects';
 import { provideStore } from '@ngrx/store';
 import { Features } from '../../../../../store/features.enum';
@@ -73,6 +74,7 @@ async function setup(mode: 'create' | 'edit' = 'create', parent = false, loadedT
   TestBed.configureTestingModule({
     imports: [TaskFormPageComponent],
     providers: [
+      ...translocoTestingProviders(),
       ConfirmationService,
       { provide: Router, useValue: router },
       {

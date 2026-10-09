@@ -1,4 +1,5 @@
 import { Injectable, inject } from '@angular/core';
+import { TranslocoService } from '@jsverse/transloco';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import {
   EMPTY,
@@ -35,6 +36,7 @@ export class TaskBoardEffects {
   private readonly actions$ = inject(Actions);
   private readonly board = inject(WorkTaskBoardService);
   private readonly tasks = inject(WorkTasksService);
+  private readonly transloco = inject(TranslocoService);
   private readonly stopped$ = this.actions$.pipe(
     ofType(ActionsStore.reset, AuthStoreActions.logoutCompleted),
   );
@@ -50,7 +52,12 @@ export class TaskBoardEffects {
             this.board.getPage(query, order, cursor, pageSize).pipe(
               map((page) => ActionsStore.loadPageSuccess({ key, append: cursor !== null, page })),
               catchError(() =>
-                of(ActionsStore.loadPageFailure({ key, error: 'Tasks could not be loaded.' })),
+                of(
+                  ActionsStore.loadPageFailure({
+                    key,
+                    error: this.transloco.translate('tasks.loadFailed'),
+                  }),
+                ),
               ),
               takeUntil(this.dropped(key)),
             ),
@@ -83,7 +90,12 @@ export class TaskBoardEffects {
               ),
               map(({ items, hasMore }) => ActionsStore.loadAllSuccess({ key, items, hasMore })),
               catchError(() =>
-                of(ActionsStore.loadPageFailure({ key, error: 'Tasks could not be loaded.' })),
+                of(
+                  ActionsStore.loadPageFailure({
+                    key,
+                    error: this.transloco.translate('tasks.loadFailed'),
+                  }),
+                ),
               ),
               takeUntil(this.dropped(key)),
             );

@@ -12,6 +12,7 @@ import {
 import { CdkDrag, CdkDragDrop, CdkDropList, CdkDropListGroup } from '@angular/cdk/drag-drop';
 import { Store } from '@ngrx/store';
 import { ConfirmationService } from 'primeng/api';
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { NgTemplateOutlet } from '@angular/common';
 import { SkeletonModule } from 'primeng/skeleton';
 import { DictionaryModel } from '../../../../core/models/dictionary.model';
@@ -29,7 +30,10 @@ import {
   TaskBoardStoreActions,
   TaskBoardStoreSelectors,
 } from '../../../../store/task-board';
-import { askToCloseOpenWork } from '../../../../shared/components/confirm-dialog/close-open-work';
+import {
+  askToCloseOpenWork,
+  workItemRef,
+} from '../../../../shared/components/confirm-dialog/close-open-work';
 import { TaskCardComponent } from '../../components/task-card/task-card.component';
 import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
 import { LoadMoreButtonComponent } from '../../../../shared/components/load-more-button/load-more-button.component';
@@ -66,6 +70,7 @@ interface Drop {
     CdkDrag,
     SkeletonModule,
     TaskCardComponent,
+    TranslocoDirective,
     EmptyStateComponent,
     LoadMoreButtonComponent,
   ],
@@ -76,6 +81,7 @@ interface Drop {
 export class TaskBoardViewComponent {
   private readonly store = inject(Store);
   private readonly confirmation = inject(ConfirmationService);
+  private readonly transloco = inject(TranslocoService);
 
   readonly query = input.required<WorkTaskBoardQuery>();
   readonly statuses = input.required<DictionaryModel[]>();
@@ -222,12 +228,12 @@ export class TaskBoardViewComponent {
     const openSubtasks = task.subtaskCount - task.doneSubtaskCount;
     let completeSubtasks = false;
     if (closing && openSubtasks > 0) {
-      const choice = await askToCloseOpenWork(this.confirmation, {
+      const choice = await askToCloseOpenWork(this.confirmation, this.transloco, {
         key: 'taskBoardClose',
-        itemRef: `TASK #${task.code}`,
+        itemRef: workItemRef(this.transloco, 'workItem.kind.task', task.code),
         title: task.title,
         openCount: openSubtasks,
-        childLabel: 'subtask',
+        child: 'subtask',
       });
       if (choice === 'cancel') return;
       completeSubtasks = choice === 'all';

@@ -1,4 +1,5 @@
 <p-dialog
+  *transloco="let t"
   [header]="title()"
   [visible]="visible()"
   (visibleChange)="updateVisible($event)"
@@ -12,14 +13,14 @@
 >
   <form class="work-group-form" [formGroup]="form" (ngSubmit)="submit()">
     <label class="form-field" for="workGroupName">
-      <span>Name <b>*</b></span>
+      <span>{{ t('common.name') }} <b>*</b></span>
       <input
         pInputText
         id="workGroupName"
         formControlName="title"
         maxlength="100"
         autocomplete="off"
-        placeholder="Enter a name"
+        [placeholder]="t('plan.namePlaceholder')"
         [attr.aria-invalid]="showError('title')"
         [attr.aria-describedby]="showError('title') ? 'workGroupNameError' : null"
       />
@@ -31,7 +32,9 @@
 
     @if (isMilestone()) {
       <div class="form-field">
-        <label id="milestoneGroupLabel" appLabelFor="milestoneGroup">Group <b>*</b></label>
+        <label id="milestoneGroupLabel" appLabelFor="milestoneGroup"
+          >{{ t('common.group') }} <b>*</b></label
+        >
         @if (isParentLocked()) {
           <div class="locked-parent" id="milestoneGroup">
             {{ parentTitle() }}
@@ -44,7 +47,7 @@
             [options]="groups()"
             optionLabel="title"
             optionValue="id"
-            placeholder="Choose a group"
+            [placeholder]="t('plan.chooseGroup')"
             panelStyleClass="work-group-parent-select-panel"
             [attr.aria-invalid]="showError('parentWorkGroupId')"
           >
@@ -65,7 +68,7 @@
           </p-select>
         }
         @if (showError('parentWorkGroupId')) {
-          <small class="visible">Group is required.</small>
+          <small class="visible">{{ t('plan.groupRequired') }}</small>
         }
       </div>
     }
@@ -79,7 +82,7 @@
         [disabled]="isSaving()"
         (click)="close()"
       >
-        Cancel
+        {{ t('common.cancel') }}
       </button>
       <button pButton type="submit" [loading]="isSaving()">
         {{ submitLabel() }}

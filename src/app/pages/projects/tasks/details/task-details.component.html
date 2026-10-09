@@ -1,15 +1,15 @@
 <app-confirm-dialog key="taskDelete" />
 
-<section class="page task-details-page">
+<section class="page task-details-page" *transloco="let t">
   <div class="page-header task-page-header">
     <div class="task-page-heading">
-      <h1 class="page-title">{{ task()?.isSubtask ? 'Subtask details' : 'Task details' }}</h1>
+      <h1 class="page-title">{{ t(task()?.isSubtask ? 'tasks.subtaskDetails' : 'tasks.details') }}</h1>
     </div>
     <div class="page-actions">
       <app-back-button (back)="back()" />
       @if (canEdit()) {
         <button pButton type="button" severity="secondary" outlined="true" (click)="edit()">
-          <i class="pi pi-pencil"></i><span>Edit</span>
+          <i class="pi pi-pencil"></i><span>{{ t('common.edit') }}</span>
         </button>
       }
       @if (canDelete()) {
@@ -21,19 +21,19 @@
           [loading]="deleting()"
           (click)="confirmDelete()"
         >
-          <i class="pi pi-trash"></i><span>Delete</span>
+          <i class="pi pi-trash"></i><span>{{ t('common.delete') }}</span>
         </button>
       }
     </div>
   </div>
 
   @if (loading()) {
-    <section class="panel"><app-loading-state text="Loading task..." /></section>
+    <section class="panel"><app-loading-state [text]="t('tasks.loadingItem')" /></section>
   } @else if (loadError()) {
     <section class="panel task-state" role="alert">
-      <i class="pi pi-exclamation-circle"></i><strong>Task is unavailable</strong
-      ><span>The task may have been removed or you may no longer have access.</span
-      ><button pButton type="button" outlined="true" (click)="back()">Back</button>
+      <i class="pi pi-exclamation-circle"></i><strong>{{ t('tasks.unavailable') }}</strong
+      ><span>{{ t('tasks.goneHint') }}</span
+      ><button pButton type="button" outlined="true" (click)="back()">{{ t('common.back') }}</button>
     </section>
   } @else if (task(); as item) {
     <article class="panel task-panel">
@@ -50,17 +50,21 @@
           <h2>{{ item.title }}</h2>
           <button type="button" class="task-comments-link" (click)="openDiscussion()">
             <i class="pi pi-comments" aria-hidden="true"></i>
-            <span
-              >{{ comments.count() }} {{ comments.count() === 1 ? 'comment' : 'comments' }}</span
-            >
+            <span>{{ t('tasks.comments', { count: comments.count() }) }}</span>
           </button>
         </div>
         <div class="task-state-area">
           @if (item.updatedAt; as updatedAt) {
             <p>
-              Updated {{ updatedAt | relativeTime }}
               @if (item.updatedBy; as author) {
-                · {{ author | personName: '' }}
+                {{
+                  t('tickets.updatedBy', {
+                    when: (updatedAt | relativeTime),
+                    name: (author | personName: ''),
+                  })
+                }}
+              } @else {
+                {{ t('tickets.updated', { when: (updatedAt | relativeTime) }) }}
               }
             </p>
           }
@@ -71,7 +75,7 @@
       <app-entity-tabs
         [tabs]="tabs()"
         [active]="activeTab()"
-        ariaLabel="Task sections"
+        [ariaLabel]="t('tasks.sections')"
         (select)="selectTab($event)"
       />
 

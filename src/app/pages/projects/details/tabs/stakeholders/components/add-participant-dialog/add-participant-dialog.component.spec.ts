@@ -3,6 +3,7 @@ import { By } from '@angular/platform-browser';
 import { Select } from 'primeng/select';
 import { projectRoleIds } from '../../../../../../../core/constants/project-role-ids.constants';
 import { WorkProjectRoleModel } from '../../../../../../../core/models/work-projects';
+import { translocoTestingProviders } from '../../../../../../../core/testing/transloco-testing';
 import { AddParticipantDialogComponent } from './add-participant-dialog.component';
 
 // A PrimeNG dialog with its overlays renders slowly: under a busy machine one test can pass 5s.
@@ -50,6 +51,7 @@ describe('AddParticipantDialogComponent', { timeout: 20_000 }, () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [AddParticipantDialogComponent],
+      providers: [...translocoTestingProviders()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(AddParticipantDialogComponent);

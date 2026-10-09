@@ -3,6 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideMockActions } from '@ngrx/effects/testing';
 import { Action } from '@ngrx/store';
 import { of, Subject, throwError } from 'rxjs';
+import { translocoTestingProviders } from '../../core/testing/transloco-testing';
 import { ProjectAccessService } from '../../core/services/project-access.service';
 import { SnackBarService } from '../../core/services/snack-bar.service';
 import { WorkProjectsService } from '../../core/services/work-projects.service';
@@ -27,6 +28,7 @@ describe('WorkProjectsEffects — invitations', () => {
     snackBar = { success: vi.fn(), error: vi.fn() };
     TestBed.configureTestingModule({
       providers: [
+        ...translocoTestingProviders(),
         WorkProjectsEffects,
         provideMockActions(() => actions),
         { provide: WorkProjectsService, useValue: service },

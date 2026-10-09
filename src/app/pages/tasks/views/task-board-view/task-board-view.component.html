@@ -1,5 +1,5 @@
 <!-- on a phone the columns become a switcher -->
-<div class="switcher" role="tablist" aria-label="Board columns">
+<div class="switcher" role="tablist" *transloco="let t" [attr.aria-label]="t('tasks.columns')">
   @for (column of columns(); track column.key) {
     <button
       type="button"
@@ -16,7 +16,7 @@
   }
 </div>
 
-<div class="board" cdkDropListGroup [style.--columns]="columns().length || 3">
+<div class="board" *transloco="let t" cdkDropListGroup [style.--columns]="columns().length || 3">
   @for (column of columns(); track column.key) {
     <section
       class="column"
@@ -62,7 +62,7 @@
             @if (loading(column)) {
               <ng-container *ngTemplateOutlet="skeletonCards" />
             } @else if (empty(column)) {
-              <app-empty-state class="column__empty" icon="pi-inbox" title="No tasks here" />
+              <app-empty-state class="column__empty" icon="pi-inbox" [title]="t('tasks.emptyColumn')" />
             }
           }
 

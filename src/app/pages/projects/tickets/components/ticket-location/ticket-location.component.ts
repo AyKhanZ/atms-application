@@ -1,3 +1,4 @@
+import { TranslocoDirective } from '@jsverse/transloco';
 import { WorkItemJumpComponent } from '../../../../../shared/components/work-item-jump/work-item-jump.component';
 import { WorkItemJumpState } from '../../../../../shared/components/work-item-jump/work-item-jump-state';
 import { WorkItemJumpContext } from '../../../../../shared/components/work-item-jump/work-item-jump-context';
@@ -20,7 +21,7 @@ import { WorkItemKind } from '../../../../../core/models/work-items';
 // group and milestone arent links, they are layers inside Plan, so "View in Plan"
 @Component({
   selector: 'app-ticket-location',
-  imports: [ButtonModule, WorkItemJumpComponent],
+  imports: [ButtonModule, WorkItemJumpComponent, TranslocoDirective],
   templateUrl: './ticket-location.component.html',
   styleUrl: './ticket-location.component.scss',
   providers: [WorkItemJumpState],

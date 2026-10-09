@@ -1,4 +1,5 @@
 import { inject, Injectable } from '@angular/core';
+import { TranslocoService } from '@jsverse/transloco';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { catchError, filter, map, of, switchMap, tap } from 'rxjs';
 import { SnackBarService } from '../../core/services/snack-bar.service';
@@ -13,6 +14,7 @@ export class WorkProjectsEffects {
   private readonly service = inject(WorkProjectsService);
   private readonly projectAccess = inject(ProjectAccessService);
   private readonly snackBar = inject(SnackBarService);
+  private readonly transloco = inject(TranslocoService);
 
   load$ = createEffect(() =>
     this.actions$.pipe(
@@ -107,7 +109,9 @@ export class WorkProjectsEffects {
     () =>
       this.actions$.pipe(
         ofType(WorkProjectsStoreActions.inviteProjectParticipantSuccess),
-        tap(({ email }) => this.snackBar.success(`Invitation sent to ${email}`)),
+        tap(({ email }) =>
+          this.snackBar.success(this.transloco.translate('participants.inviteSent', { email })),
+        ),
       ),
     { dispatch: false },
   );
@@ -117,7 +121,7 @@ export class WorkProjectsEffects {
       this.actions$.pipe(
         ofType(WorkProjectsStoreActions.inviteProjectParticipantFailure),
         filter(({ error }) => !error.message),
-        tap(() => this.snackBar.error('The invitation could not be sent. Please try again.')),
+        tap(() => this.snackBar.error(this.transloco.translate('participants.inviteFailed'))),
       ),
     { dispatch: false },
   );
@@ -143,7 +147,7 @@ export class WorkProjectsEffects {
     () =>
       this.actions$.pipe(
         ofType(WorkProjectsStoreActions.cancelProjectInvitationSuccess),
-        tap(() => this.snackBar.success('Invitation cancelled.')),
+        tap(() => this.snackBar.success(this.transloco.translate('participants.inviteCancelled'))),
       ),
     { dispatch: false },
   );
@@ -154,7 +158,7 @@ export class WorkProjectsEffects {
         ofType(WorkProjectsStoreActions.cancelProjectInvitationFailure),
         tap(({ message }) =>
           this.snackBar.error(
-            message ?? 'The invitation could not be cancelled. Please try again.',
+            message ?? this.transloco.translate('participants.inviteCancelFailed'),
           ),
         ),
       ),
@@ -208,13 +212,15 @@ export class WorkProjectsEffects {
         ),
         tap((action) =>
           this.snackBar.success(
-            action.type.includes('Participant')
-              ? 'Participants successfully updated.'
-              : action.type.includes('Delete')
-                ? 'Project successfully deleted.'
-                : action.type.includes('Create')
-                  ? 'Project successfully created.'
-                  : 'Project successfully updated.',
+            this.transloco.translate(
+              action.type.includes('Participant')
+                ? 'projects.participantsUpdated'
+                : action.type.includes('Delete')
+                  ? 'projects.deleted'
+                  : action.type.includes('Create')
+                    ? 'projects.created'
+                    : 'projects.updated',
+            ),
           ),
         ),
       ),
@@ -249,7 +255,7 @@ export class WorkProjectsEffects {
           WorkProjectsStoreActions.deleteProjectParticipantFailure,
           WorkProjectsStoreActions.deleteProjectFailure,
         ),
-        tap(() => this.snackBar.error('The project could not be saved. Please try again.')),
+        tap(() => this.snackBar.error(this.transloco.translate('projects.saveFailed'))),
       ),
     { dispatch: false },
   );

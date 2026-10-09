@@ -1,3 +1,4 @@
+import { TranslocoService } from '@jsverse/transloco';
 import { Confirmation } from 'primeng/api';
 import { WorkTicketModel } from '../../../../core/models/work-tickets';
 import { confirmTone } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
@@ -17,15 +18,16 @@ export function ticketHasTasks(ticket: Pick<WorkTicketModel, 'totalTaskCount'>):
 }
 
 // tasks would be left without a ticket
-export function ticketDeleteBlockedConfirmation(ticket: WorkTicketModel): Confirmation {
-  const taskCount = ticket.totalTaskCount ?? 0;
-  const tasks = taskCount === 1 ? 'task' : 'tasks';
+export function ticketDeleteBlockedConfirmation(
+  ticket: WorkTicketModel,
+  transloco: TranslocoService,
+): Confirmation {
   return {
     key: 'ticketDelete',
-    header: "This ticket can't be deleted yet",
+    header: transloco.translate('tickets.deleteBlockedTitle'),
     message: `#${ticket.code} ${ticket.title}
-It still has ${taskCount} ${tasks}. Delete them first, then delete the ticket.`,
-    acceptLabel: 'Got it',
+${transloco.translate('tickets.deleteBlocked', { count: ticket.totalTaskCount ?? 0 })}`,
+    acceptLabel: transloco.translate('common.gotIt'),
     rejectVisible: false,
     acceptButtonProps: confirmTone('warning'),
   };
@@ -33,15 +35,16 @@ It still has ${taskCount} ${tasks}. Delete them first, then delete the ticket.`,
 
 export function ticketDeleteConfirmation(
   ticket: WorkTicketModel,
+  transloco: TranslocoService,
   accept: () => void,
 ): Confirmation {
   return {
     key: 'ticketDelete',
-    header: 'Delete ticket?',
+    header: transloco.translate('tickets.deleteTitle'),
     message: `#${ticket.code} ${ticket.title}
-The ticket will be deleted. This action cannot be undone.`,
-    acceptLabel: 'Delete',
-    rejectLabel: 'Cancel',
+${transloco.translate('tickets.deleteMessage')}`,
+    acceptLabel: transloco.translate('common.delete'),
+    rejectLabel: transloco.translate('common.cancel'),
     acceptButtonProps: confirmTone('danger'),
     accept,
   };

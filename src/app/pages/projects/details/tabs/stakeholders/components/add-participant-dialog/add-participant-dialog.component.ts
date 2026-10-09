@@ -1,3 +1,5 @@
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
+import { currentLanguage } from '../../../../../../../core/i18n/active-language';
 import { LabelForDirective } from '../../../../../../../core/directives/label-for.directive';
 import {
   ChangeDetectionStrategy,
@@ -51,9 +53,9 @@ interface InviteFieldDefinition {
 
 // same order and limits as registering a user
 const inviteFields: InviteFieldDefinition[] = [
-  { key: 'name', id: 'inviteName', label: 'Name', maxLength: 50 },
-  { key: 'surname', id: 'inviteSurname', label: 'Surname', maxLength: 100 },
-  { key: 'email', id: 'inviteEmail', label: 'Email', maxLength: 100 },
+  { key: 'name', id: 'inviteName', label: 'common.name', maxLength: 50 },
+  { key: 'surname', id: 'inviteSurname', label: 'common.surname', maxLength: 100 },
+  { key: 'email', id: 'inviteEmail', label: 'common.email', maxLength: 100 },
 ];
 
 @Component({
@@ -66,6 +68,7 @@ const inviteFields: InviteFieldDefinition[] = [
     SelectModule,
     LabelForDirective,
     ProfileAvatarComponent,
+    TranslocoDirective,
     PersonNamePipe,
     PersonInitialsPipe,
   ],
@@ -75,6 +78,7 @@ const inviteFields: InviteFieldDefinition[] = [
 })
 export class AddParticipantDialogComponent {
   private readonly fb = inject(FormBuilder);
+  private readonly transloco = inject(TranslocoService);
   private readonly userSelect = viewChild<Select>('userSelect');
 
   readonly visible = model(false);
@@ -119,9 +123,12 @@ export class AddParticipantDialogComponent {
     surname: ['', [Validators.required, Validators.pattern(notBlank), Validators.maxLength(100)]],
   });
 
-  readonly header = computed(() =>
-    this.mode() === 'invite' ? 'Invite to project' : 'Add participant',
-  );
+  readonly header = computed(() => {
+    currentLanguage();
+    return this.transloco.translate(
+      this.mode() === 'invite' ? 'participants.inviteTitle' : 'participants.add',
+    );
+  });
   readonly searchedEmail = computed(() => {
     const text = this.searchText().trim();
 
@@ -129,10 +136,11 @@ export class AddParticipantDialogComponent {
   });
   readonly searchedEmailTaken = computed(() => this.takenEmailMessage(this.searchedEmail()));
   readonly placesLeftNote = computed(() => {
+    currentLanguage();
     const left = this.placesLeft();
 
     if (left === null || left < 1 || left > 2) return '';
-    return left === 1 ? '1 place left' : `${left} places left`;
+    return this.transloco.translate('participants.placesLeft', { count: left });
   });
 
   readonly availableRoles = computed(() => {
@@ -184,13 +192,24 @@ export class AddParticipantDialogComponent {
     if (!this.inviteAttempted() || control.valid) return '';
 
     if (control.hasError('required') || control.hasError('pattern')) {
-      return `Enter ${field === 'email' ? 'an' : 'a'} ${field}.`;
+      const requiredKey =
+        field === 'name'
+          ? 'participants.enterName'
+          : field === 'surname'
+            ? 'participants.enterSurname'
+            : 'participants.enterEmail';
+      return this.transloco.translate(requiredKey);
     }
-    if (control.hasError('email')) return 'Enter a valid email.';
+    if (control.hasError('email')) return this.transloco.translate('participants.emailInvalid');
 
     const maxLength = control.getError('maxlength')?.requiredLength as number | undefined;
-    const label = inviteFields.find((definition) => definition.key === field)?.label;
-    return maxLength ? `${label} must be at most ${maxLength} characters.` : '';
+    const labelKey = inviteFields.find((definition) => definition.key === field)?.label;
+    return maxLength && labelKey
+      ? this.transloco.translate('participants.fieldMax', {
+          field: this.transloco.translate(labelKey),
+          max: maxLength,
+        })
+      : '';
   }
 
   takenEmailMessage(email: string): string | null {
@@ -199,8 +218,8 @@ export class AddParticipantDialogComponent {
 
     const isIn = (emails: string[]) => emails.some((item) => item.toLowerCase() === normalized);
     if (isIn(this.participantEmails()))
-      return 'This person is already a participant of this project.';
-    if (isIn(this.invitedEmails())) return 'This email has already been invited to this project.';
+      return this.transloco.translate('participants.alreadyParticipant');
+    if (isIn(this.invitedEmails())) return this.transloco.translate('participants.alreadyInvited');
     return null;
   }
 

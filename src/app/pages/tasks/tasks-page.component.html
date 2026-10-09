@@ -1,12 +1,12 @@
 <app-confirm-dialog key="taskBoardClose" />
 
-<section class="page tasks-page">
-  <h1 class="page-title">Tasks</h1>
+<section class="page tasks-page" *transloco="let t">
+  <h1 class="page-title">{{ t('nav.tasks') }}</h1>
 
   <div class="tasks-header management-list-header">
     <app-list-search
       class="management-list-search"
-      placeholder="Search by code or title"
+      [placeholder]="t('search.byCodeOrTitle')"
       [value]="searchTerm()"
       (valueChange)="changeSearch($event)"
     />
@@ -36,9 +36,9 @@
 
   <article class="panel tasks-panel">
     <app-entity-tabs
-      [tabs]="views"
+      [tabs]="views()"
       [active]="state().view"
-      ariaLabel="Views"
+      [ariaLabel]="t('tasks.views')"
       (select)="selectView($event)"
     />
 

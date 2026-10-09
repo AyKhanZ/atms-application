@@ -1,6 +1,6 @@
 <p-confirmDialog key="projectParticipantDanger" styleClass="participant-danger-dialog" />
 
-<section class="stakeholders-content">
+<section class="stakeholders-content" *transloco="let t">
   @if (!isInternal() && project().organization; as organization) {
     <section class="organization-strip">
       <app-organization-logo [logoPath]="organization.logoPath" [title]="organization.title" />
@@ -19,11 +19,13 @@
   <section class="participants-panel">
     <div class="participants-header">
       <div class="participants-title">
-        <h3>Participants</h3>
+        <h3>{{ t('participants.title') }}</h3>
         <!-- pending invitations take a place until admin creates the account -->
         <span
           class="participants-count"
-          [attr.aria-label]="participantsCount() + ' of ' + maxParticipants + ' participants'"
+          [attr.aria-label]="
+            t('participants.ofMax', { count: participantsCount(), max: maxParticipants })
+          "
         >
           {{ participantsCount() }}/{{ maxParticipants }}
         </span>
@@ -32,7 +34,7 @@
         <!-- disabled button gets no pointer events, the tooltip is on the wrapper -->
         <span
           class="add-participant-wrap"
-          [pTooltip]="limitTooltip"
+          [pTooltip]="limitTooltip()"
           [tooltipDisabled]="!limitReached()"
           tooltipPosition="top"
         >
@@ -44,7 +46,7 @@
             (click)="openAddDialog()"
           >
             <i class="pi pi-plus"></i>
-            <span>Add</span>
+            <span>{{ t('common.add') }}</span>
           </button>
         </span>
       }

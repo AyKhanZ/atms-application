@@ -25,11 +25,16 @@ import {
 } from 'rxjs';
 import { Actions, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { ConfirmationService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmDialogComponent } from '../../../../../shared/components/confirm-dialog/confirm-dialog.component';
-import { askToCloseOpenWork } from '../../../../../shared/components/confirm-dialog/close-open-work';
+import {
+  askToCloseOpenWork,
+  workItemRef,
+} from '../../../../../shared/components/confirm-dialog/close-open-work';
+import { currentLanguage } from '../../../../../core/i18n/active-language';
 import { WorkTicketStatus } from '../../../../../core/enums/work-ticket-status.enum';
 import { DatePickerModule } from 'primeng/datepicker';
 import { InputTextModule } from 'primeng/inputtext';
@@ -91,6 +96,7 @@ interface TicketFormNavigationState {
     ProfileAvatarComponent,
     LoadMoreButtonComponent,
     LabelForDirective,
+    TranslocoDirective,
   ],
   providers: [ConfirmationService],
   templateUrl: './ticket-form-page.component.html',
@@ -117,6 +123,7 @@ export class TicketFormPageComponent implements OnDestroy {
   private readonly confirmation = inject(ConfirmationService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly breadcrumbOverride = inject(BreadcrumbOverrideService);
+  private readonly transloco = inject(TranslocoService);
   private readonly milestoneSearchChanges = new Subject<string>();
   private readonly navigationState = history.state as TicketFormNavigationState;
   private navigationComplete = false;
@@ -145,8 +152,14 @@ export class TicketFormPageComponent implements OnDestroy {
   readonly ticketStatuses = signal<DictionaryModel[]>([]);
   readonly milestoneGroups = computed(() => groupMilestones(this.milestones()));
   readonly isEdit = computed(() => this.mode() === 'edit');
-  readonly pageTitle = computed(() => (this.isEdit() ? 'Edit ticket' : 'Create ticket'));
-  readonly submitLabel = computed(() => (this.isEdit() ? 'Save' : 'Create'));
+  readonly pageTitle = computed(() => {
+    currentLanguage();
+    return this.transloco.translate(this.isEdit() ? 'tickets.edit' : 'tickets.create');
+  });
+  readonly submitLabel = computed(() => {
+    currentLanguage();
+    return this.transloco.translate(this.isEdit() ? 'common.save' : 'common.create');
+  });
   // returns to the caller (e.g. the ticket), Plan when opened directly by url
   readonly returnUrl =
     projectNavigationUrl(this.navigationState.returnUrl) ??
@@ -166,7 +179,7 @@ export class TicketFormPageComponent implements OnDestroy {
   constructor() {
     if (!this.projectId) {
       this.loading.set(false);
-      this.loadError.set('The ticket route is invalid. Return to the project plan and try again.');
+      this.loadError.set(this.transloco.translate('tickets.routeInvalid'));
       return;
     }
 
@@ -186,7 +199,7 @@ export class TicketFormPageComponent implements OnDestroy {
             .pipe(
               catchError(() => {
                 this.milestonesLoading.set(false);
-                this.snackBar.error("We couldn't load milestones. Please try again.");
+                this.snackBar.error(this.transloco.translate('tickets.milestonesFailed'));
                 return of({ items: [], nextCursor: null, hasMore: false, pageSize: 50 });
               }),
             );
@@ -213,9 +226,7 @@ export class TicketFormPageComponent implements OnDestroy {
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         catchError(() => {
-          this.loadError.set(
-            "We couldn't load the ticket form. Return to the project plan and try again.",
-          );
+          this.loadError.set(this.transloco.translate('tickets.formFailed'));
           return of(null);
         }),
         finalize(() => this.loading.set(false)),
@@ -282,12 +293,12 @@ export class TicketFormPageComponent implements OnDestroy {
       statusId === WorkTicketStatus.Closed &&
       ticket?.workTicketStatus.id !== WorkTicketStatus.Closed;
     if (ticket && closing && openTasks > 0) {
-      void askToCloseOpenWork(this.confirmation, {
+      void askToCloseOpenWork(this.confirmation, this.transloco, {
         key: 'ticketClose',
-        itemRef: `TICKET #${ticket.code}`,
+        itemRef: workItemRef(this.transloco, 'workItem.kind.ticket', ticket.code),
         title: ticket.title,
         openCount: openTasks,
-        childLabel: 'task',
+        child: 'task',
       }).then((choice) => {
         if (choice !== 'cancel') this.save(choice === 'all');
       });
@@ -316,7 +327,7 @@ export class TicketFormPageComponent implements OnDestroy {
       )
       .subscribe((action) => {
         if ('error' in action) {
-          this.snackBar.error(ticketErrorMessage(action.error));
+          this.snackBar.error(ticketErrorMessage(action.error, this.transloco));
           // cached permissions said ok, drop them so the next page is right
           if (action.error.status === 403 && this.projectId) {
             this.permissionsRefresh
@@ -327,7 +338,9 @@ export class TicketFormPageComponent implements OnDestroy {
           return;
         }
         this.navigationComplete = true;
-        this.snackBar.success(this.ticketId ? 'Ticket changes saved.' : 'Ticket created.');
+        this.snackBar.success(
+          this.transloco.translate(this.ticketId ? 'tickets.saved' : 'tickets.created'),
+        );
         this.navigateBack();
       });
 
@@ -367,11 +380,11 @@ export class TicketFormPageComponent implements OnDestroy {
   confirmUnsavedChanges(): Promise<boolean> {
     return new Promise((resolve) => {
       this.confirmation.confirm({
-        header: 'Discard changes',
-        message: 'You have unsaved ticket changes. Leave this page without saving?',
+        header: this.transloco.translate('settings.discardTitle'),
+        message: this.transloco.translate('tickets.discardMessage'),
         icon: 'pi pi-exclamation-triangle',
-        acceptLabel: 'Leave',
-        rejectLabel: 'Stay',
+        acceptLabel: this.transloco.translate('common.leave'),
+        rejectLabel: this.transloco.translate('settings.stay'),
         acceptButtonStyleClass: 'p-button-danger',
         rejectButtonStyleClass: 'p-button-outlined',
         accept: () => {
@@ -388,11 +401,13 @@ export class TicketFormPageComponent implements OnDestroy {
   ): string {
     const control = this.form.controls[name];
     if ((!this.submitted() && !control.touched) || !control.errors) return '';
-    if (control.errors['required']) return `${ticketFieldLabel(name)} is required.`;
+    if (control.errors['required']) return this.transloco.translate(ticketRequiredKey(name));
     if (control.errors['maxlength']) {
-      return `Maximum ${control.errors['maxlength'].requiredLength} characters.`;
+      return this.transloco.translate('validation.maxLength', {
+        max: control.errors['maxlength'].requiredLength,
+      });
     }
-    return 'Invalid value.';
+    return this.transloco.translate('common.invalid');
   }
 
   onDateInput(event: Event): void {
@@ -410,8 +425,9 @@ export class TicketFormPageComponent implements OnDestroy {
   }
 
   participantName(participant: { name?: string; surname?: string } | null | undefined): string {
-    if (!participant) return 'Unassigned';
-    return `${participant.name ?? ''} ${participant.surname ?? ''}`.trim() || 'Unassigned';
+    const unassigned = this.transloco.translate('common.unassigned');
+    if (!participant) return unassigned;
+    return `${participant.name ?? ''} ${participant.surname ?? ''}`.trim() || unassigned;
   }
 
   participantInitials(participant: { name?: string; surname?: string } | null | undefined): string {
@@ -458,7 +474,7 @@ export class TicketFormPageComponent implements OnDestroy {
         },
         error: () => {
           this.milestonesLoading.set(false);
-          this.snackBar.error("We couldn't load more milestones. Please try again.");
+          this.snackBar.error(this.transloco.translate('tickets.moreMilestonesFailed'));
         },
       });
   }
@@ -555,22 +571,21 @@ export class TicketFormPageComponent implements OnDestroy {
   }
 }
 
-function ticketFieldLabel(name: string): string {
+function ticketRequiredKey(name: string): string {
   return (
     {
-      title: 'Name',
-      milestoneId: 'Milestone',
-      workTicketTypeId: 'Type',
-      priorityId: 'Priority',
-      workTicketStatusId: 'Status',
+      title: 'tickets.nameRequired',
+      milestoneId: 'tickets.milestoneRequired',
+      workTicketTypeId: 'projects.typeRequired',
+      priorityId: 'tasks.priorityRequired',
+      workTicketStatusId: 'projects.statusRequired',
     } as Record<string, string>
   )[name];
 }
 
-function ticketErrorMessage(error: WorkItemMutationError): string {
+function ticketErrorMessage(error: WorkItemMutationError, transloco: TranslocoService): string {
   if (error.message) return error.message;
-  if (error.status === 403) return 'You no longer have permission to edit tickets in this project.';
-  if (error.status === 404)
-    return 'The ticket or selected milestone is no longer available. Refresh the plan.';
-  return "We couldn't save the ticket. Please try again.";
+  if (error.status === 403) return transloco.translate('tickets.editDenied');
+  if (error.status === 404) return transloco.translate('tickets.missing');
+  return transloco.translate('tickets.saveFailed');
 }

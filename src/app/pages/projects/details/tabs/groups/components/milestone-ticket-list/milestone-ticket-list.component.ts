@@ -1,6 +1,16 @@
-import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
-import { Menu, MenuModule } from 'primeng/menu';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  input,
+  output,
+  signal,
+} from '@angular/core';
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { MenuItem } from 'primeng/api';
+import { Menu, MenuModule } from 'primeng/menu';
+import { currentLanguage } from '../../../../../../../core/i18n/active-language';
 import { LoadMoreButtonComponent } from '../../../../../../../shared/components/load-more-button/load-more-button.component';
 import { WorkTicketModel } from '../../../../../../../core/models/work-tickets';
 import { WorkItemAssigneeComponent } from '../../../../../../../shared/components/work-item-assignee/work-item-assignee.component';
@@ -27,12 +37,14 @@ export interface MilestoneTicketPageState {
     WorkItemAssigneeComponent,
     TicketStatusBadgeComponent,
     WorkItemTypeComponent,
+    TranslocoDirective,
   ],
   templateUrl: './milestone-ticket-list.component.html',
   styleUrl: './milestone-ticket-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MilestoneTicketListComponent {
+  private readonly transloco = inject(TranslocoService);
   protected readonly kinds = WorkItemKind;
   readonly milestoneTitle = input.required<string>();
   readonly page = input<MilestoneTicketPageState | null>(null);
@@ -47,12 +59,13 @@ export class MilestoneTicketListComponent {
   readonly tickets = computed(() => this.page()?.items ?? []);
 
   readonly ticketActions = computed<MenuItem[]>(() => {
+    currentLanguage();
     const ticket = this.selectedTicket();
     if (!ticket || !this.canEditTickets()) return [];
 
     return [
       {
-        label: 'Edit',
+        label: this.transloco.translate('common.edit'),
         icon: 'pi pi-pencil',
         command: () => this.editTicket.emit(ticket.id),
       },

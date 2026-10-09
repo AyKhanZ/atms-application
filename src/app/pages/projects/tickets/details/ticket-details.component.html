@@ -1,16 +1,16 @@
 <app-confirm-dialog key="ticketDelete" />
 
-<section class="page ticket-details-page">
+<section class="page ticket-details-page" *transloco="let t">
   <div class="page-header ticket-page-header">
     <div class="ticket-page-heading">
-      <h1 class="page-title">Ticket details</h1>
+      <h1 class="page-title">{{ t('tickets.details') }}</h1>
     </div>
     <div class="page-actions">
       <app-back-button (back)="back()" />
       @if (canEdit()) {
         <button pButton type="button" severity="secondary" outlined="true" (click)="edit()">
           <i class="pi pi-pencil"></i>
-          <span>Edit</span>
+          <span>{{ t('common.edit') }}</span>
         </button>
       }
       @if (canDelete()) {
@@ -23,20 +23,22 @@
           (click)="confirmDelete()"
         >
           <i class="pi pi-trash"></i>
-          <span>Delete</span>
+          <span>{{ t('common.delete') }}</span>
         </button>
       }
     </div>
   </div>
 
   @if (loading()) {
-    <section class="panel"><app-loading-state text="Loading ticket..." /></section>
+    <section class="panel"><app-loading-state [text]="t('tickets.loading')" /></section>
   } @else if (loadError()) {
     <section class="panel ticket-state" role="alert">
       <i class="pi pi-exclamation-circle"></i>
-      <strong>Ticket is unavailable</strong>
-      <span>The ticket may have been removed or you may no longer have access.</span>
-      <button pButton type="button" outlined="true" (click)="back()">Back to plan</button>
+      <strong>{{ t('tickets.unavailable') }}</strong>
+      <span>{{ t('tickets.goneHint') }}</span>
+      <button pButton type="button" outlined="true" (click)="back()">
+        {{ t('tickets.backToPlan') }}
+      </button>
     </section>
   } @else if (ticket(); as item) {
     <article class="panel ticket-panel">
@@ -48,9 +50,15 @@
         <div class="ticket-state-area">
           @if (item.updatedAt; as updatedAt) {
             <p class="updated-meta">
-              Updated {{ updatedAt | relativeTime }}
               @if (item.updatedBy; as author) {
-                · {{ author | personName: '' }}
+                {{
+                  t('tickets.updatedBy', {
+                    when: (updatedAt | relativeTime),
+                    name: (author | personName: ''),
+                  })
+                }}
+              } @else {
+                {{ t('tickets.updated', { when: (updatedAt | relativeTime) }) }}
               }
             </p>
           }
@@ -61,7 +69,7 @@
       <app-entity-tabs
         [tabs]="tabs()"
         [active]="activeTab()"
-        ariaLabel="Ticket sections"
+        [ariaLabel]="t('tickets.sections')"
         (select)="selectTab($event)"
       />
 
@@ -70,11 +78,11 @@
         @if (activeTab() === 'details') {
           <div class="work-item-details-content">
             <section class="description-card">
-              <h3>Description</h3>
+              <h3>{{ t('common.description') }}</h3>
               @if (item.description) {
                 <p class="description">{{ item.description }}</p>
               } @else {
-                <p class="inline-empty">No description has been added.</p>
+                <p class="inline-empty">{{ t('projects.noDescription') }}</p>
               }
             </section>
 

@@ -14,7 +14,7 @@ export class TaskFormBreadcrumbsService implements OnDestroy {
 
   // subtask uses the task route ("New task"), fix the crumb up front instead of showing it wrong for a moment
   placeholder(isSubtask: boolean): void {
-    this.breadcrumbs.set(this.ownerPath, isSubtask ? 'New subtask' : 'New task');
+    this.breadcrumbs.set(this.ownerPath, isSubtask ? 'tasks.newSubtask' : 'tasks.new');
   }
 
   show(
@@ -24,7 +24,7 @@ export class TaskFormBreadcrumbsService implements OnDestroy {
   ): void {
     const projectPath = '/projects/' + project.id;
     const items: BreadcrumbItem[] = [
-      { title: 'Projects', path: '/projects', icon: 'pi-briefcase' },
+      { title: 'nav.projects', path: '/projects', icon: 'pi-briefcase' },
       { title: '#' + project.code + ' ' + project.title, path: projectPath },
     ];
     const ticketId = task?.workTicket.id ?? parent?.ticketId;
@@ -57,7 +57,7 @@ export class TaskFormBreadcrumbsService implements OnDestroy {
           });
         }
         items.push({
-          title: parent?.kind === 'task' ? 'New subtask' : 'New task',
+          title: parent?.kind === 'task' ? 'tasks.newSubtask' : 'tasks.new',
           path: this.ownerPath,
         });
       }

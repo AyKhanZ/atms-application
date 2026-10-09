@@ -1,15 +1,17 @@
-<section class="participants-section">
+<section class="participants-section" *transloco="let t">
   <div class="participants-heading">
     <div>
       <h2>
-        Participants
+        {{ t('participants.title') }}
         @if (participantsRequired()) {
           <b>*</b>
         }
       </h2>
-      <small>Choose a user first. Available project roles will match their side.</small>
+      <small>{{ t('participants.hint') }}</small>
     </div>
-    <span>{{ participants().length }}/{{ maxParticipants() }} participants</span>
+    <span>{{
+      t('participants.count', { current: participants().length, max: maxParticipants() })
+    }}</span>
   </div>
 
   <div class="participants-body">
@@ -27,7 +29,7 @@
                 <label
                   [id]="'participantUserLabel' + index"
                   [appLabelFor]="'participantUser' + index"
-                  >User <b>*</b></label
+                  >{{ t('common.user') }} <b>*</b></label
                 >
                 @if (participantSource(index); as source) {
                   <span class="participant-source">{{ source }}</span>
@@ -41,7 +43,7 @@
                 [group]="true"
                 optionLabel="email"
                 optionValue="id"
-                placeholder="Select user"
+                [placeholder]="t('participants.selectUser')"
                 [filter]="true"
                 appendTo="body"
                 (onChange)="participantUserChanged(index)"
@@ -66,7 +68,7 @@
 
             <div class="field role-field">
               <label [id]="'participantRoleLabel' + index" [appLabelFor]="'participantRole' + index"
-                >Role <b>*</b></label
+                >{{ t('common.role') }} <b>*</b></label
               >
               <p-select
                 [inputId]="'participantRole' + index"
@@ -75,7 +77,7 @@
                 [options]="availableRoles(index)"
                 optionLabel="name"
                 optionValue="id"
-                placeholder="Select user first"
+                [placeholder]="t('participants.selectUserFirst')"
                 appendTo="body"
               />
               <small [class.visible]="error(index, 'roleId')">{{
@@ -86,11 +88,11 @@
             <button
               type="button"
               class="remove-participant"
-              title="Remove participant"
+              [title]="t('participants.removeTitle')"
               (click)="removeParticipant.emit(index)"
             >
               <i class="pi pi-trash"></i>
-              <span>Remove</span>
+              <span>{{ t('common.remove') }}</span>
             </button>
           </div>
         }
@@ -98,7 +100,7 @@
     } @else {
       <div class="participants-empty">
         <i class="pi pi-users"></i>
-        <strong>No participants added yet</strong>
+        <strong>{{ t('participants.emptyForm') }}</strong>
       </div>
     }
   </div>
@@ -119,7 +121,7 @@
         (click)="addParticipant.emit()"
       >
         <i class="pi pi-plus"></i>
-        <span>Add participant</span>
+        <span>{{ t('participants.add') }}</span>
       </button>
     }
   </div>

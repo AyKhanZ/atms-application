@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { TranslocoDirective } from '@jsverse/transloco';
 import { AppDatePipe } from '../../../../shared/pipes/app-date.pipe';
 import { WorkItemKind } from '../../../../core/models/work-items';
 import { workTaskKind, workTaskParent } from '../../../../core/utils/work-task.utils';
@@ -21,6 +22,7 @@ import { TaskStatusBadgeComponent } from '../../../projects/tasks/components/tas
     WorkItemAssigneeComponent,
     OverdueBadgeComponent,
     TaskStatusBadgeComponent,
+    TranslocoDirective,
   ],
   templateUrl: './task-hover.component.html',
   styleUrl: './task-hover.component.scss',

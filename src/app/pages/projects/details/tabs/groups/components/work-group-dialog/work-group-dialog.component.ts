@@ -10,6 +10,8 @@ import {
   output,
   signal,
 } from '@angular/core';
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
+import { currentLanguage } from '../../../../../../../core/i18n/active-language';
 import {
   AbstractControl,
   FormBuilder,
@@ -46,6 +48,7 @@ const nonWhitespaceValidator: ValidatorFn = (control: AbstractControl): Validati
     InputTextModule,
     SelectModule,
     LabelForDirective,
+    TranslocoDirective,
   ],
   templateUrl: './work-group-dialog.component.html',
   styleUrl: './work-group-dialog.component.scss',
@@ -53,6 +56,7 @@ const nonWhitespaceValidator: ValidatorFn = (control: AbstractControl): Validati
 })
 export class WorkGroupDialogComponent {
   private readonly fb = inject(FormBuilder);
+  private readonly transloco = inject(TranslocoService);
 
   readonly visible = model(false);
   readonly mode = input<WorkGroupDialogMode>('create');
@@ -66,11 +70,21 @@ export class WorkGroupDialogComponent {
   readonly submitAttempted = signal(false);
 
   readonly title = computed(() => {
-    const kindLabel = this.kind() === 'group' ? 'group' : 'milestone';
+    currentLanguage();
+    if (this.kind() === 'group') {
+      return this.transloco.translate(
+        this.mode() === 'create' ? 'plan.addGroup' : 'plan.editGroup',
+      );
+    }
 
-    return this.mode() === 'create' ? `Add ${kindLabel}` : `Edit ${kindLabel}`;
+    return this.transloco.translate(
+      this.mode() === 'create' ? 'plan.addMilestoneTitle' : 'plan.editMilestone',
+    );
   });
-  readonly submitLabel = computed(() => (this.mode() === 'create' ? 'Create' : 'Save'));
+  readonly submitLabel = computed(() => {
+    currentLanguage();
+    return this.transloco.translate(this.mode() === 'create' ? 'common.create' : 'common.save');
+  });
   readonly isMilestone = computed(() => this.kind() === 'milestone');
   readonly isParentLocked = computed(() => this.parentSelectionLocked() || this.mode() === 'edit');
 
@@ -111,7 +125,7 @@ export class WorkGroupDialogComponent {
 
     return (
       this.groups().find((group) => group.id === parentId)?.title ??
-      'The selected group is no longer available'
+      this.transloco.translate('plan.groupGone')
     );
   }
 
@@ -124,10 +138,11 @@ export class WorkGroupDialogComponent {
   titleError(): string {
     const errors = this.form.controls.title.errors;
     if (!this.showError('title') || !errors) return '';
-    if (errors['required'] || errors['whitespace']) return 'Name is required.';
-    if (errors['maxlength']) return 'Keep the name within 100 characters.';
+    if (errors['required'] || errors['whitespace'])
+      return this.transloco.translate('plan.nameRequired');
+    if (errors['maxlength']) return this.transloco.translate('validation.maxLength', { max: 100 });
 
-    return 'Check the name and try again.';
+    return this.transloco.translate('plan.nameCheck');
   }
 
   updateVisible(visible: boolean): void {

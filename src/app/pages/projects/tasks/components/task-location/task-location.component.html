@@ -1,7 +1,7 @@
 @let item = task();
 
-<section class="task-location">
-  <h3>Location</h3>
+<section class="task-location" *transloco="let t">
+  <h3>{{ t('tasks.location') }}</h3>
 
   <div class="location-tree">
     <span class="location-level location-level--group">
@@ -34,7 +34,7 @@
                   [current]="item"
                   [items]="jump.items()"
                   [kind]="kinds.Subtask"
-                  label="Switch subtask"
+                  [label]="t('tasks.switchSubtask')"
                   [context]="jumpContext()"
                   [groupLabel]="item.parentWorkTask?.name || item.workTicket.name"
                   [loading]="jump.loading()"
@@ -54,7 +54,7 @@
               [current]="item"
               [items]="jump.items()"
               [kind]="kinds.Task"
-              label="Switch task"
+              [label]="t('tasks.switchTask')"
               [context]="jumpContext()"
               [groupLabel]="item.workTicket.name"
               [loading]="jump.loading()"

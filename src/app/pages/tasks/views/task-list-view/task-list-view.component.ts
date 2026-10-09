@@ -10,6 +10,7 @@ import {
   untracked,
 } from '@angular/core';
 import { AppDatePipe } from '../../../../shared/pipes/app-date.pipe';
+import { TranslocoDirective } from '@jsverse/transloco';
 import { Store } from '@ngrx/store';
 import { SortEvent } from 'primeng/api';
 import { TableModule } from 'primeng/table';
@@ -69,6 +70,7 @@ const sorts: Record<string, WorkTaskBoardSort> = {
     TaskListRowComponent,
     TaskKindPipe,
     IsOverdueTaskPipe,
+    TranslocoDirective,
   ],
   templateUrl: './task-list-view.component.html',
   styleUrl: './task-list-view.component.scss',

@@ -1,29 +1,31 @@
+<ng-container *transloco="let t">
 <app-work-item-ref [type]="kind()" [code]="task().code" />
 <p class="hover__title">{{ task().title }}</p>
 <dl class="hover__facts">
   @if (task().workProject; as project) {
-    <dt>Project</dt>
+    <dt>{{ t('workItem.kind.project') }}</dt>
     <dd class="hover__item">
       <app-work-item-ref [type]="projectKind" [code]="project.code" [labelled]="false" />
       <span>{{ project.name }}</span>
     </dd>
   }
-  <dt>Parent</dt>
+  <dt>{{ t('common.parent') }}</dt>
   <dd class="hover__item">
     <app-work-item-ref [type]="parent().kind" [code]="parent().code" [labelled]="false" />
     <span>{{ parent().name }}</span>
   </dd>
-  <dt>Status</dt>
+  <dt>{{ t('common.status') }}</dt>
   <dd><app-task-status-badge [status]="task().status" /></dd>
-  <dt>Priority</dt>
+  <dt>{{ t('common.priority') }}</dt>
   <dd><app-work-item-priority [priority]="task().priority" /></dd>
-  <dt>Assigned to</dt>
+  <dt>{{ t('tasks.assignedTo') }}</dt>
   <dd><app-work-item-assignee [assignee]="task().assignee" /></dd>
-  <dt>Deadline</dt>
+  <dt>{{ t('common.deadline') }}</dt>
   <dd class="hover__deadline" [class.hover__deadline--overdue]="overdue()">
-    {{ task().deadline ? (task().deadline | appDate: 'd MMM yyyy') : 'No deadline' }}
+    {{ task().deadline ? (task().deadline | appDate: 'd MMM yyyy') : t('workItem.noDeadline') }}
     @if (overdue()) {
       <app-overdue-badge [deadline]="task().deadline" />
     }
   </dd>
 </dl>
+</ng-container>

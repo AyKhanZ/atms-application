@@ -1,4 +1,5 @@
 <p-multiselect
+  *transloco="let t"
   [inputId]="inputId()"
   [ariaLabelledBy]="labelledBy()"
   [placeholder]="placeholder()"
@@ -10,7 +11,7 @@
   [ngModel]="value()"
   (ngModelChange)="valueChange.emit($event)"
   [filter]="true"
-  filterPlaceHolder="Search by code or title"
+  [filterPlaceHolder]="t('search.byCodeOrTitle')"
   [showToggleAll]="false"
   [panelStyle]="panelStyle"
   [panelStyleClass]="panelClass()"

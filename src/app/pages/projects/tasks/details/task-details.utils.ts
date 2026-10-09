@@ -1,4 +1,5 @@
 import { Params } from '@angular/router';
+import { TranslocoService } from '@jsverse/transloco';
 import { Confirmation } from 'primeng/api';
 import { confirmTone } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { BreadcrumbItem } from '../../../../core/models/breadcrumb-item.model';
@@ -24,7 +25,7 @@ export function taskBreadcrumbTrail(
 ): BreadcrumbItem[] {
   const ticketPath = `/projects/${task.workProjectId}/tickets/${task.workTicket.id}`;
   const items: BreadcrumbItem[] = [
-    { title: 'Projects', path: '/projects', icon: 'pi-briefcase' },
+    { title: 'nav.projects', path: '/projects', icon: 'pi-briefcase' },
     { title: `#${project.code} ${project.title}`, path: `/projects/${task.workProjectId}` },
     {
       title: `#${task.workTicket.code} ${task.workTicket.name}`,
@@ -58,20 +59,25 @@ export function taskParentRoute(task: WorkTaskModel): { commands: string[]; quer
 }
 
 // deletes subtasks too, the dialog says what else goes
-export function taskDeleteConfirmation(task: WorkTaskModel, accept: () => void): Confirmation {
-  const kind = task.isSubtask ? 'subtask' : 'task';
-  const subtasks = task.subtaskCount === 1 ? 'subtask' : 'subtasks';
+export function taskDeleteConfirmation(
+  task: WorkTaskModel,
+  transloco: TranslocoService,
+  accept: () => void,
+): Confirmation {
   const what =
     task.subtaskCount > 0
-      ? `It will be deleted together with its ${task.subtaskCount} ${subtasks}.`
-      : `This ${kind} will be deleted.`;
+      ? transloco.translate('tasks.deleteWithSubtasks', { count: task.subtaskCount })
+      : transloco.translate(task.isSubtask ? 'tasks.deleteSubtask' : 'tasks.deleteTask');
   return {
     key: 'taskDelete',
-    header: `Delete ${kind}?`,
+    header: transloco.translate(task.isSubtask ? 'tasks.deleteSubtaskTitle' : 'tasks.deleteTaskTitle'),
     message: `#${task.code} ${task.title}
 ${what}`,
-    acceptLabel: task.subtaskCount > 0 ? 'Delete task and subtasks' : 'Delete',
-    rejectLabel: 'Cancel',
+    acceptLabel:
+      task.subtaskCount > 0
+        ? transloco.translate('tasks.deleteWithChildren')
+        : transloco.translate('common.delete'),
+    rejectLabel: transloco.translate('common.cancel'),
     acceptButtonProps: confirmTone('danger'),
     accept,
   };

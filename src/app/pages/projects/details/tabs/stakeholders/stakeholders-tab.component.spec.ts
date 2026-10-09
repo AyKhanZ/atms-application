@@ -21,6 +21,7 @@ import { WorkProjectsService } from '../../../../../core/services/work-projects.
 import { WorkProjectsStoreActions } from '../../../../../store/work-projects';
 import { AddParticipantDialogComponent } from './components/add-participant-dialog/add-participant-dialog.component';
 import { ParticipantListComponent } from './components/participant-list/participant-list.component';
+import { translocoTestingProviders } from '../../../../../core/testing/transloco-testing';
 import { StakeholdersTabComponent } from './stakeholders-tab.component';
 
 describe('StakeholdersTabComponent', { timeout: 20_000 }, () => {
@@ -88,6 +89,7 @@ describe('StakeholdersTabComponent', { timeout: 20_000 }, () => {
     await TestBed.configureTestingModule({
       imports: [StakeholdersTabComponent],
       providers: [
+        ...translocoTestingProviders(),
         provideRouter([]),
         provideMockStore(),
         provideMockActions(() => actions),
@@ -145,7 +147,7 @@ describe('StakeholdersTabComponent', { timeout: 20_000 }, () => {
     const wrap = (fixture.nativeElement as HTMLElement).querySelector('.add-participant-wrap');
     const tooltip = fixture.debugElement.query(By.directive(Tooltip)).injector.get(Tooltip);
     expect(wrap).not.toBeNull();
-    expect(fixture.componentInstance.limitTooltip).toBe('Up to 20 participants in a project');
+    expect(fixture.componentInstance.limitTooltip()).toBe('Up to 20 participants in a project');
     expect(tooltip.getOption('tooltipLabel')).toBe('Up to 20 participants in a project');
     expect(tooltip.getOption('disabled')).toBe(false);
 

@@ -2,12 +2,15 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  inject,
   input,
   output,
   signal,
 } from '@angular/core';
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { MenuItem } from 'primeng/api';
 import { Menu, MenuModule } from 'primeng/menu';
+import { currentLanguage } from '../../../../../../../core/i18n/active-language';
 import {
   WorkProjectInvitationModel,
   WorkProjectParticipantModel,
@@ -20,12 +23,20 @@ import {
 
 @Component({
   selector: 'app-participant-list',
-  imports: [MenuModule, ProfileAvatarComponent, PersonNamePipe, PersonInitialsPipe],
+  imports: [
+    MenuModule,
+    ProfileAvatarComponent,
+    PersonNamePipe,
+    PersonInitialsPipe,
+    TranslocoDirective,
+  ],
   templateUrl: './participant-list.component.html',
   styleUrl: './participant-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ParticipantListComponent {
+  private readonly transloco = inject(TranslocoService);
+
   readonly participants = input.required<WorkProjectParticipantModel[]>();
   readonly invitations = input.required<WorkProjectInvitationModel[]>();
   readonly canChangeRole = input(false);
@@ -50,23 +61,28 @@ export class ParticipantListComponent {
       (this.canCancelInvitations() && this.invitations().length > 0),
   );
 
-  readonly invitationActions: MenuItem[] = [
-    {
-      label: 'Cancel invitation',
-      icon: 'pi pi-times',
-      styleClass: 'participant-menu-danger',
-      command: () => {
-        const invitation = this.selectedInvitation();
-        if (invitation) this.cancelInvitation.emit(invitation);
+  // menu items are read when the menu opens, not once at construction
+  readonly invitationActions = computed<MenuItem[]>(() => {
+    currentLanguage();
+    return [
+      {
+        label: this.transloco.translate('participants.cancelInvitation'),
+        icon: 'pi pi-times',
+        styleClass: 'participant-menu-danger',
+        command: () => {
+          const invitation = this.selectedInvitation();
+          if (invitation) this.cancelInvitation.emit(invitation);
+        },
       },
-    },
-  ];
+    ];
+  });
 
   readonly participantActions = computed<MenuItem[]>(() => {
+    currentLanguage();
     const actions: MenuItem[] = [];
     if (this.canChangeRole()) {
       actions.push({
-        label: 'Change role',
+        label: this.transloco.translate('participants.changeRole'),
         icon: 'pi pi-pencil',
         command: () => {
           const participant = this.selectedParticipant();
@@ -77,7 +93,7 @@ export class ParticipantListComponent {
     const selected = this.selectedParticipant();
     if (selected && this.removableParticipantIds().has(selected.id)) {
       actions.push({
-        label: 'Remove',
+        label: this.transloco.translate('common.remove'),
         icon: 'pi pi-trash',
         styleClass: 'participant-menu-danger',
         command: () => {

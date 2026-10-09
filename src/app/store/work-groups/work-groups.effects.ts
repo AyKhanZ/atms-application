@@ -1,5 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
+import { TranslocoService } from '@jsverse/transloco';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { concatLatestFrom } from '@ngrx/operators';
 import { Store } from '@ngrx/store';
@@ -17,6 +18,7 @@ export class WorkGroupsEffects {
   private readonly store = inject(Store);
   private readonly service = inject(WorkGroupsService);
   private readonly snackBar = inject(SnackBarService);
+  private readonly transloco = inject(TranslocoService);
   private readonly reset$ = this.actions$.pipe(ofType(WorkGroupsStoreActions.resetWorkGroups));
 
   load$ = createEffect(() =>
@@ -29,7 +31,7 @@ export class WorkGroupsEffects {
             of(
               WorkGroupsStoreActions.loadWorkGroupsFailure({
                 projectId,
-                error: "We couldn't refresh the plan. The information shown may be out of date.",
+                error: this.transloco.translate('plan.refreshFailed'),
               }),
             ),
           ),
@@ -57,7 +59,9 @@ export class WorkGroupsEffects {
               WorkGroupsStoreActions.createWorkGroupFailure({
                 projectId,
                 kind,
-                error: createErrorMessage(error, kind),
+                error: createErrorMessage(error, kind, (key, params) =>
+                  this.transloco.translate(key, params),
+                ),
               }),
             ),
           ),
@@ -80,7 +84,9 @@ export class WorkGroupsEffects {
               WorkGroupsStoreActions.updateWorkGroupFailure({
                 projectId,
                 kind,
-                error: updateErrorMessage(error, kind),
+                error: updateErrorMessage(error, kind, (key, params) =>
+                  this.transloco.translate(key, params),
+                ),
               }),
             ),
           ),
@@ -103,7 +109,9 @@ export class WorkGroupsEffects {
               WorkGroupsStoreActions.deleteWorkGroupFailure({
                 projectId,
                 kind,
-                error: deleteErrorMessage(error, kind),
+                error: deleteErrorMessage(error, kind, (key, params) =>
+                  this.transloco.translate(key, params),
+                ),
               }),
             ),
           ),
@@ -135,14 +143,20 @@ export class WorkGroupsEffects {
           WorkGroupsStoreActions.deleteWorkGroupSuccess,
         ),
         tap((action) => {
-          const itemName = action.kind === 'group' ? 'Group' : 'Milestone';
-          const message = action.type.includes('Create')
-            ? `${itemName} created.`
-            : action.type.includes('Update')
-              ? `${itemName} changes saved.`
-              : `${itemName} deleted.`;
+          const key =
+            action.kind === 'group'
+              ? action.type.includes('Create')
+                ? 'plan.groupCreated'
+                : action.type.includes('Update')
+                  ? 'plan.groupSaved'
+                  : 'plan.groupDeleted'
+              : action.type.includes('Create')
+                ? 'plan.milestoneCreated'
+                : action.type.includes('Update')
+                  ? 'plan.milestoneSaved'
+                  : 'plan.milestoneDeleted';
 
-          this.snackBar.success(message);
+          this.snackBar.success(this.transloco.translate(key));
         }),
       ),
     { dispatch: false },
@@ -162,47 +176,57 @@ export class WorkGroupsEffects {
   );
 }
 
-function createErrorMessage(error: HttpErrorResponse, kind: WorkGroupKind): string {
+function createErrorMessage(
+  error: HttpErrorResponse,
+  kind: WorkGroupKind,
+  translate: (key: string, params?: Record<string, unknown>) => string,
+): string {
   const invalid = validationMessage(error, 'title');
   if (invalid) return invalid;
-  if (error.status === 409) return duplicateNameMessage(kind);
+  if (error.status === 409) return duplicateNameMessage(kind, translate);
   if (error.status === 404) {
-    return kind === 'milestone'
-      ? 'The selected group is no longer available. Refresh the plan and try again.'
-      : 'This project is no longer available. Return to Projects and open it again.';
+    return translate(kind === 'milestone' ? 'plan.groupMissing' : 'plan.projectMissing');
   }
 
-  return `We couldn't create the ${kind}. Please try again.`;
+  return translate(kind === 'group' ? 'plan.createGroupFailed' : 'plan.createMilestoneFailed');
 }
 
-function updateErrorMessage(error: HttpErrorResponse, kind: WorkGroupKind): string {
+function updateErrorMessage(
+  error: HttpErrorResponse,
+  kind: WorkGroupKind,
+  translate: (key: string, params?: Record<string, unknown>) => string,
+): string {
   const invalid = validationMessage(error, 'title');
   if (invalid) return invalid;
-  if (error.status === 409) return duplicateNameMessage(kind);
-  if (error.status === 404) return unavailableItemMessage(kind);
+  if (error.status === 409) return duplicateNameMessage(kind, translate);
+  if (error.status === 404) return unavailableItemMessage(kind, translate);
 
-  return `We couldn't save changes to the ${kind}. Please try again.`;
+  return translate(kind === 'group' ? 'plan.saveGroupFailed' : 'plan.saveMilestoneFailed');
 }
 
-function deleteErrorMessage(error: HttpErrorResponse, kind: WorkGroupKind): string {
+function deleteErrorMessage(
+  error: HttpErrorResponse,
+  kind: WorkGroupKind,
+  translate: (key: string, params?: Record<string, unknown>) => string,
+): string {
   if (error.status === 409) {
-    return kind === 'group'
-      ? 'This group still contains milestones or tickets. Remove them before deleting the group.'
-      : 'This milestone still contains tickets. Remove them before deleting the milestone.';
+    return translate(kind === 'group' ? 'plan.groupStillHas' : 'plan.milestoneStillHas');
   }
-  if (error.status === 404) return unavailableItemMessage(kind);
+  if (error.status === 404) return unavailableItemMessage(kind, translate);
 
-  return `We couldn't delete the ${kind}. Please try again.`;
+  return translate(kind === 'group' ? 'plan.deleteGroupFailed' : 'plan.deleteMilestoneFailed');
 }
 
-function duplicateNameMessage(kind: WorkGroupKind): string {
-  return kind === 'group'
-    ? 'A group with this name already exists. Choose a different name.'
-    : 'This group already has a milestone with this name. Choose a different name.';
+function duplicateNameMessage(
+  kind: WorkGroupKind,
+  translate: (key: string, params?: Record<string, unknown>) => string,
+): string {
+  return translate(kind === 'group' ? 'plan.duplicateGroup' : 'plan.duplicateMilestone');
 }
 
-function unavailableItemMessage(kind: WorkGroupKind): string {
-  const itemName = kind === 'group' ? 'group' : 'milestone';
-
-  return `This ${itemName} is no longer available. Refresh the plan and try again.`;
+function unavailableItemMessage(
+  kind: WorkGroupKind,
+  translate: (key: string, params?: Record<string, unknown>) => string,
+): string {
+  return translate(kind === 'group' ? 'plan.groupUnavailable' : 'plan.milestoneUnavailable');
 }

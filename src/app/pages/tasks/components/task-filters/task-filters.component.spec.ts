@@ -1,10 +1,14 @@
 import { TestBed } from '@angular/core/testing';
+import { translocoTestingProviders } from '../../../../core/testing/transloco-testing';
 import { emptyWorkTaskBoardFilter } from '../../../../core/models/work-task-board';
 import { TaskFiltersComponent } from './task-filters.component';
 
 describe('TaskFiltersComponent', () => {
   it('disables only No deadline in Calendar and keeps Overdue available', () => {
-    TestBed.configureTestingModule({ imports: [TaskFiltersComponent] });
+    TestBed.configureTestingModule({
+      imports: [TaskFiltersComponent],
+      providers: [...translocoTestingProviders()],
+    });
     const fixture = TestBed.createComponent(TaskFiltersComponent);
     fixture.componentRef.setInput('filter', emptyWorkTaskBoardFilter);
     fixture.componentRef.setInput('calendar', true);

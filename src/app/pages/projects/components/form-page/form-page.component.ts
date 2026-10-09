@@ -20,6 +20,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { Actions, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { forkJoin } from 'rxjs';
@@ -30,6 +31,7 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
+import { currentLanguage } from '../../../../core/i18n/active-language';
 import { maxProjectParticipants } from '../../../../core/constants/project-participants.constants';
 import { DictionaryModel } from '../../../../core/models/dictionary.model';
 import {
@@ -70,6 +72,7 @@ import { LabelForDirective } from '../../../../core/directives/label-for.directi
     BackButtonComponent,
     ProjectParticipantsComponent,
     LabelForDirective,
+    TranslocoDirective,
   ],
   providers: [ConfirmationService],
   templateUrl: './form-page.component.html',
@@ -90,6 +93,7 @@ export class ProjectFormPageComponent implements OnDestroy {
   private readonly dictionaryService = inject(DictionaryService);
   private readonly workProjectsService = inject(WorkProjectsService);
   private readonly confirmation = inject(ConfirmationService);
+  private readonly transloco = inject(TranslocoService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly breadcrumbOverride = inject(BreadcrumbOverrideService);
   private readonly navigationState = history.state as ProjectFormNavigationState;
@@ -114,8 +118,14 @@ export class ProjectFormPageComponent implements OnDestroy {
     projectNavigationUrl(this.navigationState.cancelUrl) ??
     (this.id ? `/projects/${this.id}` : '/projects');
   readonly isEdit = computed(() => this.mode() === 'edit');
-  readonly pageTitle = computed(() => (this.isEdit() ? 'Edit project' : 'Create project'));
-  readonly submitLabel = computed(() => (this.isEdit() ? 'Save' : 'Create'));
+  readonly pageTitle = computed(() => {
+    currentLanguage();
+    return this.transloco.translate(this.isEdit() ? 'projects.edit' : 'projects.create');
+  });
+  readonly submitLabel = computed(() => {
+    currentLanguage();
+    return this.transloco.translate(this.isEdit() ? 'common.save' : 'common.create');
+  });
 
   readonly form = this.fb.group(
     {
@@ -227,13 +237,13 @@ export class ProjectFormPageComponent implements OnDestroy {
     const participant = this.project()?.participants[index];
     const displayName = participant
       ? `${participant.name} ${participant.surname}`.trim()
-      : 'this participant';
+      : this.transloco.translate('projects.thisParticipant');
     this.confirmation.confirm({
-      header: 'Remove participant',
-      message: `Remove ${displayName} from this project? The change will be applied only after Save.`,
+      header: this.transloco.translate('participants.removeTitle'),
+      message: this.transloco.translate('participants.removeLater', { name: displayName }),
       icon: 'pi pi-exclamation-triangle',
-      acceptLabel: 'Remove',
-      rejectLabel: 'Keep',
+      acceptLabel: this.transloco.translate('common.remove'),
+      rejectLabel: this.transloco.translate('common.keep'),
       acceptButtonStyleClass: 'p-button-danger',
       rejectButtonStyleClass: 'p-button-outlined',
       accept: () => this.removeParticipant(index),
@@ -302,11 +312,11 @@ export class ProjectFormPageComponent implements OnDestroy {
   confirmUnsavedChanges(): Promise<boolean> {
     return new Promise((resolve) => {
       this.confirmation.confirm({
-        header: 'Discard changes',
-        message: 'You have unsaved changes. Leave this page without saving?',
+        header: this.transloco.translate('settings.discardTitle'),
+        message: this.transloco.translate('settings.discardMessage'),
         icon: 'pi pi-exclamation-triangle',
-        acceptLabel: 'Leave',
-        rejectLabel: 'Stay',
+        acceptLabel: this.transloco.translate('common.leave'),
+        rejectLabel: this.transloco.translate('settings.stay'),
         acceptButtonStyleClass: 'p-button-danger',
         rejectButtonStyleClass: 'p-button-outlined',
         accept: () => {
@@ -337,10 +347,13 @@ export class ProjectFormPageComponent implements OnDestroy {
   ): string {
     const control = this.form.controls[name];
     if ((!this.submitted() && !control.touched) || !control.errors) return '';
-    if (control.errors['required']) return `${label(name)} is required.`;
-    if (control.errors['maxlength'])
-      return `Maximum ${control.errors['maxlength'].requiredLength} characters.`;
-    return 'Invalid value.';
+    if (control.errors['required']) return this.transloco.translate(requiredKey[name]);
+    if (control.errors['maxlength']) {
+      return this.transloco.translate('validation.maxLength', {
+        max: control.errors['maxlength'].requiredLength,
+      });
+    }
+    return this.transloco.translate('common.invalid');
   }
 
   private patchForm(project: WorkProjectModel): void {
@@ -494,17 +507,13 @@ function toNullableDate(value?: string | null): Date | null {
   return value ? new Date(value) : null;
 }
 
-function label(name: string): string {
-  return (
-    {
-      title: 'Title',
-      organizationId: 'Organization',
-      projectTypeId: 'Type',
-      projectKindId: 'Kind',
-      projectStatusId: 'Status',
-    } as Record<string, string>
-  )[name];
-}
+const requiredKey = {
+  title: 'projects.titleRequired',
+  organizationId: 'projects.organizationRequired',
+  projectTypeId: 'projects.typeRequired',
+  projectKindId: 'projects.kindRequired',
+  projectStatusId: 'projects.statusRequired',
+} as const;
 
 function projectDateRangeValidator(control: AbstractControl): ValidationErrors | null {
   const startDate = control.get('startDate')?.value as Date | null;

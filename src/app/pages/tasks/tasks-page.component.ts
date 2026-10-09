@@ -15,7 +15,9 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Actions, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { ConfirmationService } from 'primeng/api';
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { Subject, debounceTime } from 'rxjs';
+import { currentLanguage } from '../../core/i18n/active-language';
 import {
   WorkTaskBoardFilter,
   WorkTaskBoardQuery,
@@ -63,6 +65,7 @@ import {
     TaskBoardViewComponent,
     TaskCalendarViewComponent,
     TaskListViewComponent,
+    TranslocoDirective,
   ],
   providers: [ConfirmationService, TaskFilterOptionsService],
   templateUrl: './tasks-page.component.html',
@@ -76,6 +79,7 @@ export class TasksPageComponent implements OnDestroy {
   private readonly actions$ = inject(Actions);
   private readonly destroyRef = inject(DestroyRef);
   private readonly snackBar = inject(SnackBarService);
+  private readonly transloco = inject(TranslocoService);
   private readonly typing = new Subject<string>();
 
   private readonly me = this.store.selectSignal(UserStoreSelectors.getMe);
@@ -106,11 +110,14 @@ export class TasksPageComponent implements OnDestroy {
     ].filter(Boolean).length;
   });
 
-  readonly views: EntityTab<TasksView>[] = [
-    { id: 'board', label: 'Board', icon: 'pi-th-large' },
-    { id: 'calendar', label: 'Calendar', icon: 'pi-calendar' },
-    { id: 'list', label: 'List', icon: 'pi-list' },
-  ];
+  readonly views = computed<EntityTab<TasksView>[]>(() => {
+    currentLanguage();
+    return [
+      { id: 'board', label: this.transloco.translate('tasks.board'), icon: 'pi-th-large' },
+      { id: 'calendar', label: this.transloco.translate('tasks.calendar'), icon: 'pi-calendar' },
+      { id: 'list', label: this.transloco.translate('tasks.list'), icon: 'pi-list' },
+    ];
+  });
 
   // server checks per project, this only hides drag handles from people who cant edit anything (clients)
   readonly canMove = computed(() => this.permissions().includes(Permissions.Project.Edit));
@@ -121,6 +128,7 @@ export class TasksPageComponent implements OnDestroy {
   });
   // plain text for default "my tasks", else say filters hid it
   readonly emptyText = computed(() => {
+    currentLanguage();
     const filter = this.state().filter;
     const meId = this.me()?.id;
     const onlyMe =
@@ -131,8 +139,8 @@ export class TasksPageComponent implements OnDestroy {
         assigneeUserIds: filter.assigneeUserIds.filter((id) => id !== meId),
       }) &&
       filter.assigneeUserIds.includes(meId);
-    if (onlyMe) return 'Nothing is assigned to you';
-    return hasFilters(filter) ? 'No matching tasks' : 'No tasks yet';
+    if (onlyMe) return this.transloco.translate('tasks.emptyMine');
+    return this.transloco.translate(hasFilters(filter) ? 'tasks.emptyFiltered' : 'tasks.empty');
   });
 
   readonly showProject = computed(() => this.state().filter.projectIds.length !== 1);
@@ -176,7 +184,7 @@ export class TasksPageComponent implements OnDestroy {
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(({ error }) => {
-        this.snackBar.error(moveErrorMessage(error));
+        this.snackBar.error(moveErrorMessage(this.transloco, error));
         this.reloadToken.update((token) => token + 1);
       });
 
@@ -258,9 +266,9 @@ export class TasksPageComponent implements OnDestroy {
   }
 }
 
-function moveErrorMessage(error: WorkItemMutationError): string {
+function moveErrorMessage(transloco: TranslocoService, error: WorkItemMutationError): string {
   if (error.message) return error.message;
-  if (error.status === 403) return 'You cannot move tasks in that project.';
-  if (error.status === 404) return 'That task is no longer available.';
-  return "We couldn't save the change. Please try again.";
+  if (error.status === 403) return transloco.translate('tasks.moveDenied');
+  if (error.status === 404) return transloco.translate('tasks.moveMissing');
+  return transloco.translate('tasks.moveFailed');
 }

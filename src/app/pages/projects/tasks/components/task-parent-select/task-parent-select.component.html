@@ -1,6 +1,6 @@
-<div class="parent-field">
+<div class="parent-field" *transloco="let t">
   <label id="taskParentLabel" appLabelFor="taskParent"
-    >{{ isSubtask() ? 'Task' : 'Ticket' }} <b>*</b></label
+    >{{ t(isSubtask() ? 'workItem.kind.task' : 'workItem.kind.ticket') }} <b>*</b></label
   >
   <p-select
     inputId="taskParent"
@@ -16,16 +16,16 @@
     optionValue="id"
     [filter]="true"
     filterBy="code,title,groupTitle,milestoneTitle"
-    [filterPlaceholder]="isSubtask() ? 'Search loaded tasks' : 'Search loaded tickets'"
-    [placeholder]="isSubtask() ? 'Select task' : 'Select ticket'"
+    [filterPlaceholder]="t(isSubtask() ? 'tasks.searchTasks' : 'tasks.searchTickets')"
+    [placeholder]="t(isSubtask() ? 'tasks.selectTask' : 'tasks.selectTicket')"
     [loading]="loading()"
     [disabled]="disabled()"
     [invalid]="invalid()"
     appendTo="body"
     scrollHeight="24rem"
     panelStyleClass="parent-select-panel"
-    emptyFilterMessage="No matches in the loaded items"
-    emptyMessage="No available parents"
+    [emptyFilterMessage]="t('tasks.noMatchesLoaded')"
+    [emptyMessage]="t('tasks.noParents')"
   >
     <!-- stepped like the Plan tab, not joined with separators -->
     <ng-template #group let-group>
@@ -78,14 +78,15 @@
       </span>
     </ng-template>
     <ng-template #footer>
+      <ng-container *transloco="let t">
       @if (loadError()) {
         <div class="parent-feedback" role="alert">
-          Could not load parents.
-          <button pButton type="button" text (click)="retryLoad($event)">Retry</button>
+          {{ t('tasks.parentsFailed') }}
+          <button pButton type="button" text (click)="retryLoad($event)">{{ t('common.retry') }}</button>
         </div>
       } @else if (hasMore()) {
         <div class="parent-feedback">
-          <small>Search covers loaded items. Load more to include the next page.</small>
+          <small>{{ t('tasks.searchLoadedHint') }}</small>
           <app-load-more-button
             [compact]="true"
             [loading]="loading()"
@@ -93,9 +94,10 @@
           />
         </div>
       }
+      </ng-container>
     </ng-template>
   </p-select>
   @if (invalid()) {
-    <small class="parent-error">Select a parent before creating the task.</small>
+    <small class="parent-error">{{ t('tasks.selectParent') }}</small>
   }
 </div>

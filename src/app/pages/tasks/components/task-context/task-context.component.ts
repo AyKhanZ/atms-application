@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { TranslocoDirective } from '@jsverse/transloco';
 import { RouterLink } from '@angular/router';
 import { WorkItemKind } from '../../../../core/models/work-items';
 import { workTaskParent } from '../../../../core/utils/work-task.utils';
@@ -7,7 +8,7 @@ import { WorkItemRefComponent } from '../../../../shared/components/work-item-re
 
 @Component({
   selector: 'app-task-context',
-  imports: [RouterLink, WorkItemRefComponent],
+  imports: [RouterLink, WorkItemRefComponent, TranslocoDirective],
   templateUrl: './task-context.component.html',
   styleUrl: './task-context.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { provideMockActions } from '@ngrx/effects/testing';
+import { translocoTestingProviders } from '../../core/testing/transloco-testing';
 import { Action } from '@ngrx/store';
 import { Subject } from 'rxjs';
 import { emptyWorkTaskBoardFilter } from '../../core/models/work-task-board';
@@ -24,6 +25,7 @@ describe('TaskBoardEffects', () => {
     emitted = [];
     TestBed.configureTestingModule({
       providers: [
+        ...translocoTestingProviders(),
         TaskBoardEffects,
         provideMockActions(() => actions),
         { provide: WorkTaskBoardService, useValue: { getPage: () => pageResponse } },

@@ -1,6 +1,7 @@
 <!-- code stays, people call a ticket by its number; full name in the tooltip -->
+<ng-container *transloco="let t">
 @if (showProject() && project(); as project) {
-  <span class="label">Project:</span>
+  <span class="label">{{ t('tasks.projectLabel') }}</span>
   <a
     class="link link--project"
     [routerLink]="project.url"
@@ -12,7 +13,7 @@
     <span class="link__name">{{ project.name }}</span>
   </a>
 }
-<span class="label">Parent:</span>
+<span class="label">{{ t('tasks.parentLabel') }}</span>
 <a
   class="link parent"
   [class.link--task]="parent().kind === taskKind"
@@ -24,3 +25,4 @@
   <app-work-item-ref [type]="parent().kind" [code]="parent().code" [labelled]="false" />
   <span class="link__name">{{ parent().name }}</span>
 </a>
+</ng-container>

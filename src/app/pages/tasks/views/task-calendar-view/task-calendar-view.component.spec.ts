@@ -1,6 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Store } from '@ngrx/store';
+import { translocoTestingProviders } from '../../../../core/testing/transloco-testing';
 import { emptyWorkTaskBoardFilter } from '../../../../core/models/work-task-board';
 import { TaskBoardStoreActions, TaskBoardStoreSelectors } from '../../../../store/task-board';
 import { TaskCalendarViewComponent } from './task-calendar-view.component';
@@ -11,6 +12,7 @@ describe('TaskCalendarViewComponent', () => {
     TestBed.configureTestingModule({
       imports: [TaskCalendarViewComponent],
       providers: [
+        ...translocoTestingProviders(),
         {
           provide: Store,
           useValue: {
@@ -60,6 +62,7 @@ describe('TaskCalendarViewComponent month limit', () => {
     TestBed.configureTestingModule({
       imports: [TaskCalendarViewComponent],
       providers: [
+        ...translocoTestingProviders(),
         {
           provide: Store,
           useValue: {

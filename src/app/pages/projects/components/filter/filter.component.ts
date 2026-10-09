@@ -1,5 +1,6 @@
 import { LabelForDirective } from '../../../../core/directives/label-for.directive';
 import { ChangeDetectionStrategy, Component, effect, inject, input, output } from '@angular/core';
+import { TranslocoDirective } from '@jsverse/transloco';
 import {
   AbstractControl,
   NonNullableFormBuilder,
@@ -20,6 +21,7 @@ import { ClearButtonComponent } from '../../../../shared/components/clear-button
     SelectModule,
     ClearButtonComponent,
     LabelForDirective,
+    TranslocoDirective,
   ],
   templateUrl: './filter.component.html',
   styleUrl: './filter.component.scss',

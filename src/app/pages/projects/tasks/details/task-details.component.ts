@@ -14,7 +14,9 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ConfirmationService } from 'primeng/api';
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { ButtonModule } from 'primeng/button';
+import { currentLanguage } from '../../../../core/i18n/active-language';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { catchError, finalize, forkJoin, of, switchMap } from 'rxjs';
 import { ProjectPermissions } from '../../../../core/enums/project-permissions.enum';
@@ -80,6 +82,7 @@ interface TaskPageData {
     TaskStatusBadgeComponent,
     TaskDetailsTabComponent,
     WorkTaskListComponent,
+    TranslocoDirective,
   ],
   providers: [ConfirmationService, AttachmentTreeExpansionService, TaskCommentsService],
   templateUrl: './task-details.component.html',
@@ -98,6 +101,7 @@ export class TaskDetailsComponent implements OnDestroy {
   private readonly permissionsRefresh = inject(ProjectPermissionsRefreshService);
   private readonly snackBar = inject(SnackBarService);
   private readonly confirmation = inject(ConfirmationService);
+  private readonly transloco = inject(TranslocoService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly breadcrumbs = inject(BreadcrumbOverrideService);
   protected readonly comments = inject(TaskCommentsService);
@@ -120,6 +124,7 @@ export class TaskDetailsComponent implements OnDestroy {
   readonly participants = signal<readonly WorkProjectParticipantModel[]>([]);
   readonly activeTab = signal<TaskTab>(parseTaskTab(this.route.snapshot.queryParamMap.get('tab')));
   readonly tabs = computed<readonly EntityTab<TaskTab>[]>(() => {
+    currentLanguage();
     const task = this.task();
     // subtasks cant have subtasks, so no tab at all
     const subtasks: EntityTab<TaskTab>[] = task?.isSubtask
@@ -127,7 +132,7 @@ export class TaskDetailsComponent implements OnDestroy {
       : [
           {
             id: 'subtasks',
-            label: 'Subtasks',
+            label: this.transloco.translate('workItem.kind.subtasks'),
             // different icon from the tickets Tasks tab, they are one click apart
             icon: 'pi-sitemap',
             badge: workItemProgressBadge(task?.doneSubtaskCount, task?.subtaskCount),
@@ -135,10 +140,10 @@ export class TaskDetailsComponent implements OnDestroy {
         ];
 
     return [
-      { id: 'details', label: 'Details', icon: 'pi-align-left' },
+      { id: 'details', label: this.transloco.translate('common.details'), icon: 'pi-align-left' },
       ...subtasks,
-      { id: 'attachments', label: 'Attachments', icon: 'pi-paperclip' },
-      { id: 'history', label: 'History', icon: 'pi-history' },
+      { id: 'attachments', label: this.transloco.translate('common.attachments'), icon: 'pi-paperclip' },
+      { id: 'history', label: this.transloco.translate('common.history'), icon: 'pi-history' },
     ];
   });
 
@@ -218,7 +223,7 @@ export class TaskDetailsComponent implements OnDestroy {
   confirmDelete(): void {
     const task = this.task();
     if (!task || !this.canDelete() || this.deleting()) return;
-    this.confirmation.confirm(taskDeleteConfirmation(task, () => this.delete(task)));
+    this.confirmation.confirm(taskDeleteConfirmation(task, this.transloco, () => this.delete(task)));
   }
 
   private clearBreadcrumbs(): void {
@@ -310,12 +315,14 @@ export class TaskDetailsComponent implements OnDestroy {
       )
       .subscribe({
         next: () => {
-          this.snackBar.success(`${task.isSubtask ? 'Subtask' : 'Task'} deleted.`);
+          this.snackBar.success(
+            this.transloco.translate(task.isSubtask ? 'tasks.subtaskDeleted' : 'tasks.taskDeleted'),
+          );
           this.up(true);
         },
         error: (error: HttpErrorResponse) => {
           this.snackBar.error(
-            validationMessage(error) ?? 'We could not delete this item. Please try again.',
+            validationMessage(error) ?? this.transloco.translate('tasks.deleteFailed'),
           );
           this.refreshPermissionsAfterForbidden(error);
         },

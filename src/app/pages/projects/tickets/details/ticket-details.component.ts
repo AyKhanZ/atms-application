@@ -11,10 +11,12 @@ import {
 import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { ConfirmationService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { catchError, finalize, forkJoin, map, of, switchMap } from 'rxjs';
+import { currentLanguage } from '../../../../core/i18n/active-language';
 import { ProjectPermissions } from '../../../../core/enums/project-permissions.enum';
 import { WorkProjectModel } from '../../../../core/models/work-projects';
 import { WorkTicketModel } from '../../../../core/models/work-tickets';
@@ -62,6 +64,7 @@ import { LoadingStateComponent } from '../../../../shared/components/loading-sta
     WorkItemRefComponent,
     ButtonModule,
     ConfirmDialogComponent,
+    TranslocoDirective,
     BackButtonComponent,
     HistoryTabComponent,
     TicketAttachmentsTabComponent,
@@ -92,6 +95,7 @@ export class TicketDetailsComponent implements OnDestroy {
   private readonly confirmation = inject(ConfirmationService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly breadcrumbOverride = inject(BreadcrumbOverrideService);
+  private readonly transloco = inject(TranslocoService);
 
   readonly projectId = this.route.snapshot.paramMap.get('projectId');
   private readonly projectBreadcrumbPath = `/projects/${this.projectId}`;
@@ -124,23 +128,28 @@ export class TicketDetailsComponent implements OnDestroy {
     };
   });
   readonly tabs = computed<readonly EntityTab<TicketTab>[]>(() => {
+    currentLanguage();
     const ticket = this.ticket();
     return [
-      { id: 'details', label: 'Details', icon: 'pi-align-left' },
+      { id: 'details', label: this.transloco.translate('common.details'), icon: 'pi-align-left' },
       {
         id: 'tasks',
-        label: 'Tasks',
+        label: this.transloco.translate('workItem.kind.tasks'),
         icon: 'pi-list-check',
         badge: workItemProgressBadge(ticket?.doneTaskCount, ticket?.totalTaskCount),
       },
-      { id: 'attachments', label: 'Attachments', icon: 'pi-paperclip' },
-      { id: 'history', label: 'History', icon: 'pi-history' },
+      {
+        id: 'attachments',
+        label: this.transloco.translate('common.attachments'),
+        icon: 'pi-paperclip',
+      },
+      { id: 'history', label: this.transloco.translate('common.history'), icon: 'pi-history' },
     ];
   });
 
   constructor() {
     // placeholders so the breadcrumb doesnt jump when titles arrive
-    this.breadcrumbOverride.set(this.projectBreadcrumbPath, 'Project');
+    this.breadcrumbOverride.set(this.projectBreadcrumbPath, 'workItem.kind.project');
 
     this.route.queryParamMap.pipe(takeUntilDestroyed()).subscribe((params) => {
       this.activeTab.set(parseTicketTab(params.get('tab')));
@@ -204,8 +213,8 @@ export class TicketDetailsComponent implements OnDestroy {
     // blocked and confirmed delete in the same dialog, a toast was easy to miss
     this.confirmation.confirm(
       ticketHasTasks(ticket)
-        ? ticketDeleteBlockedConfirmation(ticket)
-        : ticketDeleteConfirmation(ticket, () => this.deleteTicket(ticket)),
+        ? ticketDeleteBlockedConfirmation(ticket, this.transloco)
+        : ticketDeleteConfirmation(ticket, this.transloco, () => this.deleteTicket(ticket)),
     );
   }
 
@@ -232,7 +241,7 @@ export class TicketDetailsComponent implements OnDestroy {
 
     if (ticketId) {
       this.ticketBreadcrumbPath = `/projects/${this.projectId}/tickets/${ticketId}`;
-      this.breadcrumbOverride.set(this.ticketBreadcrumbPath, 'Ticket', 'pi-ticket');
+      this.breadcrumbOverride.set(this.ticketBreadcrumbPath, 'workItem.kind.ticket', 'pi-ticket');
     }
 
     this.ticketId.set(ticketId);
@@ -295,12 +304,12 @@ export class TicketDetailsComponent implements OnDestroy {
       )
       .subscribe({
         next: () => {
-          this.snackBar.success('Ticket deleted.');
+          this.snackBar.success(this.transloco.translate('tickets.deleted'));
           this.viewInPlan(true);
         },
         error: (error: HttpErrorResponse) => {
           this.snackBar.error(
-            validationMessage(error) ?? 'The ticket could not be deleted. Please try again.',
+            validationMessage(error) ?? this.transloco.translate('tickets.deleteFailed'),
           );
           this.refreshPermissionsAfterForbidden(error);
         },
