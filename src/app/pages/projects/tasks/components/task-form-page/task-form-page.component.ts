@@ -41,6 +41,7 @@ import { eligibleTaskAssignees } from './task-assignee-options';
 import { TaskFormContextService } from './task-form-context.service';
 import { TaskFormFieldsComponent } from '../task-form-fields/task-form-fields.component';
 import { LoadingStateComponent } from '../../../../../shared/components/loading-state/loading-state.component';
+import { withoutInactive } from '../../../../../core/utils/assignee-options.utils';
 
 interface TaskFormNavigationState {
   returnUrl?: unknown;
@@ -103,7 +104,14 @@ export class TaskFormPageComponent {
   readonly selectedParent = signal<TaskParentOption | null>(null);
   readonly priorities = signal<DictionaryModel[]>([]);
   readonly statuses = signal<DictionaryModel[]>([]);
-  readonly assignees = computed(() => eligibleTaskAssignees(this.project()?.participants ?? []));
+  // inactive people are left out, the one saved on the task stays so the form shows them
+  private readonly keptAssigneeId = signal<string | null>(null);
+  readonly assignees = computed(() =>
+    withoutInactive(
+      eligibleTaskAssignees(this.project()?.participants ?? []),
+      this.keptAssigneeId(),
+    ),
+  );
 
   readonly returnUrl =
     projectNavigationUrl(this.navigationState.returnUrl) ?? this.directReturnUrl();
@@ -348,6 +356,7 @@ export class TaskFormPageComponent {
   }
 
   private patchForm(task: WorkTaskModel): void {
+    this.keptAssigneeId.set(task.assignee?.id ?? null);
     this.form.patchValue({
       title: task.title,
       description: task.description ?? '',

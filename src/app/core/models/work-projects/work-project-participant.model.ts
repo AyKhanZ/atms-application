@@ -8,6 +8,7 @@ export interface WorkProjectParticipantModel {
   email: string;
   avatarPath?: string | null;
   hasCompletedOnboarding: boolean;
+  isActive?: boolean;
   category: 'admin' | 'client' | 'staff';
   role: WorkProjectRoleModel;
 }

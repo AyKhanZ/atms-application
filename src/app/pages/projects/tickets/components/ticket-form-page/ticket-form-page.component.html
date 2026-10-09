@@ -186,7 +186,7 @@
               inputId="ticketAssignee"
               ariaLabelledBy="ticketAssigneeLabel"
               formControlName="assigneeId"
-              [options]="project()?.participants ?? []"
+              [options]="assigneeOptions()"
               optionValue="id"
               placeholder="Unassigned"
               [filter]="true"

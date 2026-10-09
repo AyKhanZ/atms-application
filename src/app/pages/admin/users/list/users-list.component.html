@@ -97,7 +97,7 @@
             </a>
           </td>
           <td>{{ user.position ?? '-' }}</td>
-          <td><p-tag [value]="userStatus(user)" /></td>
+          <td><p-tag [value]="userStatus(user)" [severity]="statusSeverity(user)" /></td>
           <td>{{ user.createdAt | date: 'dd.MM.yyyy HH:mm' }}</td>
         </tr>
       </ng-template>

@@ -46,7 +46,10 @@ export const updateUserStatusSuccess = createAction(
   `${key} Update User Status Success`,
   props<{ id: string; command: UpdateUserStatusCommand }>(),
 );
-export const updateUserStatusFailure = createAction(`${key} Update User Status Failure`);
+export const updateUserStatusFailure = createAction(
+  `${key} Update User Status Failure`,
+  props<{ message: string }>(),
+);
 
 export const clearItem = createAction(`${key} Clear Item`);
 export const clearItems = createAction(`${key} Clear Items`);

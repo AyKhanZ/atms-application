@@ -1,9 +1,14 @@
-import { TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, provideRouter } from '@angular/router';
 import { MockStore, provideMockStore } from '@ngrx/store/testing';
+import { ConfirmationService } from 'primeng/api';
+import { Roles } from '../../../../core/enums/roles.enum';
+import { UserStatus } from '../../../../core/enums/user-status.enum';
+import { MeModel } from '../../../../core/models/users/me.model';
 import { UserModel } from '../../../../core/models/users/users.models';
 import { BreadcrumbOverrideService } from '../../../../core/services/breadcrumb-override.service';
-import { UsersStoreSelectors } from '../../../../store/users';
+import { UserStoreSelectors } from '../../../../store/user';
+import { UsersStoreActions, UsersStoreSelectors } from '../../../../store/users';
 import { UserDetailsComponent } from './user-details.component';
 
 describe('UserDetailsComponent', () => {
@@ -29,11 +34,30 @@ describe('UserDetailsComponent', () => {
     ...overrides,
   });
 
+  const me = (id = 'me-id'): MeModel => ({
+    id,
+    name: 'Admin',
+    surname: 'User',
+    language: 'en',
+    avatarPath: '',
+  });
+
   const render = (value: UserModel | null) => {
     store.overrideSelector(UsersStoreSelectors.getItem, value);
+    store.refreshState();
     const fixture = TestBed.createComponent(UserDetailsComponent);
     fixture.detectChanges();
     return fixture;
+  };
+
+  const statusButton = (fixture: ComponentFixture<UserDetailsComponent>, label?: string) => {
+    const buttons = [...(fixture.nativeElement as HTMLElement).querySelectorAll('button')];
+    return (
+      buttons.find((button) => {
+        const text = button.textContent?.trim() ?? '';
+        return label ? text === label : text === 'Deactivate' || text === 'Activate';
+      }) ?? null
+    );
   };
 
   const workRow = (fixture: ReturnType<typeof render>, label: string): HTMLElement | null => {
@@ -44,6 +68,9 @@ describe('UserDetailsComponent', () => {
     );
   };
 
+  // overridden selectors are global and would leak into other spec files
+  afterEach(() => store.resetSelectors());
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [UserDetailsComponent],
@@ -53,6 +80,12 @@ describe('UserDetailsComponent', () => {
           selectors: [
             { selector: UsersStoreSelectors.getItem, value: null },
             { selector: UsersStoreSelectors.isLoading, value: false },
+            { selector: UsersStoreSelectors.isSubmitted, value: false },
+            { selector: UserStoreSelectors.getMe, value: me() },
+            {
+              selector: UserStoreSelectors.getRoles,
+              value: [{ id: 'super-admin-role', name: 'Super admin', code: Roles.SuperAdmin }],
+            },
           ],
         }),
         { provide: BreadcrumbOverrideService, useValue: { set: vi.fn(), clear: vi.fn() } },
@@ -97,4 +130,96 @@ describe('UserDetailsComponent', () => {
       );
     },
   );
+
+  it('shows Deactivate for an active user and Activate for an inactive one', () => {
+    const active = render(user());
+    expect(statusButton(active, 'Deactivate')).toBeTruthy();
+
+    store.overrideSelector(
+      UsersStoreSelectors.getItem,
+      user({ userStatus: { id: UserStatus.Inactive, name: 'Inactive', code: 'Inactive' } }),
+    );
+    store.refreshState();
+    active.detectChanges();
+    expect(statusButton(active, 'Activate')).toBeTruthy();
+    expect(statusButton(active, 'Deactivate')).toBeNull();
+  });
+
+  it.each([['locked', { id: UserStatus.Locked, name: 'Locked', code: 'Locked' }]])(
+    'hides the status button when the user is %s',
+    (_label, userStatus) => {
+      const fixture = render(user({ userStatus }));
+      expect(statusButton(fixture)).toBeNull();
+    },
+  );
+
+  it('hides the status button on your own page', () => {
+    store.overrideSelector(UserStoreSelectors.getMe, me('user-id'));
+    store.refreshState();
+    const fixture = render(user());
+    expect(statusButton(fixture)).toBeNull();
+  });
+
+  it('hides the status button on a super administrator page', () => {
+    const fixture = render(
+      user({ roles: [{ id: 1, name: 'Super admin', code: Roles.SuperAdmin }] }),
+    );
+    expect(statusButton(fixture)).toBeNull();
+  });
+
+  it('hides the status button for anyone but the super admin', () => {
+    store.overrideSelector(UserStoreSelectors.getRoles, [
+      { id: 'employee-role', name: 'Employee', code: 'Employee' },
+    ]);
+    store.refreshState();
+    const fixture = render(user());
+    expect(statusButton(fixture)).toBeNull();
+  });
+
+  it('deactivates only after confirmation', () => {
+    const confirm = vi.spyOn(ConfirmationService.prototype, 'confirm').mockImplementation(function (
+      this: ConfirmationService,
+    ) {
+      return this;
+    });
+    const fixture = render(user());
+    const dispatch = vi.spyOn(store, 'dispatch');
+
+    statusButton(fixture, 'Deactivate')?.click();
+
+    const confirmation = confirm.mock.calls.at(-1)?.[0];
+    expect(confirmation?.message).toContain("won't be able to sign in");
+    expect(confirmation?.message).toContain('25 minutes');
+    confirmation?.accept?.();
+    expect(dispatch).toHaveBeenCalledWith(
+      UsersStoreActions.updateUserStatus({
+        id: 'user-id',
+        command: { userStatusId: UserStatus.Inactive },
+      }),
+    );
+    confirm.mockRestore();
+  });
+
+  it('activates only after confirmation', () => {
+    const confirm = vi.spyOn(ConfirmationService.prototype, 'confirm').mockImplementation(function (
+      this: ConfirmationService,
+    ) {
+      return this;
+    });
+    const fixture = render(
+      user({ userStatus: { id: UserStatus.Inactive, name: 'Inactive', code: 'Inactive' } }),
+    );
+    const dispatch = vi.spyOn(store, 'dispatch');
+
+    statusButton(fixture, 'Activate')?.click();
+
+    confirm.mock.calls.at(-1)?.[0]?.accept?.();
+    expect(dispatch).toHaveBeenCalledWith(
+      UsersStoreActions.updateUserStatus({
+        id: 'user-id',
+        command: { userStatusId: UserStatus.Active },
+      }),
+    );
+    confirm.mockRestore();
+  });
 });

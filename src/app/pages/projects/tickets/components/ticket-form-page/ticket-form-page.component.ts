@@ -68,6 +68,7 @@ import {
 } from '../../../../../store/work-tickets';
 import { WorkItemMutationError } from '../../../../../core/models/work-items';
 import { LoadingStateComponent } from '../../../../../shared/components/loading-state/loading-state.component';
+import { withoutInactive } from '../../../../../core/utils/assignee-options.utils';
 
 interface TicketFormNavigationState {
   milestone?: MilestoneOptionModel;
@@ -131,6 +132,10 @@ export class TicketFormPageComponent implements OnDestroy {
   readonly loadError = signal<string | null>(null);
   readonly project = signal<WorkProjectModel | null>(null);
   readonly ticket = signal<WorkTicketModel | null>(null);
+  // inactive people are left out, the one saved on the ticket stays so the form shows them
+  readonly assigneeOptions = computed(() =>
+    withoutInactive(this.project()?.participants ?? [], this.ticket()?.assignee?.id),
+  );
   readonly milestones = signal<MilestoneOption[]>([]);
   readonly milestonesLoading = signal(false);
   readonly milestonesHaveMore = signal(false);

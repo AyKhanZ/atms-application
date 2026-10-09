@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { UserStatus } from '../enums/user-status.enum';
 import { UserListItemModel, UserModel } from '../models/users/users.models';
 
 type UserDisplayModel = Pick<UserListItemModel, 'name' | 'surname'> & {
@@ -24,5 +25,16 @@ export class UserDisplayService {
 
   status(user: UserModel | UserListItemModel): string {
     return user.userStatus?.name ?? 'Unknown';
+  }
+
+  statusSeverity(user: UserModel | UserListItemModel): 'success' | 'secondary' | 'warn' {
+    switch (user.userStatus?.id) {
+      case UserStatus.Active:
+        return 'success';
+      case UserStatus.Locked:
+        return 'warn';
+      default:
+        return 'secondary';
+    }
   }
 }

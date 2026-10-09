@@ -1,3 +1,16 @@
+.details-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.65rem;
+}
+
+.details-actions button {
+  min-width: 7.75rem;
+  justify-content: center;
+}
+
 .details-layout {
   display: grid;
   grid-template-columns: minmax(20rem, 0.9fr) minmax(0, 1.1fr);
@@ -128,8 +141,15 @@ dd {
     align-items: stretch;
   }
 
-  .page-header app-back-button,
-  :host ::ng-deep .page-header app-back-button button {
+  .details-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    width: 100%;
+  }
+
+  .details-actions app-back-button,
+  .details-actions button,
+  :host ::ng-deep .details-actions app-back-button button {
     width: 100%;
   }
 }
