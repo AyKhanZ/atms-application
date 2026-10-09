@@ -1,9 +1,26 @@
+<app-confirm-dialog key="userStatus" />
+
 <section class="page">
   <div class="page-header">
     <div>
       <h1 class="page-title">User details</h1>
     </div>
-    <app-back-button (back)="back()" />
+    <div class="details-actions">
+      <app-back-button (back)="back()" />
+      @if (statusAction(); as action) {
+        <button
+          pButton
+          type="button"
+          [severity]="action.userStatusId === UserStatus.Inactive ? 'danger' : 'secondary'"
+          [outlined]="true"
+          [loading]="submitted()"
+          (click)="confirmStatusChange()"
+        >
+          <i [class]="action.icon"></i>
+          <span>{{ action.label }}</span>
+        </button>
+      }
+    </div>
   </div>
 
   @if (user(); as user) {
@@ -17,7 +34,7 @@
           />
 
           <div class="profile-copy">
-            <p-tag [value]="userStatus(user)" />
+            <p-tag [value]="userStatus(user)" [severity]="statusSeverity(user)" />
             <h2>{{ fullName() }}</h2>
             <p>{{ display(user.position) }}</p>
             <p>{{ display(user.email) }}</p>

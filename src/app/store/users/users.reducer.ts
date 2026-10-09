@@ -1,6 +1,6 @@
 import { type Action, createReducer, on } from '@ngrx/store';
-import * as UsersStoreActions from './users.actions';
 import { createDefaultUserListFilter } from '../../core/models/users/users.models';
+import * as UsersStoreActions from './users.actions';
 import { type UsersState, initialUsersState } from './users.state';
 
 const reducer = createReducer<UsersState>(
@@ -97,8 +97,14 @@ const reducer = createReducer<UsersState>(
     (state, { id, command }): UsersState => ({
       ...state,
       isSubmitted: false,
-      items: state.items.map((u) =>
-        u.id === id ? { ...u, userStatus: { ...u.userStatus, id: command.userStatusId } } : u,
+      item:
+        state.item?.id === id
+          ? { ...state.item, userStatus: { ...state.item.userStatus, id: command.userStatusId } }
+          : state.item,
+      items: state.items.map((user) =>
+        user.id === id
+          ? { ...user, userStatus: { ...user.userStatus, id: command.userStatusId } }
+          : user,
       ),
     }),
   ),

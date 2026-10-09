@@ -197,6 +197,19 @@ h6 {
   min-width: 0;
 }
 
+// a lone Filter (no Create for this role) leaves a hole, so the search takes the rest of the row
+.management-list-header:has(> .management-list-actions > :only-child) {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.management-list-header:has(> .management-list-actions > :only-child) .management-list-search {
+  width: 100%;
+}
+
+.management-list-header:has(> .management-list-actions > :only-child) .management-list-actions {
+  grid-template-columns: auto;
+}
+
 .page-title {
   margin: 0;
   font-size: clamp(1.35rem, 2vw, 1.75rem);
@@ -752,6 +765,14 @@ app-onboarding .confetti i:nth-child(5n) {
 @container (max-width: 42rem) {
   .management-list-actions {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .management-list-header:has(> .management-list-actions > :only-child) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .management-list-header:has(> .management-list-actions > :only-child) .management-list-actions {
+    width: 100%;
   }
 
   .management-table .p-datatable-wrapper {

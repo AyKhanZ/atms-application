@@ -1,16 +1,23 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { EMPTY, of } from 'rxjs';
-import { catchError, map, switchMap, tap } from 'rxjs/operators';
-import * as UsersStoreActions from './users.actions';
-import { UsersService } from '../../core/services/users.service';
+import { Store } from '@ngrx/store';
+import { of } from 'rxjs';
+import { catchError, filter, map, switchMap, tap } from 'rxjs/operators';
+import { UserStatus } from '../../core/enums/user-status.enum';
 import { SnackBarService } from '../../core/services/snack-bar.service';
+import { UsersService } from '../../core/services/users.service';
+import { serverErrorMessage } from '../../core/utils/http-error.utils';
+import * as UsersStoreActions from './users.actions';
+import * as UsersStoreSelectors from './users.selectors';
 
 @Injectable()
 export class UsersEffects {
   private readonly actions$ = inject(Actions);
   private readonly usersService = inject(UsersService);
   private readonly snackBar = inject(SnackBarService);
+  private readonly store = inject(Store);
+  private readonly openUser = this.store.selectSignal(UsersStoreSelectors.getItem);
 
   loadUsers$ = createEffect(() =>
     this.actions$.pipe(
@@ -62,9 +69,13 @@ export class UsersEffects {
       switchMap(({ id, command }) =>
         this.usersService.updateUserStatus(id, command).pipe(
           map(() => UsersStoreActions.updateUserStatusSuccess({ id, command })),
-          catchError((err) => {
+          catchError((err: unknown) => {
             console.error('[users] Failed to update user status', err);
-            return of(UsersStoreActions.updateUserStatusFailure());
+            const message =
+              err instanceof HttpErrorResponse
+                ? serverErrorMessage(err, 'Failed to update user status.')
+                : 'Failed to update user status.';
+            return of(UsersStoreActions.updateUserStatusFailure({ message }));
           }),
         ),
       ),
@@ -88,11 +99,24 @@ export class UsersEffects {
       ),
     { dispatch: false },
   );
+  // the status name is translated on the server, so the open card is read again
+  reloadAfterStatusChange$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(UsersStoreActions.updateUserStatusSuccess),
+      filter(({ id }) => this.openUser()?.id === id),
+      map(({ id }) => UsersStoreActions.loadUser({ id })),
+    ),
+  );
+
   updateUserStatusSuccess$ = createEffect(
     () =>
       this.actions$.pipe(
         ofType(UsersStoreActions.updateUserStatusSuccess),
-        tap(() => this.snackBar.success('User status successfully updated.')),
+        tap(({ command }) =>
+          this.snackBar.success(
+            command.userStatusId === UserStatus.Inactive ? 'User deactivated.' : 'User activated.',
+          ),
+        ),
       ),
     { dispatch: false },
   );
@@ -101,7 +125,7 @@ export class UsersEffects {
     () =>
       this.actions$.pipe(
         ofType(UsersStoreActions.updateUserStatusFailure),
-        tap(() => this.snackBar.error('Failed to update user status.')),
+        tap(({ message }) => this.snackBar.error(message)),
       ),
     { dispatch: false },
   );

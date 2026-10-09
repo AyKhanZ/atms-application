@@ -173,6 +173,10 @@ export class UsersListComponent implements OnInit, OnDestroy {
     return this.userDisplay.status(user);
   }
 
+  statusSeverity(user: UserListItemModel) {
+    return this.userDisplay.statusSeverity(user);
+  }
+
   fullName(user: UserListItemModel): string {
     return this.userDisplay.fullName(user);
   }
