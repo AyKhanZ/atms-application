@@ -1,4 +1,4 @@
-import { DatePipe } from '@angular/common';
+import { AppDatePipe } from '../../../../shared/pipes/app-date.pipe';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -42,7 +42,7 @@ import { LoadingStateComponent } from '../../../../shared/components/loading-sta
     BackButtonComponent,
     ButtonModule,
     ConfirmDialogModule,
-    DatePipe,
+    AppDatePipe,
     DialogModule,
     HasPermissionDirective,
     OrganizationCreateDialogComponent,

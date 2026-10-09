@@ -24,7 +24,7 @@
           <span class="dashboard-deadline__title">{{ row.item.title }}</span>
           <app-work-item-priority class="dashboard-deadline__priority" [priority]="row.priority" />
           <time class="dashboard-deadline__date" [attr.datetime]="row.item.deadline">{{
-            row.item.deadline | date: 'EEE, d MMM' : '+0400'
+            row.item.deadline | appDate: 'EEE, d MMM' : '+0400'
           }}</time>
         </button>
       </li>

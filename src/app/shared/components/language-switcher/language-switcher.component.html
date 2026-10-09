@@ -1,0 +1,29 @@
+<button
+  type="button"
+  class="language"
+  [attr.aria-label]="label()"
+  [pTooltip]="label()"
+  tooltipPosition="bottom"
+  aria-haspopup="menu"
+  [attr.aria-expanded]="open()"
+  (click)="menu.toggle($event)"
+>
+  <i class="pi pi-globe" aria-hidden="true"></i>
+  <span class="language__code">{{ code() }}</span>
+  <i
+    class="pi language__chevron"
+    [class.pi-chevron-up]="open()"
+    [class.pi-chevron-down]="!open()"
+    aria-hidden="true"
+  ></i>
+</button>
+
+<p-menu
+  #menu
+  [model]="items()"
+  [popup]="true"
+  appendTo="body"
+  styleClass="language-menu"
+  (onShow)="open.set(true)"
+  (onHide)="open.set(false)"
+/>

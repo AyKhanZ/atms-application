@@ -1,4 +1,4 @@
-import { DatePipe } from '@angular/common';
+import { AppDatePipe } from '../../../shared/pipes/app-date.pipe';
 import { HttpErrorResponse } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
@@ -54,7 +54,7 @@ type ProjectTab = 'details' | 'stakeholders' | 'groups' | 'attachments' | 'histo
   imports: [
     LoadingStateComponent,
     WorkItemRefComponent,
-    DatePipe,
+    AppDatePipe,
     ButtonModule,
     ConfirmDialogModule,
     HasProjectAccessDirective,

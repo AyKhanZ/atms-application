@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { AppDatePipe } from '../../../../shared/pipes/app-date.pipe';
 import { WorkItemKind } from '../../../../core/models/work-items';
 import { workTaskKind, workTaskParent } from '../../../../core/utils/work-task.utils';
 import { WorkTaskModel } from '../../../../core/models/work-tasks';
@@ -15,7 +15,7 @@ import { TaskStatusBadgeComponent } from '../../../projects/tasks/components/tas
   selector: 'app-task-hover',
   host: { '[class.is-subtask]': 'task().isSubtask' },
   imports: [
-    DatePipe,
+    AppDatePipe,
     WorkItemRefComponent,
     WorkItemPriorityComponent,
     WorkItemAssigneeComponent,

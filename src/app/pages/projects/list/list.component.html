@@ -77,9 +77,9 @@
             <app-project-status-badge [status]="project.projectStatus" />
           </td>
           <td>
-            {{ project.startDate ? (project.startDate | date: 'dd.MM.yyyy') : 'Not set' }}
+            {{ project.startDate ? (project.startDate | appDate: 'dd.MM.yyyy') : 'Not set' }}
             <span class="date-separator">-</span>
-            {{ project.endDate ? (project.endDate | date: 'dd.MM.yyyy') : 'Open' }}
+            {{ project.endDate ? (project.endDate | appDate: 'dd.MM.yyyy') : 'Open' }}
           </td>
           @if (showActions()) {
             <td class="actions-cell" (click)="$event.stopPropagation()">

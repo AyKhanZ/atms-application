@@ -26,7 +26,7 @@
           <!-- overdue = the same red pill as tasks; open work says how far, closed only the date -->
           @let overdue = deadline | isOverdue: item.closed;
           <span class="deadline-value" [class.deadline-value--overdue]="overdue">
-            {{ deadline | date: 'dd.MM.yyyy' }}
+            {{ deadline | appDate: 'dd.MM.yyyy' }}
             @if (overdue) {
               <app-overdue-badge [deadline]="deadline" />
             } @else if (!item.closed) {

@@ -1,4 +1,5 @@
 import { DOCUMENT, formatDate } from '@angular/common';
+import { angularLocale } from '../../core/i18n/active-language';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -507,7 +508,7 @@ export class Dashboard implements OnDestroy {
 }
 
 // angular formatter like history and attachments, Intl writes "Sept" in en-GB
-const date = (value: Date, format: string) => formatDate(value, format, 'en-US');
+const date = (value: Date, format: string) => formatDate(value, format, angularLocale());
 
 function rangeText(from: string, to: string): string {
   const start = fromIsoDate(from);

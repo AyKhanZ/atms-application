@@ -55,7 +55,7 @@
           </div>
           <div>
             <dt>Birth date</dt>
-            <dd>{{ user.birthDate ? (user.birthDate | date: 'dd.MM.yyyy') : '-' }}</dd>
+            <dd>{{ user.birthDate ? (user.birthDate | appDate: 'dd.MM.yyyy') : '-' }}</dd>
           </div>
           <div>
             <dt>Gender</dt>
@@ -121,7 +121,7 @@
           </div>
           <div>
             <dt>Created</dt>
-            <dd>{{ user.createdAt ? (user.createdAt | date: 'dd.MM.yyyy HH:mm') : '-' }}</dd>
+            <dd>{{ user.createdAt ? (user.createdAt | appDate: 'dd.MM.yyyy HH:mm') : '-' }}</dd>
           </div>
         </dl>
       </div>

@@ -1,0 +1,9 @@
+{
+  "app": {
+    "title": "BAIM"
+  },
+  "language": {
+    "label": "Dil",
+    "changeFailed": "Dili dəyişmək mümkün olmadı. Yenidən cəhd edin."
+  }
+}

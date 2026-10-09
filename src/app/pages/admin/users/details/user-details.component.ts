@@ -1,4 +1,4 @@
-import { DatePipe } from '@angular/common';
+import { AppDatePipe } from '../../../../shared/pipes/app-date.pipe';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -31,7 +31,7 @@ import { UsersStoreActions, UsersStoreSelectors } from '../../../../store/users'
 @Component({
   selector: 'app-user-details',
   imports: [
-    DatePipe,
+    AppDatePipe,
     RouterLink,
     ButtonModule,
     TagModule,

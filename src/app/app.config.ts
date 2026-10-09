@@ -17,7 +17,13 @@ import { provideEffects } from '@ngrx/effects';
 import { environment } from '../environments/environment';
 import { routes } from './app.routes';
 import { authInitializer } from './core/initializers/auth.initializer';
+import { languageInitializer } from './core/initializers/language.initializer';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
+import { languageInterceptor } from './core/interceptors/language.interceptor';
+import { TranslocoHttpLoader } from './core/i18n/transloco-http.loader';
+import './core/i18n/register-locales';
+import { provideTransloco } from '@jsverse/transloco';
+import { provideTranslocoMessageformat } from '@jsverse/transloco-messageformat';
 
 import { authReducer } from './store/auth/auth.reducer';
 import { usersReducer } from './store/users/users.reducer';
@@ -105,7 +111,7 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes, withComponentInputBinding()),
     { provide: RouteReuseStrategy, useClass: AppRouteReuseStrategy },
-    provideHttpClient(withInterceptors([authInterceptor])),
+    provideHttpClient(withInterceptors([languageInterceptor, authInterceptor])),
     provideAnimationsAsync(),
     providePrimeNG({
       ripple: true,
@@ -160,12 +166,28 @@ export const appConfig: ApplicationConfig = {
       DictionaryEffects,
       NotificationsEffects,
     ]),
+    provideAppInitializer(languageInitializer),
     provideAppInitializer(authInitializer),
     // started before the first navigation so Back knows where the user came from
     provideAppInitializer(() => {
       inject(NavigationHistoryService);
     }),
     provideZonelessChangeDetection(),
+    ...provideTransloco({
+      config: {
+        availableLangs: ['en', 'ru', 'az'],
+        defaultLang: 'en',
+        fallbackLang: 'en',
+        reRenderOnLangChange: true,
+        prodMode: environment.production,
+        missingHandler: {
+          useFallbackTranslation: true,
+          logMissingKey: !environment.production,
+        },
+      },
+      loader: TranslocoHttpLoader,
+    }),
+    provideTranslocoMessageformat({ locales: ['en', 'ru', 'az'] }),
     ...environment.providers,
     MessageService,
   ],

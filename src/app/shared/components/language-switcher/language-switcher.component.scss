@@ -1,0 +1,49 @@
+:host {
+  display: inline-flex;
+}
+
+:host.instant {
+  position: fixed;
+  z-index: 30;
+  top: 16px;
+  inset-inline-end: 16px;
+}
+
+@media (min-width: 768px) {
+  :host.instant {
+    top: 24px;
+    inset-inline-end: 24px;
+  }
+}
+
+.language {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 40px;
+  padding-inline: 8px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--gray-icon);
+  cursor: pointer;
+
+  &:hover {
+    color: var(--orange);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--orange-focus-outline);
+    outline-offset: 2px;
+  }
+}
+
+.language__code {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.language__chevron {
+  font-size: 12px;
+}

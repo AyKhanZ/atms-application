@@ -496,6 +496,18 @@ input:-webkit-autofill:focus {
   color: var(--red-hover);
 }
 
+.language-menu {
+  min-width: 12rem;
+}
+
+.language-menu .language-menu__current .p-menu-item-icon {
+  color: var(--orange);
+}
+
+.language-menu .language-menu__idle .p-menu-item-icon {
+  visibility: hidden;
+}
+
 // rows go edge to edge, on a phone 0.5rem from each side
 .notification-panel.p-popover {
   width: min(26rem, calc(100vw - 1rem));

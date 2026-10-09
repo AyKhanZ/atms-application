@@ -23,6 +23,8 @@ import { DictionaryService } from '../../core/services/dictionary.service';
 import { ImageUrlService } from '../../core/services/image-url.service';
 import { OnboardingService } from '../../core/services/onboarding.service';
 import { SnackBarService } from '../../core/services/snack-bar.service';
+import { LanguageService } from '../../core/services/language.service';
+import { toUiLanguage } from '../../core/i18n/active-language';
 import { HasUnsavedChanges } from '../../core/guards/unsaved-changes.guard';
 import {
   FileUploadComponent,
@@ -70,6 +72,7 @@ export class OnboardingComponent implements HasUnsavedChanges {
   private readonly authSession = inject(AuthSessionService);
   private readonly imageUrlService = inject(ImageUrlService);
   private readonly snackBar = inject(SnackBarService);
+  private readonly uiLanguage = inject(LanguageService);
   private readonly router = inject(Router);
 
   readonly initialLoading = signal(true);
@@ -187,6 +190,14 @@ export class OnboardingComponent implements HasUnsavedChanges {
       .subscribe({
         next: (response) => {
           this.applyModel(response);
+          const nextLanguage = toUiLanguage(
+            this.languages().find((language) => language.id === response.personalInfo.languageId)
+              ?.code,
+          );
+          if (nextLanguage && nextLanguage !== this.uiLanguage.current()) {
+            this.uiLanguage.rememberAndReload(nextLanguage);
+            return;
+          }
           this.snackBar.success('Personal information saved.');
         },
         error: (error: HttpErrorResponse) => this.reportPersonalInfoError(error),
@@ -365,7 +376,7 @@ export class OnboardingComponent implements HasUnsavedChanges {
       email: personal.email,
       phoneNumber: personal.phoneNumber ?? '',
       position: personal.position ?? '',
-      languageId: personal.languageId,
+      languageId: personal.languageId ?? this.currentLanguageId(),
       birthDate: fromIsoDate(personal.birthDate),
       genderId: personal.genderId,
       maritalStatusId: personal.maritalStatusId,
@@ -387,6 +398,11 @@ export class OnboardingComponent implements HasUnsavedChanges {
     users.forEach((user) => this.invitationRows.push(this.createInvitationGroup(user)));
     this.invitationRows.markAsPristine();
     this.setActiveView(model.currentStep === 'complete' ? 'review' : model.currentStep);
+  }
+
+  private currentLanguageId(): number | null {
+    const code = this.uiLanguage.current();
+    return this.languages().find((language) => language.code.toLowerCase() === code)?.id ?? null;
   }
 
   private createInvitationGroup(user?: Partial<InvitedUserCommand>): InvitationGroup {

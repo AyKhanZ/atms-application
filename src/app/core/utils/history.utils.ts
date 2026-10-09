@@ -1,4 +1,5 @@
 import { formatDate } from '@angular/common';
+import { angularLocale } from '../i18n/active-language';
 import { HistoryAction } from '../enums/history-action.enum';
 import { HistoryEntityType } from '../enums/history-entity-type.enum';
 import { HistoryField } from '../enums/history-field.enum';
@@ -51,7 +52,7 @@ const fieldLabels: Record<HistoryField, string> = {
 const dateFields = new Set([HistoryField.Deadline, HistoryField.StartDate, HistoryField.EndDate]);
 
 // same formats as the attachments tab: "22 Sep", "22 Sep 2026"
-const format = (date: Date, pattern: string) => formatDate(date, pattern, 'en-US');
+const format = (date: Date, pattern: string) => formatDate(date, pattern, angularLocale());
 
 export function historyKey(projectId: string, scope: HistoryScope): string {
   switch (scope.kind) {

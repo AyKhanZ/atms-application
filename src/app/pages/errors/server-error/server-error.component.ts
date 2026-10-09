@@ -1,13 +1,14 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EMPTY, catchError, finalize, from, switchMap } from 'rxjs';
+import { LanguageSwitcherComponent } from '../../../shared/components/language-switcher/language-switcher.component';
 import { ButtonModule } from 'primeng/button';
 import { HealthService } from '../../../core/services/health.service';
 import { AuthSessionService } from '../../../core/services/auth-session.service';
 
 @Component({
   selector: 'app-server-error',
-  imports: [ButtonModule],
+  imports: [ButtonModule, LanguageSwitcherComponent],
   templateUrl: './server-error.component.html',
   styleUrl: './server-error.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

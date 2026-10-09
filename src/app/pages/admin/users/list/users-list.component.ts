@@ -8,7 +8,7 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { DatePipe } from '@angular/common';
+import { AppDatePipe } from '../../../../shared/pipes/app-date.pipe';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
@@ -39,7 +39,7 @@ import { ImageUrlService } from '../../../../core/services/image-url.service';
   selector: 'app-users-list',
   imports: [
     CreateButtonComponent,
-    DatePipe,
+    AppDatePipe,
     FilterToggleButtonComponent,
     HasPermissionDirective,
     ListSearchComponent,

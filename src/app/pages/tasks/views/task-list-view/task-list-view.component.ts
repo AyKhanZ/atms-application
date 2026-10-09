@@ -9,7 +9,7 @@ import {
   linkedSignal,
   untracked,
 } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { AppDatePipe } from '../../../../shared/pipes/app-date.pipe';
 import { Store } from '@ngrx/store';
 import { SortEvent } from 'primeng/api';
 import { TableModule } from 'primeng/table';
@@ -57,7 +57,7 @@ const sorts: Record<string, WorkTaskBoardSort> = {
 @Component({
   selector: 'app-task-list-view',
   imports: [
-    DatePipe,
+    AppDatePipe,
     TableModule,
     EmptyStateComponent,
     LoadMoreButtonComponent,

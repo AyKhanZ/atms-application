@@ -80,13 +80,13 @@
                   <div>
                     <dt>Start date</dt>
                     <dd>
-                      {{ item.startDate ? (item.startDate | date: 'dd.MM.yyyy') : 'Not set' }}
+                      {{ item.startDate ? (item.startDate | appDate: 'dd.MM.yyyy') : 'Not set' }}
                     </dd>
                   </div>
                   <div>
                     <dt>Target date</dt>
                     <dd>
-                      {{ item.endDate ? (item.endDate | date: 'dd.MM.yyyy') : 'Not set' }}
+                      {{ item.endDate ? (item.endDate | appDate: 'dd.MM.yyyy') : 'Not set' }}
                     </dd>
                   </div>
                   <div>

@@ -7,7 +7,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { AppDatePipe } from '../../../../shared/pipes/app-date.pipe';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
@@ -45,7 +45,7 @@ import { OrganizationsListQueryService } from './services/organizations-list-que
   imports: [
     ConfirmDialogModule,
     CreateButtonComponent,
-    DatePipe,
+    AppDatePipe,
     DeleteActionButtonComponent,
     EditActionButtonComponent,
     FilterToggleButtonComponent,

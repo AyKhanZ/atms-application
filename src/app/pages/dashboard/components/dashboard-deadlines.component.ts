@@ -1,4 +1,4 @@
-import { DatePipe } from '@angular/common';
+import { AppDatePipe } from '../../../shared/pipes/app-date.pipe';
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { DictionaryModel } from '../../../core/models/dictionary.model';
 import { DashboardDeadlineModel } from '../../../core/models/dashboard';
@@ -9,7 +9,7 @@ import { WorkItemRefComponent } from '../../../shared/components/work-item-ref/w
 
 @Component({
   selector: 'app-dashboard-deadlines',
-  imports: [DatePipe, WorkItemPriorityComponent, WorkItemRefComponent],
+  imports: [AppDatePipe, WorkItemPriorityComponent, WorkItemRefComponent],
   templateUrl: './dashboard-deadlines.component.html',
   styleUrl: './dashboard-deadlines.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

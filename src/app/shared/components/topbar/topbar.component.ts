@@ -3,6 +3,7 @@ import { MenuItem } from 'primeng/api';
 import { MenuModule } from 'primeng/menu';
 import { GlobalSearchComponent } from '../global-search/global-search.component';
 import { NotificationBellComponent } from '../notification-bell/notification-bell.component';
+import { LanguageSwitcherComponent } from '../language-switcher/language-switcher.component';
 import { UserStoreSelectors } from '../../../store/user';
 import { Store } from '@ngrx/store';
 import { AuthStoreActions } from '../../../store/auth';
@@ -13,7 +14,7 @@ import { isSuperAdmin } from '../../../core/utils/super-admin.utils';
 
 @Component({
   selector: 'app-topbar',
-  imports: [MenuModule, GlobalSearchComponent, NotificationBellComponent],
+  imports: [MenuModule, GlobalSearchComponent, NotificationBellComponent, LanguageSwitcherComponent],
   templateUrl: './topbar.component.html',
   styleUrl: './topbar.component.scss',
 })

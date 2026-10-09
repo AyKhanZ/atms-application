@@ -1,4 +1,4 @@
-import { DatePipe } from '@angular/common';
+import { AppDatePipe } from '../../pipes/app-date.pipe';
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { WorkItemPriorityComponent } from '../work-item-priority/work-item-priority.component';
 import { WorkItemTypeComponent } from '../work-item-type/work-item-type.component';
@@ -10,7 +10,7 @@ import { WorkItemFacts } from './work-item-facts.model';
 @Component({
   selector: 'app-work-item-facts',
   imports: [
-    DatePipe,
+    AppDatePipe,
     WorkItemPriorityComponent,
     WorkItemTypeComponent,
     DeadlineLabelPipe,

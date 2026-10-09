@@ -1,4 +1,5 @@
 import { formatDate } from '@angular/common';
+import { angularLocale } from '../i18n/active-language';
 import { NotificationEntityType } from '../enums/notification-entity-type.enum';
 import { NotificationType } from '../enums/notification-type.enum';
 import { WorkTaskStatus } from '../enums/work-task-status.enum';
@@ -206,7 +207,7 @@ export function groupNotificationsByDay(
         ? 'Today'
         : days === 1
           ? 'Yesterday'
-          : formatDate(day, day.getFullYear() === now.getFullYear() ? 'd MMM' : 'd MMM y', 'en-US');
+          : formatDate(day, day.getFullYear() === now.getFullYear() ? 'd MMM' : 'd MMM y', angularLocale());
     const last = groups.at(-1);
     if (last?.label === label) last.items.push(item);
     else groups.push({ label, items: [item] });
@@ -224,7 +225,7 @@ function parseDeadline(value: string | null): Date | null {
 }
 
 function formatDeadline(deadline: Date): string {
-  return formatDate(deadline, 'd MMM', 'en-US');
+  return formatDate(deadline, 'd MMM', angularLocale());
 }
 
 function deadlineLabel(value: string | null): string | null {

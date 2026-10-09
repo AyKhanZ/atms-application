@@ -67,7 +67,7 @@
             [class.deadline-cell--overdue]="task | isOverdueTask"
             [class.deadline-cell--empty]="!task.deadline"
           >
-            {{ task.deadline ? (task.deadline | date: 'd MMM yyyy') : 'No deadline' }}
+            {{ task.deadline ? (task.deadline | appDate: 'd MMM yyyy') : 'No deadline' }}
             @if (task | isOverdueTask) {
               <app-overdue-badge class="deadline-cell__late" [deadline]="task.deadline" />
             }

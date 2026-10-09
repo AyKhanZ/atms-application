@@ -24,7 +24,9 @@ import { ProfileModel } from '../../core/models/profile/profile.model';
 import { DictionaryService } from '../../core/services/dictionary.service';
 import { ImageUrlService } from '../../core/services/image-url.service';
 import { ProfileService } from '../../core/services/profile.service';
+import { LanguageService } from '../../core/services/language.service';
 import { SnackBarService } from '../../core/services/snack-bar.service';
+import { toUiLanguage } from '../../core/i18n/active-language';
 import { fromIsoDate, toIsoDate } from '../../core/utils/dashboard-query.utils';
 import { serverErrorMessage, validationMessage } from '../../core/utils/http-error.utils';
 import { showPhoneServerError } from '../../core/utils/phone-number.utils';
@@ -78,6 +80,7 @@ export class SettingsComponent implements HasUnsavedChanges {
   private readonly dictionaries = inject(DictionaryService);
   private readonly imageUrls = inject(ImageUrlService);
   private readonly snackBar = inject(SnackBarService);
+  private readonly uiLanguage = inject(LanguageService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly passwordPanel = viewChild(SettingsPasswordComponent);
 
@@ -203,6 +206,11 @@ export class SettingsComponent implements HasUnsavedChanges {
               language: this.languageCode(profile.languageId),
             }),
           );
+          const nextLanguage = toUiLanguage(this.languageCode(profile.languageId));
+          if (nextLanguage && nextLanguage !== this.uiLanguage.current()) {
+            this.uiLanguage.rememberAndReload(nextLanguage);
+            return;
+          }
           this.snackBar.success('Profile saved.');
         },
         error: (error: HttpErrorResponse) => this.reportPersonalInfoError(error),

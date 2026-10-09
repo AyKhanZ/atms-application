@@ -45,13 +45,6 @@ export class AuthEffects {
         ofType(AuthStoreActions.loginSuccess),
         tap(({ accessModel }) => {
           this.tokenStorage.save(accessModel);
-
-          // ← Читаем returnUrl — если Guard сохранил его, вернём пользователя туда
-          // Например: /users?page=2&pageSize=30 → после логина попадёт обратно
-          const returnUrl =
-            this.router.parseUrl(this.router.url).queryParams['returnUrl'] ?? '/dashboard';
-          void this.router.navigateByUrl(returnUrl);
-
           setTimeout(() => this.snackBar.success('You have successfully logged in!'));
         }),
       ),

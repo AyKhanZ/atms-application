@@ -21,7 +21,7 @@
   <dd><app-work-item-assignee [assignee]="task().assignee" /></dd>
   <dt>Deadline</dt>
   <dd class="hover__deadline" [class.hover__deadline--overdue]="overdue()">
-    {{ task().deadline ? (task().deadline | date: 'd MMM yyyy') : 'No deadline' }}
+    {{ task().deadline ? (task().deadline | appDate: 'd MMM yyyy') : 'No deadline' }}
     @if (overdue()) {
       <app-overdue-badge [deadline]="task().deadline" />
     }

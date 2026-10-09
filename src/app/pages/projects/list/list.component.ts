@@ -1,4 +1,4 @@
-import { DatePipe } from '@angular/common';
+import { AppDatePipe } from '../../../shared/pipes/app-date.pipe';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -40,7 +40,7 @@ import { ProjectListQueryService } from './services/list-query.service';
 @Component({
   selector: 'app-project-list',
   imports: [
-    DatePipe,
+    AppDatePipe,
     ConfirmDialogModule,
     TableModule,
     CreateButtonComponent,

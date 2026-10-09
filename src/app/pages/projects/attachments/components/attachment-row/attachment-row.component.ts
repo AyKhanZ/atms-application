@@ -1,4 +1,4 @@
-import { DatePipe } from '@angular/common';
+import { AppDatePipe } from '../../../../../shared/pipes/app-date.pipe';
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { MenuItem } from 'primeng/api';
 import { Menu, MenuModule } from 'primeng/menu';
@@ -17,7 +17,7 @@ import { PersonShortNamePipe } from '../../../../../shared/pipes/person-name.pip
 @Component({
   selector: 'app-attachment-row',
   imports: [
-    DatePipe,
+    AppDatePipe,
     MenuModule,
     TooltipModule,
     WorkItemAssigneeComponent,

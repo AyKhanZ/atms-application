@@ -46,7 +46,7 @@
     @for (day of agenda(); track day.key) {
       <section class="agenda__day" [class.agenda__day--today]="day.today">
         <h3 class="agenda__date">
-          {{ day.date | date: 'EEE, d MMM' }}
+          {{ day.date | appDate: 'EEE, d MMM' }}
         </h3>
         @for (task of byDay().get(day.key) ?? []; track task.id) {
           <app-task-calendar-chip
@@ -67,7 +67,7 @@
   </div>
 } @else {
   <div class="grid" cdkDropListGroup [style.--calendar-weeks]="weeks().length">
-    @for (weekday of weekdays; track weekday) {
+    @for (weekday of weekdays(); track $index) {
       <span class="grid__weekday" [class.grid__weekday--weekend]="$index > 4">{{ weekday }}</span>
     }
     @for (week of weeks(); track week[0].key) {
