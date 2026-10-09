@@ -192,7 +192,7 @@
     "sending": "Göndərilir…",
     "requestNewConfirmation": "Yeni keçid istə",
     "forgotYourPassword": "Şifrəni unutmusunuz?",
-    "invalidCredentials": "E-poçt və ya parol yanlışdır.",
+    "invalidCredentials": "E-poçt və ya şifrə yanlışdır.",
     "accountLocked": "Hesab müvəqqəti bloklanıb.",
     "unexpected": "Gözlənilməz server xətası."
   },
