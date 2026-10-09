@@ -6,6 +6,7 @@ import { WorkItemKind } from '../../../../../core/models/work-items';
 import { GlobalSearchService } from '../../../../../core/services/global-search.service';
 import { CommentEditorComponent } from './comment-editor.component';
 
+import { translocoTestingProviders } from '../../../../../core/testing/transloco-testing';
 describe('CommentEditorComponent', () => {
   const ann = { id: '0f8fad5b-d9cb-469f-a165-70867728950e', name: 'Ann', surname: 'Lee' };
   let fixture: ComponentFixture<CommentEditorComponent>;
@@ -32,7 +33,7 @@ describe('CommentEditorComponent', () => {
 
   function render(initialText = '') {
     TestBed.configureTestingModule({
-      providers: [
+      providers: [...translocoTestingProviders(), 
         provideRouter([]),
         {
           provide: GlobalSearchService,

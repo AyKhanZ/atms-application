@@ -8,6 +8,7 @@ import { NotificationModel } from '../../../core/models/notifications';
 import { NotificationsStoreActions } from '../../../store/notifications';
 import { NOTIFICATION_NOTICE_KEY, NotificationOpenerService } from './notification-opener.service';
 
+import { translocoTestingProviders } from '../../../core/testing/transloco-testing';
 const notification = (overrides: Partial<NotificationModel> = {}): NotificationModel => ({
   id: 'n1',
   type: NotificationType.CommentAdded,
@@ -45,7 +46,7 @@ describe('NotificationOpenerService', () => {
     router = { navigate: vi.fn(() => Promise.resolve(true)) };
     confirmation = { confirm: vi.fn() };
     TestBed.configureTestingModule({
-      providers: [
+      providers: [...translocoTestingProviders(), 
         NotificationOpenerService,
         provideMockStore(),
         { provide: Router, useValue: router },

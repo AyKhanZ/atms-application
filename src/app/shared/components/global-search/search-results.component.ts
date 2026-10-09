@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, input, output } from '@angular/core
 import { GlobalSearchItemModel } from '../../../core/models/global-search';
 import { WorkItemKind } from '../../../core/models/work-items';
 import { SearchResultRowComponent } from './search-result-row.component';
+import { TranslocoDirective } from '@jsverse/transloco';
 
 export interface SearchResultGroup {
   type: WorkItemKind;
@@ -12,7 +13,7 @@ export interface SearchResultGroup {
 
 @Component({
   selector: 'app-search-results',
-  imports: [SearchResultRowComponent],
+  imports: [SearchResultRowComponent, TranslocoDirective],
   templateUrl: './search-results.component.html',
   styleUrl: './search-results.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

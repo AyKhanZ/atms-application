@@ -18,10 +18,11 @@ import { InputClearComponent } from '../input-clear/input-clear.component';
 import { LoadMoreButtonComponent } from '../load-more-button/load-more-button.component';
 import { WorkItemRefComponent } from '../work-item-ref/work-item-ref.component';
 import { WorkItemKind } from '../../../core/models/work-items';
+import { TranslocoDirective } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-work-item-jump',
-  imports: [InputClearComponent, LoadMoreButtonComponent, WorkItemRefComponent],
+  imports: [InputClearComponent, LoadMoreButtonComponent, WorkItemRefComponent, TranslocoDirective],
   templateUrl: './work-item-jump.component.html',
   styleUrl: './work-item-jump.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

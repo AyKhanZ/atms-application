@@ -3,6 +3,7 @@ import { provideRouter } from '@angular/router';
 import { CommentReferenceModel } from '../../../../../core/models/comments';
 import { CommentTextComponent } from './comment-text.component';
 
+import { translocoTestingProviders } from '../../../../../core/testing/transloco-testing';
 describe('CommentTextComponent', () => {
   const annId = '0f8fad5b-d9cb-469f-a165-70867728950e';
   const reference: CommentReferenceModel = {
@@ -15,7 +16,7 @@ describe('CommentTextComponent', () => {
   };
 
   function render(text: string, references: CommentReferenceModel[] = []) {
-    TestBed.configureTestingModule({ providers: [provideRouter([])] });
+    TestBed.configureTestingModule({ providers: [...translocoTestingProviders(), provideRouter([])] });
     const fixture = TestBed.createComponent(CommentTextComponent);
     fixture.componentRef.setInput('text', text);
     fixture.componentRef.setInput('mentions', [{ id: annId, name: 'Ann', surname: 'Lee' }]);

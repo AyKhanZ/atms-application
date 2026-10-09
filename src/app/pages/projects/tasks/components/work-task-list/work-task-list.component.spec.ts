@@ -11,6 +11,7 @@ import { Features } from '../../../../../store/features.enum';
 import { WorkTasksEffects } from '../../../../../store/work-tasks/work-tasks.effects';
 import { workTasksReducer } from '../../../../../store/work-tasks/work-tasks.reducer';
 
+import { translocoTestingProviders } from '../../../../../core/testing/transloco-testing';
 const task: WorkTaskModel = {
   id: 'a',
   code: '4',
@@ -32,7 +33,7 @@ async function setup(canEdit: boolean) {
   const navigate = vi.fn().mockResolvedValue(true);
   TestBed.configureTestingModule({
     imports: [WorkTaskListComponent],
-    providers: [
+    providers: [...translocoTestingProviders(), 
       { provide: Router, useValue: { navigate, url: '/projects/p/tickets/t?tab=tasks' } },
       provideStore({ [Features.WorkTasks]: workTasksReducer }),
       provideEffects(WorkTasksEffects),

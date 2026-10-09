@@ -10,6 +10,7 @@ import {
 } from '../../store/notifications/notifications.state';
 import { NotificationsPageComponent } from './notifications-page.component';
 
+import { translocoTestingProviders } from '../../core/testing/transloco-testing';
 const notification = (id: string, readAt: string | null = null): NotificationModel => ({
   id,
   type: 1,
@@ -59,7 +60,7 @@ describe('NotificationsPageComponent', () => {
     router = { navigate: vi.fn(() => Promise.resolve(true)) };
     await TestBed.configureTestingModule({
       imports: [NotificationsPageComponent],
-      providers: [
+      providers: [...translocoTestingProviders(), 
         provideMockStore({ initialState: { notifications: initialNotificationsState } }),
         { provide: Router, useValue: router },
         { provide: ActivatedRoute, useValue: { queryParamMap: queryParams } },

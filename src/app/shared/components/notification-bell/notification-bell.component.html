@@ -16,44 +16,44 @@
 </button>
 
 <p-popover #panel styleClass="notification-panel" (onShow)="onShow()" (onHide)="onHide()">
-  <section class="panel" aria-label="Notifications">
+  <section class="panel" *transloco="let t" [attr.aria-label]="t('notifications.title')">
     <header class="panel__header">
-      <h2 class="panel__title">Notifications</h2>
+      <h2 class="panel__title">{{ t('notifications.title') }}</h2>
       <button
         type="button"
         class="panel__action"
         [disabled]="unreadCount() === 0"
         (click)="markAllRead()"
       >
-        Mark all as read
+        {{ t('notifications.markAllRead') }}
       </button>
     </header>
 
     <div class="panel__body">
       @if (!loaded() && loading()) {
-        <p class="panel__message">Loading…</p>
+        <p class="panel__message">{{ t('common.loading') }}</p>
       } @else if (error() && latest().length === 0) {
         <div class="panel__message">
           <span>{{ error() }}</span>
-          <button type="button" class="panel__action" (click)="retry()">Try again</button>
+          <button type="button" class="panel__action" (click)="retry()">{{ t('common.retry') }}</button>
         </div>
       } @else {
         @for (item of latest(); track item.id) {
           <button type="button" class="row" [class.row--unread]="!item.readAt" (click)="open(item)">
-            <span class="row__dot" [attr.aria-label]="item.readAt ? null : 'Unread'"></span>
+            <span class="row__dot" [attr.aria-label]="item.readAt ? null : t('notifications.unread')"></span>
             <app-notification-item class="row__item" [notification]="item" />
           </button>
         } @empty {
           <div class="panel__empty">
             <i class="pi pi-check-circle" aria-hidden="true"></i>
-            <span>You're all caught up</span>
+            <span>{{ t('notifications.caughtUp') }}</span>
           </div>
         }
       }
     </div>
 
     <footer class="panel__footer">
-      <button type="button" class="panel__all" (click)="viewAll()">View all</button>
+      <button type="button" class="panel__all" (click)="viewAll()">{{ t('common.viewAll') }}</button>
     </footer>
   </section>
 </p-popover>

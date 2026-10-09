@@ -7,12 +7,13 @@ import {
   viewChild,
 } from '@angular/core';
 import { InputClearComponent } from '../input-clear/input-clear.component';
+import { TranslocoDirective } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-search-input',
-  imports: [InputClearComponent],
+  imports: [InputClearComponent, TranslocoDirective],
   template: `
-    <div class="search-input">
+    <div class="search-input" *transloco="let t">
       <i class="pi pi-search" aria-hidden="true"></i>
       <input
         #field
@@ -20,8 +21,8 @@ import { InputClearComponent } from '../input-clear/input-clear.component';
         autocomplete="off"
         spellcheck="false"
         maxlength="100"
-        aria-label="Search projects, tickets, tasks and subtasks by code or title"
-        placeholder="Search by code or title"
+        [attr.aria-label]="t('search.scopeByCode')"
+        [placeholder]="t('search.byCodeOrTitle')"
         [value]="value()"
         [attr.aria-expanded]="expanded()"
         [attr.aria-controls]="expanded() ? 'global-search-results' : null"

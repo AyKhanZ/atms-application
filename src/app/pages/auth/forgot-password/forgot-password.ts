@@ -10,18 +10,20 @@ import { InputTextModule } from 'primeng/inputtext';
 import { SnackBarService } from '../../../core/services/snack-bar.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { serverErrorMessage } from '../../../core/utils/http-error.utils';
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-forgot-password',
   templateUrl: './forgot-password.html',
   styleUrls: ['./forgot-password.scss'],
-  imports: [ButtonModule, FloatLabelModule, InputTextModule, ReactiveFormsModule, RouterLink],
+  imports: [ButtonModule, FloatLabelModule, InputTextModule, ReactiveFormsModule, RouterLink, TranslocoDirective],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ForgotPasswordComponent {
   private readonly auth = inject(AuthService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly snackBar = inject(SnackBarService);
+  private readonly transloco = inject(TranslocoService);
   readonly loading = signal(false);
   readonly sent = signal(false);
 
@@ -48,7 +50,9 @@ export class ForgotPasswordComponent {
       .subscribe({
         next: () => this.sent.set(true),
         error: (error: HttpErrorResponse) =>
-          this.snackBar.error(serverErrorMessage(error, 'Could not send a reset link. Try again.')),
+          this.snackBar.error(
+            serverErrorMessage(error, this.transloco.translate('auth.resetLinkFailed')),
+          ),
       });
   }
 }

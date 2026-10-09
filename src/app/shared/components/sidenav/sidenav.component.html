@@ -1,4 +1,4 @@
-<aside
+<aside *transloco="let t"
   class="sidebar"
   [class.sidebar--icons]="layout.mode() === 'icons'"
   [class.sidebar--drawer]="layout.mode() === 'hidden'"
@@ -10,13 +10,13 @@
       @if (layout.showLabels()) {
         <img
           src="https://baim.az/wp-content/uploads/2025/05/cropped-cropped-group-26.png"
-          alt="logo"
+          alt="BAIM"
           width="120px"
         />
       } @else {
         <img
           src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAcCAMAAABF0y+mAAAAV1BMVEVHcEz////////////////////////////////////////////97uD81LP817j+9Or4u4L++fT4wY74r2f8z6j6yp74tXT84sz83cL////////////2p1P+17GoAAAAHHRSTlMAMIPA7f/GVG0c4Un/////////////////oQnEVsqBiwAAARtJREFUeAF90wd2wyAQAFHZ0bhSF7Hgcv9zJsI8xX1e11ejDUur9c8I42a9Gp7bjiyxe6D9gYfGu6ePPHb/8NbYJTfnWXRFiL4Xxdg0pQwcG45xYkkJgBRgtjUNi/NSUW8NEBU4/SE3TMX6RK6lACYBnIdjQ6/G54K6QIqgcvvjU0ONPkRnCc4gQWh4GQ4NTRUgRFuSFowG5gYaFlcrMZCAKQTkHnMmz9cy2eF5wP5/tlStVfUeEaBcJSgJCT4seAACvSjZo/FKxxNgTUcxAvOjfShHAKWnUbU4g/RlAyiu4yQFSf6G53nigal2NeXqoeGpLRmAE5Y69sWeiyLV+J4ROPZtwi3jbM/B7vsG+741l3afN/XdcbjcHYdf0UIZC1JIuwoAAAAASUVORK5CYII="
-          alt="logo"
+          alt="BAIM"
           width="28"
           style="object-fit: cover; object-position: left"
         />
@@ -27,7 +27,7 @@
       <button
         type="button"
         class="drawer-close"
-        aria-label="Close menu"
+        [attr.aria-label]="t('nav.closeMenu')"
         (click)="layout.closeDrawer()"
       >
         <i class="pi pi-times"></i>
@@ -41,7 +41,7 @@
       <i class="pi pi-th-large"></i>
 
       @if (layout.showLabels()) {
-        <span>Dashboard</span>
+        <span>{{ t('nav.dashboard') }}</span>
       }
     </a>
 
@@ -50,7 +50,7 @@
         <i class="pi pi-briefcase"></i>
 
         @if (layout.showLabels()) {
-          <span>Projects</span>
+          <span>{{ t('nav.projects') }}</span>
         }
       </a>
 
@@ -58,7 +58,7 @@
         <i class="pi pi-list-check"></i>
 
         @if (layout.showLabels()) {
-          <span>Tasks</span>
+          <span>{{ t('nav.tasks') }}</span>
         }
       </a>
     </ng-container>
@@ -68,7 +68,7 @@
         <i class="pi pi-users"></i>
 
         @if (layout.showLabels()) {
-          <span>Users</span>
+          <span>{{ t('nav.users') }}</span>
         }
       </a>
     </ng-container>
@@ -78,15 +78,20 @@
         <i class="pi pi-building"></i>
 
         @if (layout.showLabels()) {
-          <span>Organizations</span>
+          <span>{{ t('nav.organizations') }}</span>
         }
       </a>
     </ng-container>
     @if (!isSuperAdmin()) {
-      <a routerLink="/settings" routerLinkActive="active" aria-label="Settings" title="Settings">
+      <a
+        routerLink="/settings"
+        routerLinkActive="active"
+        [attr.aria-label]="t('nav.settings')"
+        [attr.title]="t('nav.settings')"
+      >
         <i class="pi pi-cog" aria-hidden="true"></i>
         @if (layout.showLabels()) {
-          <span>Settings</span>
+          <span>{{ t('nav.settings') }}</span>
         }
       </a>
     }
@@ -96,7 +101,7 @@
     <button
       type="button"
       class="collapse-btn"
-      [attr.aria-label]="layout.collapsed() ? 'Expand menu' : 'Collapse menu'"
+      [attr.aria-label]="layout.collapsed() ? t('nav.expandMenu') : t('nav.collapseMenu')"
       (click)="layout.toggleSidebar()"
     >
       <i

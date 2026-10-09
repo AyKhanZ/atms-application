@@ -1,13 +1,13 @@
-<div class="personal-fields" [formGroup]="form()">
+<div class="personal-fields" *transloco="let t" [formGroup]="form()">
   <div class="field span-8">
     <div class="field-label">
-      <label for="name">Name</label>
+      <label for="name">{{ t('common.name') }}</label>
     </div>
     <input id="name" pInputText maxlength="50" autocomplete="given-name" formControlName="name" />
     <div class="field-line">
       <div class="field-error">
         @if (form().controls.name.touched && form().controls.name.invalid) {
-          <small>Name is required.</small>
+          <small>{{ t('validation.nameRequired') }}</small>
         }
       </div>
       @if (form().controls.name.value.length) {
@@ -18,7 +18,7 @@
 
   <div class="field span-12">
     <div class="field-label">
-      <label for="surname">Surname</label>
+      <label for="surname">{{ t('common.surname') }}</label>
     </div>
     <input
       id="surname"
@@ -30,7 +30,7 @@
     <div class="field-line">
       <div class="field-error">
         @if (form().controls.surname.touched && form().controls.surname.invalid) {
-          <small>Surname is required.</small>
+          <small>{{ t('validation.surnameRequired') }}</small>
         }
       </div>
       @if (form().controls.surname.value.length) {
@@ -40,14 +40,14 @@
   </div>
 
   <div class="field span-13">
-    <label for="email">Email</label>
+    <label for="email">{{ t('common.email') }}</label>
     <input id="email" pInputText readonly formControlName="email" />
     <div class="field-error"></div>
   </div>
 
   <div class="field span-7">
     <div class="field-label">
-      <label for="phone">Phone number</label>
+      <label for="phone">{{ t('common.phone') }}</label>
     </div>
     <input
       id="phone"
@@ -61,13 +61,13 @@
       <div class="field-error">
         @if (form().controls.phoneNumber.touched) {
           @if (form().controls.phoneNumber.hasError('required')) {
-            <small>Phone number is required.</small>
+            <small>{{ t('validation.phoneRequired') }}</small>
           } @else if (form().controls.phoneNumber.hasError('phoneLength')) {
-            <small>Enter 9 digits after +994.</small>
+            <small>{{ t('validation.phoneLength') }}</small>
           } @else if (form().controls.phoneNumber.getError('server'); as serverError) {
             <small>{{ serverError }}</small>
           } @else if (form().controls.phoneNumber.invalid) {
-            <small>Enter a valid phone number.</small>
+            <small>{{ t('validation.phoneInvalid') }}</small>
           }
         }
       </div>
@@ -79,7 +79,7 @@
 
   <div class="field span-12">
     <div class="field-label">
-      <label for="position">Position</label>
+      <label for="position">{{ t('common.position') }}</label>
     </div>
     <input
       id="position"
@@ -91,7 +91,7 @@
     <div class="field-line">
       <div class="field-error">
         @if (form().controls.position.touched && form().controls.position.invalid) {
-          <small>Position is required.</small>
+          <small>{{ t('validation.positionRequired') }}</small>
         }
       </div>
       @if (form().controls.position.value.length) {
@@ -102,10 +102,10 @@
 
   <div class="field span-8">
     <label id="languageLabel" appLabelFor="language"
-      >Language
+      >{{ t('common.language') }}
       <i
         class="pi pi-info-circle"
-        pTooltip="Choose the language you want to use in BAIM for the interface, onboarding flow and system notifications."
+        [pTooltip]="t('common.languageHint')"
         tooltipStyleClass="language-tooltip"
       ></i
     ></label>
@@ -116,18 +116,18 @@
       appendTo="body"
       optionLabel="label"
       optionValue="id"
-      placeholder="Select language"
+      [placeholder]="t('common.selectLanguage')"
       formControlName="languageId"
     />
     <div class="field-error">
       @if (form().controls.languageId.touched && form().controls.languageId.invalid) {
-        <small>Select a language.</small>
+        <small>{{ t('validation.languageRequired') }}</small>
       }
     </div>
   </div>
 
   <div class="field span-8">
-    <label for="birthDate">Birth date</label>
+    <label for="birthDate">{{ t('common.birthDate') }}</label>
     <p-datepicker
       inputId="birthDate"
       formControlName="birthDate"
@@ -147,18 +147,18 @@
     <div class="field-error">
       @if (form().controls.birthDate.touched) {
         @if (form().controls.birthDate.hasError('required')) {
-          <small>Birth date is required.</small>
+          <small>{{ t('validation.birthDateRequired') }}</small>
         } @else if (form().controls.birthDate.hasError('tooOld')) {
-          <small>Enter a birth date within the last 100 years.</small>
+          <small>{{ t('validation.birthDateTooOld') }}</small>
         } @else if (form().controls.birthDate.invalid) {
-          <small>You must be at least 18 years old.</small>
+          <small>{{ t('validation.birthDateTooYoung') }}</small>
         }
       }
     </div>
   </div>
 
   <div class="field span-6">
-    <label id="genderLabel" appLabelFor="gender">Gender</label>
+    <label id="genderLabel" appLabelFor="gender">{{ t('common.gender') }}</label>
     <p-select
       inputId="gender"
       ariaLabelledBy="genderLabel"
@@ -166,18 +166,18 @@
       appendTo="body"
       optionLabel="name"
       optionValue="id"
-      placeholder="Select gender"
+      [placeholder]="t('common.selectGender')"
       formControlName="genderId"
     />
     <div class="field-error">
       @if (form().controls.genderId.touched && form().controls.genderId.invalid) {
-        <small>Select a gender.</small>
+        <small>{{ t('validation.genderRequired') }}</small>
       }
     </div>
   </div>
 
   <div class="field span-6">
-    <label id="maritalStatusLabel" appLabelFor="maritalStatus">Marital status</label>
+    <label id="maritalStatusLabel" appLabelFor="maritalStatus">{{ t('common.maritalStatus') }}</label>
     <p-select
       inputId="maritalStatus"
       ariaLabelledBy="maritalStatusLabel"
@@ -185,12 +185,12 @@
       appendTo="body"
       optionLabel="name"
       optionValue="id"
-      placeholder="Select status"
+      [placeholder]="t('common.selectStatus')"
       formControlName="maritalStatusId"
     />
     <div class="field-error">
       @if (form().controls.maritalStatusId.touched && form().controls.maritalStatusId.invalid) {
-        <small>Select a marital status.</small>
+        <small>{{ t('validation.maritalStatusRequired') }}</small>
       }
     </div>
   </div>

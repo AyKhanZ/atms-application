@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
+import { TranslocoService } from '@jsverse/transloco';
 import { Confirmation } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
@@ -24,6 +25,7 @@ export function confirmTone(tone: ConfirmTone): { severity: 'danger' | 'primary'
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ConfirmDialogComponent {
+  private readonly transloco = inject(TranslocoService);
   readonly key = input.required<string>();
 
   tone(confirmation: Confirmation): ConfirmTone {
@@ -58,6 +60,11 @@ export class ConfirmDialogComponent {
   }
 
   acceptLabel(confirmation: Confirmation): string {
-    return confirmation.acceptLabel || (this.isNotice(confirmation) ? 'Got it' : 'OK');
+    if (confirmation.acceptLabel) return confirmation.acceptLabel;
+    return this.transloco.translate(this.isNotice(confirmation) ? 'common.gotIt' : 'common.ok');
+  }
+
+  rejectLabel(confirmation: Confirmation): string {
+    return confirmation.rejectLabel || this.transloco.translate('common.cancel');
   }
 }

@@ -1,4 +1,4 @@
-<section class="forbidden-page">
+<section class="forbidden-page" *transloco="let t">
   <app-language-switcher mode="instant" />
   <div class="forbidden-card">
     <div class="forbidden-art" aria-hidden="true">
@@ -7,12 +7,12 @@
 
     <div class="forbidden-content">
       <span class="status">403</span>
-      <h1>Access Denied</h1>
-      <p>You do not have access to open this page.</p>
+      <h1>{{ t('errors.accessDenied') }}</h1>
+      <p>{{ t('errors.accessDeniedHint') }}</p>
 
       <div class="actions">
-        <button type="button" class="primary" (click)="back()">Back</button>
-        <button type="button" class="secondary" (click)="logout()">Log out</button>
+        <button type="button" class="primary" (click)="back()">{{ t('common.back') }}</button>
+        <button type="button" class="secondary" (click)="logout()">{{ t('nav.logOut') }}</button>
       </div>
     </div>
   </div>

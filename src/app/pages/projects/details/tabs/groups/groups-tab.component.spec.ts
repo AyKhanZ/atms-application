@@ -17,6 +17,7 @@ import {
 } from './groups-tab.component';
 import { WorkGroupExpansionStateService } from './work-group-expansion-state.service';
 
+import { translocoTestingProviders } from '../../../../../core/testing/transloco-testing';
 function workGroup(overrides: Partial<WorkGroupModel> = {}): WorkGroupModel {
   return {
     id: 'item-1',
@@ -83,7 +84,7 @@ describe('GroupsTabComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [GroupsTabComponent],
-      providers: [
+      providers: [...translocoTestingProviders(), 
         ConfirmationService,
         WorkGroupExpansionStateService,
         {

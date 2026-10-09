@@ -1,8 +1,9 @@
 import { ChangeDetectionStrategy, Component, output } from '@angular/core';
+import { TranslocoDirective } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-edit-action-button',
-  imports: [],
+  imports: [TranslocoDirective],
   templateUrl: './edit-action-button.component.html',
   styleUrl: './edit-action-button.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

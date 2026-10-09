@@ -14,6 +14,7 @@ import { UserStoreActions } from '../../store/user';
 import { LanguageService } from '../../core/services/language.service';
 import { SettingsComponent } from './settings.component';
 
+import { translocoTestingProviders } from '../../core/testing/transloco-testing';
 const profile = (overrides: Partial<ProfileModel> = {}): ProfileModel => ({
   name: 'Leyla',
   surname: 'Mammadova',
@@ -64,7 +65,7 @@ describe('SettingsComponent', { timeout: 15_000 }, () => {
 
     await TestBed.configureTestingModule({
       imports: [SettingsComponent],
-      providers: [
+      providers: [...translocoTestingProviders(), 
         provideMockStore(),
         { provide: ProfileService, useValue: profiles },
         {

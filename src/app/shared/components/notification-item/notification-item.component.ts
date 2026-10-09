@@ -11,6 +11,7 @@ import { OverdueBadgeComponent } from '../overdue-badge/overdue-badge.component'
 import { ProfileAvatarComponent } from '../profile-avatar/profile-avatar.component';
 import { WorkItemRefComponent } from '../work-item-ref/work-item-ref.component';
 import { WorkItemStatusBadgeComponent } from '../work-item-status-badge/work-item-status-badge.component';
+import { TranslocoDirective } from '@jsverse/transloco';
 
 // bell and the page wrap it in their own row and decide what a click does
 @Component({
@@ -26,6 +27,7 @@ import { WorkItemStatusBadgeComponent } from '../work-item-status-badge/work-ite
     NotificationViewPipe,
     PersonInitialsPipe,
     PersonNamePipe,
+    TranslocoDirective,
   ],
   host: { '[class.is-unread]': '!notification().readAt' },
   templateUrl: './notification-item.component.html',

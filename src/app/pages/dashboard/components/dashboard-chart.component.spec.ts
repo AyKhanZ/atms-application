@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 
+import { translocoTestingProviders } from '../../../core/testing/transloco-testing';
 let DashboardChartComponent: typeof import('./dashboard-chart.component').DashboardChartComponent;
 
 interface MockDataset {
@@ -39,7 +40,7 @@ describe('DashboardChartComponent', () => {
   beforeEach(async () => {
     ({ DashboardChartComponent } = await import('./dashboard-chart.component'));
     chartMocks.instances.length = 0;
-    TestBed.configureTestingModule({ imports: [DashboardChartComponent] });
+    TestBed.configureTestingModule({ providers: [...translocoTestingProviders()], imports: [DashboardChartComponent] });
   });
 
   function create(kind: 'line' | 'doughnut' | 'bar', labels: string[], values: number[]) {

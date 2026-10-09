@@ -2,9 +2,10 @@ import { TestBed } from '@angular/core/testing';
 import { createPersonalInfoForm } from './personal-info.form';
 import { PersonalInfoFieldsComponent } from './personal-info-fields.component';
 
+import { translocoTestingProviders } from '../../../core/testing/transloco-testing';
 describe('PersonalInfoFieldsComponent phone', () => {
   const render = async (phone: string, serverError?: string) => {
-    await TestBed.configureTestingModule({
+    await TestBed.configureTestingModule({ providers: [...translocoTestingProviders()],
       imports: [PersonalInfoFieldsComponent],
     }).compileComponents();
     const fixture = TestBed.createComponent(PersonalInfoFieldsComponent);

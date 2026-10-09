@@ -1,26 +1,26 @@
 @let item = facts();
 
-<section class="work-item-facts">
-  <h3>Information</h3>
+<section class="work-item-facts" *transloco="let t">
+  <h3>{{ t('common.information') }}</h3>
   <dl>
     @if (item.type; as type) {
       <div>
-        <dt>Type</dt>
+        <dt>{{ t('common.type') }}</dt>
         <dd><app-work-item-type [type]="type" /></dd>
       </div>
     }
     <div>
-      <dt>Priority</dt>
+      <dt>{{ t('common.priority') }}</dt>
       <dd><app-work-item-priority [priority]="item.priority" /></dd>
     </div>
     <div>
-      <dt>Assignee</dt>
+      <dt>{{ t('common.assignee') }}</dt>
       <dd>
         <app-work-item-assignee [assignee]="item.assignee" />
       </dd>
     </div>
     <div>
-      <dt>Deadline</dt>
+      <dt>{{ t('common.deadline') }}</dt>
       <dd>
         @if (item.deadline; as deadline) {
           <!-- overdue = the same red pill as tasks; open work says how far, closed only the date -->
@@ -34,7 +34,7 @@
             }
           </span>
         } @else {
-          <span class="fact-empty">Not set</span>
+          <span class="fact-empty">{{ t('common.notSet') }}</span>
         }
       </dd>
     </div>

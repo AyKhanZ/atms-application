@@ -1,13 +1,13 @@
+<ng-container *transloco="let t">
 @let item = notification();
 @let view = item | notificationView;
-
 @if (item | isSystemNotification) {
   <span class="item__clock" aria-hidden="true"><i class="pi pi-clock"></i></span>
 } @else {
   <app-profile-avatar
     class="item__avatar"
     [imageUrl]="item.actor?.avatarPath"
-    [fullName]="item.actor | personName: 'Someone'"
+    [fullName]="item.actor | personName: t('notifications.someone')"
     [initials]="item.actor | personInitials"
     [previewEnabled]="false"
   />
@@ -44,6 +44,7 @@
   </span>
 
   @if (item | notificationCommentDeleted) {
-    <span class="item__deleted">Comment deleted</span>
+    <span class="item__deleted">{{ t('notifications.commentDeleted') }}</span>
   }
 </span>
+</ng-container>

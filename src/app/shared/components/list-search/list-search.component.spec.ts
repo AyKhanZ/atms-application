@@ -1,12 +1,13 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ListSearchComponent } from './list-search.component';
 
+import { translocoTestingProviders } from '../../../core/testing/transloco-testing';
 describe('ListSearchComponent', () => {
   let fixture: ComponentFixture<ListSearchComponent>;
   let element: HTMLElement;
 
   beforeEach(async () => {
-    await TestBed.configureTestingModule({ imports: [ListSearchComponent] }).compileComponents();
+    await TestBed.configureTestingModule({ providers: [...translocoTestingProviders()], imports: [ListSearchComponent] }).compileComponents();
     fixture = TestBed.createComponent(ListSearchComponent);
     element = fixture.nativeElement as HTMLElement;
   });

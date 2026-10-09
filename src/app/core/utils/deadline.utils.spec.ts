@@ -1,5 +1,5 @@
 import { WorkTaskStatus } from '../enums/work-task-status.enum';
-import { daysLate, isOverdueTask, lateLabel } from './deadline.utils';
+import { daysLate, isOverdueTask, lateSpan } from './deadline.utils';
 
 describe('deadline utils', () => {
   // Local noon, so no time zone can push "now" into another day.
@@ -17,15 +17,15 @@ describe('deadline utils', () => {
   });
 
   it.each([
-    [1, '1d'],
-    [13, '13d'],
-    [14, '2w'],
-    [59, '8w'],
-    [85, '2mo'],
-    [364, '12mo'],
-    [400, '1yr'],
-  ])('says %i days late as %s', (days, expected) => {
-    expect(lateLabel(days)).toBe(expected);
+    [1, 1, 'day'],
+    [13, 13, 'day'],
+    [14, 2, 'week'],
+    [59, 8, 'week'],
+    [85, 2, 'month'],
+    [364, 12, 'month'],
+    [400, 1, 'year'],
+  ])('says %i days late as %i %s', (days, count, unit) => {
+    expect(lateSpan(days)).toEqual({ count, unit });
   });
 
   it.each([

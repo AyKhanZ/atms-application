@@ -5,12 +5,12 @@ import { ConfirmationService } from 'primeng/api';
 import { NotificationEntityType } from '../../../core/enums/notification-entity-type.enum';
 import { NotificationModel } from '../../../core/models/notifications';
 import {
-  notificationDeletedTarget,
   notificationLink,
   notificationTaskLabel,
 } from '../../../core/utils/notification.utils';
 import { NotificationsStoreActions } from '../../../store/notifications';
 import { confirmTone } from '../confirm-dialog/confirm-dialog.component';
+import { TranslocoService } from '@jsverse/transloco';
 
 export const NOTIFICATION_NOTICE_KEY = 'notificationTarget';
 
@@ -20,6 +20,7 @@ export class NotificationOpenerService {
   private readonly store = inject(Store);
   private readonly router = inject(Router);
   private readonly confirmation = inject(ConfirmationService);
+  private readonly transloco = inject(TranslocoService);
 
   open(notification: NotificationModel): void {
     if (!notification.readAt) {
@@ -36,7 +37,6 @@ export class NotificationOpenerService {
   }
 
   private noticeDeleted(notification: NotificationModel): void {
-    const target = notificationDeletedTarget(notification);
     const name =
       notification.entityType === NotificationEntityType.Project
         ? (notification.parameters.projectTitle ?? 'Project')
@@ -44,9 +44,13 @@ export class NotificationOpenerService {
 
     this.confirmation.confirm({
       key: NOTIFICATION_NOTICE_KEY,
-      header: `This ${target} was deleted`,
-      message: `${name}\nIt can't be opened any more.`,
-      acceptLabel: 'Got it',
+      header: this.transloco.translate(
+        notification.entityType === NotificationEntityType.Project
+          ? 'notifications.projectDeleted'
+          : 'notifications.taskDeleted',
+      ),
+      message: `${name}\n${this.transloco.translate('notifications.cannotOpen')}`,
+      acceptLabel: this.transloco.translate('common.gotIt'),
       rejectVisible: false,
       acceptButtonProps: confirmTone('warning'),
     });

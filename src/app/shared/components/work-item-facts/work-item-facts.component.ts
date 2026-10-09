@@ -6,6 +6,7 @@ import { DeadlineLabelPipe, IsOverduePipe } from '../../pipes/deadline.pipe';
 import { WorkItemAssigneeComponent } from '../work-item-assignee/work-item-assignee.component';
 import { OverdueBadgeComponent } from '../overdue-badge/overdue-badge.component';
 import { WorkItemFacts } from './work-item-facts.model';
+import { TranslocoDirective } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-work-item-facts',
@@ -17,6 +18,7 @@ import { WorkItemFacts } from './work-item-facts.model';
     IsOverduePipe,
     WorkItemAssigneeComponent,
     OverdueBadgeComponent,
+    TranslocoDirective,
   ],
   templateUrl: './work-item-facts.component.html',
   styleUrl: './work-item-facts.component.scss',

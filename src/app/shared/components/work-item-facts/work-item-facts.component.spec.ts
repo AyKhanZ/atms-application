@@ -1,11 +1,12 @@
 import { TestBed } from '@angular/core/testing';
 import { WorkItemFactsComponent } from './work-item-facts.component';
 
+import { translocoTestingProviders } from '../../../core/testing/transloco-testing';
 describe('WorkItemFactsComponent', () => {
   it.each([false, true])(
     'renders shared facts with optional type=%s and no duplicate status',
     async (hasType) => {
-      await TestBed.configureTestingModule({
+      await TestBed.configureTestingModule({ providers: [...translocoTestingProviders()],
         imports: [WorkItemFactsComponent],
       }).compileComponents();
       const fixture = TestBed.createComponent(WorkItemFactsComponent);
@@ -31,7 +32,7 @@ describe('WorkItemFactsComponent', () => {
     [false, true],
     [true, false],
   ])('a past deadline with closed=%s shows the overdue pill: %s', async (closed, pill) => {
-    await TestBed.configureTestingModule({ imports: [WorkItemFactsComponent] }).compileComponents();
+    await TestBed.configureTestingModule({ providers: [...translocoTestingProviders()], imports: [WorkItemFactsComponent] }).compileComponents();
     const fixture = TestBed.createComponent(WorkItemFactsComponent);
     fixture.componentRef.setInput('facts', {
       priority: { id: 1, name: 'Low', code: 'Low' },

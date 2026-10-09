@@ -1,8 +1,8 @@
 <button
   type="button"
   class="create-button"
-  [attr.aria-label]="title()"
-  [attr.title]="title()"
+  [attr.aria-label]="accessibleTitle()"
+  [attr.title]="accessibleTitle()"
   [disabled]="disabled()"
   (click)="clicked.emit()"
 >

@@ -1,5 +1,5 @@
 @for (group of groups(); track group.type) {
-  <section class="group">
+  <section class="group" *transloco="let t">
     <h2 class="group__title">{{ group.label }}</h2>
 
     @for (item of group.items; track item.id) {
@@ -20,7 +20,7 @@
 
     @if (group.hasMore) {
       <button type="button" class="group__more" (click)="showAll.emit(group.type)">
-        Show all
+        {{ t('search.showAll') }}
         <i class="pi pi-arrow-right" aria-hidden="true"></i>
       </button>
     }

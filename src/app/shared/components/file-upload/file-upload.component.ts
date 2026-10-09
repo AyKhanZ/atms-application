@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { TranslocoDirective } from '@jsverse/transloco';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -21,7 +22,7 @@ export interface FileUploadValue {
 
 @Component({
   selector: 'app-file-upload',
-  imports: [CommonModule, FileUpload],
+  imports: [CommonModule, FileUpload, TranslocoDirective],
   templateUrl: './file-upload.component.html',
   styleUrl: './file-upload.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -44,7 +45,6 @@ export class FileUploadComponent implements OnDestroy {
   readonly fileRemove = output<void>();
 
   readonly accept = this.imageValidator.accept;
-  readonly hint = this.imageValidator.hint;
   readonly selectedFileName = signal('');
   readonly previewUrl = signal<string | null>(null);
   readonly fileLabel = computed(() => this.selectedFileName() || this.existingFileName());

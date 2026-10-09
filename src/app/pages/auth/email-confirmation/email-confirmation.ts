@@ -7,17 +7,19 @@ import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
 import { AuthService } from '../../../core/services/auth.service';
 import { SnackBarService } from '../../../core/services/snack-bar.service';
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-email-confirmation',
   templateUrl: './email-confirmation.html',
   styleUrls: ['./email-confirmation.scss'],
-  imports: [ButtonModule, FloatLabelModule, InputTextModule, ReactiveFormsModule, RouterLink],
+  imports: [ButtonModule, FloatLabelModule, InputTextModule, ReactiveFormsModule, RouterLink, TranslocoDirective],
 })
 export class EmailConfirmationComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly authService = inject(AuthService);
   private readonly snackBar = inject(SnackBarService);
+  private readonly transloco = inject(TranslocoService);
 
   readonly isResending = signal(false);
   readonly resendSent = signal(false);
@@ -26,28 +28,6 @@ export class EmailConfirmationComponent {
   readonly isAlreadyConfirmed = computed(() => this.status() === 'already-confirmed');
   readonly isFailed = computed(() => !this.isSuccess() && !this.isAlreadyConfirmed());
   readonly iconClass = computed(() => (this.isFailed() ? 'pi pi-times' : 'pi pi-check'));
-  readonly title = computed(() => {
-    if (this.isSuccess()) {
-      return 'Email confirmed';
-    }
-
-    if (this.isAlreadyConfirmed()) {
-      return 'Email already confirmed';
-    }
-
-    return 'Confirmation failed';
-  });
-  readonly subtitle = computed(() => {
-    if (this.isSuccess()) {
-      return 'Your account is active. Sign in with the login and temporary password from your email.';
-    }
-
-    if (this.isAlreadyConfirmed()) {
-      return 'This account was confirmed earlier. You can safely continue to login.';
-    }
-
-    return 'The confirmation link is invalid or expired. Enter your email and we will send a new link.';
-  });
 
   readonly resendForm = new FormGroup({
     email: new FormControl<string>(this.route.snapshot.queryParamMap.get('email') ?? '', {
@@ -71,10 +51,10 @@ export class EmailConfirmationComponent {
       .subscribe({
         next: () => {
           this.resendSent.set(true);
-          this.snackBar.success('A new confirmation link has been sent to your email.');
+          this.snackBar.success(this.transloco.translate('auth.confirmationResent'));
         },
         error: () => {
-          this.snackBar.error('Could not send a new confirmation link. Please try again.');
+          this.snackBar.error(this.transloco.translate('auth.confirmationResendFailed'));
         },
       });
   }

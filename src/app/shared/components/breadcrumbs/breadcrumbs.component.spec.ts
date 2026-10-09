@@ -4,6 +4,7 @@ import { Router, Routes, provideRouter } from '@angular/router';
 import { BreadcrumbOverrideService } from '../../../core/services/breadcrumb-override.service';
 import { BreadcrumbsComponent } from './breadcrumbs.component';
 
+import { translocoTestingProviders } from '../../../core/testing/transloco-testing';
 @Component({ template: '' })
 class DummyPageComponent {}
 
@@ -27,7 +28,7 @@ const routes: Routes = [
 async function renderAt(url: string) {
   await TestBed.configureTestingModule({
     imports: [BreadcrumbsComponent],
-    providers: [provideRouter(routes)],
+    providers: [...translocoTestingProviders(), provideRouter(routes)],
   }).compileComponents();
 
   await TestBed.inject(Router).navigateByUrl(url);

@@ -1,8 +1,9 @@
 <button
   class="action-button action-button--edit"
   type="button"
-  title="Edit"
-  aria-label="Edit"
+  *transloco="let t"
+  [attr.title]="t('common.edit')"
+  [attr.aria-label]="t('common.edit')"
   (click)="clicked.emit()"
 >
   <i class="pi pi-pencil"></i>

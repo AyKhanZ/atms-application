@@ -45,3 +45,15 @@ export const workItemKindOrder: readonly WorkItemKind[] = [
   WorkItemKind.Task,
   WorkItemKind.Subtask,
 ];
+
+const kindLabelKeys: Record<WorkItemKind, { one: string; many: string }> = {
+  [WorkItemKind.Project]: { one: 'workItem.kind.project', many: 'workItem.kind.projects' },
+  [WorkItemKind.Ticket]: { one: 'workItem.kind.ticket', many: 'workItem.kind.tickets' },
+  [WorkItemKind.Task]: { one: 'workItem.kind.task', many: 'workItem.kind.tasks' },
+  [WorkItemKind.Subtask]: { one: 'workItem.kind.subtask', many: 'workItem.kind.subtasks' },
+};
+
+export function workItemKindLabelKey(kind: WorkItemKind, plural = false): string {
+  const keys = kindLabelKeys[kind];
+  return plural ? keys.many : keys.one;
+}

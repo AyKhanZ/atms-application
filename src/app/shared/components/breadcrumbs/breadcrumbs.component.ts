@@ -19,6 +19,7 @@ import { filter, fromEvent } from 'rxjs';
 import { MenuItem } from 'primeng/api';
 import { MenuModule } from 'primeng/menu';
 import { TooltipModule } from 'primeng/tooltip';
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   BreadcrumbOverride,
@@ -26,10 +27,11 @@ import {
 } from '../../../core/services/breadcrumb-override.service';
 
 import { BreadcrumbItem } from '../../../core/models/breadcrumb-item.model';
+import { currentLanguage } from '../../../core/i18n/active-language';
 
 @Component({
   selector: 'app-breadcrumbs',
-  imports: [NgClass, RouterLink, MenuModule, TooltipModule],
+  imports: [NgClass, RouterLink, MenuModule, TooltipModule, TranslocoDirective],
   templateUrl: './breadcrumbs.component.html',
   styleUrl: './breadcrumbs.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -52,6 +54,7 @@ export class BreadcrumbsComponent implements AfterViewInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly breadcrumbOverride = inject(BreadcrumbOverrideService);
+  private readonly transloco = inject(TranslocoService);
 
   // router state isnt a signal, this tells breadcrumbs the url changed
   private readonly navigationTick = signal(0);
@@ -59,9 +62,13 @@ export class BreadcrumbsComponent implements AfterViewInit, OnDestroy {
   // computed, not set from an effect, so route and overrides cant go out of sync
   readonly breadcrumbs = computed<BreadcrumbItem[]>(() => {
     this.navigationTick();
+    currentLanguage();
     const trail = this.breadcrumbOverride.trail();
-    if (trail?.ownerPath === this.router.url.split(/[?#]/)[0]) return trail.items;
-    return this.build(this.activatedRoute.root, this.breadcrumbOverride.value());
+    const items =
+      trail?.ownerPath === this.router.url.split(/[?#]/)[0]
+        ? trail.items
+        : this.build(this.activatedRoute.root, this.breadcrumbOverride.value());
+    return items.map((item) => ({ ...item, title: this.caption(item.title) }));
   });
 
   readonly foldedItems = computed<MenuItem[]>(() =>
@@ -199,5 +206,10 @@ export class BreadcrumbsComponent implements AfterViewInit, OnDestroy {
 
   private getLastChild(route: ActivatedRoute): ActivatedRoute {
     return route.firstChild ? this.getLastChild(route.firstChild) : route;
+  }
+
+  // route data keeps a key; a name the user typed has a space and stays as written
+  private caption(title: string): string {
+    return /^[a-zA-Z]+(?:\.[a-zA-Z0-9]+)+$/.test(title) ? this.transloco.translate(title) : title;
   }
 }

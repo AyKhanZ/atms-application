@@ -4,12 +4,13 @@ import { of } from 'rxjs';
 import { WorkTicketsService } from '../../../../../core/services/work-tickets.service';
 import { TicketLocationComponent } from './ticket-location.component';
 
+import { translocoTestingProviders } from '../../../../../core/testing/transloco-testing';
 describe('TicketLocationComponent', () => {
   it('requests one page within its milestone and navigates to a sibling', async () => {
     const getWorkTickets = vi.fn(() => of({ items: [], hasMore: true, nextCursor: 'next' }));
     await TestBed.configureTestingModule({
       imports: [TicketLocationComponent],
-      providers: [provideRouter([]), { provide: WorkTicketsService, useValue: { getWorkTickets } }],
+      providers: [...translocoTestingProviders(), provideRouter([]), { provide: WorkTicketsService, useValue: { getWorkTickets } }],
     }).compileComponents();
     const fixture = TestBed.createComponent(TicketLocationComponent);
     fixture.componentRef.setInput('ticket', {

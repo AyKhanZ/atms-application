@@ -1,4 +1,4 @@
-<section class="file-upload">
+<section class="file-upload" *transloco="let t">
   <div class="file-upload__heading">
     <span>{{ label() }}</span>
   </div>
@@ -35,8 +35,8 @@
           <button
             type="button"
             class="file-upload__remove"
-            title="Delete photo"
-            aria-label="Delete photo"
+            [attr.title]="t('common.deletePhoto')"
+            [attr.aria-label]="t('common.deletePhoto')"
             (click)="remove(upload)"
           >
             <i class="pi pi-times"></i>
@@ -45,10 +45,10 @@
       </div>
 
       <div class="file-upload__file-line" [class.file-upload__file-line--empty]="!fileLabel()">
-        <span>Selected file:</span>
-        <strong [title]="fileLabel()">{{ fileLabel() || 'No file selected' }}</strong>
+        <span>{{ t('common.selectedFile') }}</span>
+        <strong [title]="fileLabel()">{{ fileLabel() || t('common.noFile') }}</strong>
       </div>
-      <p>{{ hint }}</p>
+      <p>{{ t('common.imageHint') }}</p>
 
       <small [class.visible]="errorMessage()">{{ errorMessage() || ' ' }}</small>
     </div>

@@ -2,9 +2,10 @@ import { TestBed } from '@angular/core/testing';
 import { taskFixture } from '../../testing/task-fixture';
 import { TaskListRowComponent } from './task-list-row.component';
 
+import { translocoTestingProviders } from '../../../../core/testing/transloco-testing';
 describe('TaskListRowComponent', () => {
   function render(task = taskFixture()) {
-    TestBed.configureTestingModule({ imports: [TaskListRowComponent] });
+    TestBed.configureTestingModule({ providers: [...translocoTestingProviders()], imports: [TaskListRowComponent] });
     const fixture = TestBed.createComponent(TaskListRowComponent);
     fixture.componentRef.setInput('task', task);
     fixture.detectChanges();

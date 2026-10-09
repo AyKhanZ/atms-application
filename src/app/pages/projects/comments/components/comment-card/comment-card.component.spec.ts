@@ -5,6 +5,7 @@ import { CommentModel } from '../../../../../core/models/comments';
 import { CommentActionsService } from '../../comment-actions.service';
 import { CommentCardComponent } from './comment-card.component';
 
+import { translocoTestingProviders } from '../../../../../core/testing/transloco-testing';
 describe('CommentCardComponent', () => {
   const ann = { id: 'ann', name: 'Ann', surname: 'Lee' };
   const rustam = { id: 'rustam', name: 'Rustam', surname: 'Agaev' };
@@ -26,7 +27,7 @@ describe('CommentCardComponent', () => {
 
   function render(model: CommentModel): HTMLElement {
     TestBed.configureTestingModule({
-      providers: [provideRouter([])],
+      providers: [...translocoTestingProviders(), provideRouter([])],
     }).overrideComponent(CommentCardComponent, {
       add: {
         providers: [

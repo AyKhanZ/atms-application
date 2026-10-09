@@ -1,6 +1,6 @@
 <!-- one level = the page title again, nothing to draw -->
 @if (breadcrumbs().length > 1) {
-  <nav class="breadcrumbs" #bar aria-label="Breadcrumb">
+  <nav class="breadcrumbs" #bar *transloco="let t" [attr.aria-label]="t('nav.breadcrumb')">
     @for (crumb of breadcrumbs(); track crumb.path; let index = $index; let last = $last) {
       <div
         class="crumb"
@@ -44,7 +44,7 @@
       <button
         type="button"
         class="crumb__more"
-        aria-label="Show hidden levels"
+        [attr.aria-label]="t('nav.showHidden')"
         (click)="pathMenu.toggle($event)"
       >
         <i class="pi pi-ellipsis-h"></i>

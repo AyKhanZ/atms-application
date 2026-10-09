@@ -5,6 +5,7 @@ import { WorkTasksService } from '../../../../../core/services/work-tasks.servic
 import { WorkTaskModel } from '../../../../../core/models/work-tasks';
 import { TaskLocationComponent } from './task-location.component';
 
+import { translocoTestingProviders } from '../../../../../core/testing/transloco-testing';
 function task(parentWorkTaskId?: string): WorkTaskModel {
   return {
     id: 'current',
@@ -30,7 +31,7 @@ describe('TaskLocationComponent', () => {
     const getWorkTasks = vi.fn(() => of({ items: [], hasMore: false }));
     await TestBed.configureTestingModule({
       imports: [TaskLocationComponent],
-      providers: [provideRouter([]), { provide: WorkTasksService, useValue: { getWorkTasks } }],
+      providers: [...translocoTestingProviders(), provideRouter([]), { provide: WorkTasksService, useValue: { getWorkTasks } }],
     }).compileComponents();
     const fixture = TestBed.createComponent(TaskLocationComponent);
     fixture.componentRef.setInput('task', task(parentId));

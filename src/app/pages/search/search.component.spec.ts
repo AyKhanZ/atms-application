@@ -14,6 +14,7 @@ import { Features } from '../../store/features.enum';
 import { GlobalSearchEffects } from '../../store/global-search/global-search.effects';
 import { globalSearchReducer } from '../../store/global-search/global-search.reducer';
 
+import { translocoTestingProviders } from '../../core/testing/transloco-testing';
 @Component({ template: '' })
 class ElsewhereComponent {}
 
@@ -39,7 +40,7 @@ describe('SearchComponent', () => {
   async function open(query = 'плат') {
     vi.useFakeTimers({ shouldAdvanceTime: true });
     TestBed.configureTestingModule({
-      providers: [
+      providers: [...translocoTestingProviders(), 
         provideRouter([
           { path: 'search', component: SearchComponent },
           { path: 'projects/:id', component: ElsewhereComponent },
@@ -144,7 +145,7 @@ describe('SearchComponent', () => {
   it('goes back to the page the search was opened from', async () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
     TestBed.configureTestingModule({
-      providers: [
+      providers: [...translocoTestingProviders(), 
         provideRouter([
           { path: 'search', component: SearchComponent },
           { path: 'projects/:id', component: ElsewhereComponent },

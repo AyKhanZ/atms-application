@@ -3,11 +3,12 @@ import { provideRouter } from '@angular/router';
 import { taskFixture } from '../../testing/task-fixture';
 import { TaskContextComponent } from './task-context.component';
 
+import { translocoTestingProviders } from '../../../../core/testing/transloco-testing';
 describe('TaskContextComponent', () => {
   it.each([false, true])('links to the actual parent (subtask=%s)', (isSubtask) => {
     TestBed.configureTestingModule({
       imports: [TaskContextComponent],
-      providers: [provideRouter([])],
+      providers: [...translocoTestingProviders(), provideRouter([])],
     });
     const fixture = TestBed.createComponent(TaskContextComponent);
     fixture.componentRef.setInput(
@@ -38,7 +39,7 @@ describe('TaskContextComponent', () => {
   it('names the project above the parent when the page mixes several', () => {
     TestBed.configureTestingModule({
       imports: [TaskContextComponent],
-      providers: [provideRouter([])],
+      providers: [...translocoTestingProviders(), provideRouter([])],
     });
     const fixture = TestBed.createComponent(TaskContextComponent);
     fixture.componentRef.setInput('task', taskFixture());

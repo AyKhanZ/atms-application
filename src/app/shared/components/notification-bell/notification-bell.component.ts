@@ -22,10 +22,12 @@ import {
   NOTIFICATION_NOTICE_KEY,
   NotificationOpenerService,
 } from '../notification-item/notification-opener.service';
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
+import { currentLanguage } from '../../../core/i18n/active-language';
 
 @Component({
   selector: 'app-notification-bell',
-  imports: [PopoverModule, ConfirmDialogComponent, NotificationItemComponent],
+  imports: [PopoverModule, ConfirmDialogComponent, NotificationItemComponent, TranslocoDirective],
   templateUrl: './notification-bell.component.html',
   styleUrl: './notification-bell.component.scss',
   providers: [ConfirmationService, NotificationOpenerService],
@@ -35,6 +37,7 @@ export class NotificationBellComponent implements OnInit {
   private readonly store = inject(Store);
   private readonly router = inject(Router);
   private readonly opener = inject(NotificationOpenerService);
+  private readonly transloco = inject(TranslocoService);
   private readonly panel = viewChild.required<Popover>('panel');
 
   protected readonly noticeKey = NOTIFICATION_NOTICE_KEY;
@@ -47,8 +50,11 @@ export class NotificationBellComponent implements OnInit {
   readonly error = this.store.selectSignal(NotificationsStoreSelectors.getLatestError);
   readonly badge = computed(() => unreadBadge(this.unreadCount()));
   readonly buttonLabel = computed(() => {
+    currentLanguage();
     const count = this.unreadCount();
-    return count > 0 ? `Notifications, ${count} unread` : 'Notifications';
+    return count > 0
+      ? this.transloco.translate('notifications.unreadLabel', { count })
+      : this.transloco.translate('notifications.title');
   });
 
   ngOnInit(): void {

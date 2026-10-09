@@ -8,6 +8,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { ValidationErrorModel } from '../../core/models/auth/auth.models';
 import { serverErrorMessage } from '../../core/utils/http-error.utils';
 import { SnackBarService } from '../../core/services/snack-bar.service';
+import { TranslocoService } from '@jsverse/transloco';
 import { Router } from '@angular/router';
 import { TokenStorageService } from '../../core/services/token-storage.service';
 import { AuthSessionService } from '../../core/services/auth-session.service';
@@ -24,6 +25,7 @@ export class AuthEffects {
   private readonly projectAccess = inject(ProjectAccessService);
   private readonly realtime = inject(RealtimeService);
   private readonly snackBar = inject(SnackBarService);
+  private readonly transloco = inject(TranslocoService);
 
   login$ = createEffect(() =>
     this.actions$.pipe(
@@ -45,7 +47,7 @@ export class AuthEffects {
         ofType(AuthStoreActions.loginSuccess),
         tap(({ accessModel }) => {
           this.tokenStorage.save(accessModel);
-          setTimeout(() => this.snackBar.success('You have successfully logged in!'));
+          setTimeout(() => this.snackBar.success(this.transloco.translate('auth.loggedIn')));
         }),
       ),
     { dispatch: false },
