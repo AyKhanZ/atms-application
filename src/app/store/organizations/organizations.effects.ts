@@ -1,4 +1,5 @@
 import { inject, Injectable } from '@angular/core';
+import { TranslocoService } from '@jsverse/transloco';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { of } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
@@ -11,6 +12,7 @@ export class OrganizationsEffects {
   private readonly actions$ = inject(Actions);
   private readonly organizationsService = inject(OrganizationsService);
   private readonly snackBar = inject(SnackBarService);
+  private readonly transloco = inject(TranslocoService);
 
   loadOrganizations$ = createEffect(() =>
     this.actions$.pipe(
@@ -91,7 +93,7 @@ export class OrganizationsEffects {
     () =>
       this.actions$.pipe(
         ofType(OrganizationsStoreActions.updateOrganizationSuccess),
-        tap(() => this.snackBar.success('Organization successfully updated.')),
+        tap(() => this.snackBar.success(this.transloco.translate('organizations.updated'))),
       ),
     { dispatch: false },
   );
@@ -100,7 +102,7 @@ export class OrganizationsEffects {
     () =>
       this.actions$.pipe(
         ofType(OrganizationsStoreActions.updateOrganizationFailure),
-        tap(() => this.snackBar.error('Failed to update organization.')),
+        tap(() => this.snackBar.error(this.transloco.translate('organizations.updateFailed'))),
       ),
     { dispatch: false },
   );
@@ -109,7 +111,7 @@ export class OrganizationsEffects {
     () =>
       this.actions$.pipe(
         ofType(OrganizationsStoreActions.deleteOrganizationSuccess),
-        tap(() => this.snackBar.success('Organization successfully deleted.')),
+        tap(() => this.snackBar.success(this.transloco.translate('organizations.deleted'))),
       ),
     { dispatch: false },
   );
@@ -118,7 +120,7 @@ export class OrganizationsEffects {
     () =>
       this.actions$.pipe(
         ofType(OrganizationsStoreActions.deleteOrganizationFailure),
-        tap(() => this.snackBar.error('Failed to delete organization.')),
+        tap(() => this.snackBar.error(this.transloco.translate('organizations.deleteFailed'))),
       ),
     { dispatch: false },
   );
@@ -126,7 +128,7 @@ export class OrganizationsEffects {
     () =>
       this.actions$.pipe(
         ofType(OrganizationsStoreActions.createOrganizationSuccess),
-        tap(() => this.snackBar.success('Organization successfully created.')),
+        tap(() => this.snackBar.success(this.transloco.translate('organizations.created'))),
       ),
     { dispatch: false },
   );
@@ -135,7 +137,7 @@ export class OrganizationsEffects {
     () =>
       this.actions$.pipe(
         ofType(OrganizationsStoreActions.createOrganizationFailure),
-        tap(() => this.snackBar.error('Failed to create organization.')),
+        tap(() => this.snackBar.error(this.transloco.translate('organizations.createFailed'))),
       ),
     { dispatch: false },
   );

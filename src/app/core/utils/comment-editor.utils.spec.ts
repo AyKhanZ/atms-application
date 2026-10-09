@@ -166,7 +166,7 @@ describe('comment editor', () => {
 
   it('shows mentions as names and stores them as tokens again', () => {
     const stored = `@[user:${ann.id}] and @[user:${annie.id}] and @[user:11111111-1111-1111-1111-111111111111]`;
-    const shown = mentionsToNames(stored, [ann, annie]);
+    const shown = mentionsToNames(stored, [ann, annie], 'Unknown user');
 
     expect(shown.text).toBe(
       '@Ann Lee and @Ann Leeds and @[user:11111111-1111-1111-1111-111111111111]',

@@ -9,6 +9,7 @@ import {
   signal,
   untracked,
 } from '@angular/core';
+import { TranslocoDirective } from '@jsverse/transloco';
 import { Store } from '@ngrx/store';
 import { ButtonModule } from 'primeng/button';
 import { AttachmentModel } from '../../../../core/models/attachments';
@@ -32,6 +33,7 @@ const OPEN_ALL_UP_TO = 20;
     AttachmentListSkeletonComponent,
     AttachmentPreviewDialogComponent,
     AttachmentTreeComponent,
+    TranslocoDirective,
   ],
   templateUrl: './ticket-attachments-tab.component.html',
   styleUrl: './ticket-attachments-tab.component.scss',

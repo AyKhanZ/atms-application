@@ -1,6 +1,8 @@
-import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import { MenuItem } from 'primeng/api';
 import { MenuModule } from 'primeng/menu';
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
+import { currentLanguage } from '../../../../core/i18n/active-language';
 import { workTaskKind } from '../../../../core/utils/work-task.utils';
 import { WorkTaskModel } from '../../../../core/models/work-tasks';
 import { WorkTaskStatus } from '../../../../core/enums/work-task-status.enum';
@@ -20,12 +22,14 @@ import { TaskContextComponent } from '../task-context/task-context.component';
     WorkItemPriorityComponent,
     TaskContextComponent,
     OverdueBadgeComponent,
+    TranslocoDirective,
   ],
   templateUrl: './task-card.component.html',
   styleUrl: './task-card.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TaskCardComponent {
+  private readonly transloco = inject(TranslocoService);
   readonly task = input.required<WorkTaskModel>();
   // the page mixes several projects
   readonly showProject = input(false);
@@ -43,24 +47,31 @@ export class TaskCardComponent {
 
   // further dates arent worth a place on the card
   protected readonly dueSoon = computed(() => {
+    currentLanguage();
     const { deadline } = this.task();
     if (!deadline || this.done()) return null;
     const days = daysFromToday(deadline);
-    return days === 0 ? 'Due today' : days === 1 ? 'Due tomorrow' : null;
+    if (days === 0) return this.transloco.translate('notifications.actions.dueToday');
+    if (days === 1) return this.transloco.translate('workItem.dueTomorrow');
+    return null;
   });
 
   protected readonly menu = computed<MenuItem[]>(() => {
+    currentLanguage();
     const status = this.task().status.id;
     const moves: MenuItem[] = this.canMove()
       ? [
           ...[
-            { id: WorkTaskStatus.New, label: 'New' },
-            { id: WorkTaskStatus.InProgress, label: 'In Progress' },
-            { id: WorkTaskStatus.Done, label: 'Done' },
+            { id: WorkTaskStatus.New, label: this.transloco.translate('workItem.status.new') },
+            {
+              id: WorkTaskStatus.InProgress,
+              label: this.transloco.translate('workItem.status.inProgress'),
+            },
+            { id: WorkTaskStatus.Done, label: this.transloco.translate('workItem.status.done') },
           ]
             .filter((target) => target.id !== status)
             .map((target) => ({
-              label: `Move to ${target.label}`,
+              label: this.transloco.translate('workItem.moveTo', { status: target.label }),
               icon: 'pi pi-arrow-right',
               command: () => this.moveTo.emit(target.id),
             })),
@@ -68,7 +79,7 @@ export class TaskCardComponent {
             ? []
             : [
                 {
-                  label: 'Move to top',
+                  label: this.transloco.translate('workItem.moveToTop'),
                   icon: 'pi pi-arrow-up',
                   command: () => this.moveToTop.emit(),
                 },
@@ -78,7 +89,11 @@ export class TaskCardComponent {
       : [];
     return [
       ...moves,
-      { label: 'Open', icon: 'pi pi-external-link', command: () => this.open.emit() },
+      {
+        label: this.transloco.translate('common.open'),
+        icon: 'pi pi-external-link',
+        command: () => this.open.emit(),
+      },
     ];
   });
 }

@@ -1,4 +1,7 @@
+import { TooltipModule } from 'primeng/tooltip';
 import { CommonModule } from '@angular/common';
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
+import { currentLanguage } from '../../../../../core/i18n/active-language';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -32,12 +35,14 @@ import {
 @Component({
   selector: 'app-organization-create-dialog',
   imports: [
+    TooltipModule,
     CommonModule,
     ReactiveFormsModule,
     ButtonModule,
     DialogModule,
     InputTextModule,
     FileUploadComponent,
+    TranslocoDirective,
   ],
   templateUrl: './organization-create-dialog.component.html',
   styleUrl: './organization-create-dialog.component.scss',
@@ -49,6 +54,7 @@ export class OrganizationCreateDialogComponent {
   private readonly actions$ = inject(Actions);
   private readonly imageUrlService = inject(ImageUrlService);
   private readonly imageValidator = inject(ImageFileValidator);
+  private readonly transloco = inject(TranslocoService);
 
   readonly visible = model.required<boolean>();
   readonly organization = input<OrganizationListItemModel | null>(null);
@@ -57,8 +63,14 @@ export class OrganizationCreateDialogComponent {
   readonly imageTouched = signal(false);
   readonly isSaving = this.store.selectSignal(OrganizationsStoreSelectors.isSubmitted);
   readonly isEditMode = computed(() => Boolean(this.organization()?.id));
-  readonly dialogTitle = computed(() => (this.isEditMode() ? 'Edit' : 'Create'));
-  readonly submitLabel = computed(() => (this.isEditMode() ? 'Save' : 'Create'));
+  readonly dialogTitle = computed(() => {
+    currentLanguage();
+    return this.transloco.translate(this.isEditMode() ? 'common.edit' : 'common.create');
+  });
+  readonly submitLabel = computed(() => {
+    currentLanguage();
+    return this.transloco.translate(this.isEditMode() ? 'common.save' : 'common.create');
+  });
   readonly existingImageUrl = computed(() =>
     this.imageUrlService.normalize(this.organization()?.logoPath),
   );
@@ -72,15 +84,6 @@ export class OrganizationCreateDialogComponent {
     voen: ['', [Validators.required, Validators.maxLength(20)]],
     logo: [null as File | null],
   });
-
-  private readonly requiredMessages: Record<
-    keyof OrganizationCreateDialogComponent['form']['controls'],
-    string
-  > = {
-    title: 'Title is required.',
-    voen: 'VOEN is required.',
-    logo: '',
-  };
 
   constructor() {
     effect(() => {
@@ -217,11 +220,18 @@ export class OrganizationCreateDialogComponent {
     const errors = control.errors ?? {};
 
     if (errors['required']) {
-      return this.requiredMessages[controlName];
+      const key = {
+        title: 'validation.titleRequired',
+        voen: 'validation.voenRequired',
+        logo: '',
+      }[controlName];
+      return key ? this.transloco.translate(key) : '';
     }
 
     if (errors['maxlength']) {
-      return `Maximum ${errors['maxlength'].requiredLength} characters.`;
+      return this.transloco.translate('validation.maxLength', {
+        max: errors['maxlength'].requiredLength,
+      });
     }
 
     const imageError = this.imageValidator.errorMessage(errors);
@@ -229,6 +239,6 @@ export class OrganizationCreateDialogComponent {
       return imageError;
     }
 
-    return 'Invalid value.';
+    return this.transloco.translate('common.invalid');
   }
 }

@@ -1,8 +1,8 @@
-<header class="head">
+<header class="head" *transloco="let t">
   <h2 class="head__month">
     <strong>{{ monthName() }}</strong> <span class="head__year">{{ year() }}</span>
     @if (page()?.loading) {
-      <i class="pi pi-spin pi-spinner head__loading" role="status" aria-label="Loading"></i>
+      <i class="pi pi-spin pi-spinner head__loading" role="status" [attr.aria-label]="t('tasks.loadingMonth')"></i>
     }
   </h2>
   <div class="head__notice" aria-live="polite">
@@ -13,24 +13,23 @@
       !page()?.error &&
       !page()?.items?.length
     ) {
-      <span>No overdue tasks this month.</span>
+      <span>{{ t('tasks.noOverdueMonth') }}</span>
       <button type="button" class="link" (click)="showOverdue.emit()">
-        View overdue tasks in List
+        {{ t('tasks.viewOverdueInList') }}
       </button>
     } @else if (page()?.hasMore && !page()?.loading) {
       <!-- a month is read up to a limit, the page says when the rest is left out -->
       <span class="head__cut" role="status">
-        Showing the first {{ page()?.items?.length }} tasks of this month. Narrow the filters to see
-        the rest.
+        {{ t('tasks.monthCut', { count: page()?.items?.length ?? 0 }) }}
       </span>
     }
   </div>
   <div class="head__nav">
-    <button type="button" class="nav nav--icon" aria-label="Previous month" (click)="step(-1)">
+    <button type="button" class="nav nav--icon" [attr.aria-label]="t('tasks.previousMonth')" (click)="step(-1)">
       <i class="pi pi-chevron-left" aria-hidden="true"></i>
     </button>
-    <button type="button" class="nav" (click)="today()">Today</button>
-    <button type="button" class="nav nav--icon" aria-label="Next month" (click)="step(1)">
+    <button type="button" class="nav" (click)="today()">{{ t('common.today') }}</button>
+    <button type="button" class="nav nav--icon" [attr.aria-label]="t('tasks.nextMonth')" (click)="step(1)">
       <i class="pi pi-chevron-right" aria-hidden="true"></i>
     </button>
   </div>
@@ -42,11 +41,11 @@
 
 @if (isPhone()) {
   <!-- month grid doesnt fit a phone: days with work one after another -->
-  <div class="agenda">
+  <div class="agenda" *transloco="let t">
     @for (day of agenda(); track day.key) {
       <section class="agenda__day" [class.agenda__day--today]="day.today">
         <h3 class="agenda__date">
-          {{ day.date | date: 'EEE, d MMM' }}
+          {{ day.date | appDate: 'EEE, d MMM' }}
         </h3>
         @for (task of byDay().get(day.key) ?? []; track task.id) {
           <app-task-calendar-chip
@@ -60,14 +59,14 @@
     } @empty {
       @if (!page()?.loading) {
         @if (query().deadline !== 'overdue') {
-          <p class="state">No deadlines this month.</p>
+          <p class="state">{{ t('tasks.noDeadlinesMonth') }}</p>
         }
       }
     }
   </div>
 } @else {
-  <div class="grid" cdkDropListGroup [style.--calendar-weeks]="weeks().length">
-    @for (weekday of weekdays; track weekday) {
+  <div class="grid" *transloco="let t" cdkDropListGroup [style.--calendar-weeks]="weeks().length">
+    @for (weekday of weekdays(); track $index) {
       <span class="grid__weekday" [class.grid__weekday--weekend]="$index > 4">{{ weekday }}</span>
     }
     @for (week of weeks(); track week[0].key) {
@@ -103,7 +102,7 @@
             }
             @if (tasks.length > capacity.visibleCount()) {
               <button type="button" class="day__more" (click)="expand(day)">
-                + {{ tasks.length - capacity.visibleCount() }} more
+                {{ t('tasks.more', { count: tasks.length - capacity.visibleCount() }) }}
               </button>
             }
           </div>

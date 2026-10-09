@@ -1,23 +1,21 @@
-<section class="tasks-tab">
+<section class="tasks-tab" *transloco="let t">
   @if (canCreate()) {
     <header class="tasks-toolbar">
       <button pButton type="button" (click)="create()">
-        <i class="pi pi-plus"></i><span>Add</span>
+        <i class="pi pi-plus"></i><span>{{ t('common.add') }}</span>
       </button>
     </header>
   }
   <!-- only the first page replaces the list, replacing on next pages made the page jump -->
   @if (loading() && items().length === 0) {
-    <app-loading-state text="Loading tasks..." />
+    <app-loading-state [text]="t('tasks.loadingList')" />
   } @else if (items().length === 0 && !loadError()) {
     <!-- same panel as other tabs, a thin line looks like a broken list -->
     <app-empty-state
       [icon]="parentTaskId() ? 'pi-sitemap' : 'pi-list-check'"
-      [title]="parentTaskId() ? 'No subtasks yet' : 'No tasks yet'"
+      [title]="t(parentTaskId() ? 'tasks.noSubtasks' : 'tasks.empty')"
       [description]="
-        parentTaskId()
-          ? 'Subtasks added to this task will appear here.'
-          : 'Tasks added to this ticket will appear here.'
+        t(parentTaskId() ? 'tasks.subtasksHint' : 'tasks.tasksHint')
       "
     />
   } @else {
@@ -28,7 +26,12 @@
             type="button"
             class="task-main"
             (click)="open(task)"
-            [attr.aria-label]="'View task ' + task.title"
+            [attr.aria-label]="
+              t('workItem.viewNamed', {
+                kind: t(parentTaskId() ? 'workItem.kind.subtask' : 'workItem.kind.task'),
+                title: task.title,
+              })
+            "
           >
             <app-work-item-ref
               [type]="parentTaskId() ? kinds.Subtask : kinds.Task"
@@ -51,7 +54,12 @@
             <button
               type="button"
               class="item-menu-button"
-              [attr.aria-label]="'Options for task ' + task.title"
+              [attr.aria-label]="
+                t('workItem.optionsFor', {
+                  kind: t(parentTaskId() ? 'workItem.kind.subtask' : 'workItem.kind.task'),
+                  title: task.title,
+                })
+              "
               (click)="openMenu($event, task, taskMenu)"
             >
               <i class="pi pi-ellipsis-v"></i>
@@ -63,7 +71,7 @@
   }
   @if (loadError()) {
     <div class="tasks-error" role="alert">
-      Tasks could not be loaded. <button pButton type="button" text (click)="retry()">Retry</button>
+      {{ t('tasks.listFailed') }} <button pButton type="button" text (click)="retry()">{{ t('common.retry') }}</button>
     </div>
   }
   @if (hasMore()) {

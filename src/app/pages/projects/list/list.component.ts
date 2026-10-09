@@ -1,4 +1,4 @@
-import { DatePipe } from '@angular/common';
+import { AppDatePipe } from '../../../shared/pipes/app-date.pipe';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -11,6 +11,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { debounceTime, distinctUntilChanged, forkJoin, Subject } from 'rxjs';
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { ConfirmationService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { TableLazyLoadEvent, TableModule } from 'primeng/table';
@@ -40,7 +41,7 @@ import { ProjectListQueryService } from './services/list-query.service';
 @Component({
   selector: 'app-project-list',
   imports: [
-    DatePipe,
+    AppDatePipe,
     ConfirmDialogModule,
     TableModule,
     CreateButtonComponent,
@@ -51,6 +52,7 @@ import { ProjectListQueryService } from './services/list-query.service';
     ListSearchComponent,
     ProjectFilterComponent,
     ProjectStatusBadgeComponent,
+    TranslocoDirective,
   ],
   providers: [ConfirmationService, ProjectListQueryService],
   templateUrl: './list.component.html',
@@ -62,6 +64,7 @@ export class ProjectListComponent implements OnDestroy {
   private readonly router = inject(Router);
   private readonly store = inject(Store);
   private readonly confirmation = inject(ConfirmationService);
+  private readonly transloco = inject(TranslocoService);
   private readonly query = inject(ProjectListQueryService);
   private readonly tableLazyLoad = inject(TableLazyLoadService);
   private readonly dictionaryService = inject(DictionaryService);
@@ -159,11 +162,11 @@ export class ProjectListComponent implements OnDestroy {
   }
   confirmDelete(project: WorkProjectItemModel): void {
     this.confirmation.confirm({
-      header: 'Delete project?',
-      message: `“${project.title}” will be deleted. This action cannot be undone.`,
+      header: this.transloco.translate('projects.deleteTitle'),
+      message: this.transloco.translate('projects.deleteMessage', { title: project.title }),
       icon: 'pi pi-exclamation-triangle',
-      acceptLabel: 'Delete',
-      rejectLabel: 'Cancel',
+      acceptLabel: this.transloco.translate('common.delete'),
+      rejectLabel: this.transloco.translate('common.cancel'),
       acceptButtonStyleClass: 'p-button-danger',
       rejectButtonStyleClass: 'p-button-outlined',
       accept: () => this.store.dispatch(WorkProjectsStoreActions.deleteProject({ id: project.id })),

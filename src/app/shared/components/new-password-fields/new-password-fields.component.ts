@@ -1,12 +1,13 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { PasswordModule } from 'primeng/password';
+import { TranslocoDirective } from '@jsverse/transloco';
 import { PasswordRules } from '../password-rules/password-rules';
 import { NewPasswordForm } from './new-password.form';
 
 @Component({
   selector: 'app-new-password-fields',
-  imports: [ReactiveFormsModule, PasswordModule, PasswordRules],
+  imports: [ReactiveFormsModule, PasswordModule, PasswordRules, TranslocoDirective],
   templateUrl: './new-password-fields.component.html',
   styleUrl: './new-password-fields.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

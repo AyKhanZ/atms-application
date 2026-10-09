@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { TranslocoDirective } from '@jsverse/transloco';
 import { WorkItemKind } from '../../../core/models/work-items';
-import { workItemKinds } from './work-item-kinds';
+import { workItemKindLabelKey, workItemKinds } from './work-item-kinds';
 
 // tables keep the bare code
 @Component({
@@ -11,9 +12,9 @@ import { workItemKinds } from './work-item-kinds';
   },
   template: `<i class="pi" [class]="'pi ' + kind().icon" aria-hidden="true"></i>
     @if (labelled() || showCode()) {
-      <span>
+      <span *transloco="let t">
         @if (labelled()) {
-          {{ kind().label }}
+          {{ t(labelKey()) }}
         }
         @if (showCode()) {
           #{{ code() }}
@@ -22,6 +23,7 @@ import { workItemKinds } from './work-item-kinds';
     }`,
   styleUrl: './work-item-ref.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [TranslocoDirective],
 })
 export class WorkItemRefComponent {
   readonly type = input.required<WorkItemKind>();
@@ -33,4 +35,5 @@ export class WorkItemRefComponent {
   readonly muted = input(false);
 
   readonly kind = computed(() => workItemKinds[this.type()]);
+  readonly labelKey = computed(() => workItemKindLabelKey(this.type()));
 }

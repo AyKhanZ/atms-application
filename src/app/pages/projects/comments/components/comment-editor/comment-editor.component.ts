@@ -12,6 +12,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { ButtonModule } from 'primeng/button';
 import { TextareaModule } from 'primeng/textarea';
 import { Subject, catchError, debounceTime, defer, map, of, shareReplay, switchMap } from 'rxjs';
@@ -61,6 +62,7 @@ let nextEditorId = 0;
     CommentTextComponent,
     CommentToolbarComponent,
     TextareaModule,
+    TranslocoDirective,
   ],
   templateUrl: './comment-editor.component.html',
   styleUrl: './comment-editor.component.scss',
@@ -70,14 +72,13 @@ let nextEditorId = 0;
 export class CommentEditorComponent implements OnInit {
   private readonly search = inject(GlobalSearchService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly transloco = inject(TranslocoService);
 
   readonly people = input<readonly MentionCandidate[]>([]);
   readonly initialText = input('');
-  readonly placeholder = input(
-    'Add a comment. Use @ to mention a person or # to link a ticket or task.',
-  );
-  readonly submitLabel = input('Save');
-  readonly label = input('Comment');
+  readonly placeholder = input('');
+  readonly submitLabel = input('');
+  readonly label = input('');
   // an edit opens ready to type, a new comment waits at rest
   readonly expanded = input(false);
   // own project work is listed under # without the project name
@@ -149,7 +150,11 @@ export class CommentEditorComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const shown = mentionsToNames(this.initialText(), this.people());
+    const shown = mentionsToNames(
+      this.initialText(),
+      this.people(),
+      this.transloco.translate('comments.unknownUser'),
+    );
     this.mentions.set(shown.mentions);
     this.text.set(shown.text);
     if (this.expanded()) {
@@ -295,7 +300,7 @@ export class CommentEditorComponent implements OnInit {
 
     let insertion: string;
     if (suggestion.kind === 'person') {
-      insertion = mentionLabel(suggestion.person);
+      insertion = mentionLabel(suggestion.person, this.transloco.translate('comments.unknownUser'));
       const id = suggestion.person.id;
       this.mentions.update((mentions) => new Map([...mentions, [insertion, id]]));
     } else {

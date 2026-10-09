@@ -1,17 +1,18 @@
+<ng-container *transloco="let t">
 @if (steps().length) {
   <!-- focusable so the keyboard can scroll it -->
   <ol
     #track
     class="state-track"
     tabindex="0"
-    aria-label="Status changes"
+    [attr.aria-label]="t('history.statusChanges')"
     [class.is-expanded]="expanded()"
   >
     <!-- first in markup, last on a phone (newest on top there) -->
     @if (hiddenOnPhone() > 0) {
       <li class="state-more">
         <button type="button" class="state-more__button" (click)="expanded.set(true)">
-          Show {{ hiddenOnPhone() }} earlier
+          {{ t('history.showEarlier', { count: hiddenOnPhone() }) }}
         </button>
       </li>
     }
@@ -32,7 +33,7 @@
             <app-history-author-avatar [author]="step.state.changedBy" />
             <span class="state-step__person">
               <span class="state-step__name">{{
-                step.state.changedBy | personName: 'System'
+                step.state.changedBy | personName: t('dashboard.activity.system')
               }}</span>
               <time [attr.datetime]="changedAt" [title]="changedAt | historyTime: 'full'">
                 {{ changedAt | historyTime }}
@@ -44,3 +45,4 @@
     }
   </ol>
 }
+</ng-container>

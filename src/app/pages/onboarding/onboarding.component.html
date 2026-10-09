@@ -1,15 +1,15 @@
-<div class="onboarding-page">
+<div class="onboarding-page" *transloco="let t">
   <header class="topbar">
     <img src="/baim-logo.png" alt="BAIM" />
     <button
       type="button"
       class="icon-button"
-      pTooltip="Log out"
+      [pTooltip]="t('nav.logOut')"
       tooltipPosition="left"
       (click)="logout()"
     >
       <i class="pi pi-sign-out" aria-hidden="true"></i>
-      <span class="sr-only">Log out</span>
+      <span class="sr-only">{{ t('nav.logOut') }}</span>
     </button>
   </header>
 
@@ -25,14 +25,13 @@
           }
         </div>
         <div class="success-icon"><i class="pi pi-check"></i></div>
-        <p class="eyebrow">Setup complete</p>
-        <h1>Welcome to BAIM</h1>
-        <p>Your account is ready. Everything you need is now in place.</p>
+        <p class="eyebrow">{{ t('onboarding.setupComplete') }}</p>
+        <h1>{{ t('onboarding.welcome') }}</h1>
+        <p>{{ t('onboarding.accountReady') }}</p>
         @if (invitationsQueued() > 0) {
           <span class="success-note">
             <i class="pi pi-send"></i>
-            {{ invitationsQueued() }}
-            {{ invitationsQueued() === 1 ? 'invitation is' : 'invitations are' }} on the way
+            {{ t('onboarding.invitationsQueued', { count: invitationsQueued() }) }}
           </span>
         }
         <button
@@ -42,17 +41,17 @@
           iconPos="right"
           (click)="goToDashboard()"
         >
-          Go to dashboard
+          {{ t('onboarding.goToDashboard') }}
         </button>
       </section>
     } @else {
       <section class="onboarding-card">
         <header class="welcome-header">
           <div>
-            <h1>Complete your profile</h1>
+            <h1>{{ t('onboarding.completeProfile') }}</h1>
           </div>
           @if (!initialLoading() && !loadFailed() && model(); as onboarding) {
-            <nav class="stepper" aria-label="Account setup progress">
+            <nav class="stepper" [attr.aria-label]="t('onboarding.progress')">
               @for (step of onboarding.steps; track step.code; let index = $index) {
                 <button
                   type="button"
@@ -76,10 +75,10 @@
                   <span class="step__text">
                     <strong>{{
                       step.code === 'personalInfo'
-                        ? 'Profile'
+                        ? t('common.profile')
                         : step.code === 'security'
-                          ? 'Security'
-                          : 'Invite'
+                          ? t('common.security')
+                          : t('onboarding.invite')
                     }}</strong>
                   </span>
                 </button>
@@ -92,7 +91,7 @@
         </header>
 
         @if (initialLoading()) {
-          <div class="form-content" aria-label="Loading account setup">
+          <div class="form-content" [attr.aria-label]="t('onboarding.loading')">
             @if (activeView() === 'security') {
               <div class="security-content">
                 <p-skeleton width="100%" height="15rem" />
@@ -189,9 +188,9 @@
         } @else if (loadFailed()) {
           <div class="load-error">
             <i class="pi pi-cloud-off"></i>
-            <h2>We could not load your setup</h2>
-            <p>Check the connection and try again.</p>
-            <button pButton type="button" icon="pi pi-refresh" (click)="load()">Try again</button>
+            <h2>{{ t('onboarding.loadFailed') }}</h2>
+            <p>{{ t('onboarding.loadFailedHint') }}</p>
+            <button pButton type="button" icon="pi pi-refresh" (click)="load()">{{ t('common.retry') }}</button>
           </div>
         } @else if (model(); as onboarding) {
           @if (activeView() === 'personalInfo') {
@@ -200,9 +199,9 @@
                 <div class="personal-grid">
                   <app-file-upload
                     class="photo-field"
-                    label="Profile photo"
-                    chooseLabel="Choose photo"
-                    previewAlt="Profile photo preview"
+                    [label]="t('onboarding.profilePhoto')"
+                    [chooseLabel]="t('onboarding.choosePhoto')"
+                    [previewAlt]="t('onboarding.photoPreview')"
                     [roundPreview]="true"
                     [removable]="false"
                     [existingFileName]="existingAvatarName()"
@@ -226,7 +225,7 @@
                     iconPos="right"
                     [loading]="actionLoading()"
                   >
-                    Continue
+                    {{ t('onboarding.continue') }}
                   </button>
                 </footer>
               </div>
@@ -246,7 +245,7 @@
                     icon="pi pi-arrow-left"
                     (click)="goBack()"
                   >
-                    Back</button
+                    {{ t('common.back') }}</button
                   ><button
                     pButton
                     type="submit"
@@ -254,7 +253,7 @@
                     iconPos="right"
                     [loading]="actionLoading()"
                   >
-                    Continue
+                    {{ t('onboarding.continue') }}
                   </button>
                 </footer>
               </div>
@@ -279,7 +278,7 @@
                     icon="pi pi-arrow-left"
                     (click)="goBack()"
                   >
-                    Back
+                    {{ t('common.back') }}
                   </button>
                   <button
                     pButton
@@ -288,7 +287,7 @@
                     [disabled]="actionLoading()"
                     (click)="skipInvitations()"
                   >
-                    Skip for now</button
+                    {{ t('onboarding.skip') }}</button
                   ><button
                     pButton
                     type="button"
@@ -297,7 +296,7 @@
                     [loading]="actionLoading()"
                     (click)="saveInvitations()"
                   >
-                    Continue
+                    {{ t('onboarding.continue') }}
                   </button>
                 </footer>
               </div>
@@ -307,25 +306,25 @@
           @if (activeView() === 'review') {
             <div class="review-content">
               <div class="review-icon"><i class="pi pi-check"></i></div>
-              <p class="eyebrow">Ready to finish</p>
-              <h2>Everything is ready</h2>
-              <p>Press Complete to finish onboarding and start working.</p>
+              <p class="eyebrow">{{ t('onboarding.ready') }}</p>
+              <h2>{{ t('onboarding.everythingReady') }}</h2>
+              <p>{{ t('onboarding.finishHint') }}</p>
               <div class="review-list">
                 <span
-                  ><i class="pi pi-check-circle"></i><strong>Personal information</strong
-                  ><small>Done</small></span
+                  ><i class="pi pi-check-circle"></i><strong>{{ t('onboarding.personalInfo') }}</strong
+                  ><small>{{ t('common.done') }}</small></span
                 >
                 <span
-                  ><i class="pi pi-check-circle"></i><strong>New password</strong
-                  ><small>Done</small></span
+                  ><i class="pi pi-check-circle"></i><strong>{{ t('common.newPassword') }}</strong
+                  ><small>{{ t('common.done') }}</small></span
                 >
                 @if (isClientManager()) {
                   <span
-                    ><i class="pi pi-check-circle"></i><strong>Team invitations</strong
+                    ><i class="pi pi-check-circle"></i><strong>{{ t('onboarding.teamInvitations') }}</strong
                     ><small>{{
                       onboarding.invitedUsers.length
-                        ? onboarding.invitedUsers.length + ' ready to send'
-                        : 'Skipped'
+                        ? t('onboarding.readyToSend', { count: onboarding.invitedUsers.length })
+                        : t('onboarding.skipped')
                     }}</small></span
                   >
                 }
@@ -339,7 +338,7 @@
                   icon="pi pi-arrow-left"
                   (click)="goBack()"
                 >
-                  Back</button
+                  {{ t('common.back') }}</button
                 ><button
                   pButton
                   type="button"
@@ -347,7 +346,7 @@
                   [loading]="actionLoading()"
                   (click)="completeOnboarding()"
                 >
-                  Complete
+                  {{ t('onboarding.complete') }}
                 </button>
               </footer>
             </div>

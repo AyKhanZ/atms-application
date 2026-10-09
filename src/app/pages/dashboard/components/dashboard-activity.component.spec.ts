@@ -4,6 +4,7 @@ import { HistoryEntityType } from '../../../core/enums/history-entity-type.enum'
 import { DashboardActivityModel } from '../../../core/models/dashboard';
 import { DashboardActivityComponent } from './dashboard-activity.component';
 
+import { translocoTestingProviders } from '../../../core/testing/transloco-testing';
 const deletedTask: DashboardActivityModel = {
   ref: { projectId: 'project-1', workTicketId: 'ticket-1', workTaskId: 'task-1' },
   subject: { type: 'task', code: '41', title: 'Payment form', isDeleted: true },
@@ -18,7 +19,7 @@ const deletedTask: DashboardActivityModel = {
 
 describe('DashboardActivityComponent', () => {
   it('shows deleted work but does not navigate to it', () => {
-    TestBed.configureTestingModule({ imports: [DashboardActivityComponent] });
+    TestBed.configureTestingModule({ providers: [...translocoTestingProviders()], imports: [DashboardActivityComponent] });
     const fixture = TestBed.createComponent(DashboardActivityComponent);
     const selected = vi.fn();
     fixture.componentInstance.selected.subscribe(selected);

@@ -1,6 +1,6 @@
-<header class="topbar">
+<header class="topbar" *transloco="let t">
   @if (layout.mode() === 'hidden') {
-    <button type="button" class="menu-btn" aria-label="Open menu" (click)="layout.openDrawer()">
+    <button type="button" class="menu-btn" [attr.aria-label]="t('nav.openMenu')" (click)="layout.openDrawer()">
       <i class="pi pi-bars"></i>
     </button>
   }
@@ -8,6 +8,8 @@
   <app-global-search />
 
   <div class="right">
+    <app-language-switcher mode="reload" />
+
     <app-notification-bell />
 
     <button class="avatar-button" type="button" (click)="userMenu.toggle($event)">

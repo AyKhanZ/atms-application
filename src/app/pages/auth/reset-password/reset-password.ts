@@ -11,12 +11,13 @@ import { validationMessage } from '../../../core/utils/http-error.utils';
 import { LoginNavigationState } from '../../../core/models/auth/login-navigation-state';
 import { NewPasswordFieldsComponent } from '../../../shared/components/new-password-fields/new-password-fields.component';
 import { createNewPasswordForm } from '../../../shared/components/new-password-fields/new-password.form';
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-reset-password',
   templateUrl: './reset-password.html',
   styleUrls: ['./reset-password.scss'],
-  imports: [ButtonModule, ReactiveFormsModule, RouterLink, NewPasswordFieldsComponent],
+  imports: [ButtonModule, ReactiveFormsModule, RouterLink, NewPasswordFieldsComponent, TranslocoDirective],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ResetPasswordComponent {
@@ -24,6 +25,7 @@ export class ResetPasswordComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly snackBar = inject(SnackBarService);
+  private readonly transloco = inject(TranslocoService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly token = this.route.snapshot.queryParamMap.get('token');
 
@@ -62,7 +64,9 @@ export class ResetPasswordComponent {
             this.invalidToken.set(true);
             return;
           }
-          this.snackBar.error(validationMessage(error) ?? 'Could not reset password. Try again.');
+          this.snackBar.error(
+            validationMessage(error) ?? this.transloco.translate('auth.resetFailed'),
+          );
         },
       });
   }

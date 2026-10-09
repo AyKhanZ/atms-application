@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { translocoTestingProviders } from '../../../core/testing/transloco-testing';
 import { DashboardPeriodOption } from '../../../core/utils/dashboard-query.utils';
 import { DashboardToolbarComponent } from './dashboard-toolbar.component';
 
@@ -9,7 +10,10 @@ const periodOptions: DashboardPeriodOption[] = [
 
 describe('DashboardToolbarComponent', () => {
   function create() {
-    TestBed.configureTestingModule({ imports: [DashboardToolbarComponent] });
+    TestBed.configureTestingModule({
+      imports: [DashboardToolbarComponent],
+      providers: [...translocoTestingProviders()],
+    });
     const fixture = TestBed.createComponent(DashboardToolbarComponent);
     fixture.componentRef.setInput('projectOptions', [{ id: '', label: 'All projects' }]);
     fixture.componentRef.setInput('periodOptions', periodOptions);

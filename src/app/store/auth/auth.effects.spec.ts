@@ -10,6 +10,7 @@ import { TokenStorageService } from '../../core/services/token-storage.service';
 import { AuthEffects } from './auth.effects';
 import * as AuthStoreActions from './auth.actions';
 
+import { translocoTestingProviders } from '../../core/testing/transloco-testing';
 describe('AuthEffects', () => {
   let actions$: ReplaySubject<unknown>;
   let effects: AuthEffects;
@@ -24,7 +25,7 @@ describe('AuthEffects', () => {
     realtime = { start: vi.fn().mockResolvedValue(undefined), stop: vi.fn().mockResolvedValue(undefined) };
 
     TestBed.configureTestingModule({
-      providers: [
+      providers: [...translocoTestingProviders(), 
         AuthEffects,
         provideMockActions(() => actions$),
         { provide: AuthSessionService, useValue: authSession },

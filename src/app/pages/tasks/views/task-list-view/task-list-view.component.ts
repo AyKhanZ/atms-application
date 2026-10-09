@@ -9,7 +9,8 @@ import {
   linkedSignal,
   untracked,
 } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { AppDatePipe } from '../../../../shared/pipes/app-date.pipe';
+import { TranslocoDirective } from '@jsverse/transloco';
 import { Store } from '@ngrx/store';
 import { SortEvent } from 'primeng/api';
 import { TableModule } from 'primeng/table';
@@ -57,7 +58,7 @@ const sorts: Record<string, WorkTaskBoardSort> = {
 @Component({
   selector: 'app-task-list-view',
   imports: [
-    DatePipe,
+    AppDatePipe,
     TableModule,
     EmptyStateComponent,
     LoadMoreButtonComponent,
@@ -69,6 +70,7 @@ const sorts: Record<string, WorkTaskBoardSort> = {
     TaskListRowComponent,
     TaskKindPipe,
     IsOverdueTaskPipe,
+    TranslocoDirective,
   ],
   templateUrl: './task-list-view.component.html',
   styleUrl: './task-list-view.component.scss',

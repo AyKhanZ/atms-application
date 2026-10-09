@@ -1,4 +1,4 @@
-<button type="button" class="clear-button" (click)="clicked.emit()">
+<button type="button" class="clear-button" *transloco="let t" (click)="clicked.emit()">
   <i class="pi pi-times"></i>
-  <span>Clear</span>
+  <span>{{ t('common.clear') }}</span>
 </button>

@@ -3,12 +3,15 @@ import {
   Component,
   computed,
   effect,
+  inject,
   input,
   output,
   signal,
   untracked,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
+import { currentLanguage } from '../../../../../core/i18n/active-language';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
@@ -28,12 +31,13 @@ export interface AttachmentRenameEvent {
 // only the name is editable, the type was checked on upload
 @Component({
   selector: 'app-attachment-rename-dialog',
-  imports: [FormsModule, ButtonModule, DialogModule, InputTextModule],
+  imports: [FormsModule, ButtonModule, DialogModule, InputTextModule, TranslocoDirective],
   templateUrl: './attachment-rename-dialog.component.html',
   styleUrl: './attachment-rename-dialog.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AttachmentRenameDialogComponent {
+  private readonly transloco = inject(TranslocoService);
   readonly attachment = input<AttachmentModel | null>(null);
   readonly saving = input(false);
   readonly renamed = output<AttachmentRenameEvent>();
@@ -43,7 +47,10 @@ export class AttachmentRenameDialogComponent {
   readonly baseName = signal('');
   readonly touched = signal(false);
   readonly extension = computed(() => splitFileName(this.attachment()?.fileName ?? '').extension);
-  readonly error = computed(() => attachmentNameError(this.baseName()));
+  readonly error = computed(() => {
+    currentLanguage();
+    return attachmentNameError(this.baseName(), (key, params) => this.transloco.translate(key, params));
+  });
 
   constructor() {
     effect(() => {

@@ -10,6 +10,7 @@ import {
 import { FormArray, NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { forkJoin, finalize } from 'rxjs';
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { ButtonModule } from 'primeng/button';
 import { SkeletonModule } from 'primeng/skeleton';
 import { TooltipModule } from 'primeng/tooltip';
@@ -23,6 +24,8 @@ import { DictionaryService } from '../../core/services/dictionary.service';
 import { ImageUrlService } from '../../core/services/image-url.service';
 import { OnboardingService } from '../../core/services/onboarding.service';
 import { SnackBarService } from '../../core/services/snack-bar.service';
+import { LanguageService } from '../../core/services/language.service';
+import { toUiLanguage } from '../../core/i18n/active-language';
 import { HasUnsavedChanges } from '../../core/guards/unsaved-changes.guard';
 import {
   FileUploadComponent,
@@ -40,7 +43,7 @@ import {
 } from './components/onboarding-invitations/onboarding-invitations.component';
 import { createNewPasswordForm } from '../../shared/components/new-password-fields/new-password.form';
 import { fromIsoDate, toIsoDate } from '../../core/utils/dashboard-query.utils';
-import { avatarErrorMessage } from '../../core/utils/profile-avatar.utils';
+import { avatarErrorKey } from '../../core/utils/profile-avatar.utils';
 import { validationMessage } from '../../core/utils/http-error.utils';
 import { showPhoneServerError } from '../../core/utils/phone-number.utils';
 
@@ -58,6 +61,7 @@ const DEFAULT_INVITATION_ROWS = 3;
     PersonalInfoFieldsComponent,
     NewPasswordFieldsComponent,
     OnboardingInvitationsComponent,
+    TranslocoDirective,
   ],
   templateUrl: './onboarding.component.html',
   styleUrl: './onboarding.component.scss',
@@ -70,7 +74,9 @@ export class OnboardingComponent implements HasUnsavedChanges {
   private readonly authSession = inject(AuthSessionService);
   private readonly imageUrlService = inject(ImageUrlService);
   private readonly snackBar = inject(SnackBarService);
+  private readonly uiLanguage = inject(LanguageService);
   private readonly router = inject(Router);
+  private readonly transloco = inject(TranslocoService);
 
   readonly initialLoading = signal(true);
   readonly actionLoading = signal(false);
@@ -145,7 +151,7 @@ export class OnboardingComponent implements HasUnsavedChanges {
   onAvatarChange(value: FileUploadValue): void {
     this.personalForm.controls.avatar.setValue(value.file);
     this.personalForm.controls.avatar.markAsDirty();
-    this.avatarError.set(value.errors ? avatarErrorMessage(value.errors) : '');
+    this.avatarError.set(value.errors ? this.transloco.translate(avatarErrorKey(value.errors)) : '');
   }
 
   savePersonalInfo(): void {
@@ -153,7 +159,7 @@ export class OnboardingComponent implements HasUnsavedChanges {
     const hasAvatar = Boolean(
       this.personalForm.controls.avatar.value || this.model()?.personalInfo.avatarUploaded,
     );
-    if (!hasAvatar) this.avatarError.set('Choose a profile photo.');
+    if (!hasAvatar) this.avatarError.set(this.transloco.translate('validation.photoRequired'));
     this.personalForm.markAllAsTouched();
     if (this.personalForm.invalid || !hasAvatar || this.avatarError()) return;
 
@@ -187,7 +193,15 @@ export class OnboardingComponent implements HasUnsavedChanges {
       .subscribe({
         next: (response) => {
           this.applyModel(response);
-          this.snackBar.success('Personal information saved.');
+          const nextLanguage = toUiLanguage(
+            this.languages().find((language) => language.id === response.personalInfo.languageId)
+              ?.code,
+          );
+          if (nextLanguage && nextLanguage !== this.uiLanguage.current()) {
+            this.uiLanguage.rememberAndReload(nextLanguage);
+            return;
+          }
+          this.snackBar.success(this.transloco.translate('onboarding.personalSaved'));
         },
         error: (error: HttpErrorResponse) => this.reportPersonalInfoError(error),
       });
@@ -210,10 +224,10 @@ export class OnboardingComponent implements HasUnsavedChanges {
           this.applyModel(response);
           this.securityForm.reset();
           this.securityForm.markAsPristine();
-          this.snackBar.success('New password saved.');
+          this.snackBar.success(this.transloco.translate('onboarding.passwordSaved'));
         },
         error: (error: HttpErrorResponse) =>
-          this.handleError(error, 'Could not save the password.'),
+          this.handleError(error, this.transloco.translate('onboarding.passwordSaveFailed')),
       });
   }
 
@@ -253,9 +267,10 @@ export class OnboardingComponent implements HasUnsavedChanges {
         next: (response) => {
           this.invitationRows.markAsPristine();
           this.applyModel(response);
-          this.snackBar.success('Invitations are ready to send.');
+          this.snackBar.success(this.transloco.translate('onboarding.invitationsReady'));
         },
-        error: (error: HttpErrorResponse) => this.handleError(error, 'Could not save invitations.'),
+        error: (error: HttpErrorResponse) =>
+          this.handleError(error, this.transloco.translate('onboarding.invitationsSaveFailed')),
       });
   }
 
@@ -276,9 +291,10 @@ export class OnboardingComponent implements HasUnsavedChanges {
         next: (response) => {
           this.invitationRows.markAsPristine();
           this.applyModel(response);
-          this.snackBar.info('You can invite colleagues later from Users.');
+          this.snackBar.info(this.transloco.translate('onboarding.skipNotice'));
         },
-        error: (error: HttpErrorResponse) => this.handleError(error, 'Could not skip invitations.'),
+        error: (error: HttpErrorResponse) =>
+          this.handleError(error, this.transloco.translate('onboarding.skipFailed')),
       });
   }
 
@@ -298,7 +314,8 @@ export class OnboardingComponent implements HasUnsavedChanges {
           this.invitationRows.markAsPristine();
           this.completed.set(true);
         },
-        error: (error: HttpErrorResponse) => this.handleError(error, 'Could not complete setup.'),
+        error: (error: HttpErrorResponse) =>
+          this.handleError(error, this.transloco.translate('onboarding.completeFailed')),
       });
   }
 
@@ -365,7 +382,7 @@ export class OnboardingComponent implements HasUnsavedChanges {
       email: personal.email,
       phoneNumber: personal.phoneNumber ?? '',
       position: personal.position ?? '',
-      languageId: personal.languageId,
+      languageId: personal.languageId ?? this.currentLanguageId(),
       birthDate: fromIsoDate(personal.birthDate),
       genderId: personal.genderId,
       maritalStatusId: personal.maritalStatusId,
@@ -389,6 +406,11 @@ export class OnboardingComponent implements HasUnsavedChanges {
     this.setActiveView(model.currentStep === 'complete' ? 'review' : model.currentStep);
   }
 
+  private currentLanguageId(): number | null {
+    const code = this.uiLanguage.current();
+    return this.languages().find((language) => language.code.toLowerCase() === code)?.id ?? null;
+  }
+
   private createInvitationGroup(user?: Partial<InvitedUserCommand>): InvitationGroup {
     return this.fb.group({
       name: this.fb.control(user?.name ?? '', [Validators.required, Validators.maxLength(50)]),
@@ -408,13 +430,13 @@ export class OnboardingComponent implements HasUnsavedChanges {
     const phone = this.personalForm.controls.phoneNumber;
     if (showPhoneServerError(phone, error, (message) => this.snackBar.error(message))) return;
 
-    this.handleError(error, 'Could not save personal information.');
+    this.handleError(error, this.transloco.translate('onboarding.personalSaveFailed'));
   }
 
   private handleError(error: HttpErrorResponse, fallback: string): void {
     if (error.status === 409) {
       this.snackBar.warn(
-        error.error?.error ?? 'This page was updated elsewhere. Reload it and try again.',
+        error.error?.error ?? this.transloco.translate('onboarding.conflict'),
       );
       return;
     }

@@ -9,6 +9,7 @@ import { AuthSessionService } from '../../../core/services/auth-session.service'
 import { SnackBarService } from '../../../core/services/snack-bar.service';
 import { SettingsPasswordComponent } from './settings-password.component';
 
+import { translocoTestingProviders } from '../../../core/testing/transloco-testing';
 const tokens: AccessModel = {
   accessToken: 'new-access',
   refreshToken: 'new-refresh',
@@ -64,7 +65,7 @@ describe('SettingsPasswordComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [SettingsPasswordComponent],
-      providers: [
+      providers: [...translocoTestingProviders(), 
         ConfirmationService,
         { provide: AuthService, useValue: auth },
         { provide: AuthSessionService, useValue: session },

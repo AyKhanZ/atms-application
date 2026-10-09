@@ -1,5 +1,6 @@
 import { LabelForDirective } from '../../../../../core/directives/label-for.directive';
 import { CommonModule } from '@angular/common';
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -46,6 +47,7 @@ const clientManagerRoleCode = 'clientmanager';
     InputTextModule,
     SelectModule,
     LabelForDirective,
+    TranslocoDirective,
   ],
   templateUrl: './user-register-dialog.component.html',
   styleUrl: './user-register-dialog.component.scss',
@@ -54,6 +56,7 @@ const clientManagerRoleCode = 'clientmanager';
 export class UserRegisterDialogComponent {
   private readonly fb = inject(FormBuilder);
   private readonly store = inject(Store);
+  private readonly transloco = inject(TranslocoService);
   private readonly actions$ = inject(Actions);
   private readonly destroyRef = inject(DestroyRef);
   private readonly organizationsService = inject(OrganizationsService);
@@ -83,7 +86,7 @@ export class UserRegisterDialogComponent {
           this.roleCode(role) === employeeRoleCode || this.roleCode(role) === clientManagerRoleCode,
       )
       .map((role) => ({
-        label: this.roleCode(role) === clientManagerRoleCode ? 'Client' : role.name,
+        label: role.name,
         value: role.id,
       })),
   );
@@ -98,17 +101,6 @@ export class UserRegisterDialogComponent {
     roleId: ['', [Validators.required]],
     organizationId: [null as string | null],
   });
-
-  private readonly requiredMessages: Record<
-    keyof UserRegisterDialogComponent['form']['controls'],
-    string
-  > = {
-    name: 'Name is required.',
-    surname: 'Surname is required.',
-    email: 'Email is required.',
-    roleId: 'Role is required.',
-    organizationId: 'Organization is required.',
-  };
 
   constructor() {
     if (this.roleDictionaries().length === 0) {
@@ -282,17 +274,26 @@ export class UserRegisterDialogComponent {
     const errors = control.errors ?? {};
 
     if (errors['required']) {
-      return this.requiredMessages[controlName];
+      const key = {
+        name: 'validation.nameRequired',
+        surname: 'validation.surnameRequired',
+        email: 'validation.emailRequired',
+        roleId: 'validation.roleRequired',
+        organizationId: 'validation.organizationRequired',
+      }[controlName];
+      return key ? this.transloco.translate(key) : this.transloco.translate('common.invalid');
     }
 
     if (errors['email']) {
-      return 'Enter a valid email address.';
+      return this.transloco.translate('validation.email');
     }
 
     if (errors['maxlength']) {
-      return `Maximum ${errors['maxlength'].requiredLength} characters.`;
+      return this.transloco.translate('validation.maxLength', {
+        max: errors['maxlength'].requiredLength,
+      });
     }
 
-    return 'Invalid value.';
+    return this.transloco.translate('common.invalid');
   }
 }

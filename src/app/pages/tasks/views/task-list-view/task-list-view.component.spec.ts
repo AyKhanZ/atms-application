@@ -12,6 +12,7 @@ import { TaskBoardPageState, TaskBoardStoreActions } from '../../../../store/tas
 import { taskFixture } from '../../testing/task-fixture';
 import { TaskListViewComponent } from './task-list-view.component';
 
+import { translocoTestingProviders } from '../../../../core/testing/transloco-testing';
 type LoadPage = ReturnType<typeof TaskBoardStoreActions.loadPage>;
 
 const pageOf = (items: WorkTaskModel[], nextCursor: string | null = null): TaskBoardPageState => ({
@@ -28,7 +29,7 @@ describe('TaskListViewComponent', () => {
     const dispatch = vi.fn();
     TestBed.configureTestingModule({
       imports: [TaskListViewComponent],
-      providers: [
+      providers: [...translocoTestingProviders(), 
         provideRouter([]),
         { provide: Store, useValue: { selectSignal: () => pages, dispatch } },
         { provide: LayoutService, useValue: { isPhone: signal(phone) } },

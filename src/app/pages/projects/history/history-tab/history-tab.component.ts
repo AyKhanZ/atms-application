@@ -27,6 +27,7 @@ import { HistoryListState } from '../../../../store/history/history.state';
 import { HistoryEntryDetailsComponent } from '../components/history-entry-details/history-entry-details.component';
 import { HistoryListComponent } from '../components/history-list/history-list.component';
 import { HistoryStateBarComponent } from '../components/history-state-bar/history-state-bar.component';
+import { TranslocoDirective } from '@jsverse/transloco';
 import { HistoryPaneHeightDirective } from '../history-pane-height.directive';
 
 @Component({
@@ -40,6 +41,7 @@ import { HistoryPaneHeightDirective } from '../history-pane-height.directive';
     HistoryPaneHeightDirective,
     HistoryStateBarComponent,
     SkeletonModule,
+    TranslocoDirective,
   ],
   templateUrl: './history-tab.component.html',
   styleUrl: './history-tab.component.scss',

@@ -1,4 +1,6 @@
 import { DOCUMENT } from '@angular/common';
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
+import { currentLanguage } from '../../../core/i18n/active-language';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -36,12 +38,14 @@ const doughnutLegendBesideMinWidth = 320;
 
 @Component({
   selector: 'app-dashboard-chart',
+  imports: [TranslocoDirective],
   templateUrl: './dashboard-chart.component.html',
   styleUrl: './dashboard-chart.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardChartComponent implements OnDestroy {
   private readonly document = inject(DOCUMENT);
+  private readonly transloco = inject(TranslocoService);
   private readonly canvas = viewChild.required<ElementRef<HTMLCanvasElement>>('canvas');
   private chart: Chart | null = null;
   private renderedKind: ChartKind | null = null;
@@ -79,6 +83,7 @@ export class DashboardChartComponent implements OnDestroy {
   }
 
   private render(): void {
+    currentLanguage();
     const canvas = this.canvas().nativeElement;
     const kind = this.kind();
     const config = this.config(kind);
@@ -299,7 +304,8 @@ export class DashboardChartComponent implements OnDestroy {
             ...tooltip,
             callbacks: {
               title: (items) => titleOf(items[0]?.dataIndex ?? 0),
-              label: (item) => ` ${item.parsed.x} ${item.parsed.x === 1 ? 'task' : 'tasks'}`,
+              label: (item) =>
+                ` ${this.transloco.translate('dashboard.chart.taskCount', { count: item.parsed.x })}`,
             },
           },
         },

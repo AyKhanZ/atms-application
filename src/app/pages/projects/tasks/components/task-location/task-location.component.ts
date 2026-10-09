@@ -11,13 +11,14 @@ import {
   input,
   untracked,
 } from '@angular/core';
+import { TranslocoDirective } from '@jsverse/transloco';
 import { Router } from '@angular/router';
 import { WorkTaskModel } from '../../../../../core/models/work-tasks';
 import { WorkItemKind } from '../../../../../core/models/work-items';
 
 @Component({
   selector: 'app-task-location',
-  imports: [WorkItemJumpComponent],
+  imports: [WorkItemJumpComponent, TranslocoDirective],
   templateUrl: './task-location.component.html',
   styleUrl: './task-location.component.scss',
   providers: [WorkItemJumpState],

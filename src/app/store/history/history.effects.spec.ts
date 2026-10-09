@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideMockActions } from '@ngrx/effects/testing';
 import { Action } from '@ngrx/store';
 import { Subject } from 'rxjs';
+import { translocoTestingProviders } from '../../core/testing/transloco-testing';
 import { HistoryPageModel, HistoryStateModel } from '../../core/models/history';
 import { HistoryService } from '../../core/services/history.service';
 import * as Actions from './history.actions';
@@ -25,6 +26,7 @@ describe('HistoryEffects', () => {
     emitted = [];
     TestBed.configureTestingModule({
       providers: [
+        ...translocoTestingProviders(),
         HistoryEffects,
         provideMockActions(() => actions),
         {

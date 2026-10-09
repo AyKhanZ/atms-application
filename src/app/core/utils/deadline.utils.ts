@@ -34,12 +34,14 @@ export function daysLate(deadline: string | Date | null | undefined, now = new D
   return days !== null && days < 0 ? -days : 0;
 }
 
-// "8d" up to two weeks, then "3w", "2mo", "1yr" (m alone reads as minutes)
-export function lateLabel(days: number): string {
-  if (days < 14) return `${days}d`;
-  if (days < 60) return `${Math.floor(days / 7)}w`;
-  if (days < 365) return `${Math.floor(days / 30)}mo`;
-  return `${Math.floor(days / 365)}yr`;
+export type LateUnit = 'day' | 'week' | 'month' | 'year';
+
+// days up to two weeks, then weeks, months, years; the words come from workItem.late.*
+export function lateSpan(days: number): { count: number; unit: LateUnit } {
+  if (days < 14) return { count: days, unit: 'day' };
+  if (days < 60) return { count: Math.floor(days / 7), unit: 'week' };
+  if (days < 365) return { count: Math.floor(days / 30), unit: 'month' };
+  return { count: Math.floor(days / 365), unit: 'year' };
 }
 
 // done work is never overdue

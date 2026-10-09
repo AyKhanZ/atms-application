@@ -12,10 +12,15 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ConfirmationService } from 'primeng/api';
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { ButtonModule } from 'primeng/button';
+import { currentLanguage } from '../../../../../core/i18n/active-language';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmDialogComponent } from '../../../../../shared/components/confirm-dialog/confirm-dialog.component';
-import { askToCloseOpenWork } from '../../../../../shared/components/confirm-dialog/close-open-work';
+import {
+  askToCloseOpenWork,
+  workItemRef,
+} from '../../../../../shared/components/confirm-dialog/close-open-work';
 import { WorkTaskStatus } from '../../../../../core/enums/work-task-status.enum';
 import { catchError, finalize, of, take } from 'rxjs';
 import { Actions, ofType } from '@ngrx/effects';
@@ -57,6 +62,7 @@ interface TaskFormNavigationState {
     BackButtonComponent,
     TaskFormFieldsComponent,
     TaskParentSelectComponent,
+    TranslocoDirective,
   ],
   providers: [ConfirmationService, TaskFormContextService, TaskFormBreadcrumbsService],
   templateUrl: './task-form-page.component.html',
@@ -78,6 +84,7 @@ export class TaskFormPageComponent {
   private readonly snackBar = inject(SnackBarService);
   private readonly permissionsRefresh = inject(ProjectPermissionsRefreshService);
   private readonly confirmation = inject(ConfirmationService);
+  private readonly transloco = inject(TranslocoService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly formBreadcrumbs = inject(TaskFormBreadcrumbsService);
   private readonly navigationState = history.state as TaskFormNavigationState;
@@ -89,12 +96,17 @@ export class TaskFormPageComponent {
   readonly parentTaskId = this.route.snapshot.queryParamMap.get('parentTaskId');
   readonly isEdit = computed(() => this.mode() === 'edit');
   readonly isSubtask = signal(Boolean(this.parentTaskId));
-  readonly pageTitle = computed(() =>
-    this.isEdit()
-      ? `Edit ${this.isSubtask() ? 'subtask' : 'task'}`
-      : `Create ${this.isSubtask() ? 'subtask' : 'task'}`,
-  );
-  readonly submitLabel = computed(() => (this.isEdit() ? 'Save' : 'Create'));
+  readonly pageTitle = computed(() => {
+    currentLanguage();
+    if (this.isEdit()) {
+      return this.transloco.translate(this.isSubtask() ? 'tasks.editSubtask' : 'tasks.edit');
+    }
+    return this.transloco.translate(this.isSubtask() ? 'tasks.createSubtask' : 'tasks.create');
+  });
+  readonly submitLabel = computed(() => {
+    currentLanguage();
+    return this.transloco.translate(this.isEdit() ? 'common.save' : 'common.create');
+  });
   readonly loading = signal(true);
   readonly saving = this.store.selectSignal(WorkTasksStoreSelectors.isSaving);
   readonly submitted = signal(false);
@@ -134,7 +146,7 @@ export class TaskFormPageComponent {
       this.form.controls.parentWorkTaskId.addValidators(Validators.required);
     if (!this.projectId || !this.ticketId) {
       this.loading.set(false);
-      this.loadError.set('The task route is invalid. Return to the ticket and try again.');
+      this.loadError.set(this.transloco.translate('tasks.routeInvalid'));
       return;
     }
 
@@ -143,7 +155,7 @@ export class TaskFormPageComponent {
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         catchError(() => {
-          this.loadError.set("We couldn't load the task form. Return to the ticket and try again.");
+          this.loadError.set(this.transloco.translate('tasks.formFailed'));
           return of(null);
         }),
         finalize(() => this.loading.set(false)),
@@ -156,7 +168,7 @@ export class TaskFormPageComponent {
           return;
         }
         if (!editing && this.parentTaskId && result.task?.isSubtask) {
-          this.loadError.set('A subtask cannot be used as a parent. Choose a top-level task.');
+          this.loadError.set(this.transloco.translate('tasks.subtaskParent'));
           return;
         }
         this.project.set(result.project);
@@ -225,12 +237,12 @@ export class TaskFormPageComponent {
       value.statusId === WorkTaskStatus.Done &&
       task?.status.id !== WorkTaskStatus.Done;
     if (task && closing && openSubtasks > 0) {
-      void askToCloseOpenWork(this.confirmation, {
+      void askToCloseOpenWork(this.confirmation, this.transloco, {
         key: 'taskClose',
-        itemRef: `TASK #${task.code}`,
+        itemRef: workItemRef(this.transloco, 'workItem.kind.task', task.code),
         title: task.title,
         openCount: openSubtasks,
-        childLabel: 'subtask',
+        child: 'subtask',
       }).then((choice) => {
         if (choice !== 'cancel') this.save(choice === 'all');
       });
@@ -264,7 +276,7 @@ export class TaskFormPageComponent {
       )
       .subscribe((action) => {
         if ('error' in action) {
-          this.snackBar.error(taskErrorMessage(action.error));
+          this.snackBar.error(taskErrorMessage(this.transloco, action.error));
           // cached permissions said ok, drop them so the next page is right
           if (action.error.status === 403 && this.projectId) {
             this.permissionsRefresh
@@ -276,9 +288,10 @@ export class TaskFormPageComponent {
         }
         const createdId = 'id' in action ? action.id : null;
         this.navigationComplete = true;
-        // same wording as tickets
-        const label = this.isSubtask() ? 'Subtask' : 'Task';
-        this.snackBar.success(this.isEdit() ? `${label} changes saved.` : `${label} created.`);
+        // a key per kind: the noun changes the verb ending in russian ("задача создана", "тикет создан")
+        const saved = this.isSubtask() ? 'tasks.subtaskSaved' : 'tasks.saved';
+        const created = this.isSubtask() ? 'tasks.subtaskCreated' : 'tasks.created';
+        this.snackBar.success(this.transloco.translate(this.isEdit() ? saved : created));
         if (!this.isEdit() && createdId) {
           void this.router.navigate([
             '/projects',
@@ -334,11 +347,11 @@ export class TaskFormPageComponent {
   confirmUnsavedChanges(): Promise<boolean> {
     return new Promise((resolve) =>
       this.confirmation.confirm({
-        header: 'Discard changes',
-        message: 'You have unsaved task changes. Leave this page without saving?',
+        header: this.transloco.translate('settings.discardTitle'),
+        message: this.transloco.translate('tasks.discardMessage'),
         icon: 'pi pi-exclamation-triangle',
-        acceptLabel: 'Leave',
-        rejectLabel: 'Stay',
+        acceptLabel: this.transloco.translate('common.leave'),
+        rejectLabel: this.transloco.translate('settings.stay'),
         acceptButtonStyleClass: 'p-button-danger',
         rejectButtonStyleClass: 'p-button-outlined',
         accept: () => {
@@ -380,9 +393,9 @@ export class TaskFormPageComponent {
   }
 }
 
-function taskErrorMessage(error: WorkItemMutationError): string {
+function taskErrorMessage(transloco: TranslocoService, error: WorkItemMutationError): string {
   if (error.message) return error.message;
-  if (error.status === 403) return 'You no longer have permission to manage tasks in this project.';
-  if (error.status === 404) return 'The task, parent task or ticket is no longer available.';
-  return "We couldn't save the task. Please try again.";
+  if (error.status === 403) return transloco.translate('tasks.manageDenied');
+  if (error.status === 404) return transloco.translate('tasks.missing');
+  return transloco.translate('tasks.saveFailed');
 }

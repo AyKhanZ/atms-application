@@ -6,6 +6,7 @@ import { Features } from '../../../store/features.enum';
 import { initialUserState } from '../../../store/user/user.state';
 import { TopbarComponent } from './topbar.component';
 
+import { translocoTestingProviders } from '../../../core/testing/transloco-testing';
 describe('TopbarComponent user menu', () => {
   let store: MockStore;
 
@@ -18,7 +19,7 @@ describe('TopbarComponent user menu', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [TopbarComponent],
-      providers: [
+      providers: [...translocoTestingProviders(), 
         provideRouter([]),
         provideMockStore({ initialState: { [Features.User]: initialUserState } }),
       ],
@@ -31,11 +32,11 @@ describe('TopbarComponent user menu', () => {
   });
 
   it('offers Settings and Logout to an ordinary user', () => {
-    expect(menuLabels([{ code: 'Employee' }])).toEqual(['Settings', 'separator', 'Logout']);
+    expect(menuLabels([{ code: 'Employee' }])).toEqual(['Settings', 'separator', 'Log out']);
   });
 
   it('offers only Logout to a super admin', () => {
-    expect(menuLabels([{ code: Roles.SuperAdmin }])).toEqual(['Logout']);
+    expect(menuLabels([{ code: Roles.SuperAdmin }])).toEqual(['Log out']);
   });
 
   it('opens /settings from the menu', () => {

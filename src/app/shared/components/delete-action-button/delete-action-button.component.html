@@ -1,8 +1,9 @@
 <button
   class="action-button action-button--delete"
   type="button"
-  title="Delete"
-  aria-label="Delete"
+  *transloco="let t"
+  [attr.title]="t('common.delete')"
+  [attr.aria-label]="t('common.delete')"
   (click)="clicked.emit()"
 >
   <i class="pi pi-trash"></i>

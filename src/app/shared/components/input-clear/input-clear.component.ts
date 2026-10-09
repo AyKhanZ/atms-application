@@ -1,4 +1,6 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
+import { TranslocoService } from '@jsverse/transloco';
+import { currentLanguage } from '../../../core/i18n/active-language';
 
 // browser cross on type="search" is blue, has no hover and doesnt exist in firefox
 @Component({
@@ -7,7 +9,7 @@ import { ChangeDetectionStrategy, Component, input, output } from '@angular/core
     <button
       type="button"
       class="input-clear"
-      [attr.aria-label]="label()"
+      [attr.aria-label]="text()"
       (mousedown)="$event.preventDefault()"
       (click)="cleared.emit()"
     >
@@ -18,6 +20,11 @@ import { ChangeDetectionStrategy, Component, input, output } from '@angular/core
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InputClearComponent {
-  readonly label = input('Clear search');
+  private readonly transloco = inject(TranslocoService);
+  readonly label = input<string | undefined>(undefined);
   readonly cleared = output<void>();
+  readonly text = computed(() => {
+    currentLanguage();
+    return this.label() ?? this.transloco.translate('common.clearSearch');
+  });
 }

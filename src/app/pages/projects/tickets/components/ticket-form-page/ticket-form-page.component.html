@@ -1,4 +1,4 @@
-<section class="page project-form-page ticket-form-page">
+<section class="page project-form-page ticket-form-page" *transloco="let t">
   <p-confirmDialog />
   <app-confirm-dialog key="ticketClose" />
 
@@ -19,7 +19,7 @@
         (click)="cancel()"
       >
         <i class="pi pi-times"></i>
-        <span>Cancel</span>
+        <span>{{ t('common.cancel') }}</span>
       </button>
       <button pButton type="submit" form="ticketForm" [loading]="saving()" [disabled]="loading()">
         <i class="pi pi-check"></i>
@@ -29,24 +29,26 @@
   </div>
 
   @if (loading()) {
-    <section class="panel"><app-loading-state text="Loading ticket form..." /></section>
+    <section class="panel"><app-loading-state [text]="t('tickets.loadingForm')" /></section>
   } @else if (loadError()) {
     <section class="panel ticket-form-state ticket-form-state--error" role="alert">
       <i class="pi pi-exclamation-circle"></i>
-      <strong>Ticket form is unavailable</strong>
+      <strong>{{ t('tickets.formUnavailable') }}</strong>
       <span>{{ loadError() }}</span>
-      <button pButton type="button" outlined="true" (click)="cancel()">Back to plan</button>
+      <button pButton type="button" outlined="true" (click)="cancel()">
+        {{ t('tickets.backToPlan') }}
+      </button>
     </section>
   } @else {
     <section class="panel project-form-panel">
       <form id="ticketForm" class="create-form" [formGroup]="form" (ngSubmit)="submit()">
         <label class="field full-field title-field">
-          <span>Name <b>*</b></span>
+          <span>{{ t('common.name') }} <b>*</b></span>
           <input
             pInputText
             formControlName="title"
             maxlength="100"
-            placeholder="Enter ticket name"
+            [placeholder]="t('tickets.namePlaceholder')"
           />
           <div class="field-meta">
             <small [class.visible]="error('title')">{{ error('title') || ' ' }}</small>
@@ -55,12 +57,12 @@
         </label>
 
         <label class="field full-field description-field">
-          <span>Description</span>
+          <span>{{ t('common.description') }}</span>
           <textarea
             pTextarea
             formControlName="description"
             maxlength="2000"
-            placeholder="Describe the expected result, context and acceptance notes"
+            [placeholder]="t('tickets.descriptionPlaceholder')"
           ></textarea>
           <div class="field-meta">
             <small></small>
@@ -71,7 +73,7 @@
         <div class="classification-grid" [class.classification-grid--edit]="isEdit()">
           <div class="field milestone-field">
             <label id="ticketMilestoneLabel" appLabelFor="ticketMilestone"
-              >Milestone <b>*</b></label
+              >{{ t('plan.milestone') }} <b>*</b></label
             >
             <p-select
               inputId="ticketMilestone"
@@ -83,7 +85,7 @@
               optionGroupChildren="items"
               optionLabel="title"
               optionValue="id"
-              placeholder="Select milestone"
+              [placeholder]="t('tickets.selectMilestone')"
               [filter]="true"
               filterBy="label,title,groupTitle"
               [loading]="milestonesLoading()"
@@ -127,7 +129,9 @@
           </div>
 
           <div class="field">
-            <label id="ticketTypeLabel" appLabelFor="ticketType">Type <b>*</b></label>
+            <label id="ticketTypeLabel" appLabelFor="ticketType"
+              >{{ t('common.type') }} <b>*</b></label
+            >
             <p-select
               inputId="ticketType"
               ariaLabelledBy="ticketTypeLabel"
@@ -135,7 +139,7 @@
               [options]="ticketTypes()"
               optionLabel="name"
               optionValue="id"
-              placeholder="Select type"
+              [placeholder]="t('tickets.selectType')"
               appendTo="body"
             />
             <small [class.visible]="error('workTicketTypeId')">{{
@@ -144,7 +148,9 @@
           </div>
 
           <div class="field">
-            <label id="ticketPriorityLabel" appLabelFor="ticketPriority">Priority <b>*</b></label>
+            <label id="ticketPriorityLabel" appLabelFor="ticketPriority"
+              >{{ t('common.priority') }} <b>*</b></label
+            >
             <p-select
               inputId="ticketPriority"
               ariaLabelledBy="ticketPriorityLabel"
@@ -152,7 +158,7 @@
               [options]="priorities()"
               optionLabel="name"
               optionValue="id"
-              placeholder="Select priority"
+              [placeholder]="t('tickets.selectPriority')"
               appendTo="body"
             />
             <small [class.visible]="error('priorityId')">{{ error('priorityId') || ' ' }}</small>
@@ -160,7 +166,9 @@
 
           @if (isEdit()) {
             <div class="field">
-              <label id="ticketStatusLabel" appLabelFor="ticketStatus">Status <b>*</b></label>
+              <label id="ticketStatusLabel" appLabelFor="ticketStatus"
+                >{{ t('common.status') }} <b>*</b></label
+              >
               <p-select
                 inputId="ticketStatus"
                 ariaLabelledBy="ticketStatusLabel"
@@ -168,7 +176,7 @@
                 [options]="ticketStatuses()"
                 optionLabel="name"
                 optionValue="id"
-                placeholder="Select status"
+                [placeholder]="t('tickets.selectStatus')"
                 appendTo="body"
               />
               <small [class.visible]="error('workTicketStatusId')">
@@ -180,7 +188,9 @@
 
         <div class="ticket-ownership-grid">
           <div class="field">
-            <label id="ticketAssigneeLabel" appLabelFor="ticketAssignee">Assignee</label>
+            <label id="ticketAssigneeLabel" appLabelFor="ticketAssignee">{{
+              t('common.assignee')
+            }}</label>
             <p-select
               class="ticket-assignee-select"
               inputId="ticketAssignee"
@@ -188,7 +198,7 @@
               formControlName="assigneeId"
               [options]="assigneeOptions()"
               optionValue="id"
-              placeholder="Unassigned"
+              [placeholder]="t('common.unassigned')"
               [filter]="true"
               filterBy="name,surname,email"
               [showClear]="true"
@@ -225,12 +235,12 @@
           </div>
 
           <div class="field">
-            <label for="ticketDeadline">Deadline</label>
+            <label for="ticketDeadline">{{ t('common.deadline') }}</label>
             <p-datepicker
               inputId="ticketDeadline"
               formControlName="deadline"
               dateFormat="dd.mm.yy"
-              placeholder="Select deadline"
+              [placeholder]="t('tickets.selectDeadline')"
               iconDisplay="input"
               [showIcon]="true"
               [readonlyInput]="false"

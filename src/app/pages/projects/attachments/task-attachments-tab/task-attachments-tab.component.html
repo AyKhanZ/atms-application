@@ -1,3 +1,4 @@
+<ng-container *transloco="let t">
 <app-confirm-dialog key="attachmentDelete" />
 
 @let kind = task().isSubtask ? 'subtask' : 'task';
@@ -24,13 +25,13 @@
   } @else if (ownError()) {
     <div class="tab-error" role="alert">
       <i class="pi pi-exclamation-circle" aria-hidden="true"></i>
-      <span>Files could not be loaded.</span>
-      <button pButton type="button" text="true" (click)="reload()">Retry</button>
+      <span>{{ t('attachments.loadFailed') }}</span>
+      <button pButton type="button" text="true" (click)="reload()">{{ t('common.retry') }}</button>
     </div>
   } @else if (ownItems().length) {
     <section class="own-files" aria-labelledby="ownFilesHeading">
       <h3 id="ownFilesHeading">
-        Files <span class="count">{{ ownItems().length }}</span>
+        {{ t('attachments.fileCount', { count: ownItems().length }) }}
       </h3>
       <div class="file-list">
         @for (file of ownItems(); track file.id) {
@@ -49,15 +50,17 @@
   } @else if (!uploads.rows().length) {
     @if (subtaskNodes().length) {
       <!-- subtasks below have files, a big empty panel here would bury them -->
-      <p class="inline-empty">No files on this {{ kind }} itself.</p>
+      <p class="inline-empty">
+        {{ t(kind === 'subtask' ? 'attachments.noneOnSubtask' : 'attachments.noneOnTask') }}
+      </p>
     } @else {
       <app-empty-state
         icon="pi-paperclip"
-        title="No files yet"
+        [title]="t('attachments.emptyOwn')"
         [description]="
           canEdit()
-            ? 'Drop files above or use Upload files.'
-            : 'Files added to this ' + kind + ' will appear here.'
+            ? t('attachments.dropHint')
+            : t(kind === 'subtask' ? 'attachments.emptySubtask' : 'attachments.emptyTask')
         "
       />
     }
@@ -65,7 +68,7 @@
 
   @if (subtaskNodes().length) {
     <app-attachment-tree
-      heading="From subtasks"
+      [heading]="t('attachments.fromSubtasks')"
       [nodes]="subtaskNodes()"
       [stateKey]="'subtasks:' + task().id"
       [defaultOpen]="subtasksOpenByDefault"
@@ -88,3 +91,4 @@
   (renamed)="rename($event)"
   (closed)="renaming.set(null)"
 />
+</ng-container>

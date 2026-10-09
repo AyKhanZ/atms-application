@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { AuthSessionService } from '../services/auth-session.service';
 import { HasUnsavedChanges, unsavedChangesGuard } from './unsaved-changes.guard';
 
+import { translocoTestingProviders } from '../testing/transloco-testing';
 describe('unsavedChangesGuard', () => {
   let authenticated: boolean;
 
@@ -13,7 +14,7 @@ describe('unsavedChangesGuard', () => {
   beforeEach(() => {
     authenticated = true;
     TestBed.configureTestingModule({
-      providers: [
+      providers: [...translocoTestingProviders(), 
         { provide: AuthSessionService, useValue: { isAuthenticated: () => authenticated } },
       ],
     });

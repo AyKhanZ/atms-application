@@ -1,4 +1,4 @@
-<div class="work-item-jump" [class.work-item-jump--open]="open()">
+<div class="work-item-jump" [class.work-item-jump--open]="open()" *transloco="let t">
   <button
     #trigger
     type="button"
@@ -28,8 +28,8 @@
       <input
         #search
         type="search"
-        aria-label="Search by code or title"
-        placeholder="Search by code or title"
+            [attr.aria-label]="t('search.byCodeOrTitle')"
+            [placeholder]="t('search.byCodeOrTitle')"
         [value]="searchTerm()"
         [disabled]="!initialized()"
         (input)="updateSearch($event)"
@@ -73,15 +73,15 @@
         </button>
       }
       @if (!loading() && !loadError() && items().length === 0) {
-        <div class="work-item-jump-message">No matching items.</div>
+        <div class="work-item-jump-message">{{ t('workItem.noMatches') }}</div>
       }
     </div>
     <footer class="work-item-jump-footer">
       @if (loading()) {
-        <span role="status">Loading...</span>
+        <span role="status">{{ t('common.loading') }}</span>
       } @else if (loadError()) {
-        <span role="alert">Items could not be loaded.</span>
-        <button type="button" (click)="retry.emit()">Retry</button>
+        <span role="alert">{{ t('workItem.loadFailed') }}</span>
+        <button type="button" (click)="retry.emit()">{{ t('common.retry') }}</button>
       } @else if (hasMore()) {
         <app-load-more-button [compact]="true" (clicked)="more.emit()" />
       }

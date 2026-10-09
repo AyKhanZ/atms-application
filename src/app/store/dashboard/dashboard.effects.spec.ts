@@ -10,6 +10,7 @@ import { RealtimeService } from '../../core/services/realtime.service';
 import { WorkProjectsService } from '../../core/services/work-projects.service';
 import { Features } from '../features.enum';
 import * as Actions from './dashboard.actions';
+import { translocoTestingProviders } from '../../core/testing/transloco-testing';
 import { DashboardEffects } from './dashboard.effects';
 import { initialDashboardState } from './dashboard.state';
 
@@ -32,6 +33,7 @@ describe('DashboardEffects realtime', () => {
     leaveProject = vi.fn().mockResolvedValue(undefined);
     TestBed.configureTestingModule({
       providers: [
+        ...translocoTestingProviders(),
         DashboardEffects,
         provideMockActions(() => actions),
         provideMockStore({

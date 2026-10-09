@@ -1,7 +1,7 @@
-<form class="panel panel-padding filters" [formGroup]="form" (ngSubmit)="submit()">
+<form class="panel panel-padding filters" *transloco="let t" [formGroup]="form" (ngSubmit)="submit()">
   <div class="form-grid">
     <div class="field">
-      <label id="statusLabel" appLabelFor="status">Status</label>
+      <label id="statusLabel" appLabelFor="status">{{ t('common.status') }}</label>
       <p-select
         inputId="status"
         ariaLabelledBy="statusLabel"
@@ -16,7 +16,7 @@
     </div>
 
     <div class="field date-field">
-      <label for="createdFrom">Created from</label>
+      <label for="createdFrom">{{ t('users.createdFrom') }}</label>
       <p-datepicker
         inputId="createdFrom"
         styleClass="filter-datepicker"
@@ -30,7 +30,7 @@
     </div>
 
     <div class="field date-field">
-      <label for="createdTo">Created to</label>
+      <label for="createdTo">{{ t('users.createdTo') }}</label>
       <p-datepicker
         inputId="createdTo"
         styleClass="filter-datepicker"
@@ -46,13 +46,13 @@
   </div>
 
   @if (form.hasError('createdDateRange') && (form.touched || form.dirty)) {
-    <small class="filter-error">Created from cannot be later than Created to.</small>
+    <small class="filter-error">{{ t('users.createdRange') }}</small>
   }
 
   <div class="toolbar">
     <button type="submit" class="apply-button" [disabled]="form.invalid">
       <i class="pi pi-filter"></i>
-      <span>Apply</span>
+      <span>{{ t('common.apply') }}</span>
     </button>
     <app-clear-button (clicked)="clearForm()" />
   </div>

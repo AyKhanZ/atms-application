@@ -1,7 +1,12 @@
 import { TestBed } from '@angular/core/testing';
+import { translocoTestingProviders } from '../../../../../core/testing/transloco-testing';
 import { AttachmentRefusedComponent } from './attachment-refused.component';
 
 describe('AttachmentRefusedComponent', () => {
+  beforeEach(() => {
+    TestBed.configureTestingModule({ providers: [...translocoTestingProviders()] });
+  });
+
   function render(items: { id: string; fileName: string; reason: string }[]) {
     const fixture = TestBed.createComponent(AttachmentRefusedComponent);
     fixture.componentRef.setInput('items', items);

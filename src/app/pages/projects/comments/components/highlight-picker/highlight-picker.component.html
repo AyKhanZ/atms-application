@@ -1,9 +1,10 @@
 <!-- mousedown is cancelled so a button doesnt take the caret and selection -->
+<ng-container *transloco="let t">
 <button
   type="button"
   class="highlight__button"
-  title="Highlight"
-  aria-label="Highlight"
+  [title]="t('comments.highlight')"
+  [attr.aria-label]="t('comments.highlight')"
   aria-haspopup="true"
   [attr.aria-expanded]="open()"
   (mousedown)="$event.preventDefault()"
@@ -13,18 +14,19 @@
   <i class="pi pi-chevron-down" aria-hidden="true"></i>
 </button>
 @if (open()) {
-  <span class="highlight__palette" role="group" aria-label="Highlight colours">
+  <span class="highlight__palette" role="group" [attr.aria-label]="t('comments.highlightColors')">
     @for (swatch of colors; track swatch) {
       <button
         type="button"
         class="highlight__swatch"
         [attr.data-color]="swatch"
         [class.is-current]="swatch === color()"
-        [title]="swatch"
-        [attr.aria-label]="'Highlight in ' + swatch"
+        [title]="t('comments.colors.' + swatch)"
+        [attr.aria-label]="t('comments.highlightIn', { color: t('comments.colors.' + swatch) })"
         (mousedown)="$event.preventDefault()"
         (click)="pick(swatch)"
       ></button>
     }
   </span>
 }
+</ng-container>

@@ -9,6 +9,7 @@ import {
   output,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { TranslocoDirective } from '@jsverse/transloco';
 import { Store } from '@ngrx/store';
 import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
@@ -37,6 +38,7 @@ import { WorkItemKind } from '../../../../../core/models/work-items';
     ButtonModule,
     LabelForDirective,
     LoadMoreButtonComponent,
+    TranslocoDirective,
   ],
   templateUrl: './task-parent-select.component.html',
   styleUrl: './task-parent-select.component.scss',

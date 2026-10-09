@@ -1,4 +1,6 @@
 import { DOCUMENT, formatDate } from '@angular/common';
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
+import { angularLocale, currentLanguage } from '../../core/i18n/active-language';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -60,12 +62,19 @@ interface KpiCard {
 }
 
 const kpiLooks: Record<DashboardKpiModel['key'], { label: string; icon: string; tone: string }> = {
-  open: { label: 'Not done', icon: 'pi-inbox', tone: '--orange' },
-  inProgress: { label: 'In progress', icon: 'pi-sync', tone: '--status-dot-progress' },
-  overdue: { label: 'Overdue', icon: 'pi-exclamation-circle', tone: '--app-danger' },
-  unassigned: { label: 'Unassigned', icon: 'pi-user-minus', tone: '--app-muted' },
-  created: { label: 'New tasks', icon: 'pi-plus-circle', tone: '--status-dot-new' },
-  done: { label: 'Done', icon: 'pi-check-circle', tone: '--status-dot-done' },
+  open: { label: 'dashboard.kpi.open', icon: 'pi-inbox', tone: '--orange' },
+  inProgress: { label: 'dashboard.series.inProgress', icon: 'pi-sync', tone: '--status-dot-progress' },
+  overdue: { label: 'common.overdue', icon: 'pi-exclamation-circle', tone: '--app-danger' },
+  unassigned: { label: 'common.unassigned', icon: 'pi-user-minus', tone: '--app-muted' },
+  created: { label: 'dashboard.kpi.created', icon: 'pi-plus-circle', tone: '--status-dot-new' },
+  done: { label: 'dashboard.series.done', icon: 'pi-check-circle', tone: '--status-dot-done' },
+};
+
+const kpiHints: Record<Exclude<DashboardKpiModel['key'], 'created' | 'done'>, string> = {
+  open: 'dashboard.kpi.openHint',
+  inProgress: 'dashboard.kpi.inProgressHint',
+  overdue: 'dashboard.kpi.overdueHint',
+  unassigned: 'dashboard.kpi.unassignedHint',
 };
 
 @Component({
@@ -75,6 +84,7 @@ const kpiLooks: Record<DashboardKpiModel['key'], { label: string; icon: string; 
     DashboardChartComponent,
     DashboardDeadlinesComponent,
     DashboardToolbarComponent,
+    TranslocoDirective,
   ],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
@@ -87,6 +97,7 @@ export class Dashboard implements OnDestroy {
   private readonly document = inject(DOCUMENT);
   private readonly destroyRef = inject(DestroyRef);
   private readonly actions$ = inject(Actions);
+  private readonly transloco = inject(TranslocoService);
   private readonly params = toSignal(this.route.queryParamMap, {
     initialValue: this.route.snapshot.queryParamMap,
   });
@@ -94,7 +105,13 @@ export class Dashboard implements OnDestroy {
   private ageTimer: ReturnType<typeof setInterval> | null = null;
   private entered = false;
 
-  readonly periodOptions = DASHBOARD_PERIOD_OPTIONS;
+  readonly periodOptions = computed(() => {
+    currentLanguage();
+    return DASHBOARD_PERIOD_OPTIONS.map((option) => ({
+      ...option,
+      label: this.transloco.translate(option.label),
+    }));
+  });
   readonly today = startOfToday();
   readonly model = this.store.selectSignal(DashboardStoreSelectors.getModel);
   readonly loading = this.store.selectSignal(DashboardStoreSelectors.getLoading);
@@ -127,13 +144,15 @@ export class Dashboard implements OnDestroy {
   });
 
   readonly customError = computed(() => {
+    currentLanguage();
     const from = this.customFrom();
     const to = this.customTo();
-    if (!from || !to) return 'Pick both a start and an end date';
-    if (from > to) return "The start date can't be after the end date";
-    if (to > this.today) return 'Pick dates up to today';
+    const text = (key: string) => this.transloco.translate(key);
+    if (!from || !to) return text('dashboard.range.both');
+    if (from > to) return text('dashboard.range.order');
+    if (to > this.today) return text('dashboard.range.untilToday');
     if (Math.round((to.getTime() - from.getTime()) / dayMs) + 1 > maxRangeDays) {
-      return 'Pick a range of one year or less';
+      return text('dashboard.range.year');
     }
     return null;
   });
@@ -145,17 +164,20 @@ export class Dashboard implements OnDestroy {
       selected && !options.some((item) => item.id === selected.id)
         ? [selected, ...options]
         : options;
+    currentLanguage();
     return [
-      { id: '', label: 'All projects' },
+      { id: '', label: this.transloco.translate('dashboard.allProjects') },
       ...entries.map((item) => ({ id: item.id, label: `#${item.code} ${item.title}` })),
     ];
   });
 
   readonly periodText = computed(() => {
+    currentLanguage();
     const data = this.model();
     if (!data) return '';
     if (data.period === 'custom') return rangeText(data.from, data.to);
-    return DASHBOARD_PERIOD_OPTIONS.find((option) => option.value === data.period)?.label ?? '';
+    const key = DASHBOARD_PERIOD_OPTIONS.find((option) => option.value === data.period)?.label;
+    return key ? this.transloco.translate(key) : '';
   });
   // only the dates, project and period name are already in the fields next to it
   readonly scopeText = computed(() => {
@@ -165,28 +187,28 @@ export class Dashboard implements OnDestroy {
   readonly updatedText = computed(() => {
     const generatedAt = this.model()?.generatedAt;
     if (!generatedAt) return '';
+    currentLanguage();
     const minutes = Math.max(0, Math.floor((this.now() - Date.parse(generatedAt)) / 60_000));
-    return minutes === 0 ? 'Updated just now' : `Updated ${minutes} min ago`;
+    return minutes === 0
+      ? this.transloco.translate('dashboard.updatedNow')
+      : this.transloco.translate('dashboard.updatedAgo', { count: minutes });
   });
 
   readonly kpiCards = computed<KpiCard[]>(() => {
+    currentLanguage();
     const kpis = this.model()?.kpis ?? [];
     const period = this.periodText();
-    const hints: Record<DashboardKpiModel['key'], string> = {
-      open: 'New and in progress',
-      inProgress: 'Being worked on',
-      overdue: 'Past the deadline',
-      unassigned: 'Not done, nobody assigned',
-      created: period,
-      done: period,
-    };
     return (['open', 'inProgress', 'overdue', 'unassigned', 'created', 'done'] as const)
       .map((key) => kpis.find((kpi) => kpi.key === key))
       .filter((kpi) => kpi !== undefined)
       .map((kpi) => ({
         key: kpi.key,
         ...kpiLooks[kpi.key],
-        hint: hints[kpi.key],
+        label: this.transloco.translate(kpiLooks[kpi.key].label),
+        hint:
+          kpi.key === 'created' || kpi.key === 'done'
+            ? period
+            : this.transloco.translate(kpiHints[kpi.key]),
         value: kpi.value,
         alert: kpi.key === 'overdue' && kpi.value > 0,
         delta: kpi.changePercent ?? null,
@@ -196,8 +218,9 @@ export class Dashboard implements OnDestroy {
   });
 
   readonly granularityText = computed(() => {
+    currentLanguage();
     const granularity = this.model()?.granularity;
-    return granularity ? `per ${granularity}` : '';
+    return granularity ? this.transloco.translate(`dashboard.granularity.${granularity}`) : '';
   });
   readonly mainLabels = computed(() => {
     const data = this.model();
@@ -211,11 +234,16 @@ export class Dashboard implements OnDestroy {
     const series = this.model()?.mainChart.series ?? [];
     const values = (key: 'created' | 'started' | 'done') =>
       series.find((item) => item.key === key)?.data ?? [];
+    currentLanguage();
     return [
       // same colors as status dots
-      { label: 'New', values: values('created'), color: '--status-dot-new' },
-      { label: 'In progress', values: values('started'), color: '--status-dot-progress' },
-      { label: 'Done', values: values('done'), color: '--status-dot-done' },
+      { label: this.transloco.translate('dashboard.series.new'), values: values('created'), color: '--status-dot-new' },
+      {
+        label: this.transloco.translate('dashboard.series.inProgress'),
+        values: values('started'),
+        color: '--status-dot-progress',
+      },
+      { label: this.transloco.translate('dashboard.series.done'), values: values('done'), color: '--status-dot-done' },
     ];
   });
 
@@ -228,13 +256,16 @@ export class Dashboard implements OnDestroy {
   readonly statusLabels = computed(
     () => this.statusChart()?.segments.map((item) => item.label) ?? [],
   );
-  readonly statusSeries = computed<DashboardChartSeries[]>(() => [
+  readonly statusSeries = computed<DashboardChartSeries[]>(() => {
+    currentLanguage();
+    return [
     {
-      label: 'Tasks',
+      label: this.transloco.translate('dashboard.chart.tasks'),
       values: this.statusChart()?.segments.map((item) => item.value) ?? [],
       color: '--orange',
     },
-  ]);
+  ];
+  });
   readonly statusColors = computed(
     () =>
       this.statusChart()?.segments.map((item) =>
@@ -248,13 +279,16 @@ export class Dashboard implements OnDestroy {
   readonly priorityLabels = computed(
     () => this.priorityChart()?.segments.map((item) => item.label) ?? [],
   );
-  readonly prioritySeries = computed<DashboardChartSeries[]>(() => [
+  readonly prioritySeries = computed<DashboardChartSeries[]>(() => {
+    currentLanguage();
+    return [
     {
-      label: 'Tasks not done',
+      label: this.transloco.translate('dashboard.tasksNotDone'),
       values: this.priorityChart()?.segments.map((item) => item.value) ?? [],
       color: '--orange',
     },
-  ]);
+  ];
+  });
   readonly priorityColors = computed(
     () =>
       this.priorityChart()?.segments.map((item) => {
@@ -274,27 +308,32 @@ export class Dashboard implements OnDestroy {
   readonly workloadSegments = computed(
     () => this.model()?.workload?.segments.filter((item) => item.value > 0) ?? [],
   );
-  readonly workloadLabels = computed(() =>
-    this.workloadSegments().map((item) =>
+  readonly workloadLabels = computed(() => {
+    currentLanguage();
+    return this.workloadSegments().map((item) =>
       item.kind === 'user'
         ? personShortName(item.person)
         : item.kind === 'others'
-          ? 'Others'
-          : 'Unassigned',
-    ),
-  );
-  readonly workloadTooltips = computed(() =>
-    this.workloadSegments().map((item, index) =>
-      item.kind === 'others' ? 'Other people' : this.workloadLabels()[index],
-    ),
-  );
-  readonly workloadSeries = computed<DashboardChartSeries[]>(() => [
+          ? this.transloco.translate('dashboard.others')
+          : this.transloco.translate('common.unassigned'),
+    );
+  });
+  readonly workloadTooltips = computed(() => {
+    currentLanguage();
+    return this.workloadSegments().map((item, index) =>
+      item.kind === 'others' ? this.transloco.translate('dashboard.otherPeople') : this.workloadLabels()[index],
+    );
+  });
+  readonly workloadSeries = computed<DashboardChartSeries[]>(() => {
+    currentLanguage();
+    return [
     {
-      label: 'Tasks not done',
+      label: this.transloco.translate('dashboard.tasksNotDone'),
       values: this.workloadSegments().map((item) => item.value),
       color: '--orange',
     },
-  ]);
+  ];
+  });
   readonly workloadDisabledIndices = computed(() =>
     this.workloadSegments().flatMap((item, index) => (item.kind === 'others' ? [index] : [])),
   );
@@ -305,13 +344,16 @@ export class Dashboard implements OnDestroy {
   readonly secondaryLabels = computed(
     () => this.model()?.secondaryChart.segments.map((item) => `#${item.code} ${item.label}`) ?? [],
   );
-  readonly secondarySeries = computed<DashboardChartSeries[]>(() => [
+  readonly secondarySeries = computed<DashboardChartSeries[]>(() => {
+    currentLanguage();
+    return [
     {
-      label: 'Tasks not done',
+      label: this.transloco.translate('dashboard.tasksNotDone'),
       values: this.model()?.secondaryChart.segments.map((item) => item.value) ?? [],
       color: '--orange',
     },
-  ]);
+  ];
+  });
   readonly secondaryColors = computed(
     () => this.model()?.secondaryChart.segments.map(() => '--orange') ?? [],
   );
@@ -507,7 +549,7 @@ export class Dashboard implements OnDestroy {
 }
 
 // angular formatter like history and attachments, Intl writes "Sept" in en-GB
-const date = (value: Date, format: string) => formatDate(value, format, 'en-US');
+const date = (value: Date, format: string) => formatDate(value, format, angularLocale());
 
 function rangeText(from: string, to: string): string {
   const start = fromIsoDate(from);

@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { DatePickerModule } from 'primeng/datepicker';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
@@ -34,6 +35,7 @@ export type TaskFormGroup = FormGroup<{
     PersonInitialsPipe,
     PersonNamePipe,
     LabelForDirective,
+    TranslocoDirective,
   ],
   templateUrl: './task-form-fields.component.html',
   styleUrls: [
@@ -43,6 +45,7 @@ export type TaskFormGroup = FormGroup<{
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TaskFormFieldsComponent {
+  private readonly transloco = inject(TranslocoService);
   readonly form = input.required<TaskFormGroup>();
   readonly submitted = input(false);
   readonly priorities = input<DictionaryModel[]>([]);
@@ -55,13 +58,20 @@ export class TaskFormFieldsComponent {
     const control = this.form().controls[name];
     if ((!this.submitted() && !control.touched) || !control.errors) return '';
     if (control.errors['required']) {
-      const label = name === 'title' ? 'Name' : name === 'priorityId' ? 'Priority' : 'Status';
-      return `${label} is required.`;
+      const key =
+        name === 'title'
+          ? 'tasks.nameRequired'
+          : name === 'priorityId'
+            ? 'tasks.priorityRequired'
+            : 'tasks.statusRequired';
+      return this.transloco.translate(key);
     }
     if (control.errors['maxlength']) {
-      return `Maximum ${control.errors['maxlength'].requiredLength} characters.`;
+      return this.transloco.translate('validation.maxLength', {
+        max: control.errors['maxlength'].requiredLength,
+      });
     }
-    return 'Invalid value.';
+    return this.transloco.translate('common.invalid');
   }
 
   onDateInput(event: Event): void {

@@ -9,6 +9,7 @@ import {
   output,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { TranslocoDirective } from '@jsverse/transloco';
 import { MultiSelectFilterEvent, MultiSelectModule } from 'primeng/multiselect';
 import { WorkItemRefComponent } from '../../../../shared/components/work-item-ref/work-item-ref.component';
 import { filterPanelStyle } from '../task-filters/filter-option';
@@ -21,7 +22,7 @@ const nearEnd = 48;
 // options come a page at a time: typing searches on the server, scrolling loads the next page
 @Component({
   selector: 'app-ref-multiselect',
-  imports: [FormsModule, MultiSelectModule, WorkItemRefComponent, FilterSummaryPipe],
+  imports: [FormsModule, MultiSelectModule, WorkItemRefComponent, FilterSummaryPipe, TranslocoDirective],
   templateUrl: './ref-multiselect.component.html',
   styleUrl: './ref-multiselect.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

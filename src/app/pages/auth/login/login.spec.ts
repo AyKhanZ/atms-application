@@ -5,6 +5,7 @@ import { Features } from '../../../store/features.enum';
 import { initialAuthState } from '../../../store/auth/auth.state';
 import { LoginComponent } from './login';
 
+import { translocoTestingProviders } from '../../../core/testing/transloco-testing';
 describe('LoginComponent notice', () => {
   const render = (state: unknown) => {
     history.replaceState(state, '');
@@ -18,7 +19,7 @@ describe('LoginComponent notice', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [LoginComponent],
-      providers: [
+      providers: [...translocoTestingProviders(), 
         provideRouter([]),
         provideMockStore({ initialState: { [Features.Auth]: initialAuthState } }),
       ],

@@ -1,7 +1,7 @@
-<form id="taskForm" class="create-form" [formGroup]="form()" (ngSubmit)="submitForm.emit()">
+<form id="taskForm" class="create-form" *transloco="let t" [formGroup]="form()" (ngSubmit)="submitForm.emit()">
   <label class="field full-field title-field">
-    <span>Name <b>*</b></span>
-    <input pInputText formControlName="title" maxlength="100" placeholder="Enter task name" />
+    <span>{{ t('common.name') }} <b>*</b></span>
+    <input pInputText formControlName="title" maxlength="100" [placeholder]="t('tasks.namePlaceholder')" />
     <div class="field-meta">
       <small [class.visible]="error('title')">{{ error('title') || ' ' }}</small>
       <em>{{ form().controls.title.value?.length || 0 }}/100</em>
@@ -9,12 +9,12 @@
   </label>
 
   <label class="field full-field description-field">
-    <span>Description</span>
+    <span>{{ t('common.description') }}</span>
     <textarea
       pTextarea
       formControlName="description"
       maxlength="2000"
-      placeholder="Describe the expected result and acceptance notes"
+      [placeholder]="t('tasks.descriptionPlaceholder')"
     ></textarea>
     <div class="field-meta">
       <small></small><em>{{ form().controls.description.value?.length || 0 }}/2000</em>
@@ -25,7 +25,7 @@
 
   <div class="task-classification-grid">
     <div class="field">
-      <label id="taskPriorityLabel" appLabelFor="taskPriority">Priority <b>*</b></label>
+      <label id="taskPriorityLabel" appLabelFor="taskPriority">{{ t('common.priority') }} <b>*</b></label>
       <p-select
         inputId="taskPriority"
         ariaLabelledBy="taskPriorityLabel"
@@ -33,7 +33,7 @@
         [options]="priorities()"
         optionLabel="name"
         optionValue="id"
-        placeholder="Select priority"
+        [placeholder]="t('tickets.selectPriority')"
         appendTo="body"
       />
       <small [class.visible]="error('priorityId')">{{ error('priorityId') || ' ' }}</small>
@@ -41,7 +41,7 @@
 
     @if (isEdit()) {
       <div class="field">
-        <label id="taskStatusLabel" appLabelFor="taskStatus">Status <b>*</b></label>
+        <label id="taskStatusLabel" appLabelFor="taskStatus">{{ t('common.status') }} <b>*</b></label>
         <p-select
           inputId="taskStatus"
           ariaLabelledBy="taskStatusLabel"
@@ -49,7 +49,7 @@
           [options]="statuses()"
           optionLabel="name"
           optionValue="id"
-          placeholder="Select status"
+          [placeholder]="t('tickets.selectStatus')"
           appendTo="body"
         />
         <small [class.visible]="error('statusId')">{{ error('statusId') || ' ' }}</small>
@@ -59,7 +59,7 @@
 
   <div class="task-ownership-grid">
     <div class="field">
-      <label id="taskAssigneeLabel" appLabelFor="taskAssignee">Assignee</label>
+      <label id="taskAssigneeLabel" appLabelFor="taskAssignee">{{ t('common.assignee') }}</label>
       <p-select
         class="task-assignee-select"
         inputId="taskAssignee"
@@ -69,12 +69,12 @@
         [filter]="true"
         filterBy="name,surname,email"
         optionValue="id"
-        placeholder="Unassigned"
+        [placeholder]="t('common.unassigned')"
         [showClear]="true"
         panelStyleClass="assignee-select-panel"
         appendTo="body"
-        emptyMessage="No employees available"
-        emptyFilterMessage="No employees found"
+        [emptyMessage]="t('tasks.noEmployees')"
+        [emptyFilterMessage]="t('tasks.noEmployeesFound')"
       >
         <ng-template #selectedItem let-participant>
           <span class="assignee-selection">
@@ -106,12 +106,12 @@
     </div>
 
     <div class="field">
-      <label for="taskDeadline">Deadline</label>
+      <label for="taskDeadline">{{ t('common.deadline') }}</label>
       <p-datepicker
         inputId="taskDeadline"
         formControlName="deadline"
         dateFormat="dd.mm.yy"
-        placeholder="Select deadline"
+        [placeholder]="t('tickets.selectDeadline')"
         iconDisplay="input"
         [showIcon]="true"
         [readonlyInput]="false"

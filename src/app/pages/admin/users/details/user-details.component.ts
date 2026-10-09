@@ -1,4 +1,4 @@
-import { DatePipe } from '@angular/common';
+import { AppDatePipe } from '../../../../shared/pipes/app-date.pipe';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -9,6 +9,8 @@ import {
   OnInit,
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
+import { currentLanguage } from '../../../../core/i18n/active-language';
 import { Store } from '@ngrx/store';
 import { ConfirmationService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
@@ -31,7 +33,7 @@ import { UsersStoreActions, UsersStoreSelectors } from '../../../../store/users'
 @Component({
   selector: 'app-user-details',
   imports: [
-    DatePipe,
+    AppDatePipe,
     RouterLink,
     ButtonModule,
     TagModule,
@@ -39,6 +41,7 @@ import { UsersStoreActions, UsersStoreSelectors } from '../../../../store/users'
     ConfirmDialogComponent,
     OrganizationLogoComponent,
     ProfileAvatarComponent,
+    TranslocoDirective,
   ],
   providers: [ConfirmationService],
   templateUrl: './user-details.component.html',
@@ -50,6 +53,7 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly store = inject(Store);
   private readonly confirmation = inject(ConfirmationService);
+  private readonly transloco = inject(TranslocoService);
   private readonly userDisplay = inject(UserDisplayService);
   private readonly breadcrumbOverride = inject(BreadcrumbOverrideService);
   private readonly me = this.store.selectSignal(UserStoreSelectors.getMe);
@@ -65,6 +69,7 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
   readonly loading = this.store.selectSignal(UsersStoreSelectors.isLoading);
   readonly submitted = this.store.selectSignal(UsersStoreSelectors.isSubmitted);
   readonly statusAction = computed(() => {
+    currentLanguage();
     const person = this.user();
     const me = this.me();
     // only the super admin switches people on and off, never on themselves or another super admin
@@ -72,11 +77,19 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
     if (person.id === me.id || isSuperAdmin(person.roles ?? [])) return null;
 
     if (person.userStatus?.id === UserStatus.Active) {
-      return { label: 'Deactivate', icon: 'pi pi-ban', userStatusId: UserStatus.Inactive };
+      return {
+        label: this.transloco.translate('users.deactivate'),
+        icon: 'pi pi-ban',
+        userStatusId: UserStatus.Inactive,
+      };
     }
 
     if (person.userStatus?.id === UserStatus.Inactive) {
-      return { label: 'Activate', icon: 'pi pi-check', userStatusId: UserStatus.Active };
+      return {
+        label: this.transloco.translate('users.activate'),
+        icon: 'pi pi-check',
+        userStatusId: UserStatus.Active,
+      };
     }
 
     return null;
@@ -152,12 +165,12 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
     const deactivating = action.userStatusId === UserStatus.Inactive;
     this.confirmation.confirm({
       key: 'userStatus',
-      header: deactivating ? 'Deactivate user?' : 'Activate user?',
-      message: deactivating
-        ? `${this.fullName()}\nThey won't be able to sign in, and they'll be signed out within 25 minutes.`
-        : `${this.fullName()}\nThey will be able to sign in again.`,
+      header: this.transloco.translate(deactivating ? 'users.deactivateTitle' : 'users.activateTitle'),
+      message: this.transloco.translate(deactivating ? 'users.deactivateMessage' : 'users.activateMessage', {
+        name: this.fullName(),
+      }),
       acceptLabel: action.label,
-      rejectLabel: 'Cancel',
+      rejectLabel: this.transloco.translate('common.cancel'),
       acceptButtonProps: confirmTone(deactivating ? 'danger' : 'warning'),
       accept: () =>
         this.store.dispatch(

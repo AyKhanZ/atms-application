@@ -7,13 +7,13 @@ export interface DashboardPeriodOption {
 }
 
 export const DASHBOARD_PERIOD_OPTIONS: DashboardPeriodOption[] = [
-  { value: 'today', label: 'Today' },
-  { value: '7d', label: 'Last 7 days' },
-  { value: '30d', label: 'Last 30 days' },
-  { value: 'thisMonth', label: 'This month' },
-  { value: '6m', label: 'Last 6 months' },
-  { value: '12m', label: 'Last 12 months' },
-  { value: 'custom', label: 'Custom range' },
+  { value: 'today', label: 'common.today' },
+  { value: '7d', label: 'dashboard.periodOption.last7' },
+  { value: '30d', label: 'dashboard.periodOption.last30' },
+  { value: 'thisMonth', label: 'dashboard.periodOption.thisMonth' },
+  { value: '6m', label: 'dashboard.periodOption.last6' },
+  { value: '12m', label: 'dashboard.periodOption.last12' },
+  { value: 'custom', label: 'dashboard.periodOption.custom' },
 ];
 
 export const DEFAULT_DASHBOARD_QUERY: DashboardQuery = {

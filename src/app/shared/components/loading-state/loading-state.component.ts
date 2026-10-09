@@ -1,11 +1,13 @@
-import { booleanAttribute, ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { booleanAttribute, ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
+import { TranslocoService } from '@jsverse/transloco';
+import { currentLanguage } from '../../../core/i18n/active-language';
 
 @Component({
   selector: 'app-loading-state',
   template: `
     <div class="loading-state" role="status">
       <i class="pi pi-spin pi-spinner" aria-hidden="true"></i>
-      <span>{{ text() }}</span>
+      <span>{{ shown() }}</span>
     </div>
   `,
   styleUrl: './loading-state.component.scss',
@@ -13,7 +15,12 @@ import { booleanAttribute, ChangeDetectionStrategy, Component, input } from '@an
   host: { '[class.compact]': 'compact()' },
 })
 export class LoadingStateComponent {
-  readonly text = input('Loading...');
+  private readonly transloco = inject(TranslocoService);
+  readonly text = input<string | undefined>(undefined);
   // one line, for lists inside a card
   readonly compact = input(false, { transform: booleanAttribute });
+  readonly shown = computed(() => {
+    currentLanguage();
+    return this.text() ?? this.transloco.translate('common.loading');
+  });
 }

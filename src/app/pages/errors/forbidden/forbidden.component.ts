@@ -2,9 +2,12 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { AuthStoreActions } from '../../../store/auth';
+import { LanguageSwitcherComponent } from '../../../shared/components/language-switcher/language-switcher.component';
+import { TranslocoDirective } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-forbidden',
+  imports: [LanguageSwitcherComponent, TranslocoDirective],
   templateUrl: './forbidden.component.html',
   styleUrl: './forbidden.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

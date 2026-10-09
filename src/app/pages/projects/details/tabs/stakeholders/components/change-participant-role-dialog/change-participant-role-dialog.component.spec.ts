@@ -4,6 +4,7 @@ import {
   WorkProjectParticipantModel,
   WorkProjectRoleModel,
 } from '../../../../../../../core/models/work-projects';
+import { translocoTestingProviders } from '../../../../../../../core/testing/transloco-testing';
 import { ChangeParticipantRoleDialogComponent } from './change-participant-role-dialog.component';
 
 describe('ChangeParticipantRoleDialogComponent', () => {
@@ -36,6 +37,7 @@ describe('ChangeParticipantRoleDialogComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ChangeParticipantRoleDialogComponent],
+      providers: [...translocoTestingProviders()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ChangeParticipantRoleDialogComponent);

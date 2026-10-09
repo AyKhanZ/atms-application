@@ -1,4 +1,5 @@
 import { Injectable, inject } from '@angular/core';
+import { TranslocoService } from '@jsverse/transloco';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import {
@@ -28,6 +29,7 @@ import { CommentListState, commentsKey } from './comments.state';
 @Injectable()
 export class CommentsEffects {
   private readonly actions$ = inject(Actions);
+  private readonly transloco = inject(TranslocoService);
   private readonly store = inject(Store);
   private readonly comments = inject(CommentsService);
   private readonly realtime = inject(RealtimeService);
@@ -50,7 +52,7 @@ export class CommentsEffects {
             this.comments.getComments(projectId, workTaskId).pipe(
               map((page) => ActionsStore.loadSuccess({ listKey, page })),
               catchError(() =>
-                of(ActionsStore.loadFailure({ listKey, error: "Couldn't load comments." })),
+                of(ActionsStore.loadFailure({ listKey, error: this.transloco.translate('comments.loadFailed') })),
               ),
               takeUntil(this.gone(listKey)),
             ),
@@ -73,7 +75,7 @@ export class CommentsEffects {
                 of(
                   ActionsStore.loadMoreFailure({
                     listKey,
-                    error: "Couldn't load more comments. Try again.",
+                    error: this.transloco.translate('comments.loadMoreFailed'),
                   }),
                 ),
               ),
@@ -102,7 +104,7 @@ export class CommentsEffects {
                   ActionsStore.loadLinkedFailure({
                     listKey,
                     commentId,
-                    error: "The linked comment couldn't be found.",
+                    error: this.transloco.translate('comments.linkedMissing'),
                   }),
                 ),
               ),

@@ -1,3 +1,4 @@
+<ng-container *transloco="let t">
 @let file = attachment();
 
 <article
@@ -14,14 +15,16 @@
     type="button"
     class="file-name"
     [title]="file.fileName"
-    [attr.aria-label]="(canPreview() ? 'Preview ' : 'Download ') + file.fileName"
+    [attr.aria-label]="
+      t(canPreview() ? 'attachments.previewName' : 'attachments.downloadName', { name: file.fileName })
+    "
     (click)="open()"
   >
     <span class="file-name__text">{{ file.fileName }}</span>
     <!-- columns dont fit on a phone, they go under the name -->
     <span class="file-name__meta">
       {{ file.size | fileSize }} · {{ file.createdBy | personShortName }} ·
-      {{ file.createdAt | date: 'd MMM' }}
+      {{ file.createdAt | appDate: 'd MMM' }}
     </span>
   </button>
 
@@ -34,9 +37,9 @@
     [shortName]="true"
   />
 
-  <time class="file-date" [attr.datetime]="file.createdAt" [title]="file.createdAt | date: 'd MMM y, HH:mm'">
-    {{ file.createdAt | date: 'd MMM' }}<span class="file-date__year">
-      {{ file.createdAt | date: 'y' }}</span
+  <time class="file-date" [attr.datetime]="file.createdAt" [title]="file.createdAt | appDate: 'd MMM y, HH:mm'">
+    {{ file.createdAt | appDate: 'd MMM' }}<span class="file-date__year">
+      {{ file.createdAt | appDate: 'y' }}</span
     >
   </time>
 
@@ -45,8 +48,8 @@
       <button
         type="button"
         class="icon-button file-actions__quick"
-        aria-label="Preview"
-        pTooltip="Preview"
+        [attr.aria-label]="t('common.preview')"
+        [pTooltip]="t('common.preview')"
         tooltipPosition="top"
         (click)="preview.emit(file)"
       >
@@ -58,8 +61,8 @@
     <button
       type="button"
       class="icon-button file-actions__quick"
-      aria-label="Download"
-      pTooltip="Download"
+      [attr.aria-label]="t('common.download')"
+      [pTooltip]="t('common.download')"
       tooltipPosition="top"
       (click)="download.emit(file)"
     >
@@ -68,7 +71,7 @@
     <button
       type="button"
       class="icon-button file-actions__menu"
-      [attr.aria-label]="'Options for ' + file.fileName"
+      [attr.aria-label]="t('attachments.optionsFor', { name: file.fileName })"
       [disabled]="pending()"
       (click)="openMenu($event, menu)"
     >
@@ -82,3 +85,4 @@
 </article>
 
 <p-menu #menu [popup]="true" [model]="menuItems()" appendTo="body" />
+</ng-container>

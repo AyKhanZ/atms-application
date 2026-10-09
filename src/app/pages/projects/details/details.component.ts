@@ -1,4 +1,4 @@
-import { DatePipe } from '@angular/common';
+import { AppDatePipe } from '../../../shared/pipes/app-date.pipe';
 import { HttpErrorResponse } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
@@ -12,11 +12,13 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { Actions, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { ConfirmationService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { currentLanguage } from '../../../core/i18n/active-language';
 import { HasProjectAccessDirective } from '../../../core/directives/has-project-access.directive';
 import { HasRoleDirective } from '../../../core/directives/has-role.directive';
 import { Permissions } from '../../../core/enums/permissions.enum';
@@ -54,7 +56,7 @@ type ProjectTab = 'details' | 'stakeholders' | 'groups' | 'attachments' | 'histo
   imports: [
     LoadingStateComponent,
     WorkItemRefComponent,
-    DatePipe,
+    AppDatePipe,
     ButtonModule,
     ConfirmDialogModule,
     HasProjectAccessDirective,
@@ -68,6 +70,7 @@ type ProjectTab = 'details' | 'stakeholders' | 'groups' | 'attachments' | 'histo
     StakeholdersTabComponent,
     PersonNamePipe,
     RelativeTimePipe,
+    TranslocoDirective,
   ],
   providers: [ConfirmationService, WorkGroupExpansionStateService, AttachmentTreeExpansionService],
   templateUrl: './details.component.html',
@@ -83,6 +86,7 @@ export class ProjectDetailsComponent implements OnDestroy {
   private readonly actions$ = inject(Actions);
   private readonly destroyRef = inject(DestroyRef);
   private readonly confirmation = inject(ConfirmationService);
+  private readonly transloco = inject(TranslocoService);
   private readonly workGroupExpansionState = inject(WorkGroupExpansionStateService);
   private readonly projectPermissionsRefresh = inject(ProjectPermissionsRefreshService);
   private readonly visiblePageRefresh = inject(VisiblePageRefreshService);
@@ -100,15 +104,22 @@ export class ProjectDetailsComponent implements OnDestroy {
   readonly Roles = Roles;
   readonly activeTab = signal<ProjectTab>('details');
   // Plan only for people who can see it
-  readonly tabs = computed<EntityTab<ProjectTab>[]>(() => [
-    { id: 'details', label: 'Details', icon: 'pi-align-left' },
-    { id: 'stakeholders', label: 'Stakeholders', icon: 'pi-users' },
-    ...(this.projectPermissions().includes(ProjectPermissions.Project.View)
-      ? ([{ id: 'groups', label: 'Plan', icon: 'pi-list-check' }] as EntityTab<ProjectTab>[])
-      : []),
-    { id: 'attachments', label: 'Attachments', icon: 'pi-paperclip' },
-    { id: 'history', label: 'History', icon: 'pi-history' },
-  ]);
+  readonly tabs = computed<EntityTab<ProjectTab>[]>(() => {
+    currentLanguage();
+    return [
+      { id: 'details', label: this.transloco.translate('common.details'), icon: 'pi-align-left' },
+      { id: 'stakeholders', label: this.transloco.translate('participants.title'), icon: 'pi-users' },
+      ...(this.projectPermissions().includes(ProjectPermissions.Project.View)
+        ? ([{ id: 'groups', label: this.transloco.translate('plan.tab'), icon: 'pi-list-check' }] as EntityTab<ProjectTab>[])
+        : []),
+      {
+        id: 'attachments',
+        label: this.transloco.translate('common.attachments'),
+        icon: 'pi-paperclip',
+      },
+      { id: 'history', label: this.transloco.translate('common.history'), icon: 'pi-history' },
+    ];
+  });
   readonly focusedMilestoneId = signal<string | null>(null);
   readonly id = this.route.snapshot.paramMap.get('projectId') ?? '';
 
@@ -116,7 +127,7 @@ export class ProjectDetailsComponent implements OnDestroy {
     void this.realtime.joinProject(this.id).catch(() => undefined);
     this.breadcrumbPath = `/projects/${this.id}`;
     // placeholder so the breadcrumb doesnt grow a segment after load
-    this.breadcrumbOverride.set(this.breadcrumbPath, 'Project');
+    this.breadcrumbOverride.set(this.breadcrumbPath, 'workItem.kind.project');
     effect(() => {
       const project = this.project();
       if (project)
@@ -216,11 +227,11 @@ export class ProjectDetailsComponent implements OnDestroy {
     const project = this.project();
     if (!project) return;
     this.confirmation.confirm({
-      header: 'Delete project?',
-      message: `“${project.title}” will be deleted. This action cannot be undone.`,
+      header: this.transloco.translate('projects.deleteTitle'),
+      message: this.transloco.translate('projects.deleteMessage', { title: project.title }),
       icon: 'pi pi-exclamation-triangle',
-      acceptLabel: 'Delete',
-      rejectLabel: 'Cancel',
+      acceptLabel: this.transloco.translate('common.delete'),
+      rejectLabel: this.transloco.translate('common.cancel'),
       acceptButtonStyleClass: 'p-button-danger',
       rejectButtonStyleClass: 'p-button-outlined',
       accept: () => this.store.dispatch(WorkProjectsStoreActions.deleteProject({ id: project.id })),

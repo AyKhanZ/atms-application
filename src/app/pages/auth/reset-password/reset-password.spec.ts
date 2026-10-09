@@ -6,6 +6,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { SnackBarService } from '../../../core/services/snack-bar.service';
 import { ResetPasswordComponent } from './reset-password';
 
+import { translocoTestingProviders } from '../../../core/testing/transloco-testing';
 describe('ResetPasswordComponent', () => {
   let auth: { resetPassword: ReturnType<typeof vi.fn> };
   let snackBar: { error: ReturnType<typeof vi.fn> };
@@ -25,7 +26,7 @@ describe('ResetPasswordComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [ResetPasswordComponent],
-      providers: [
+      providers: [...translocoTestingProviders(), 
         provideRouter([]),
         { provide: AuthService, useValue: auth },
         { provide: SnackBarService, useValue: snackBar },

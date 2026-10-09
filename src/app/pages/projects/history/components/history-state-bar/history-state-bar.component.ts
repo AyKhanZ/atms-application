@@ -4,6 +4,7 @@ import {
   ElementRef,
   afterRenderEffect,
   computed,
+  inject,
   input,
   signal,
   viewChild,
@@ -12,6 +13,9 @@ import { HistoryEntityType } from '../../../../../core/enums/history-entity-type
 import { HistoryField } from '../../../../../core/enums/history-field.enum';
 import { DictionaryModel } from '../../../../../core/models/dictionary.model';
 import { HistoryStateModel } from '../../../../../core/models/history';
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
+import { currentLanguage } from '../../../../../core/i18n/active-language';
+import { historyStateLabel } from '../../../../../core/utils/history.utils';
 import { HistoryTimePipe } from '../../../../../shared/pipes/history.pipe';
 import { PersonNamePipe } from '../../../../../shared/pipes/person-name.pipe';
 import { HistoryAuthorAvatarComponent } from '../history-author-avatar/history-author-avatar.component';
@@ -29,12 +33,20 @@ interface StateStep {
 // wide: one line scrolled to the end, so 20 moves back and forth keep the same height; phone: a column
 @Component({
   selector: 'app-history-state-bar',
-  imports: [HistoryAuthorAvatarComponent, HistoryTimePipe, HistoryValueComponent, PersonNamePipe],
+  imports: [
+    HistoryAuthorAvatarComponent,
+    HistoryTimePipe,
+    HistoryValueComponent,
+    PersonNamePipe,
+    TranslocoDirective,
+  ],
   templateUrl: './history-state-bar.component.html',
   styleUrl: './history-state-bar.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HistoryStateBarComponent {
+  private readonly transloco = inject(TranslocoService);
+
   protected readonly statusField = HistoryField.Status;
 
   readonly states = input<HistoryStateModel[] | null>(null);
@@ -49,6 +61,7 @@ export class HistoryStateBarComponent {
   private readonly track = viewChild<ElementRef<HTMLElement>>('track');
 
   readonly steps = computed<StateStep[]>(() => {
+    currentLanguage();
     const recorded = this.states();
     const current = this.current();
     const states: HistoryStateModel[] = recorded?.length
@@ -59,7 +72,9 @@ export class HistoryStateBarComponent {
 
     return states.map((state, index) => ({
       state,
-      label: stepLabel(state, index, !!recorded?.length),
+      label: historyStateLabel(state, index, !!recorded?.length, (key, params) =>
+        this.transloco.translate(key, params),
+      ),
       current: index === states.length - 1,
     }));
   });
@@ -74,10 +89,4 @@ export class HistoryStateBarComponent {
       if (track) track.scrollLeft = track.scrollWidth;
     });
   }
-}
-
-function stepLabel(state: HistoryStateModel, index: number, recorded: boolean): string {
-  if (!recorded) return 'Current';
-  if (index === 0) return state.changedAt ? 'Created' : 'Earlier';
-  return `Moved to ${state.status.name || 'Unknown'}`;
 }

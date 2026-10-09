@@ -9,6 +9,7 @@ import { OrganizationsStoreSelectors } from '../../../../store/organizations';
 import { UserStoreSelectors } from '../../../../store/user';
 import { DetailsComponent } from './details.component';
 
+import { translocoTestingProviders } from '../../../../core/testing/transloco-testing';
 describe('Organization DetailsComponent', () => {
   let store: MockStore;
 
@@ -44,7 +45,7 @@ describe('Organization DetailsComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [DetailsComponent],
-      providers: [
+      providers: [...translocoTestingProviders(), 
         provideRouter([]),
         provideMockStore({
           selectors: [
@@ -102,7 +103,7 @@ describe('Organization DetailsComponent', () => {
     );
 
     expect((fixture.nativeElement as HTMLElement).querySelector('p-tag')?.textContent).toContain(
-      '1 total',
+      '1 employee',
     );
   });
 });

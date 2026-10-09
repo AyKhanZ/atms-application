@@ -1,3 +1,4 @@
+<ng-container *transloco="let t">
 <div
   class="editor"
   [class.is-invalid]="!!error()"
@@ -11,8 +12,8 @@
       rows="1"
       [attr.maxlength]="maxLength()"
       [id]="id"
-      [attr.aria-label]="label()"
-      [placeholder]="placeholder()"
+      [attr.aria-label]="label() || t('comments.label')"
+      [placeholder]="placeholder() || t('comments.placeholder')"
       [value]="text()"
       [attr.aria-invalid]="!!error()"
       [attr.aria-describedby]="id + '-help'"
@@ -40,7 +41,7 @@
         [currentProjectId]="projectId()"
         [hint]="
           open.char === '#'
-            ? 'Type a code, or three letters of a title, to search everything you can open.'
+            ? t('comments.searchHint')
             : null
         "
         (picked)="pick($event)"
@@ -58,7 +59,7 @@
   @if (active()) {
     <div class="editor__bar">
       <app-comment-toolbar
-        [label]="label()"
+        [label]="label() || t('comments.label')"
         (triggered)="insertTrigger($event)"
         (formatted)="format($event)"
         (highlighted)="highlight($event)"
@@ -66,7 +67,7 @@
 
       <div class="editor__actions">
         <button pButton type="button" severity="secondary" [outlined]="true" (click)="cancel()">
-          <i class="pi pi-times" aria-hidden="true"></i><span>Cancel</span>
+          <i class="pi pi-times" aria-hidden="true"></i><span>{{ t('common.cancel') }}</span>
         </button>
         <button
           pButton
@@ -76,13 +77,16 @@
           [disabled]="!canSubmit()"
           (click)="submit()"
         >
-          {{ submitLabel() }}
+          {{ submitLabel() || t('common.save') }}
         </button>
       </div>
     </div>
 
     @if (text().trim()) {
-      <section class="editor__preview" [attr.aria-label]="label() + ' preview'">
+      <section
+        class="editor__preview"
+        [attr.aria-label]="t('comments.previewOf', { label: label() || t('comments.label') })"
+      >
         <app-comment-text
           [text]="stored()"
           [mentions]="previewPeople()"
@@ -94,3 +98,4 @@
     }
   }
 </div>
+</ng-container>

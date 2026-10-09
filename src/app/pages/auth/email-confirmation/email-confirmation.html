@@ -1,12 +1,20 @@
-<div class="container">
+<div class="container" *transloco="let t">
   <section class="auth-card" [class.auth-card--failed]="isFailed()">
     <div class="status-mark">
       <i [class]="iconClass()" aria-hidden="true"></i>
     </div>
 
     <div class="confirmation-content">
-      <h1>{{ title() }}</h1>
-      <p class="subtitle">{{ subtitle() }}</p>
+      @if (isSuccess()) {
+        <h1>{{ t('auth.emailConfirmed') }}</h1>
+        <p class="subtitle">{{ t('auth.emailConfirmedHint') }}</p>
+      } @else if (isAlreadyConfirmed()) {
+        <h1>{{ t('auth.emailAlreadyConfirmed') }}</h1>
+        <p class="subtitle">{{ t('auth.emailAlreadyHint') }}</p>
+      } @else {
+        <h1>{{ t('auth.confirmationFailed') }}</h1>
+        <p class="subtitle">{{ t('auth.confirmationFailedHint') }}</p>
+      }
     </div>
 
     @if (isFailed()) {
@@ -21,28 +29,26 @@
               formControlName="email"
               autocomplete="email"
             />
-            <label for="confirmationEmail">Email</label>
+            <label for="confirmationEmail">{{ t('common.email') }}</label>
           </p-floatlabel>
           <div class="field-error">
             @if (resendForm.controls.email.hasError('email') && resendForm.controls.email.touched) {
-              <small>Please enter a valid email address</small>
+              <small>{{ t('validation.email') }}</small>
             }
             @if (
               resendForm.controls.email.hasError('required') && resendForm.controls.email.touched
             ) {
-              <small>Email is required</small>
+              <small>{{ t('validation.emailRequired') }}</small>
             }
           </div>
         </div>
 
         @if (resendSent()) {
-          <p class="resend-success">
-            A new confirmation link has been sent. Please check your inbox.
-          </p>
+          <p class="resend-success">{{ t('auth.confirmationResent') }}</p>
         }
 
         <div class="navigation-wrapper">
-          <a routerLink="/login" class="back-link">Back to login</a>
+          <a routerLink="/login" class="back-link">{{ t('auth.backToLogin') }}</a>
         </div>
 
         <button
@@ -51,12 +57,12 @@
           class="submit-btn"
           [disabled]="resendForm.invalid || isResending()"
         >
-          {{ isResending() ? 'Sending...' : 'Request new link' }}
+          {{ isResending() ? t('auth.sending') : t('auth.requestNewConfirmation') }}
         </button>
       </form>
     } @else {
       <div class="confirmed-actions">
-        <a pButton routerLink="/login" class="submit-btn">Go to login</a>
+        <a pButton routerLink="/login" class="submit-btn">{{ t('auth.goToLogin') }}</a>
       </div>
     }
   </section>

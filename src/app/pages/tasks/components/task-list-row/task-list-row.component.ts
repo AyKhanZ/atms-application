@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { AppDatePipe } from '../../../../shared/pipes/app-date.pipe';
 import { WorkTaskModel } from '../../../../core/models/work-tasks';
 import { isOverdueTask } from '../../../../core/utils/deadline.utils';
 import { workTaskKind } from '../../../../core/utils/work-task.utils';
@@ -13,7 +13,7 @@ import { TaskStatusBadgeComponent } from '../../../projects/tasks/components/tas
 @Component({
   selector: 'app-task-list-row',
   imports: [
-    DatePipe,
+    AppDatePipe,
     WorkItemRefComponent,
     WorkItemAssigneeComponent,
     WorkItemPriorityComponent,

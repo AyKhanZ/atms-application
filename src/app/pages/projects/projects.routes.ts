@@ -17,7 +17,7 @@ export const PROJECTS_ROUTES: Routes = [
   },
   {
     path: 'create',
-    data: { breadcrumb: { title: 'New project' }, [transientInHistory]: true },
+    data: { breadcrumb: { title: 'projects.new' }, [transientInHistory]: true },
     canActivate: [roleGuard(Roles.SuperAdmin)],
     canDeactivate: [unsavedChangesGuard],
     loadComponent: () => import('./create/create.component').then((c) => c.ProjectCreateComponent),
@@ -35,7 +35,7 @@ export const PROJECTS_ROUTES: Routes = [
   },
   {
     path: ':projectId/tickets/create',
-    data: { breadcrumb: { title: 'New ticket' }, [transientInHistory]: true },
+    data: { breadcrumb: { title: 'tickets.new' }, [transientInHistory]: true },
     canActivate: [
       permissionGuard(Permissions.Project.View),
       projectPermissionGuard(ProjectPermissions.Ticket.Create),
@@ -61,7 +61,7 @@ export const PROJECTS_ROUTES: Routes = [
   },
   {
     path: ':projectId/tickets/:ticketId/tasks/create',
-    data: { breadcrumb: { title: 'New task' }, [transientInHistory]: true },
+    data: { breadcrumb: { title: 'tasks.new' }, [transientInHistory]: true },
     canActivate: [
       permissionGuard(Permissions.Project.View),
       projectPermissionGuard(ProjectPermissions.Task.Create),

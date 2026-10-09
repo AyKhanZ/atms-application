@@ -11,6 +11,7 @@ import { AuthSessionService, RefreshTokenMissingError } from '../services/auth-s
 
 const PUBLIC_ENDPOINTS = [
   '/health',
+  '/localization',
   '/auth/login',
   '/auth/refresh',
   '/account/forgot-password',

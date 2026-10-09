@@ -1,11 +1,12 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { TranslocoDirective } from '@jsverse/transloco';
 import { CommentList } from '../../../../../core/utils/comment-markdown.utils';
 import { CommentLookups } from '../../comment-view';
 import { CommentInlineComponent } from '../comment-inline/comment-inline.component';
 
 @Component({
   selector: 'app-comment-list',
-  imports: [CommentInlineComponent],
+  imports: [CommentInlineComponent, TranslocoDirective],
   templateUrl: './comment-list.component.html',
   styleUrl: './comment-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

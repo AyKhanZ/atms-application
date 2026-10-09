@@ -13,11 +13,12 @@
 } @else {
   <span
     class="assignee-chip assignee-chip--unassigned"
-    [attr.aria-label]="avatarOnly() ? 'Unassigned' : null"
+    *transloco="let t"
+    [attr.aria-label]="avatarOnly() ? t('common.unassigned') : null"
   >
     <i class="pi pi-user" aria-hidden="true"></i>
     @if (!avatarOnly()) {
-      <span>Unassigned</span>
+      <span>{{ t('common.unassigned') }}</span>
     }
   </span>
 }

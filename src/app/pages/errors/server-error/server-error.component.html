@@ -1,4 +1,5 @@
-<main class="server-page">
+<main class="server-page" *transloco="let t">
+  <app-language-switcher mode="instant" />
   <section class="server-card">
     <div class="server-visual" aria-hidden="true">
       <div class="server-rack">
@@ -10,9 +11,9 @@
     </div>
 
     <div class="server-copy">
-      <p class="eyebrow">Service unavailable</p>
-      <h1>Technical maintenance is in progress</h1>
-      <p>The API is not responding right now. Please wait a little and try again.</p>
+      <p class="eyebrow">{{ t('errors.serviceUnavailable') }}</p>
+      <h1>{{ t('errors.maintenance') }}</h1>
+      <p>{{ t('errors.maintenanceHint') }}</p>
     </div>
 
     <button pButton type="button" [disabled]="isChecking()" (click)="tryAgain()">
@@ -22,7 +23,7 @@
         [class.pi-spin]="isChecking()"
         [class.pi-spinner]="isChecking()"
       ></i>
-      <span>{{ isChecking() ? 'Checking...' : 'Try again' }}</span>
+      <span>{{ isChecking() ? t('errors.checking') : t('common.retry') }}</span>
     </button>
   </section>
 </main>

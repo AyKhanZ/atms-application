@@ -1,10 +1,10 @@
-<section class="panel dashboard-list">
+<section class="panel dashboard-list" *transloco="let t">
   <header class="dashboard-list__header">
     <div>
-      <h2>Upcoming deadlines</h2>
-      <small>Not done, due in the next 7 days</small>
+      <h2>{{ t('dashboard.deadlines.title') }}</h2>
+      <small>{{ t('dashboard.deadlines.hint') }}</small>
     </div>
-    <span class="dashboard-list__total" title="Tasks due in the next 7 days">{{ total() }}</span>
+    <span class="dashboard-list__total" [title]="t('dashboard.deadlines.total')">{{ total() }}</span>
   </header>
   <ul class="dashboard-list__items">
     @for (row of rows(); track row.item.ref.workTaskId) {
@@ -24,19 +24,19 @@
           <span class="dashboard-deadline__title">{{ row.item.title }}</span>
           <app-work-item-priority class="dashboard-deadline__priority" [priority]="row.priority" />
           <time class="dashboard-deadline__date" [attr.datetime]="row.item.deadline">{{
-            row.item.deadline | date: 'EEE, d MMM' : '+0400'
+            row.item.deadline | appDate: 'EEE, d MMM' : '+0400'
           }}</time>
         </button>
       </li>
     } @empty {
-      <li class="dashboard-list__empty">Nothing is due in the next 7 days</li>
+      <li class="dashboard-list__empty">{{ t('dashboard.deadlines.empty') }}</li>
     }
   </ul>
   @if (total() > rows().length) {
     <footer class="dashboard-deadlines__more">
-      <span>The nearest {{ rows().length }} of {{ total() }}</span>
+      <span>{{ t('dashboard.deadlines.nearest', { shown: rows().length, total: total() }) }}</span>
       <button type="button" (click)="showAll.emit()">
-        Show all <i class="pi pi-arrow-right" aria-hidden="true"></i>
+        {{ t('search.showAll') }} <i class="pi pi-arrow-right" aria-hidden="true"></i>
       </button>
     </footer>
   }

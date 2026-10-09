@@ -4,6 +4,7 @@ import { NotificationType } from '../../../core/enums/notification-type.enum';
 import { WorkTaskStatus } from '../../../core/enums/work-task-status.enum';
 import { NotificationModel } from '../../../core/models/notifications';
 import { NotificationItemComponent } from './notification-item.component';
+import { translocoTestingProviders } from '../../../core/testing/transloco-testing';
 
 const notification = (overrides: Partial<NotificationModel> = {}): NotificationModel => ({
   id: 'n1',
@@ -33,6 +34,10 @@ const notification = (overrides: Partial<NotificationModel> = {}): NotificationM
 });
 
 describe('NotificationItemComponent', () => {
+  beforeEach(() => {
+    TestBed.configureTestingModule({ providers: [...translocoTestingProviders()] });
+  });
+
   const render = (value: NotificationModel) => {
     const fixture = TestBed.createComponent(NotificationItemComponent);
     fixture.componentRef.setInput('notification', value);

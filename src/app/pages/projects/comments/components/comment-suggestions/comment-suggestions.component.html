@@ -1,8 +1,9 @@
+<ng-container *transloco="let t">
 <ul
   class="suggestions"
   role="listbox"
   [id]="listId()"
-  [attr.aria-label]="trigger() === '@' ? 'People to mention' : 'Work to link'"
+  [attr.aria-label]="trigger() === '@' ? t('comments.people') : t('comments.work')"
   [attr.aria-busy]="loading()"
 >
   @for (item of items(); track $index; let index = $index) {
@@ -35,11 +36,11 @@
   } @empty {
     <li class="suggestion suggestion--empty" role="option" aria-disabled="true">
       @if (loading()) {
-        <i class="pi pi-spin pi-spinner" aria-hidden="true"></i><span>Searching…</span>
+        <i class="pi pi-spin pi-spinner" aria-hidden="true"></i><span>{{ t('comments.searching') }}</span>
       } @else if (trigger() === '@') {
-        No project member with this name
+        {{ t('comments.noMember') }}
       } @else {
-        Nothing found
+        {{ t('comments.nothingFound') }}
       }
     </li>
   }
@@ -47,3 +48,4 @@
     <li class="suggestions__hint" role="presentation">{{ text }}</li>
   }
 </ul>
+</ng-container>

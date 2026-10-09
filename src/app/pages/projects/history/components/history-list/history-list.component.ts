@@ -8,13 +8,15 @@ import {
   output,
   signal,
 } from '@angular/core';
+import { TranslocoDirective } from '@jsverse/transloco';
 import { TooltipModule } from 'primeng/tooltip';
 import { HistoryField } from '../../../../../core/enums/history-field.enum';
 import { HistoryEntryModel } from '../../../../../core/models/history';
 import {
   HistoryGroup,
-  HistoryGroupLabel,
+  HistoryGroupId,
   HistorySubject,
+  historyGroupKey,
 } from '../../../../../core/utils/history.utils';
 import {
   HistoryFieldListPipe,
@@ -39,6 +41,7 @@ import { HistoryValueComponent } from '../history-value/history-value.component'
     LoadMoreButtonComponent,
     PersonNamePipe,
     TooltipModule,
+    TranslocoDirective,
   ],
   templateUrl: './history-list.component.html',
   styleUrl: './history-list.component.scss',
@@ -46,6 +49,7 @@ import { HistoryValueComponent } from '../history-value/history-value.component'
 })
 export class HistoryListComponent {
   protected readonly statusField = HistoryField.Status;
+  protected readonly groupKey = historyGroupKey;
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
@@ -60,15 +64,15 @@ export class HistoryListComponent {
   readonly select = output<HistoryEntryModel>();
   readonly loadMore = output<void>();
 
-  protected readonly collapsed = signal<ReadonlySet<HistoryGroupLabel>>(new Set());
+  protected readonly collapsed = signal<ReadonlySet<HistoryGroupId>>(new Set());
   // rows of open groups, in drawing order
   private readonly visible = computed(() =>
     this.groups()
-      .filter((group) => !this.collapsed().has(group.label))
+      .filter((group) => !this.collapsed().has(group.id))
       .flatMap((group) => group.entries),
   );
 
-  toggle(label: HistoryGroupLabel): void {
+  toggle(label: HistoryGroupId): void {
     this.collapsed.update((current) => {
       const next = new Set(current);
       if (!next.delete(label)) next.add(label);

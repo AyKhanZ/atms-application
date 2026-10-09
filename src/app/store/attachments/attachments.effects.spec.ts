@@ -3,6 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideMockActions } from '@ngrx/effects/testing';
 import { Action } from '@ngrx/store';
 import { Subject } from 'rxjs';
+import { translocoTestingProviders } from '../../core/testing/transloco-testing';
 import { AttachmentListModel, AttachmentModel } from '../../core/models/attachments';
 import { AttachmentUploadFilesService } from '../../core/services/attachment-upload-files.service';
 import { AttachmentsService } from '../../core/services/attachments.service';
@@ -23,6 +24,7 @@ describe('AttachmentsEffects', () => {
     emitted = [];
     TestBed.configureTestingModule({
       providers: [
+        ...translocoTestingProviders(),
         AttachmentsEffects,
         provideMockActions(() => actions),
         {

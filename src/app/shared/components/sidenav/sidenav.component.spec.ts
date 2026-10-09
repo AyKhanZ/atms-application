@@ -6,6 +6,7 @@ import { Features } from '../../../store/features.enum';
 import { initialUserState } from '../../../store/user/user.state';
 import { SidenavComponent } from './sidenav.component';
 
+import { translocoTestingProviders } from '../../../core/testing/transloco-testing';
 describe('SidenavComponent', () => {
   let store: MockStore;
 
@@ -19,7 +20,7 @@ describe('SidenavComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [SidenavComponent],
-      providers: [
+      providers: [...translocoTestingProviders(), 
         provideRouter([]),
         provideMockStore({ initialState: { [Features.User]: initialUserState } }),
       ],

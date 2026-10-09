@@ -1,4 +1,5 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import {
   FormControl,
   NonNullableFormBuilder,
@@ -13,6 +14,7 @@ import { RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { AuthStoreActions, AuthStoreSelectors } from '../../../store/auth';
 import { LoginNavigationState } from '../../../core/models/auth/login-navigation-state';
+import { currentLanguage } from '../../../core/i18n/active-language';
 
 interface LoginCommand {
   email: FormControl<string>;
@@ -30,11 +32,13 @@ interface LoginCommand {
     InputTextModule,
     PasswordModule,
     RouterLink,
+    TranslocoDirective,
   ],
 })
 export class LoginComponent {
   private readonly store = inject(Store);
   private fb = inject(NonNullableFormBuilder);
+  private readonly transloco = inject(TranslocoService);
 
   readonly form = this.fb.group<LoginCommand>({
     email: this.fb.control('', [Validators.required, Validators.email, Validators.maxLength(100)]),
@@ -42,8 +46,16 @@ export class LoginComponent {
   });
 
   isLoading = this.store.selectSignal(AuthStoreSelectors.isLoading);
-  // set by reset password or "forgot password" in settings
-  readonly notice = loginNotice(history.state as LoginNavigationState | null);
+  // set by reset password or "forgot password" in settings; read again when the language changes
+  readonly notice = computed(() => {
+    currentLanguage();
+    const state = history.state as LoginNavigationState | null;
+    if (state?.passwordChanged) return this.transloco.translate('auth.passwordChanged');
+    if (state?.resetSentTo) {
+      return this.transloco.translate('auth.resetLinkSent', { email: state.resetSentTo });
+    }
+    return null;
+  });
 
   onSubmit(): void {
     this.form.markAllAsTouched();
@@ -60,10 +72,4 @@ export class LoginComponent {
       }),
     );
   }
-}
-
-function loginNotice(state: LoginNavigationState | null): string | null {
-  if (state?.passwordChanged) return 'Password changed. Sign in with the new password.';
-  if (state?.resetSentTo) return `Check ${state.resetSentTo} for a password reset link.`;
-  return null;
 }

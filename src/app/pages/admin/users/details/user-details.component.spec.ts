@@ -11,6 +11,7 @@ import { UserStoreSelectors } from '../../../../store/user';
 import { UsersStoreActions, UsersStoreSelectors } from '../../../../store/users';
 import { UserDetailsComponent } from './user-details.component';
 
+import { translocoTestingProviders } from '../../../../core/testing/transloco-testing';
 describe('UserDetailsComponent', () => {
   let store: MockStore;
 
@@ -74,7 +75,7 @@ describe('UserDetailsComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [UserDetailsComponent],
-      providers: [
+      providers: [...translocoTestingProviders(), 
         provideRouter([]),
         provideMockStore({
           selectors: [

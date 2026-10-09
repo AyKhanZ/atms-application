@@ -7,6 +7,7 @@ import { initialNotificationsState, NotificationsState } from '../../../store/no
 import { NotificationOpenerService } from '../notification-item/notification-opener.service';
 import { NotificationBellComponent } from './notification-bell.component';
 
+import { translocoTestingProviders } from '../../../core/testing/transloco-testing';
 const notification = (id: string, readAt: string | null = null): NotificationModel => ({
   id,
   type: 1,
@@ -48,7 +49,7 @@ describe('NotificationBellComponent', () => {
     router = { navigate: vi.fn(() => Promise.resolve(true)) };
     await TestBed.configureTestingModule({
       imports: [NotificationBellComponent],
-      providers: [
+      providers: [...translocoTestingProviders(), 
         provideMockStore({ initialState: { notifications: initialNotificationsState } }),
         { provide: Router, useValue: router },
       ],

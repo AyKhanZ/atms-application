@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { TranslocoDirective } from '@jsverse/transloco';
 import { DatePickerModule } from 'primeng/datepicker';
 import { SelectModule } from 'primeng/select';
 import { DashboardPeriod } from '../../../core/models/dashboard';
@@ -7,7 +8,7 @@ import { DashboardPeriodOption } from '../../../core/utils/dashboard-query.utils
 
 @Component({
   selector: 'app-dashboard-toolbar',
-  imports: [FormsModule, SelectModule, DatePickerModule],
+  imports: [FormsModule, SelectModule, DatePickerModule, TranslocoDirective],
   templateUrl: './dashboard-toolbar.component.html',
   styleUrl: './dashboard-toolbar.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

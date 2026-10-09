@@ -11,6 +11,7 @@ import {
   untracked,
 } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { Observable, Subscription, from, switchMap } from 'rxjs';
@@ -31,6 +32,7 @@ import { AttachmentSheetViewComponent } from '../attachment-sheet-view/attachmen
     FileSizePipe,
     AttachmentDocumentViewComponent,
     AttachmentSheetViewComponent,
+    TranslocoDirective,
   ],
   templateUrl: './attachment-preview-dialog.component.html',
   styleUrl: './attachment-preview-dialog.component.scss',
@@ -39,6 +41,7 @@ import { AttachmentSheetViewComponent } from '../attachment-sheet-view/attachmen
 export class AttachmentPreviewDialogComponent {
   private readonly files = inject(AttachmentFilesService);
   private readonly sanitizer = inject(DomSanitizer);
+  private readonly transloco = inject(TranslocoService);
 
   readonly projectId = input.required<string>();
   readonly attachment = input<AttachmentModel | null>(null);
@@ -136,7 +139,7 @@ export class AttachmentPreviewDialogComponent {
             .arrayBuffer()
             .then((buffer) => readSheets(buffer, csv))
             .catch(() => {
-              throw new Error('This spreadsheet could not be shown. Download it to open it in Excel.');
+              throw new Error(this.transloco.translate('attachments.sheetFailed'));
             }),
         ),
       ),

@@ -1,61 +1,74 @@
-@if (tickets().length > 0) {
-  <div class="ticket-list" [attr.aria-label]="'Tickets in ' + milestoneTitle()">
-    @for (ticket of tickets(); track ticket.id) {
-      <div
-        class="ticket-row"
-        [class.ticket-row--with-menu]="canEditTickets()"
-        [class.ticket-row--current]="ticket.id === currentTicketId()"
-      >
-        <button
-          type="button"
-          class="ticket-main"
-          [attr.aria-label]="'View ticket ' + ticket.title"
-          (click)="viewTicket.emit(ticket.id)"
+<ng-container *transloco="let t">
+  @if (tickets().length > 0) {
+    <div
+      class="ticket-list"
+      [attr.aria-label]="t('workItem.ticketsIn', { title: milestoneTitle() })"
+    >
+      @for (ticket of tickets(); track ticket.id) {
+        <div
+          class="ticket-row"
+          [class.ticket-row--with-menu]="canEditTickets()"
+          [class.ticket-row--current]="ticket.id === currentTicketId()"
         >
-          <app-work-item-ref [type]="kinds.Ticket" [code]="ticket.code" />
-          <span class="ticket-title-group">
-            <strong [title]="ticket.title">{{ ticket.title }}</strong>
-            @if (ticket.id === currentTicketId()) {
-              <span class="ticket-current-tag">CURRENT</span>
-            }
-          </span>
-        </button>
-
-        <div class="ticket-meta">
-          <app-work-item-type [type]="ticket.workTicketType" />
-          <app-work-item-assignee
-            [assignee]="ticket.assignee"
-            [compact]="true"
-            [shortName]="true"
-          />
-          <app-ticket-status-badge [status]="ticket.workTicketStatus" />
-        </div>
-
-        @if (canEditTickets()) {
           <button
             type="button"
-            class="item-menu-button"
-            [attr.aria-label]="'Options for ticket ' + ticket.title"
-            (click)="openTicketMenu($event, ticket, ticketMenu)"
+            class="ticket-main"
+            [attr.aria-label]="
+              t('workItem.viewNamed', { kind: t('workItem.kind.ticket'), title: ticket.title })
+            "
+            (click)="viewTicket.emit(ticket.id)"
           >
-            <i class="pi pi-ellipsis-v"></i>
+            <app-work-item-ref [type]="kinds.Ticket" [code]="ticket.code" />
+            <span class="ticket-title-group">
+              <strong [title]="ticket.title">{{ ticket.title }}</strong>
+              @if (ticket.id === currentTicketId()) {
+                <span class="ticket-current-tag">{{ t('plan.current') }}</span>
+              }
+            </span>
           </button>
-        }
-      </div>
-    }
-  </div>
-}
 
-@if (page(); as ticketPage) {
-  @if (ticketPage.loading && ticketPage.items.length === 0) {
-    <app-loading-state class="milestone-ticket-loading" text="Loading tickets..." compact />
-  } @else if (ticketPage.hasMore) {
-    <app-load-more-button
-      class="milestone-tickets-load-more"
-      [loading]="ticketPage.loading"
-      (clicked)="loadMore.emit()"
-    />
+          <div class="ticket-meta">
+            <app-work-item-type [type]="ticket.workTicketType" />
+            <app-work-item-assignee
+              [assignee]="ticket.assignee"
+              [compact]="true"
+              [shortName]="true"
+            />
+            <app-ticket-status-badge [status]="ticket.workTicketStatus" />
+          </div>
+
+          @if (canEditTickets()) {
+            <button
+              type="button"
+              class="item-menu-button"
+              [attr.aria-label]="
+                t('workItem.optionsFor', { kind: t('workItem.kind.ticket'), title: ticket.title })
+              "
+              (click)="openTicketMenu($event, ticket, ticketMenu)"
+            >
+              <i class="pi pi-ellipsis-v"></i>
+            </button>
+          }
+        </div>
+      }
+    </div>
   }
-}
 
-<p-menu #ticketMenu [model]="ticketActions()" [popup]="true" appendTo="body" />
+  @if (page(); as ticketPage) {
+    @if (ticketPage.loading && ticketPage.items.length === 0) {
+      <app-loading-state
+        class="milestone-ticket-loading"
+        [text]="t('plan.loadingTickets')"
+        compact
+      />
+    } @else if (ticketPage.hasMore) {
+      <app-load-more-button
+        class="milestone-tickets-load-more"
+        [loading]="ticketPage.loading"
+        (clicked)="loadMore.emit()"
+      />
+    }
+  }
+
+  <p-menu #ticketMenu [model]="ticketActions()" [popup]="true" appendTo="body" />
+</ng-container>

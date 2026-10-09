@@ -1,3 +1,4 @@
+<ng-container *transloco="let t">
 @let current = sheet();
 
 @if (current && current.rows.length) {
@@ -24,18 +25,17 @@
     </table>
   </div>
 } @else {
-  <p class="sheet-empty">This sheet is empty.</p>
+  <p class="sheet-empty">{{ t('attachments.sheetEmpty') }}</p>
 }
 
 @if (current?.truncated) {
   <p class="sheet-note">
-    Showing the first {{ maxRows }} rows and {{ maxColumns }} columns. Download the file to see all
-    of it.
+    {{ t('attachments.sheetTruncated', { rows: maxRows, columns: maxColumns }) }}
   </p>
 }
 
 @if (sheets().length > 1) {
-  <nav class="sheet-tabs" aria-label="Sheets">
+  <nav class="sheet-tabs" [attr.aria-label]="t('attachments.sheets')">
     @for (item of sheets(); track $index) {
       <button
         type="button"
@@ -49,3 +49,4 @@
     }
   </nav>
 }
+</ng-container>

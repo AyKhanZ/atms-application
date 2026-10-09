@@ -1,10 +1,16 @@
 <article
+  *transloco="let t"
   class="card"
   [class.card--subtask]="task().isSubtask"
   [class.card--overdue]="overdue()"
   role="button"
   tabindex="0"
-  [attr.aria-label]="(task().isSubtask ? 'Open subtask ' : 'Open task ') + task().title"
+  [attr.aria-label]="
+    t('workItem.openNamed', {
+      kind: t(task().isSubtask ? 'workItem.kind.subtask' : 'workItem.kind.task'),
+      title: task().title,
+    })
+  "
   (click)="open.emit()"
   (keydown.enter)="open.emit()"
 >
@@ -13,7 +19,7 @@
     <button
       type="button"
       class="card__menu"
-      [attr.aria-label]="'Actions for ' + task().title"
+      [attr.aria-label]="t('workItem.actionsFor', { name: task().title })"
       (click)="$event.stopPropagation(); actions.toggle($event)"
       (keydown.enter)="$event.stopPropagation()"
     >
@@ -33,9 +39,11 @@
       <span
         class="card__progress"
         [class.card__progress--done]="task().doneSubtaskCount === task().subtaskCount"
-        [title]="task().doneSubtaskCount + ' of ' + task().subtaskCount + ' subtasks completed'"
+        [title]="
+          t('workItem.subtasksDone', { done: task().doneSubtaskCount, total: task().subtaskCount })
+        "
         [attr.aria-label]="
-          task().doneSubtaskCount + ' of ' + task().subtaskCount + ' subtasks completed'
+          t('workItem.subtasksDone', { done: task().doneSubtaskCount, total: task().subtaskCount })
         "
       >
         <i class="pi pi-check-square" aria-hidden="true"></i>

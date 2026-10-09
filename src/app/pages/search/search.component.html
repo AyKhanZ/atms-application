@@ -1,6 +1,6 @@
-<section class="page search-page">
+<section class="page search-page" *transloco="let t">
   <div class="page-header search-page-header">
-    <h1 class="page-title">Search</h1>
+    <h1 class="page-title">{{ t('nav.search') }}</h1>
     <div class="page-actions">
       <app-back-button (back)="back()" />
     </div>
@@ -9,12 +9,12 @@
   <article class="panel search-panel">
     <app-list-search
       class="search-panel__input"
-      placeholder="Search by code or title"
+      [placeholder]="t('search.byCodeOrTitle')"
       [value]="query()"
       (valueChange)="changeQuery($event)"
     />
 
-    <app-search-filters [chips]="chips" [active]="itemType()" (select)="changeType($event)" />
+    <app-search-filters [chips]="chips()" [active]="itemType()" (select)="changeType($event)" />
 
     <div class="search-panel__list">
       @for (item of items(); track item.id) {
@@ -32,8 +32,8 @@
       @if (empty()) {
         <app-empty-state
           icon="pi-search"
-          title="No results found"
-          description="Try another code or another word from the title."
+          [title]="t('search.none')"
+          [description]="t('search.tryDifferent')"
         />
       }
 
@@ -47,8 +47,8 @@
 
       @if (failed()) {
         <div class="search-panel__error" role="alert">
-          <span>Results could not be loaded.</span>
-          <button type="button" (click)="retry()">Retry</button>
+          <span>{{ t('search.loadFailed') }}</span>
+          <button type="button" (click)="retry()">{{ t('common.retry') }}</button>
         </div>
       }
 

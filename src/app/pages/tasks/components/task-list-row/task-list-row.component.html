@@ -15,7 +15,7 @@
     @if (overdue()) {
       <app-overdue-badge [deadline]="task().deadline" />
     } @else if (task().deadline; as deadline) {
-      <span class="row__deadline">{{ deadline | date: 'd MMM' }}</span>
+      <span class="row__deadline">{{ deadline | appDate: 'd MMM' }}</span>
     }
     <app-work-item-assignee class="row__assignee" [assignee]="task().assignee" [avatarOnly]="true" />
   </span>

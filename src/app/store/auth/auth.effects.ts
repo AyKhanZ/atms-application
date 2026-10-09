@@ -8,6 +8,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { ValidationErrorModel } from '../../core/models/auth/auth.models';
 import { serverErrorMessage } from '../../core/utils/http-error.utils';
 import { SnackBarService } from '../../core/services/snack-bar.service';
+import { TranslocoService } from '@jsverse/transloco';
 import { Router } from '@angular/router';
 import { TokenStorageService } from '../../core/services/token-storage.service';
 import { AuthSessionService } from '../../core/services/auth-session.service';
@@ -24,6 +25,7 @@ export class AuthEffects {
   private readonly projectAccess = inject(ProjectAccessService);
   private readonly realtime = inject(RealtimeService);
   private readonly snackBar = inject(SnackBarService);
+  private readonly transloco = inject(TranslocoService);
 
   login$ = createEffect(() =>
     this.actions$.pipe(
@@ -45,14 +47,7 @@ export class AuthEffects {
         ofType(AuthStoreActions.loginSuccess),
         tap(({ accessModel }) => {
           this.tokenStorage.save(accessModel);
-
-          // ← Читаем returnUrl — если Guard сохранил его, вернём пользователя туда
-          // Например: /users?page=2&pageSize=30 → после логина попадёт обратно
-          const returnUrl =
-            this.router.parseUrl(this.router.url).queryParams['returnUrl'] ?? '/dashboard';
-          void this.router.navigateByUrl(returnUrl);
-
-          setTimeout(() => this.snackBar.success('You have successfully logged in!'));
+          setTimeout(() => this.snackBar.success(this.transloco.translate('auth.loggedIn')));
         }),
       ),
     { dispatch: false },
@@ -197,11 +192,11 @@ export class AuthEffects {
         return body.errors?.map((e) => `${e.field}: ${e.error}`) ?? [body.message];
       }
       case 401:
-        return [serverErrorMessage(err, 'Invalid email or password.')];
+        return [serverErrorMessage(err, this.transloco.translate('auth.invalidCredentials'))];
       case 423:
-        return [serverErrorMessage(err, 'Account temporarily locked.')];
+        return [serverErrorMessage(err, this.transloco.translate('auth.accountLocked'))];
       default:
-        return [serverErrorMessage(err, 'Unexpected server error.')];
+        return [serverErrorMessage(err, this.transloco.translate('auth.unexpected'))];
     }
   }
 }

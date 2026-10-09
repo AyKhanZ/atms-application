@@ -25,7 +25,9 @@ import { SearchFilterChip, SearchFiltersComponent } from './search-filters.compo
 import { SearchResultGroup, SearchResultsComponent } from './search-results.component';
 import { SearchResultRowComponent } from './search-result-row.component';
 import { isSearchable, workItemRoute } from './work-item-route';
-import { workItemKindOrder, workItemKinds } from '../work-item-ref/work-item-kinds';
+import { workItemKindLabelKey, workItemKindOrder } from '../work-item-ref/work-item-kinds';
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
+import { currentLanguage } from '../../../core/i18n/active-language';
 
 @Component({
   selector: 'app-global-search',
@@ -34,6 +36,7 @@ import { workItemKindOrder, workItemKinds } from '../work-item-ref/work-item-kin
     SearchFiltersComponent,
     SearchResultsComponent,
     SearchResultRowComponent,
+    TranslocoDirective,
   ],
   templateUrl: './global-search.component.html',
   styleUrl: './global-search.component.scss',
@@ -46,6 +49,7 @@ export class GlobalSearchComponent {
   private readonly injector = inject(Injector);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly layout = inject(LayoutService);
+  private readonly transloco = inject(TranslocoService);
   private readonly input = viewChild(SearchInputComponent);
   private restoringFocus = false;
   private lastPointer = { x: -1, y: -1 };
@@ -78,6 +82,7 @@ export class GlobalSearchComponent {
   );
 
   private readonly allGroups = computed<SearchResultGroup[]>(() => {
+    currentLanguage();
     const response = this.response();
     const groups: Record<WorkItemKind, GlobalSearchGroupModel> = {
       [WorkItemKind.Project]: response.projects,
@@ -86,7 +91,11 @@ export class GlobalSearchComponent {
       [WorkItemKind.Subtask]: response.subtasks,
     };
     return workItemKindOrder
-      .map((type) => ({ type, label: workItemKinds[type].pluralLabel, ...groups[type] }))
+      .map((type) => ({
+        type,
+        label: this.kindLabel(type, true),
+        ...groups[type],
+      }))
       .filter((group) => group.items.length > 0);
   });
 
@@ -99,12 +108,13 @@ export class GlobalSearchComponent {
   });
 
   readonly chips = computed<SearchFilterChip[]>(() => {
+    currentLanguage();
     const present = new Set(this.allGroups().map((group) => group.type));
     return [
-      { type: null, label: 'All', disabled: false },
+      { type: null, label: this.transloco.translate('search.all'), disabled: false },
       ...workItemKindOrder.map((type) => ({
         type,
-        label: workItemKinds[type].pluralLabel,
+        label: this.kindLabel(type, true),
         disabled: !present.has(type),
       })),
     ];
@@ -117,6 +127,10 @@ export class GlobalSearchComponent {
   readonly nothingFound = computed(
     () => this.searchable() && !this.loading() && !this.failed() && this.allGroups().length === 0,
   );
+
+  private kindLabel(type: WorkItemKind, plural: boolean): string {
+    return this.transloco.translate(workItemKindLabelKey(type, plural));
+  }
 
   constructor() {
     // sidebar folding or a window resize moves the field without an event, so watch it directly

@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { WorkGroupModel } from '../../../../../../../core/models/work-groups';
+import { translocoTestingProviders } from '../../../../../../../core/testing/transloco-testing';
 import { WorkGroupDialogComponent } from './work-group-dialog.component';
 
 const group: WorkGroupModel = {
@@ -19,6 +20,7 @@ describe('WorkGroupDialogComponent', { timeout: 20_000 }, () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [WorkGroupDialogComponent],
+      providers: [...translocoTestingProviders()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(WorkGroupDialogComponent);
@@ -35,7 +37,7 @@ describe('WorkGroupDialogComponent', { timeout: 20_000 }, () => {
 
     component.form.controls.title.setValue('a'.repeat(101));
     expect(component.form.controls.title.invalid).toBe(true);
-    expect(component.titleError()).toBe('Keep the name within 100 characters.');
+    expect(component.titleError()).toBe('No more than 100 characters');
   });
 
   it('trims and emits a valid group name', () => {

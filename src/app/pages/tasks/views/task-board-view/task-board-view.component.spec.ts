@@ -13,6 +13,7 @@ import {
 import { taskFixture } from '../../testing/task-fixture';
 import { TaskBoardViewComponent } from './task-board-view.component';
 
+import { translocoTestingProviders } from '../../../../core/testing/transloco-testing';
 type LoadPage = ReturnType<typeof TaskBoardStoreActions.loadPage>;
 type MoveTask = ReturnType<typeof TaskBoardStoreActions.moveTask>;
 
@@ -30,7 +31,7 @@ describe('TaskBoardViewComponent', () => {
     const dispatch = vi.fn();
     TestBed.configureTestingModule({
       imports: [TaskBoardViewComponent],
-      providers: [
+      providers: [...translocoTestingProviders(), 
         provideRouter([]),
         ConfirmationService,
         {

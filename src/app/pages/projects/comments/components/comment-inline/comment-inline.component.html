@@ -1,4 +1,5 @@
 <!-- keep tokens on one line with their tags, a line break would render as a space -->
+<ng-container *transloco="let t">
 @for (token of tokens(); track $index) {
   @switch (token.kind) {
     @case ('text') {
@@ -26,7 +27,7 @@
     @case ('mention') {
       <!-- someone who left the project is still marked, just without a name -->
       <span class="comment-mention"
-        >&#64;{{ lookups().people.get(token.userId) | personName: 'Unknown user' }}</span
+        >&#64;{{ lookups().people.get(token.userId) | personName: t('comments.unknownUser') }}</span
       >
     }
     @case ('reference') {
@@ -39,3 +40,4 @@
     }
   }
 }
+</ng-container>

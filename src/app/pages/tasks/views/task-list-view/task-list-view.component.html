@@ -1,6 +1,6 @@
-<div class="tasks-table-shell" [attr.aria-busy]="loading()">
+<div class="tasks-table-shell" *transloco="let t" [attr.aria-busy]="loading()">
   @if (loading()) {
-    <span class="table-loading" role="status" aria-label="Updating tasks"
+    <span class="table-loading" role="status" [attr.aria-label]="t('tasks.updating')"
       ><i class="pi pi-spin pi-spinner" aria-hidden="true"></i
     ></span>
   }
@@ -9,7 +9,7 @@
   }
   @if (isPhone()) {
     <!-- phone: two lines per task like a tickets Tasks tab -->
-    <ul class="rows" aria-label="Tasks">
+    <ul class="rows" [attr.aria-label]="t('nav.tasks')">
       @for (task of items(); track task.id) {
         <li><app-task-list-row [task]="task" (open)="openTask.emit(task)" /></li>
       } @empty {
@@ -32,12 +32,12 @@
     >
       <ng-template pTemplate="header"
         ><tr>
-          <th pSortableColumn="code">Code <p-sortIcon field="code" /></th>
-          <th pSortableColumn="title">Title <p-sortIcon field="title" /></th>
-          <th pSortableColumn="state">Status <p-sortIcon field="state" /></th>
-          <th pSortableColumn="priority">Priority <p-sortIcon field="priority" /></th>
-          <th pSortableColumn="deadline">Deadline <p-sortIcon field="deadline" /></th>
-          <th>Assignee</th>
+          <th pSortableColumn="code">{{ t('common.code') }} <p-sortIcon field="code" /></th>
+          <th pSortableColumn="title">{{ t('common.title') }} <p-sortIcon field="title" /></th>
+          <th pSortableColumn="state">{{ t('common.status') }} <p-sortIcon field="state" /></th>
+          <th pSortableColumn="priority">{{ t('common.priority') }} <p-sortIcon field="priority" /></th>
+          <th pSortableColumn="deadline">{{ t('common.deadline') }} <p-sortIcon field="deadline" /></th>
+          <th>{{ t('common.assignee') }}</th>
         </tr></ng-template
       >
       <ng-template pTemplate="body" let-task
@@ -54,8 +54,8 @@
                 [code]="task.code"
                 [showCode]="false"
                 [labelled]="false"
-                [title]="task.isSubtask ? 'Subtask' : 'Task'"
-                [attr.aria-label]="task.isSubtask ? 'Subtask' : 'Task'"
+                [title]="t(task.isSubtask ? 'workItem.kind.subtask' : 'workItem.kind.task')"
+                [attr.aria-label]="t(task.isSubtask ? 'workItem.kind.subtask' : 'workItem.kind.task')"
               />
               <strong class="task-cell__title" [title]="task.title">{{ task.title }}</strong>
             </div>
@@ -67,7 +67,7 @@
             [class.deadline-cell--overdue]="task | isOverdueTask"
             [class.deadline-cell--empty]="!task.deadline"
           >
-            {{ task.deadline ? (task.deadline | date: 'd MMM yyyy') : 'No deadline' }}
+            {{ task.deadline ? (task.deadline | appDate: 'd MMM yyyy') : t('workItem.noDeadline') }}
             @if (task | isOverdueTask) {
               <app-overdue-badge class="deadline-cell__late" [deadline]="task.deadline" />
             }

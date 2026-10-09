@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, effect, inject, input, output } from '@angular/core';
+import { TranslocoDirective } from '@jsverse/transloco';
 import {
   AbstractControl,
   NonNullableFormBuilder,
@@ -17,7 +18,7 @@ export interface OrganizationsFilterFormValue {
 
 @Component({
   selector: 'app-organizations-filter',
-  imports: [ReactiveFormsModule, ClearButtonComponent, DatePickerModule],
+  imports: [ReactiveFormsModule, ClearButtonComponent, DatePickerModule, TranslocoDirective],
   templateUrl: './filter-organizations.component.html',
   styleUrl: './filter-organizations.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

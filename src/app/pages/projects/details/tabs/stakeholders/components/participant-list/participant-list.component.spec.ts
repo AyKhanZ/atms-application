@@ -4,13 +4,11 @@ import {
   WorkProjectInvitationModel,
   WorkProjectParticipantModel,
 } from '../../../../../../../core/models/work-projects';
+import { translocoTestingProviders } from '../../../../../../../core/testing/transloco-testing';
 import { ParticipantListComponent } from './participant-list.component';
 
 describe('ParticipantListComponent', () => {
-  const participant = (
-    id: string,
-    hasCompletedOnboarding = true,
-  ): WorkProjectParticipantModel => ({
+  const participant = (id: string, hasCompletedOnboarding = true): WorkProjectParticipantModel => ({
     id,
     userId: `user-${id}`,
     name: 'Diana',
@@ -53,7 +51,10 @@ describe('ParticipantListComponent', () => {
     fixture.nativeElement as HTMLElement;
 
   beforeEach(async () => {
-    await TestBed.configureTestingModule({ imports: [ParticipantListComponent] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [ParticipantListComponent],
+      providers: [...translocoTestingProviders()],
+    }).compileComponents();
   });
 
   it('shows the empty state when there is nobody', () => {
@@ -124,9 +125,11 @@ describe('ParticipantListComponent', () => {
   it('gives an invitation row only Cancel invitation, and only to those who may invite', () => {
     const fixture = render([], [invitation('i1')], { canCancelInvitations: true });
 
-    const menuButton = element(fixture).querySelector('.participants-row:last-child .row-menu-button');
+    const menuButton = element(fixture).querySelector(
+      '.participants-row:last-child .row-menu-button',
+    );
     expect(menuButton?.getAttribute('aria-label')).toContain('i1@client.com');
-    expect(fixture.componentInstance.invitationActions.map((action) => action.label)).toEqual([
+    expect(fixture.componentInstance.invitationActions().map((action) => action.label)).toEqual([
       'Cancel invitation',
     ]);
 
@@ -150,7 +153,7 @@ describe('ParticipantListComponent', () => {
     fixture.componentInstance.selectedParticipant.set(participant('p1'));
     fixture.componentInstance.selectedInvitation.set(invitation('i1'));
     for (const action of fixture.componentInstance.participantActions()) action.command?.({});
-    for (const action of fixture.componentInstance.invitationActions) action.command?.({});
+    for (const action of fixture.componentInstance.invitationActions()) action.command?.({});
 
     expect(changeRole).toHaveBeenCalledWith(participant('p1'));
     expect(remove).toHaveBeenCalledWith(participant('p1'));

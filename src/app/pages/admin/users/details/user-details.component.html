@@ -1,9 +1,10 @@
+<ng-container *transloco="let t">
 <app-confirm-dialog key="userStatus" />
 
 <section class="page">
   <div class="page-header">
     <div>
-      <h1 class="page-title">User details</h1>
+      <h1 class="page-title">{{ t('users.details') }}</h1>
     </div>
     <div class="details-actions">
       <app-back-button (back)="back()" />
@@ -43,37 +44,37 @@
       </div>
 
       <div class="panel panel-padding details-panel">
-        <h2>Personal</h2>
+        <h2>{{ t('users.personal') }}</h2>
         <dl>
           <div>
-            <dt>Email</dt>
+            <dt>{{ t('common.email') }}</dt>
             <dd>{{ display(user.email) }}</dd>
           </div>
           <div>
-            <dt>Phone</dt>
+            <dt>{{ t('common.phone') }}</dt>
             <dd>{{ display(user.phoneNumber) }}</dd>
           </div>
           <div>
-            <dt>Birth date</dt>
-            <dd>{{ user.birthDate ? (user.birthDate | date: 'dd.MM.yyyy') : '-' }}</dd>
+            <dt>{{ t('common.birthDate') }}</dt>
+            <dd>{{ user.birthDate ? (user.birthDate | appDate: 'dd.MM.yyyy') : '-' }}</dd>
           </div>
           <div>
-            <dt>Gender</dt>
+            <dt>{{ t('common.gender') }}</dt>
             <dd>{{ display(user.gender.name) }}</dd>
           </div>
           <div>
-            <dt>Marital status</dt>
+            <dt>{{ t('common.maritalStatus') }}</dt>
             <dd>{{ display(user.maritalStatus.name) }}</dd>
           </div>
         </dl>
       </div>
 
       <div class="panel panel-padding details-panel">
-        <h2>Work</h2>
+        <h2>{{ t('users.work') }}</h2>
         <dl>
           @if (user.organization; as organization) {
             <div>
-              <dt>Organization</dt>
+              <dt>{{ t('common.organization') }}</dt>
               <dd>
                 <a
                   class="organization-link"
@@ -90,11 +91,11 @@
             </div>
           }
           <div>
-            <dt>Position</dt>
+            <dt>{{ t('common.position') }}</dt>
             <dd>{{ display(user.position) }}</dd>
           </div>
           <div>
-            <dt>Roles</dt>
+            <dt>{{ t('users.roles') }}</dt>
             <dd>
               @if (roles().length) {
                 <span class="roles">
@@ -108,27 +109,28 @@
             </dd>
           </div>
           <div>
-            <dt>Status</dt>
+            <dt>{{ t('common.status') }}</dt>
             <dd>{{ userStatus(user) }}</dd>
           </div>
           <div>
-            <dt>Email confirmed</dt>
-            <dd>{{ user.emailConfirmed ? 'Yes' : 'No' }}</dd>
+            <dt>{{ t('users.emailConfirmed') }}</dt>
+            <dd>{{ user.emailConfirmed ? t('common.yes') : t('common.no') }}</dd>
           </div>
           <div>
-            <dt>Onboarding completed</dt>
-            <dd>{{ user.hasCompletedOnboarding ? 'Yes' : 'No' }}</dd>
+            <dt>{{ t('users.onboardingCompleted') }}</dt>
+            <dd>{{ user.hasCompletedOnboarding ? t('common.yes') : t('common.no') }}</dd>
           </div>
           <div>
-            <dt>Created</dt>
-            <dd>{{ user.createdAt ? (user.createdAt | date: 'dd.MM.yyyy HH:mm') : '-' }}</dd>
+            <dt>{{ t('common.created') }}</dt>
+            <dd>{{ user.createdAt ? (user.createdAt | appDate: 'dd.MM.yyyy HH:mm') : '-' }}</dd>
           </div>
         </dl>
       </div>
     </section>
   } @else if (loading()) {
-    <div class="panel panel-padding">Loading...</div>
+    <div class="panel panel-padding">{{ t('common.loading') }}</div>
   } @else {
-    <div class="panel panel-padding">User was not found.</div>
+    <div class="panel panel-padding">{{ t('users.notFound') }}</div>
   }
 </section>
+</ng-container>

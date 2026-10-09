@@ -1,4 +1,6 @@
 import { formatDate } from '@angular/common';
+import { angularLocale } from '../i18n/active-language';
+import { relativePhrase } from '../i18n/relative-time';
 import { HistoryAction } from '../enums/history-action.enum';
 import { HistoryEntityType } from '../enums/history-entity-type.enum';
 import { HistoryField } from '../enums/history-field.enum';
@@ -13,45 +15,48 @@ import { personFullName } from './person-name.utils';
 
 export type HistorySubject = 'project' | 'ticket' | 'task' | 'subtask';
 
-export type HistoryGroupLabel = 'Today' | 'Yesterday' | 'Last 7 days' | 'Last 30 days' | 'Older';
+export type HistoryTranslate = (key: string, params?: Record<string, string | number>) => string;
+
+export type HistoryGroupId = 'today' | 'yesterday' | 'last7' | 'last30' | 'older';
 
 export interface HistoryGroup {
-  label: HistoryGroupLabel;
+  id: HistoryGroupId;
   entries: HistoryEntryModel[];
 }
 
 const dayMs = 86_400_000;
-const groupOrder: HistoryGroupLabel[] = [
-  'Today',
-  'Yesterday',
-  'Last 7 days',
-  'Last 30 days',
-  'Older',
-];
+const groupOrder: HistoryGroupId[] = ['today', 'yesterday', 'last7', 'last30', 'older'];
 
-const fieldLabels: Record<HistoryField, string> = {
-  [HistoryField.Title]: 'Title',
-  [HistoryField.Description]: 'Description',
-  [HistoryField.Status]: 'Status',
-  [HistoryField.Priority]: 'Priority',
-  [HistoryField.Assignee]: 'Assignee',
-  [HistoryField.Deadline]: 'Deadline',
-  [HistoryField.Type]: 'Type',
-  [HistoryField.Kind]: 'Kind',
-  [HistoryField.Milestone]: 'Milestone',
-  [HistoryField.WorkTicket]: 'Ticket',
-  [HistoryField.ParentWorkTask]: 'Parent',
-  [HistoryField.Organization]: 'Organization',
-  [HistoryField.StartDate]: 'Start date',
-  [HistoryField.EndDate]: 'End date',
-  [HistoryField.Stakeholder]: 'Stakeholders',
-  [HistoryField.Attachment]: 'Files',
+const fieldLabelKeys: Record<HistoryField, string> = {
+  [HistoryField.Title]: 'common.title',
+  [HistoryField.Description]: 'common.description',
+  [HistoryField.Status]: 'common.status',
+  [HistoryField.Priority]: 'common.priority',
+  [HistoryField.Assignee]: 'common.assignee',
+  [HistoryField.Deadline]: 'common.deadline',
+  [HistoryField.Type]: 'common.type',
+  [HistoryField.Kind]: 'common.kind',
+  [HistoryField.Milestone]: 'plan.milestone',
+  [HistoryField.WorkTicket]: 'workItem.kind.ticket',
+  [HistoryField.ParentWorkTask]: 'common.parent',
+  [HistoryField.Organization]: 'common.organization',
+  [HistoryField.StartDate]: 'common.startDate',
+  [HistoryField.EndDate]: 'history.fields.endDate',
+  [HistoryField.Stakeholder]: 'history.fields.stakeholders',
+  [HistoryField.Attachment]: 'history.fields.files',
+};
+
+const subjectKeys: Record<HistorySubject, string> = {
+  project: 'history.subject.project',
+  ticket: 'history.subject.ticket',
+  task: 'history.subject.task',
+  subtask: 'history.subject.subtask',
 };
 
 const dateFields = new Set([HistoryField.Deadline, HistoryField.StartDate, HistoryField.EndDate]);
 
 // same formats as the attachments tab: "22 Sep", "22 Sep 2026"
-const format = (date: Date, pattern: string) => formatDate(date, pattern, 'en-US');
+const format = (date: Date, pattern: string) => formatDate(date, pattern, angularLocale());
 
 export function historyKey(projectId: string, scope: HistoryScope): string {
   switch (scope.kind) {
@@ -64,52 +69,61 @@ export function historyKey(projectId: string, scope: HistoryScope): string {
   }
 }
 
-export function historyFieldLabel(field: HistoryField): string {
-  return fieldLabels[field] ?? 'Field';
+export function historyFieldLabel(field: HistoryField, translate: HistoryTranslate): string {
+  return translate(fieldLabelKeys[field] ?? 'history.fields.field');
 }
 
 export function isHistoryDateField(field: HistoryField): boolean {
   return dateFields.has(field);
 }
 
-// newest first: Today, Yesterday, last week, last month, the rest
+// newest first: today, yesterday, last week, last month, the rest
 export function groupHistory(entries: HistoryEntryModel[], now = new Date()): HistoryGroup[] {
   const today = startOfToday(now).getTime();
-  const groups = new Map<HistoryGroupLabel, HistoryEntryModel[]>();
+  const groups = new Map<HistoryGroupId, HistoryEntryModel[]>();
 
   for (const entry of entries) {
     const days = Math.round((today - startOfDay(entry.createdAt).getTime()) / dayMs);
-    const label: HistoryGroupLabel =
-      days <= 0
-        ? 'Today'
-        : days === 1
-          ? 'Yesterday'
-          : days <= 7
-            ? 'Last 7 days'
-            : days <= 30
-              ? 'Last 30 days'
-              : 'Older';
-    const group = groups.get(label);
+    const id: HistoryGroupId =
+      days <= 0 ? 'today' : days === 1 ? 'yesterday' : days <= 7 ? 'last7' : days <= 30 ? 'last30' : 'older';
+    const group = groups.get(id);
     if (group) group.push(entry);
-    else groups.set(label, [entry]);
+    else groups.set(id, [entry]);
   }
 
-  return groupOrder
-    .filter((label) => groups.has(label))
-    .map((label) => ({ label, entries: groups.get(label) ?? [] }));
+  return groupOrder.filter((id) => groups.has(id)).map((id) => ({ id, entries: groups.get(id) ?? [] }));
 }
 
-// "just now", "5 min ago", "3 hours ago" within a day, then "9 Sep" or "12 Aug 2025"
-export function historyShortTime(value: string, now = new Date()): string {
+export function historyGroupKey(id: HistoryGroupId): string {
+  switch (id) {
+    case 'today':
+      return 'common.today';
+    case 'yesterday':
+      return 'notifications.yesterday';
+    case 'last7':
+      return 'dashboard.periodOption.last7';
+    case 'last30':
+      return 'dashboard.periodOption.last30';
+    case 'older':
+      return 'history.older';
+  }
+}
+
+// "just now", "5 minutes ago", "3 hours ago" within a day, then "9 Sep" or "12 Aug 2025"
+export function historyShortTime(
+  value: string,
+  translate: HistoryTranslate,
+  now = new Date(),
+): string {
   const date = new Date(value);
   if (!Number.isFinite(date.getTime())) return '';
 
   const minutes = Math.floor((now.getTime() - date.getTime()) / 60_000);
-  if (minutes < 1) return 'just now';
-  if (minutes < 60) return `${minutes} min ago`;
+  if (minutes < 1) return translate('time.now');
+  if (minutes < 60) return relativePhrase(-minutes, 'minute', translate);
 
   const hours = Math.floor(minutes / 60);
-  if (hours < 24) return hours === 1 ? '1 hour ago' : `${hours} hours ago`;
+  if (hours < 24) return relativePhrase(-hours, 'hour', translate);
 
   if (date.getFullYear() === now.getFullYear()) return format(date, 'd MMM');
   return format(date, 'd MMM y');
@@ -128,72 +142,138 @@ export function historyDate(value: string): string {
   return Number.isFinite(date.getTime()) ? format(date, 'd MMM y') : value;
 }
 
-export function historyValueText(field: HistoryField, value?: HistoryValueModel | null): string {
+export function historyValueText(
+  field: HistoryField,
+  value: HistoryValueModel | null | undefined,
+  translate: HistoryTranslate,
+): string {
   if (!value) return '';
   if (isHistoryDateField(field)) return historyDate(value.id);
   if (field === HistoryField.Assignee && value.person) return personFullName(value.person);
   if (field === HistoryField.WorkTicket || field === HistoryField.ParentWorkTask) {
-    return value.code ? `#${value.code}${value.name ? ` ${value.name}` : ''}` : 'Unknown';
+    return value.code
+      ? `#${value.code}${value.name ? ` ${value.name}` : ''}`
+      : translate('history.unknown');
   }
-  return value.name || 'Unknown';
+  return value.name || translate('history.unknown');
 }
 
 // "Status · Priority · Deadline"
-export function historyFieldList(entry: HistoryEntryModel): string {
-  return [...new Set(entry.changes.map((change) => historyFieldLabel(change.field)))].join(' · ');
+export function historyFieldList(entry: HistoryEntryModel, translate: HistoryTranslate): string {
+  return [...new Set(entry.changes.map((change) => historyFieldLabel(change.field, translate)))].join(
+    ' · ',
+  );
 }
 
 // "changed Status to Done"; several changes name the main one: "assigned X and made 2 more changes"
-export function historySummary(entry: HistoryEntryModel, subject: HistorySubject): string {
-  const group = groupName(entry);
-  const target = group ?? `the ${subject}`;
+export function historySummary(
+  entry: HistoryEntryModel,
+  subject: HistorySubject,
+  translate: HistoryTranslate,
+): string {
+  const named = groupKind(entry);
+  const name = entry.subject?.name || translate('history.unknown');
 
-  if (entry.action === HistoryAction.Created) return `created ${target}`;
-  if (entry.action === HistoryAction.Deleted) return `deleted ${target}`;
+  if (entry.action === HistoryAction.Created) return created(named, name, subject, translate);
+  if (entry.action === HistoryAction.Deleted) return deleted(named, name, subject, translate);
 
   const [change, ...rest] = entry.changes;
-  if (!change) return `changed ${target}`;
+  if (!change) return changed(named, name, subject, translate);
   if (rest.length) {
-    const main = group ? undefined : mainChange(entry);
-    const others = entry.changes.length - (main ? 1 : 0);
-    const more = `${others} ${main ? 'more ' : ''}${others === 1 ? 'change' : 'changes'}`;
-    if (main) return `${changeSummary(main)} and made ${more}`;
-    return `made ${more}${group ? ` to ${group}` : ''}`;
+    const main = named ? undefined : mainChange(entry);
+    const count = entry.changes.length - (main ? 1 : 0);
+    if (main) return translate('history.summary.andMore', { change: changeSummary(main, translate), count });
+    if (named === 'group') return translate('history.summary.madeToGroup', { count, name });
+    if (named === 'milestone') return translate('history.summary.madeToMilestone', { count, name });
+    return translate('history.summary.made', { count });
   }
 
-  if (group) {
-    const kind = entry.entityType === HistoryEntityType.Milestone ? 'milestone' : 'group';
+  if (named) {
     if (change.field === HistoryField.Title) {
-      return `renamed ${kind} ${change.oldValue?.name || 'Unknown'} to ${change.newValue?.name || 'Unknown'}`;
+      return translate(
+        named === 'milestone' ? 'history.summary.renamedMilestone' : 'history.summary.renamedGroup',
+        {
+          from: change.oldValue?.name || translate('history.unknown'),
+          to: change.newValue?.name || translate('history.unknown'),
+        },
+      );
     }
-    return `changed ${historyFieldLabel(change.field)} of ${group} to ${historyValueText(change.field, change.newValue)}`;
+    return translate(
+      named === 'milestone'
+        ? 'history.summary.changedFieldOfMilestone'
+        : 'history.summary.changedFieldOfGroup',
+      {
+        field: historyFieldLabel(change.field, translate),
+        name,
+        value: historyValueText(change.field, change.newValue, translate),
+      },
+    );
   }
 
-  return changeSummary(change);
+  return changeSummary(change, translate);
 }
 
-function changeSummary(change: HistoryChangeModel): string {
-  const label = historyFieldLabel(change.field);
-  const oldText = historyValueText(change.field, change.oldValue);
-  const newText = historyValueText(change.field, change.newValue);
+function created(
+  named: 'group' | 'milestone' | null,
+  name: string,
+  subject: HistorySubject,
+  translate: HistoryTranslate,
+): string {
+  if (named === 'group') return translate('history.summary.createdGroup', { name });
+  if (named === 'milestone') return translate('history.summary.createdMilestone', { name });
+  return translate('history.summary.created', { subject: translate(subjectKeys[subject]) });
+}
+
+function deleted(
+  named: 'group' | 'milestone' | null,
+  name: string,
+  subject: HistorySubject,
+  translate: HistoryTranslate,
+): string {
+  if (named === 'group') return translate('history.summary.deletedGroup', { name });
+  if (named === 'milestone') return translate('history.summary.deletedMilestone', { name });
+  return translate('history.summary.deleted', { subject: translate(subjectKeys[subject]) });
+}
+
+function changed(
+  named: 'group' | 'milestone' | null,
+  name: string,
+  subject: HistorySubject,
+  translate: HistoryTranslate,
+): string {
+  if (named === 'group') return translate('history.summary.changedGroup', { name });
+  if (named === 'milestone') return translate('history.summary.changedMilestone', { name });
+  return translate('history.summary.changed', { subject: translate(subjectKeys[subject]) });
+}
+
+function changeSummary(change: HistoryChangeModel, translate: HistoryTranslate): string {
+  const label = historyFieldLabel(change.field, translate);
+  const oldText = historyValueText(change.field, change.oldValue, translate);
+  const newText = historyValueText(change.field, change.newValue, translate);
 
   switch (change.field) {
     case HistoryField.Assignee:
-      return change.newValue ? `assigned ${newText}` : `unassigned ${oldText}`;
+      return change.newValue
+        ? translate('history.summary.assigned', { name: newText })
+        : translate('history.summary.unassigned', { name: oldText });
     case HistoryField.Attachment:
-      if (!change.oldValue) return `added ${newText}`;
-      if (!change.newValue) return `removed ${oldText}`;
-      return `renamed ${oldText} to ${newText}`;
+      if (!change.oldValue) return translate('history.summary.added', { name: newText });
+      if (!change.newValue) return translate('history.summary.removed', { name: oldText });
+      return translate('history.summary.renamed', { from: oldText, to: newText });
     case HistoryField.Stakeholder: {
-      const person = personFullName(change.person, 'Unknown');
-      if (!change.oldValue) return `added ${person} as ${newText}`;
-      if (!change.newValue) return `removed ${person}`;
-      return `changed the role of ${person} to ${newText}`;
+      const person = personFullName(change.person, translate('history.unknown'));
+      if (!change.oldValue) return translate('history.summary.addedAs', { person, role: newText });
+      if (!change.newValue) return translate('history.summary.removed', { name: person });
+      return translate('history.summary.changedRole', { person, role: newText });
     }
     case HistoryField.Description:
-      return change.newValue ? 'changed Description' : 'cleared Description';
+      return change.newValue
+        ? translate('history.summary.changedField', { field: label })
+        : translate('history.summary.cleared', { field: label });
     default:
-      return change.newValue ? `changed ${label} to ${newText}` : `cleared ${label}`;
+      return change.newValue
+        ? translate('history.summary.changedTo', { field: label, value: newText })
+        : translate('history.summary.cleared', { field: label });
   }
 }
 
@@ -202,33 +282,48 @@ export type HistoryMarker =
   | { kind: 'icon'; icon: string; tooltip: string };
 
 // plain edits have no marker
-export function historyMarker(entry: HistoryEntryModel): HistoryMarker | null {
+export function historyMarker(entry: HistoryEntryModel, translate: HistoryTranslate): HistoryMarker | null {
   if (entry.action === HistoryAction.Deleted) {
-    return { kind: 'icon', icon: 'pi-trash', tooltip: 'Deleted' };
+    return { kind: 'icon', icon: 'pi-trash', tooltip: translate('dashboard.activity.deleted') };
   }
 
   const status = entry.changes.find((change) => change.field === HistoryField.Status)?.newValue;
   if (status) {
-    const name = status.name || 'Unknown';
+    const name = status.name || translate('history.unknown');
     const tooltip =
-      entry.action === HistoryAction.Created ? `Created as ${name}` : `Status set to ${name}`;
+      entry.action === HistoryAction.Created
+        ? translate('history.marker.createdAs', { status: name })
+        : translate('history.marker.statusSet', { status: name });
     return { kind: 'status', status, tooltip };
   }
   if (entry.action === HistoryAction.Created) {
-    return { kind: 'icon', icon: 'pi-plus-circle', tooltip: 'Created' };
+    return { kind: 'icon', icon: 'pi-plus-circle', tooltip: translate('dashboard.activity.created') };
   }
 
   const fields = new Set(entry.changes.map((change) => change.field));
   if (fields.has(HistoryField.Assignee)) {
-    return { kind: 'icon', icon: 'pi-user', tooltip: 'Assignee changed' };
+    return { kind: 'icon', icon: 'pi-user', tooltip: translate('history.marker.assignee') };
   }
   if (fields.has(HistoryField.Attachment)) {
-    return { kind: 'icon', icon: 'pi-paperclip', tooltip: fileTooltip(entry.changes) };
+    return { kind: 'icon', icon: 'pi-paperclip', tooltip: fileTooltip(entry.changes, translate) };
   }
   if (fields.has(HistoryField.Stakeholder)) {
-    return { kind: 'icon', icon: 'pi-users', tooltip: 'Stakeholders changed' };
+    return { kind: 'icon', icon: 'pi-users', tooltip: translate('history.marker.stakeholders') };
   }
   return null;
+}
+
+export function historyStateLabel(
+  state: { status: HistoryValueModel; changedAt?: string | null },
+  index: number,
+  recorded: boolean,
+  translate: HistoryTranslate,
+): string {
+  if (!recorded) return translate('history.current');
+  if (index === 0) {
+    return state.changedAt ? translate('dashboard.activity.created') : translate('history.earlier');
+  }
+  return translate('dashboard.activity.movedTo', { status: state.status.name || translate('history.unknown') });
 }
 
 // status first, then assignee, then a file
@@ -239,22 +334,17 @@ function mainChange(entry: HistoryEntryModel): HistoryChangeModel | undefined {
     .find((change) => change !== undefined);
 }
 
-function fileTooltip(changes: HistoryChangeModel[]): string {
+function fileTooltip(changes: HistoryChangeModel[], translate: HistoryTranslate): string {
   const files = changes.filter((change) => change.field === HistoryField.Attachment);
-  if (files.length > 1) return 'Files changed';
+  if (files.length > 1) return translate('history.marker.files');
   const [file] = files;
-  if (!file.oldValue) return 'File added';
-  if (!file.newValue) return 'File removed';
-  return 'File renamed';
+  if (!file.oldValue) return translate('history.marker.fileAdded');
+  if (!file.newValue) return translate('history.marker.fileRemoved');
+  return translate('history.marker.fileRenamed');
 }
 
-// "milestone Sprint 1"
-function groupName(entry: HistoryEntryModel): string | null {
-  if (entry.entityType === HistoryEntityType.WorkGroup) {
-    return `group ${entry.subject?.name || 'Unknown'}`;
-  }
-  if (entry.entityType === HistoryEntityType.Milestone) {
-    return `milestone ${entry.subject?.name || 'Unknown'}`;
-  }
+function groupKind(entry: HistoryEntryModel): 'group' | 'milestone' | null {
+  if (entry.entityType === HistoryEntityType.WorkGroup) return 'group';
+  if (entry.entityType === HistoryEntityType.Milestone) return 'milestone';
   return null;
 }

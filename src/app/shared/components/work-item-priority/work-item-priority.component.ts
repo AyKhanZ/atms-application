@@ -1,5 +1,7 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
+import { TranslocoService } from '@jsverse/transloco';
 import { DictionaryModel } from '../../../core/models/dictionary.model';
+import { currentLanguage } from '../../../core/i18n/active-language';
 
 export type WorkItemPriorityTone = 'low' | 'medium' | 'high' | 'critical';
 
@@ -26,6 +28,7 @@ export type WorkItemPriorityTone = 'low' | 'medium' | 'high' | 'critical';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WorkItemPriorityComponent {
+  private readonly transloco = inject(TranslocoService);
   readonly priority = input.required<DictionaryModel>();
   // replaced: grey and struck through
   readonly muted = input(false);
@@ -33,9 +36,14 @@ export class WorkItemPriorityComponent {
   protected readonly steps = [1, 2, 3] as const;
   readonly tone = computed(() => workItemPriorityTone(this.priority().code));
   readonly level = computed(() => priorityLevel(this.tone()));
-  protected readonly ariaLabel = computed(
-    () => `Priority: ${this.priority().name}, ${this.level()} of ${this.steps.length}`,
-  );
+  protected readonly ariaLabel = computed(() => {
+    currentLanguage();
+    return this.transloco.translate('workItem.priorityMeter', {
+      name: this.priority().name,
+      level: this.level(),
+      total: this.steps.length,
+    });
+  });
 }
 
 export function workItemPriorityTone(code: string): WorkItemPriorityTone {

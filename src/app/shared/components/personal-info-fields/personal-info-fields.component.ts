@@ -4,6 +4,7 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { TooltipModule } from 'primeng/tooltip';
+import { TranslocoDirective } from '@jsverse/transloco';
 import { DictionaryModel } from '../../../core/models/dictionary.model';
 import { LanguageModel } from '../../../core/models/language.model';
 import { LabelForDirective } from '../../../core/directives/label-for.directive';
@@ -19,6 +20,7 @@ import { PersonalInfoForm, yearsAgo } from './personal-info.form';
     SelectModule,
     TooltipModule,
     LabelForDirective,
+    TranslocoDirective,
   ],
   templateUrl: './personal-info-fields.component.html',
   styleUrl: './personal-info-fields.component.scss',

@@ -1,17 +1,18 @@
-<div class="panel panel-padding filters">
+<div class="panel panel-padding filters" *transloco="let t">
   <div class="filters__grid">
     <div class="field field--wide">
-      <label id="taskFilterProjectLabel" appLabelFor="taskFilterProject">Project</label>
+      <label id="taskFilterProjectLabel" appLabelFor="taskFilterProject">{{ t('workItem.kind.project') }}</label>
       <app-ref-multiselect
         inputId="taskFilterProject"
         labelledBy="taskFilterProjectLabel"
+        [placeholder]="t('tasks.all')"
         [source]="projects()"
         [value]="filter().projectIds"
         (valueChange)="change({ projectIds: $event })"
       />
     </div>
     <div class="field field--wide">
-      <label id="taskFilterTicketLabel" appLabelFor="taskFilterTicket">Ticket</label>
+      <label id="taskFilterTicketLabel" appLabelFor="taskFilterTicket">{{ t('workItem.kind.ticket') }}</label>
       <app-ref-multiselect
         inputId="taskFilterTicket"
         labelledBy="taskFilterTicketLabel"
@@ -23,18 +24,18 @@
       />
     </div>
     <div class="field field--wide">
-      <label id="taskFilterPeopleLabel" appLabelFor="taskFilterPeople">Assigned to</label>
+      <label id="taskFilterPeopleLabel" appLabelFor="taskFilterPeople">{{ t('tasks.assignedTo') }}</label>
       <p-multiselect
         inputId="taskFilterPeople"
         ariaLabelledBy="taskFilterPeopleLabel"
-        placeholder="Anyone"
+        [placeholder]="t('tasks.anyone')"
         [options]="peopleOptions()"
         optionLabel="label"
         optionValue="value"
         [ngModel]="peopleValue()"
         (ngModelChange)="changePeople($event)"
         [filter]="true"
-        filterPlaceHolder="Search by name"
+        [filterPlaceHolder]="t('tasks.searchPeople')"
         [showToggleAll]="false"
         [panelStyle]="panelStyle"
         appendTo="body"
@@ -60,11 +61,11 @@
       </p-multiselect>
     </div>
     <div class="field field--narrow">
-      <label id="taskFilterTypeLabel" appLabelFor="taskFilterType">Type</label>
+      <label id="taskFilterTypeLabel" appLabelFor="taskFilterType">{{ t('common.type') }}</label>
       <p-select
         inputId="taskFilterType"
         ariaLabelledBy="taskFilterTypeLabel"
-        [options]="types"
+        [options]="types()"
         optionLabel="label"
         optionValue="value"
         [ngModel]="filter().kind"
@@ -73,11 +74,11 @@
       />
     </div>
     <div class="field field--narrow">
-      <label id="taskFilterStateLabel" appLabelFor="taskFilterState">Status</label>
+      <label id="taskFilterStateLabel" appLabelFor="taskFilterState">{{ t('common.status') }}</label>
       <p-multiselect
         inputId="taskFilterState"
         ariaLabelledBy="taskFilterStateLabel"
-        placeholder="All"
+        [placeholder]="t('tasks.all')"
         [options]="statuses()"
         optionLabel="label"
         optionValue="value"
@@ -93,11 +94,11 @@
       </p-multiselect>
     </div>
     <div class="field field--narrow">
-      <label id="taskFilterPriorityLabel" appLabelFor="taskFilterPriority">Priority</label>
+      <label id="taskFilterPriorityLabel" appLabelFor="taskFilterPriority">{{ t('common.priority') }}</label>
       <p-multiselect
         inputId="taskFilterPriority"
         ariaLabelledBy="taskFilterPriorityLabel"
-        placeholder="All"
+        [placeholder]="t('tasks.all')"
         [options]="priorities()"
         optionLabel="label"
         optionValue="value"
@@ -113,7 +114,7 @@
       </p-multiselect>
     </div>
     <div class="field field--narrow">
-      <label id="taskFilterDeadlineLabel" appLabelFor="taskFilterDeadline">Deadline</label>
+      <label id="taskFilterDeadlineLabel" appLabelFor="taskFilterDeadline">{{ t('common.deadline') }}</label>
       <p-select
         inputId="taskFilterDeadline"
         ariaLabelledBy="taskFilterDeadlineLabel"
@@ -145,6 +146,7 @@
 <ng-template #deadlineOption let-option>
   <span
     class="task-deadline-option"
+    *transloco="let t"
     [class.task-deadline-option--overdue]="option.value === 'overdue'"
   >
     @if (option.value !== 'any') {
@@ -158,7 +160,7 @@
     <span>
       {{ option.label }}
       @if (option.disabled) {
-        <small>Available in Board and List</small>
+        <small>{{ t('tasks.deadlineElsewhere') }}</small>
       }
     </span>
   </span>

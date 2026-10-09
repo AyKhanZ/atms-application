@@ -1,3 +1,4 @@
+<ng-container *transloco="let t">
 <section class="attachment-tree">
   <header class="tree-toolbar">
     <h3>
@@ -12,7 +13,7 @@
           [class.pi-chevron-down]="!allExpanded()"
           aria-hidden="true"
         ></i>
-        <span>{{ allExpanded() ? 'Collapse all' : 'Expand all' }}</span>
+        <span>{{ allExpanded() ? t('plan.collapseAll') : t('plan.expandAll') }}</span>
       </button>
     }
   </header>
@@ -34,7 +35,7 @@
           <button
             type="button"
             class="node-toggle"
-            [attr.aria-label]="(open ? 'Collapse ' : 'Expand ') + node.title"
+            [attr.aria-label]="t(open ? 'attachments.collapse' : 'attachments.expand', { name: node.title })"
             (click)="toggle(node)"
           >
             <i
@@ -77,11 +78,10 @@
 
           <span
             class="node-count"
-            [attr.aria-label]="node.fileCount + (node.fileCount === 1 ? ' file' : ' files')"
+            [attr.aria-label]="t('attachments.fileCount', { count: node.fileCount })"
           >
             <i class="pi pi-paperclip" aria-hidden="true"></i>
-            {{ node.fileCount }}
-            <span class="node-count__unit">{{ node.fileCount === 1 ? 'file' : 'files' }}</span>
+            {{ t('attachments.fileCount', { count: node.fileCount }) }}
           </span>
         </div>
 
@@ -100,7 +100,7 @@
             }
 
             @if (node.loading) {
-              <div class="file-list file-list--loading" role="status" aria-label="Loading files">
+              <div class="file-list file-list--loading" role="status" [attr.aria-label]="t('attachments.loading')">
                 @for (row of [1, 2]; track row) {
                   <div class="skeleton-row">
                     <p-skeleton width="2.25rem" height="2.25rem" borderRadius="8px" />
@@ -110,8 +110,8 @@
               </div>
             } @else if (node.error) {
               <div class="node-error" role="alert">
-                <span>Files could not be loaded.</span>
-                <button pButton type="button" text="true" (click)="retry.emit(node)">Retry</button>
+                <span>{{ t('attachments.loadFailed') }}</span>
+                <button pButton type="button" text="true" (click)="retry.emit(node)">{{ t('common.retry') }}</button>
               </div>
             }
 
@@ -126,3 +126,4 @@
     }
   </ul>
 </ng-template>
+</ng-container>

@@ -1,4 +1,5 @@
 <p-dialog
+  *transloco="let t"
   [header]="header()"
   [visible]="visible()"
   (visibleChange)="updateVisible($event)"
@@ -25,7 +26,9 @@
     }
 
     <div class="field">
-      <label id="participantUserLabel" appLabelFor="participantUser">User or email</label>
+      <label id="participantUserLabel" appLabelFor="participantUser">{{
+        t('participants.userOrEmail')
+      }}</label>
       <p-select
         #userSelect
         inputId="participantUser"
@@ -35,10 +38,10 @@
         [options]="users()"
         optionLabel="email"
         optionValue="id"
-        placeholder="Search by name or email"
+        [placeholder]="t('participants.searchUser')"
         [filter]="true"
         filterBy="name,surname,email"
-        filterPlaceholder="Name or email"
+        [filterPlaceholder]="t('participants.nameOrEmail')"
         panelStyleClass="participant-user-select-panel"
         appendTo="body"
         (onFilter)="onSearch($event)"
@@ -74,7 +77,7 @@
               <!-- participants arent in the list so their email lands here, say why -->
               <span>{{ reason }}</span>
             } @else if (canInviteByEmail() && searchedEmail()) {
-              <span>No user with this email.</span>
+              <span>{{ t('participants.noUserEmail') }}</span>
               <button
                 pButton
                 type="button"
@@ -83,12 +86,12 @@
                 (click)="openInvite(searchedEmail())"
               >
                 <i class="pi pi-user-plus"></i>
-                <span>Invite {{ searchedEmail() }}</span>
+                <span>{{ t('participants.inviteEmail', { email: searchedEmail() }) }}</span>
               </button>
             } @else if (canInviteByEmail()) {
-              <span>No users found. Type a full email to invite.</span>
+              <span>{{ t('participants.noUsersInvite') }}</span>
             } @else {
-              <span>No users found.</span>
+              <span>{{ t('participants.noUsers') }}</span>
             }
           </div>
         </ng-template>
@@ -98,18 +101,18 @@
           class="field-error"
           [class.field-error--visible]="showError('userId')"
           aria-live="polite"
-          >{{ showError('userId') ? 'Select a user.' : '00a0' }}</small
+          >{{ showError('userId') ? t('participants.selectUserError') : '00a0' }}</small
         >
         @if (canInviteByEmail()) {
           <button type="button" class="invite-link" (click)="openInvite(searchedEmail())">
-            Can't find? Invite
+            {{ t('participants.cantFind') }}
           </button>
         }
       </div>
     </div>
 
     <div class="field">
-      <label id="participantRoleLabel" appLabelFor="participantRole">Role</label>
+      <label id="participantRoleLabel" appLabelFor="participantRole">{{ t('common.role') }}</label>
       <p-select
         inputId="participantRole"
         ariaLabelledBy="participantRoleLabel"
@@ -118,7 +121,7 @@
         [options]="availableRoles()"
         optionLabel="name"
         optionValue="id"
-        placeholder="Select role"
+        [placeholder]="t('participants.selectRole')"
         appendTo="body"
       />
       <div class="field-meta">
@@ -126,14 +129,16 @@
           class="field-error"
           [class.field-error--visible]="showError('roleId')"
           aria-live="polite"
-          >{{ showError('roleId') ? 'Select a role.' : '' }}</small
+          >{{ showError('roleId') ? t('participants.selectRoleError') : '' }}</small
         >
       </div>
     </div>
 
     <div class="dialog-actions">
-      <button pButton type="button" [outlined]="true" (click)="close()">Cancel</button>
-      <button pButton type="submit" [disabled]="isSaving()">Add</button>
+      <button pButton type="button" [outlined]="true" (click)="close()">
+        {{ t('common.cancel') }}
+      </button>
+      <button pButton type="submit" [disabled]="isSaving()">{{ t('common.add') }}</button>
     </div>
   </form>
 
@@ -145,7 +150,7 @@
   >
     @for (field of inviteFields; track field.key) {
       <div class="field">
-        <label [for]="field.id">{{ field.label }}</label>
+        <label [for]="field.id">{{ t(field.label) }}</label>
         <input
           pInputText
           [id]="field.id"
@@ -178,9 +183,9 @@
         (click)="backToSearch()"
       >
         <i class="pi pi-arrow-left"></i>
-        <span>Back</span>
+        <span>{{ t('common.back') }}</span>
       </button>
-      <button pButton type="submit" [disabled]="isSaving()">Send invite</button>
+      <button pButton type="submit" [disabled]="isSaving()">{{ t('common.sendInvite') }}</button>
     </div>
   </form>
 </p-dialog>

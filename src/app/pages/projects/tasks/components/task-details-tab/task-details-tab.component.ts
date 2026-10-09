@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input } from '@angular/core';
+import { TranslocoDirective } from '@jsverse/transloco';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { TaskLocationComponent } from '../task-location/task-location.component';
@@ -18,6 +19,7 @@ import { CommentsDiscussionComponent } from '../../../comments/comments-discussi
     CommentsDiscussionComponent,
     TaskLocationComponent,
     WorkItemFactsComponent,
+    TranslocoDirective,
   ],
   templateUrl: './task-details-tab.component.html',
   styleUrl: './task-details-tab.component.scss',

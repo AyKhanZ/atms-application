@@ -1,19 +1,21 @@
-import { Pipe, PipeTransform } from '@angular/core';
+import { Pipe, PipeTransform, inject } from '@angular/core';
+import { TranslocoService } from '@jsverse/transloco';
 import { daysFromToday, daysLate } from '../../core/utils/deadline.utils';
 
 // "Today" / "in 5 days" / "overdue by 2 days"
 @Pipe({ name: 'deadlineLabel' })
 export class DeadlineLabelPipe implements PipeTransform {
+  private readonly transloco = inject(TranslocoService);
+
   transform(deadline?: string | Date | null): string {
     if (!deadline) return '';
 
     const days = daysFromToday(deadline);
     if (days === null) return '';
-    if (days === 0) return 'Today';
-    if (days > 0) return `in ${days} day${days === 1 ? '' : 's'}`;
+    if (days === 0) return this.transloco.translate('common.today');
+    if (days > 0) return this.transloco.translate('workItem.inDays', { count: days });
 
-    const overdue = Math.abs(days);
-    return `overdue by ${overdue} day${overdue === 1 ? '' : 's'}`;
+    return this.transloco.translate('workItem.overdueBy', { count: Math.abs(days) });
   }
 }
 

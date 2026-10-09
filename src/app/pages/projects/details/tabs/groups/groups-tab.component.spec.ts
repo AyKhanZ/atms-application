@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { TranslocoService } from '@jsverse/transloco';
 import { provideMockActions } from '@ngrx/effects/testing';
 import { MockStore, provideMockStore } from '@ngrx/store/testing';
 import { ConfirmationService } from 'primeng/api';
@@ -17,6 +18,8 @@ import {
 } from './groups-tab.component';
 import { WorkGroupExpansionStateService } from './work-group-expansion-state.service';
 
+import { translocoTestingProviders } from '../../../../../core/testing/transloco-testing';
+
 function workGroup(overrides: Partial<WorkGroupModel> = {}): WorkGroupModel {
   return {
     id: 'item-1',
@@ -30,8 +33,16 @@ function workGroup(overrides: Partial<WorkGroupModel> = {}): WorkGroupModel {
 }
 
 describe('workGroupDeleteBlockReason', () => {
+  let translate: (key: string, params?: Record<string, unknown>) => string;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({ providers: [...translocoTestingProviders()] });
+    const transloco = TestBed.inject(TranslocoService);
+    translate = (key, params) => transloco.translate(key, params);
+  });
+
   it('allows deleting an empty group', () => {
-    expect(workGroupDeleteBlockReason(workGroup(), 'group')).toBeNull();
+    expect(workGroupDeleteBlockReason(workGroup(), 'group', translate)).toBeNull();
   });
 
   it('blocks a group that contains milestones and tickets', () => {
@@ -45,7 +56,9 @@ describe('workGroupDeleteBlockReason', () => {
       ],
     });
 
-    expect(workGroupDeleteBlockReason(item, 'group')).toContain('1 milestone and 2 tickets');
+    expect(workGroupDeleteBlockReason(item, 'group', translate)).toContain(
+      '1 milestone and 2 tickets',
+    );
   });
 
   it('blocks a milestone that contains tickets', () => {
@@ -55,7 +68,7 @@ describe('workGroupDeleteBlockReason', () => {
       ticketCount: 1,
     });
 
-    expect(workGroupDeleteBlockReason(item, 'milestone')).toContain('1 ticket');
+    expect(workGroupDeleteBlockReason(item, 'milestone', translate)).toContain('1 ticket');
   });
 });
 
@@ -84,6 +97,7 @@ describe('GroupsTabComponent', () => {
     await TestBed.configureTestingModule({
       imports: [GroupsTabComponent],
       providers: [
+        ...translocoTestingProviders(),
         ConfirmationService,
         WorkGroupExpansionStateService,
         {

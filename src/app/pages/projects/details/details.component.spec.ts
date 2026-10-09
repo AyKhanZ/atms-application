@@ -6,6 +6,7 @@ import { Actions } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { ConfirmationService } from 'primeng/api';
 import { EMPTY, of } from 'rxjs';
+import { translocoTestingProviders } from '../../../core/testing/transloco-testing';
 import { BreadcrumbOverrideService } from '../../../core/services/breadcrumb-override.service';
 import { NavigationHistoryService } from '../../../core/services/navigation-history.service';
 import { ProjectPermissionsRefreshService } from '../../../core/services/project-permissions-refresh.service';
@@ -49,6 +50,7 @@ describe('ProjectDetailsComponent realtime membership', () => {
 
     TestBed.configureTestingModule({
       providers: [
+        ...translocoTestingProviders(),
         { provide: RealtimeService, useValue: realtime },
         { provide: ActivatedRoute, useValue: {
           snapshot: { paramMap: convertToParamMap({ projectId: 'project-1' }) },

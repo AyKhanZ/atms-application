@@ -11,6 +11,7 @@ import {
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { ConfirmationService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { finalize, map, merge } from 'rxjs';
@@ -28,7 +29,13 @@ const FORGOT_PASSWORD_DIALOG = 'settingsForgotPassword';
 
 @Component({
   selector: 'app-settings-password',
-  imports: [ReactiveFormsModule, ButtonModule, ConfirmDialogComponent, NewPasswordFieldsComponent],
+  imports: [
+    ReactiveFormsModule,
+    ButtonModule,
+    ConfirmDialogComponent,
+    NewPasswordFieldsComponent,
+    TranslocoDirective,
+  ],
   templateUrl: './settings-password.component.html',
   styleUrl: './settings-password.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -39,6 +46,7 @@ export class SettingsPasswordComponent {
   private readonly confirmation = inject(ConfirmationService);
   private readonly router = inject(Router);
   private readonly snackBar = inject(SnackBarService);
+  private readonly transloco = inject(TranslocoService);
   private readonly destroyRef = inject(DestroyRef);
 
   // null while the profile loads
@@ -100,7 +108,7 @@ export class SettingsPasswordComponent {
 
     const { password, confirmPassword } = this.passwordForm.getRawValue();
     if (password === this.currentPassword.value) {
-      this.newPasswordError.set('Choose a password different from your current password.');
+      this.newPasswordError.set(this.transloco.translate('validation.passwordDifferent'));
       return;
     }
 
@@ -127,7 +135,7 @@ export class SettingsPasswordComponent {
 
           this.session.replaceTokenPair(tokens);
           this.discard();
-          this.snackBar.success('Password changed.');
+          this.snackBar.success(this.transloco.translate('settings.passwordChanged'));
         },
         error: (error: HttpErrorResponse) => this.handleSaveError(error),
       });
@@ -139,29 +147,34 @@ export class SettingsPasswordComponent {
 
     this.confirmation.confirm({
       key: FORGOT_PASSWORD_DIALOG,
-      header: 'Reset your password?',
-      message: `We will sign you out and send a password reset link to ${email}. Continue?`,
-      acceptLabel: 'Send link',
-      rejectLabel: 'Cancel',
+      header: this.transloco.translate('settings.resetTitle'),
+      message: this.transloco.translate('settings.resetMessage', { email }),
+      acceptLabel: this.transloco.translate('settings.sendLink'),
+      rejectLabel: this.transloco.translate('common.cancel'),
       accept: () => this.sendResetLink(email),
     });
   }
 
   private handleSaveError(error: HttpErrorResponse): void {
     if (error.status === 423) {
-      this.snackBar.warn(serverErrorMessage(error, 'Too many attempts. Try again in 15 minutes.'));
+      this.snackBar.warn(
+        serverErrorMessage(error, this.transloco.translate('settings.tooManyAttempts')),
+      );
       return;
     }
 
     const oldPasswordMessage = validationMessage(error, 'OldPassword');
     const failures = error.error?.errors as { field?: string }[] | undefined;
     if (failures?.some((failure) => failure.field?.toLowerCase() === 'oldpassword')) {
-      this.currentPasswordError.set(oldPasswordMessage ?? 'Current password is incorrect.');
+      this.currentPasswordError.set(
+        oldPasswordMessage ?? this.transloco.translate('validation.currentPasswordIncorrect'),
+      );
       return;
     }
 
     this.snackBar.error(
-      validationMessage(error) ?? serverErrorMessage(error, 'Could not change the password.'),
+      validationMessage(error) ??
+        serverErrorMessage(error, this.transloco.translate('settings.changeFailed')),
     );
   }
 
@@ -183,7 +196,9 @@ export class SettingsPasswordComponent {
           void this.router.navigate(['/login'], { state });
         },
         error: (error: HttpErrorResponse) =>
-          this.snackBar.error(serverErrorMessage(error, 'Could not send a password reset link.')),
+          this.snackBar.error(
+            serverErrorMessage(error, this.transloco.translate('settings.resetLinkFailed')),
+          ),
       });
   }
 

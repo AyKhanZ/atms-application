@@ -11,8 +11,10 @@ import { DictionaryService } from '../../core/services/dictionary.service';
 import { ProfileService } from '../../core/services/profile.service';
 import { SnackBarService } from '../../core/services/snack-bar.service';
 import { UserStoreActions } from '../../store/user';
+import { LanguageService } from '../../core/services/language.service';
 import { SettingsComponent } from './settings.component';
 
+import { translocoTestingProviders } from '../../core/testing/transloco-testing';
 const profile = (overrides: Partial<ProfileModel> = {}): ProfileModel => ({
   name: 'Leyla',
   surname: 'Mammadova',
@@ -63,7 +65,7 @@ describe('SettingsComponent', { timeout: 15_000 }, () => {
 
     await TestBed.configureTestingModule({
       imports: [SettingsComponent],
-      providers: [
+      providers: [...translocoTestingProviders(), 
         provideMockStore(),
         { provide: ProfileService, useValue: profiles },
         {
@@ -79,6 +81,10 @@ describe('SettingsComponent', { timeout: 15_000 }, () => {
           },
         },
         { provide: SnackBarService, useValue: snackBar },
+        {
+          provide: LanguageService,
+          useValue: { current: () => 'en', rememberAndReload: vi.fn() },
+        },
         { provide: AuthService, useValue: { changePassword: vi.fn(), forgotPassword: vi.fn() } },
         { provide: AuthSessionService, useValue: { replaceTokenPair: vi.fn(), logout: vi.fn() } },
         { provide: Router, useValue: router },

@@ -2,6 +2,7 @@ import { WorkItemKind } from '../../../core/models/work-items';
 import { TestBed } from '@angular/core/testing';
 import { WorkItemJumpComponent } from './work-item-jump.component';
 
+import { translocoTestingProviders } from '../../../core/testing/transloco-testing';
 describe('WorkItemJumpComponent', () => {
   /** jsdom lays nothing out, so the width that decides panel or sheet has to be stated. */
   function viewportWidth(width: number) {
@@ -10,7 +11,7 @@ describe('WorkItemJumpComponent', () => {
 
   async function setup(width = 1200) {
     viewportWidth(width);
-    await TestBed.configureTestingModule({ imports: [WorkItemJumpComponent] }).compileComponents();
+    await TestBed.configureTestingModule({ providers: [...translocoTestingProviders()], imports: [WorkItemJumpComponent] }).compileComponents();
     const fixture = TestBed.createComponent(WorkItemJumpComponent);
     fixture.componentRef.setInput('current', { id: '1', code: '1', title: 'Current' });
     fixture.componentRef.setInput('items', [

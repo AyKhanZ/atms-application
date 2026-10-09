@@ -1,7 +1,9 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { TranslocoDirective } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-load-more-button',
+  imports: [TranslocoDirective],
   templateUrl: './load-more-button.component.html',
   styleUrl: './load-more-button.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

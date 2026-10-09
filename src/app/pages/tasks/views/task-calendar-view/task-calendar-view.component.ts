@@ -9,7 +9,7 @@ import {
   signal,
   untracked,
 } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { formatDate } from '@angular/common';
 import { CdkDrag, CdkDragDrop, CdkDropList, CdkDropListGroup } from '@angular/cdk/drag-drop';
 import { Store } from '@ngrx/store';
 import { WorkTaskBoardQuery, deadlineOrder } from '../../../../core/models/work-task-board';
@@ -25,6 +25,9 @@ import { LayoutService } from '../../../../core/services/layout.service';
 import { TaskCalendarChipComponent } from '../../components/task-calendar-chip/task-calendar-chip.component';
 import { filterKey } from '../../tasks-page.utils';
 import { CalendarDayCapacityDirective } from './calendar-day-capacity.directive';
+import { angularLocale } from '../../../../core/i18n/active-language';
+import { TranslocoDirective } from '@jsverse/transloco';
+import { AppDatePipe } from '../../../../shared/pipes/app-date.pipe';
 
 interface Day {
   // "2026-09-21", local date
@@ -42,12 +45,13 @@ const dayKey = (date: Date): string =>
 @Component({
   selector: 'app-task-calendar-view',
   imports: [
-    DatePipe,
+    AppDatePipe,
     CdkDropListGroup,
     CdkDropList,
     CdkDrag,
     CalendarDayCapacityDirective,
     TaskCalendarChipComponent,
+    TranslocoDirective,
   ],
   templateUrl: './task-calendar-view.component.html',
   styleUrl: './task-calendar-view.component.scss',
@@ -67,7 +71,14 @@ export class TaskCalendarViewComponent {
   readonly openTask = output<WorkTaskModel>();
   readonly showOverdue = output<void>();
 
-  readonly weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  readonly weekdays = computed(() => {
+    const monday = new Date(2024, 0, 1);
+    return Array.from({ length: 7 }, (_, index) => {
+      const date = new Date(monday);
+      date.setDate(monday.getDate() + index);
+      return formatDate(date, 'EEE', angularLocale());
+    });
+  });
   readonly isPhone = inject(LayoutService).isPhone;
   readonly expanded = signal<ReadonlySet<string>>(new Set());
 
@@ -78,9 +89,11 @@ export class TaskCalendarViewComponent {
     return new Date(year, month - 1, 1);
   });
 
-  readonly monthName = computed(() =>
-    this.firstDay().toLocaleDateString('en-US', { month: 'long' }),
-  );
+  // ru and az give the month in lower case ("октябрь"), a header starts with a capital
+  readonly monthName = computed(() => {
+    const name = formatDate(this.firstDay(), 'LLLL', angularLocale());
+    return name.charAt(0).toLocaleUpperCase(angularLocale()) + name.slice(1);
+  });
   readonly year = computed(() => this.firstDay().getFullYear());
 
   // local midnight sent as utc, same as the form stores

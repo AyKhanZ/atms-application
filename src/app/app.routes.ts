@@ -50,25 +50,25 @@ export const routes: Routes = [
       },
       {
         path: 'dashboard',
-        data: { breadcrumb: { title: 'Dashboard', icon: 'pi-th-large' } },
+        data: { breadcrumb: { title: 'nav.dashboard', icon: 'pi-th-large' } },
         loadComponent: () => import('./pages/dashboard/dashboard').then((c) => c.Dashboard),
       },
       {
         path: 'search',
-        data: { breadcrumb: { title: 'Search', icon: 'pi-search' } },
+        data: { breadcrumb: { title: 'nav.search', icon: 'pi-search' } },
         loadComponent: () =>
           import('./pages/search/search.component').then((c) => c.SearchComponent),
       },
       {
         path: 'tasks',
-        data: { breadcrumb: { title: 'Tasks', icon: 'pi-list-check' } },
+        data: { breadcrumb: { title: 'nav.tasks', icon: 'pi-list-check' } },
         canActivate: [permissionGuard(Permissions.Project.View)],
         loadComponent: () =>
           import('./pages/tasks/tasks-page.component').then((c) => c.TasksPageComponent),
       },
       {
         path: 'notifications',
-        data: { breadcrumb: { title: 'Notifications', icon: 'pi-bell' } },
+        data: { breadcrumb: { title: 'nav.notifications', icon: 'pi-bell' } },
         loadComponent: () =>
           import('./pages/notifications/notifications-page.component').then(
             (c) => c.NotificationsPageComponent,
@@ -76,7 +76,7 @@ export const routes: Routes = [
       },
       {
         path: 'settings',
-        data: { breadcrumb: { title: 'Settings', icon: 'pi-cog' } },
+        data: { breadcrumb: { title: 'nav.settings', icon: 'pi-cog' } },
         // super admin has no own profile, so no onboarding and settings
         canActivate: [exceptRoleGuard(Roles.SuperAdmin)],
         canDeactivate: [unsavedChangesGuard],
@@ -85,13 +85,13 @@ export const routes: Routes = [
       },
       {
         path: 'users',
-        data: { breadcrumb: { title: 'Users', icon: 'pi-users' } },
+        data: { breadcrumb: { title: 'nav.users', icon: 'pi-users' } },
         loadChildren: () => import('./pages/admin/users/users.routes').then((r) => r.USERS_ROUTES),
         canActivate: [permissionGuard(Permissions.User.View)],
       },
       {
         path: 'organizations',
-        data: { breadcrumb: { title: 'Organizations', icon: 'pi-building' } },
+        data: { breadcrumb: { title: 'nav.organizations', icon: 'pi-building' } },
         loadChildren: () =>
           import('./pages/admin/organizations/organizations.routes').then(
             (r) => r.ORGANIZATIONS_ROUTES,
@@ -100,7 +100,7 @@ export const routes: Routes = [
       },
       {
         path: 'projects',
-        data: { breadcrumb: { title: 'Projects', icon: 'pi-briefcase' } },
+        data: { breadcrumb: { title: 'nav.projects', icon: 'pi-briefcase' } },
         loadChildren: () =>
           import('./pages/projects/projects.routes').then((r) => r.PROJECTS_ROUTES),
       },

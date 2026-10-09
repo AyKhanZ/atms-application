@@ -1,3 +1,4 @@
+import { TranslocoDirective } from '@jsverse/transloco';
 import { LabelForDirective } from '../../../../../../../core/directives/label-for.directive';
 import {
   ChangeDetectionStrategy,
@@ -28,6 +29,7 @@ import { availableParticipantRoles } from '../../participant-role.utils';
     SelectModule,
     LabelForDirective,
     ProfileAvatarComponent,
+    TranslocoDirective,
   ],
   templateUrl: './change-participant-role-dialog.component.html',
   styleUrl: './change-participant-role-dialog.component.scss',

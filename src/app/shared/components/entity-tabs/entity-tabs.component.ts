@@ -1,4 +1,6 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
+import { TranslocoService } from '@jsverse/transloco';
+import { currentLanguage } from '../../../core/i18n/active-language';
 
 export interface EntityTab<TId extends string = string> {
   id: TId;
@@ -12,7 +14,7 @@ export interface EntityTab<TId extends string = string> {
 @Component({
   selector: 'app-entity-tabs',
   template: `
-    <nav class="entity-tabs" [attr.aria-label]="ariaLabel()">
+    <nav class="entity-tabs" [attr.aria-label]="accessibleName()">
       @for (tab of tabs(); track tab.id) {
         <button
           type="button"
@@ -33,9 +35,14 @@ export interface EntityTab<TId extends string = string> {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EntityTabsComponent<TId extends string = string> {
+  private readonly transloco = inject(TranslocoService);
   readonly tabs = input.required<readonly EntityTab<TId>[]>();
   readonly active = input.required<TId>();
-  readonly ariaLabel = input('Sections');
+  readonly ariaLabel = input<string | undefined>(undefined);
+  readonly accessibleName = computed(() => {
+    currentLanguage();
+    return this.ariaLabel() ?? this.transloco.translate('common.sections');
+  });
 
   readonly select = output<TId>();
 }

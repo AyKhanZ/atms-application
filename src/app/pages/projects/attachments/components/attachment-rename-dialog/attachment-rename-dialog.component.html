@@ -1,5 +1,6 @@
+<ng-container *transloco="let t">
 <p-dialog
-  header="Rename file"
+  [header]="t('attachments.renameTitle')"
   [visible]="!!attachment()"
   (visibleChange)="!$event && close()"
   [modal]="true"
@@ -11,7 +12,7 @@
 >
   <form class="rename-form" (ngSubmit)="submit()">
     <label class="form-field" for="attachmentName">
-      <span>Name <b>*</b></span>
+      <span>{{ t('common.name') }} <b>*</b></span>
       <span class="name-input">
         <input
           pInputText
@@ -42,9 +43,10 @@
         [disabled]="saving()"
         (click)="close()"
       >
-        Cancel
+        {{ t('common.cancel') }}
       </button>
-      <button pButton type="submit" [loading]="saving()">Save</button>
+      <button pButton type="submit" [loading]="saving()">{{ t('common.save') }}</button>
     </div>
   </form>
 </p-dialog>
+</ng-container>

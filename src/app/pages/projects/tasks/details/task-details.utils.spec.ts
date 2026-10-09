@@ -1,7 +1,11 @@
+import { TestBed } from '@angular/core/testing';
+import { TranslocoService } from '@jsverse/transloco';
+import { translocoTestingProviders } from '../../../../core/testing/transloco-testing';
 import { WorkTaskModel } from '../../../../core/models/work-tasks';
 import {
   parseTaskTab,
   taskBreadcrumbTrail,
+  taskDeleteConfirmation,
   taskParentRoute,
   taskTabQueryParam,
 } from './task-details.utils';
@@ -65,11 +69,41 @@ describe('task details helpers', () => {
     const project = { code: '7', title: 'Payments' };
 
     expect(taskBreadcrumbTrail(project, subtask).map((item) => item.title)).toEqual([
-      'Projects',
+      'nav.projects',
       '#7 Payments',
       '#20 Ticket',
       '#34 Parent',
       '#71 Subtask',
     ]);
+  });
+
+  it('names a task deleted with its subtasks', () => {
+    TestBed.configureTestingModule({ providers: [...translocoTestingProviders()] });
+    const confirmation = taskDeleteConfirmation(
+      task({ code: '7', title: 'Payment', subtaskCount: 2 }),
+      TestBed.inject(TranslocoService),
+      () => undefined,
+    );
+
+    expect(confirmation.header).toBe('Delete task?');
+    expect(confirmation.message).toBe(
+      '#7 Payment\nIt will be deleted together with its 2 subtasks.',
+    );
+    expect(confirmation.acceptLabel).toBe('Delete task and subtasks');
+    expect(confirmation.rejectLabel).toBe('Cancel');
+  });
+
+  it('names a subtask deleted on its own', () => {
+    TestBed.configureTestingModule({ providers: [...translocoTestingProviders()] });
+    const confirmation = taskDeleteConfirmation(
+      task({ isSubtask: true, code: '8', title: 'Check' }),
+      TestBed.inject(TranslocoService),
+      () => undefined,
+    );
+
+    expect(confirmation.header).toBe('Delete subtask?');
+    expect(confirmation.message).toBe('#8 Check\nThis subtask will be deleted.');
+    expect(confirmation.acceptLabel).toBe('Delete');
+    expect(confirmation.rejectLabel).toBe('Cancel');
   });
 });

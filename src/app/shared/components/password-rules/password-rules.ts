@@ -1,5 +1,7 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { NgClass } from '@angular/common';
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
+import { currentLanguage } from '../../../core/i18n/active-language';
 
 interface PasswordRule {
   label: string;
@@ -8,25 +10,27 @@ interface PasswordRule {
 
 @Component({
   selector: 'app-password-rules',
-  imports: [NgClass],
+  imports: [NgClass, TranslocoDirective],
   templateUrl: './password-rules.html',
   styleUrl: './password-rules.scss',
 })
 export class PasswordRules {
+  private readonly transloco = inject(TranslocoService);
   password = input.required<string>();
   confirmPassword = input.required<string>();
 
   rules = computed<PasswordRule[]>(() => {
+    currentLanguage();
     const p = this.password();
     const cp = this.confirmPassword();
 
     return [
-      { label: 'At least 10 characters', met: p.length >= 10 },
-      { label: 'Contains uppercase letter (e.g. A, B)', met: /[A-Z]/.test(p) },
-      { label: 'Contains lowercase letter (e.g. a, b)', met: /[a-z]/.test(p) },
-      { label: 'Contains a number (e.g. 1, 2, 3)', met: /[0-9]/.test(p) },
-      { label: 'Contains a symbol (e.g. @, #, !)', met: /[!@#$%^&*()\-_+=]/.test(p) },
-      { label: 'Both passwords match', met: !!p && p === cp },
+      { label: this.transloco.translate('validation.minLength', { min: 10 }), met: p.length >= 10 },
+      { label: this.transloco.translate('validation.uppercase'), met: /[A-Z]/.test(p) },
+      { label: this.transloco.translate('validation.lowercase'), met: /[a-z]/.test(p) },
+      { label: this.transloco.translate('validation.digit'), met: /[0-9]/.test(p) },
+      { label: this.transloco.translate('validation.symbol'), met: /[!@#$%^&*()\-_+=]/.test(p) },
+      { label: this.transloco.translate('validation.passwordsMatch'), met: !!p && p === cp },
     ];
   });
 }

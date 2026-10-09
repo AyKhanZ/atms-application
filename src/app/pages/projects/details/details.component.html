@@ -1,9 +1,9 @@
 <p-confirmDialog />
 
-<section class="page project-details-page">
+<section class="page project-details-page" *transloco="let t">
   <div class="page-header details-header">
     <div>
-      <h1 class="page-title">Project details</h1>
+      <h1 class="page-title">{{ t('projects.details') }}</h1>
     </div>
     <div class="details-actions">
       <app-back-button (back)="back()" />
@@ -13,7 +13,7 @@
         @if (project()) {
           <button pButton type="button" severity="secondary" outlined="true" (click)="edit()">
             <i class="pi pi-pencil"></i>
-            <span>Edit</span>
+            <span>{{ t('common.edit') }}</span>
           </button>
         }
       </ng-container>
@@ -27,7 +27,7 @@
             [loading]="isSaving()"
             (click)="confirmDelete()"
           >
-            <i class="pi pi-trash"></i><span>Delete</span>
+            <i class="pi pi-trash"></i><span>{{ t('common.delete') }}</span>
           </button>
         }
       </ng-container>
@@ -42,11 +42,19 @@
           <h2>{{ item.title }}</h2>
           @if (item.updatedAt && item.updatedBy) {
             <p class="updated-meta">
-              Updated by {{ item.updatedBy | personName }} · {{ item.updatedAt | relativeTime }}
+              {{
+                t('projects.updatedBy', {
+                  name: (item.updatedBy | personName),
+                  when: (item.updatedAt | relativeTime),
+                })
+              }}
             </p>
           }
         </div>
-        <div class="status-area" [attr.aria-label]="'Project status: ' + item.projectStatus.name">
+        <div
+          class="status-area"
+          [attr.aria-label]="t('projects.statusLabel', { name: item.projectStatus.name })"
+        >
           <app-project-status-badge [status]="item.projectStatus" [prominent]="true" />
         </div>
       </header>
@@ -54,7 +62,7 @@
       <app-entity-tabs
         [tabs]="tabs()"
         [active]="activeTab()"
-        ariaLabel="Project sections"
+        [ariaLabel]="t('projects.sections')"
         (select)="selectTab($event)"
       />
 
@@ -64,33 +72,35 @@
           <div class="details-content">
             <section class="description-card content-card">
               <div class="section-heading">
-                <h3>Description</h3>
+                <h3>{{ t('common.description') }}</h3>
               </div>
               @if (item.description) {
                 <p class="description">{{ item.description }}</p>
               } @else {
-                <p class="inline-empty">No description has been added.</p>
+                <p class="inline-empty">{{ t('projects.noDescription') }}</p>
               }
             </section>
 
             <aside class="project-information">
               <section>
-                <h3>Information</h3>
+                <h3>{{ t('common.information') }}</h3>
                 <dl>
                   <div>
-                    <dt>Start date</dt>
+                    <dt>{{ t('common.startDate') }}</dt>
                     <dd>
-                      {{ item.startDate ? (item.startDate | date: 'dd.MM.yyyy') : 'Not set' }}
+                      {{
+                        item.startDate ? (item.startDate | appDate: 'dd.MM.yyyy') : t('common.notSet')
+                      }}
                     </dd>
                   </div>
                   <div>
-                    <dt>Target date</dt>
+                    <dt>{{ t('common.targetDate') }}</dt>
                     <dd>
-                      {{ item.endDate ? (item.endDate | date: 'dd.MM.yyyy') : 'Not set' }}
+                      {{ item.endDate ? (item.endDate | appDate: 'dd.MM.yyyy') : t('common.notSet') }}
                     </dd>
                   </div>
                   <div>
-                    <dt>Type</dt>
+                    <dt>{{ t('common.type') }}</dt>
                     <dd>
                       <span class="project-metadata-tag project-metadata-tag--type">
                         {{ item.projectType.name }}
@@ -98,7 +108,7 @@
                     </dd>
                   </div>
                   <div>
-                    <dt>Kind</dt>
+                    <dt>{{ t('common.kind') }}</dt>
                     <dd>
                       <span class="project-metadata-tag project-metadata-tag--kind">
                         {{ item.projectKind.name }}
@@ -132,11 +142,13 @@
       </div>
     </article>
   } @else if (loading()) {
-    <section class="panel"><app-loading-state text="Loading project..." /></section>
+    <section class="panel"><app-loading-state [text]="t('projects.loading')" /></section>
   } @else {
     <div class="panel details-loading">
-      <i class="pi pi-exclamation-circle"></i><span>Project could not be loaded.</span>
-      <button pButton type="button" outlined="true" (click)="back()">Back to projects</button>
+      <i class="pi pi-exclamation-circle"></i><span>{{ t('projects.loadFailed') }}</span>
+      <button pButton type="button" outlined="true" (click)="back()">
+        {{ t('projects.backToList') }}
+      </button>
     </div>
   }
 </section>

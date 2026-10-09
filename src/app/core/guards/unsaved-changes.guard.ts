@@ -1,5 +1,6 @@
 import { inject } from '@angular/core';
 import { CanDeactivateFn } from '@angular/router';
+import { TranslocoService } from '@jsverse/transloco';
 import { AuthSessionService } from '../services/auth-session.service';
 
 export interface HasUnsavedChanges {
@@ -13,5 +14,5 @@ export const unsavedChangesGuard: CanDeactivateFn<HasUnsavedChanges> = (componen
   if (!component.hasUnsavedChanges()) return true;
   if (component.confirmUnsavedChanges) return component.confirmUnsavedChanges();
 
-  return window.confirm('You have unsaved changes. Leave this page anyway?');
+  return window.confirm(inject(TranslocoService).translate('errors.unsaved'));
 };

@@ -1,4 +1,5 @@
 import { Injectable, inject } from '@angular/core';
+import { TranslocoService } from '@jsverse/transloco';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import {
   Observable,
@@ -22,6 +23,7 @@ import * as ActionsStore from './history.actions';
 export class HistoryEffects {
   private readonly actions$ = inject(Actions);
   private readonly history = inject(HistoryService);
+  private readonly transloco = inject(TranslocoService);
   private readonly reset$ = this.actions$.pipe(
     ofType(ActionsStore.reset, AuthStoreActions.logoutCompleted),
   );
@@ -41,7 +43,7 @@ export class HistoryEffects {
             }).pipe(
               map(({ page, states }) => ActionsStore.loadSuccess({ historyKey, page, states })),
               catchError(() =>
-                of(ActionsStore.loadFailure({ historyKey, error: "Couldn't load history." })),
+                of(ActionsStore.loadFailure({ historyKey, error: this.transloco.translate('history.loadFailed') })),
               ),
               takeUntil(this.gone(historyKey)),
             ),
@@ -64,7 +66,7 @@ export class HistoryEffects {
                 of(
                   ActionsStore.loadMoreFailure({
                     historyKey,
-                    error: "Couldn't load more changes. Try again.",
+                    error: this.transloco.translate('history.loadMoreFailed'),
                   }),
                 ),
               ),

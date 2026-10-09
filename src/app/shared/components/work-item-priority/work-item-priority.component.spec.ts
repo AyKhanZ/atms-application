@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { translocoTestingProviders } from '../../../core/testing/transloco-testing';
 import {
   WorkItemPriorityComponent,
   priorityLevel,
@@ -9,7 +10,7 @@ describe('WorkItemPriorityComponent', () => {
   let fixture: ComponentFixture<WorkItemPriorityComponent>;
 
   beforeEach(async () => {
-    await TestBed.configureTestingModule({
+    await TestBed.configureTestingModule({ providers: [...translocoTestingProviders()],
       imports: [WorkItemPriorityComponent],
     }).compileComponents();
     fixture = TestBed.createComponent(WorkItemPriorityComponent);

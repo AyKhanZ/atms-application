@@ -1,5 +1,7 @@
-import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import { TooltipModule } from 'primeng/tooltip';
+import { TranslocoService } from '@jsverse/transloco';
+import { currentLanguage } from '../../../../core/i18n/active-language';
 import { WorkTaskModel } from '../../../../core/models/work-tasks';
 import { WorkTaskStatus } from '../../../../core/enums/work-task-status.enum';
 import { isOverdueTask } from '../../../../core/utils/deadline.utils';
@@ -26,6 +28,7 @@ import { TaskHoverComponent } from '../task-hover/task-hover.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TaskCalendarChipComponent {
+  private readonly transloco = inject(TranslocoService);
   readonly task = input.required<WorkTaskModel>();
   readonly phone = input(false);
   // every task on the page is the viewers own, an avatar on each says nothing
@@ -36,7 +39,15 @@ export class TaskCalendarChipComponent {
   protected readonly done = computed(() => this.task().status.id === WorkTaskStatus.Done);
   protected readonly overdue = computed(() => isOverdueTask(this.task()));
   protected readonly label = computed(() => {
+    currentLanguage();
     const task = this.task();
-    return `${task.isSubtask ? 'Subtask' : 'Task'} #${task.code}: ${task.title}, ${task.status.name}`;
+    return this.transloco.translate('workItem.chipLabel', {
+      kind: this.transloco.translate(
+        task.isSubtask ? 'workItem.kind.subtask' : 'workItem.kind.task',
+      ),
+      code: task.code,
+      title: task.title,
+      status: task.status.name,
+    });
   });
 }

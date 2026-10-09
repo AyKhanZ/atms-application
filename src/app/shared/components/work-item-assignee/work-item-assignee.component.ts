@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { TranslocoDirective } from '@jsverse/transloco';
 import { WorkItemAssigneeModel } from '../../../core/models/work-items';
 import { ProfileAvatarComponent } from '../profile-avatar/profile-avatar.component';
 import {
@@ -13,7 +14,7 @@ import {
     '[class.avatar-only]': 'avatarOnly()',
     '[class.muted]': 'muted()',
   },
-  imports: [ProfileAvatarComponent, PersonNamePipe, PersonInitialsPipe, PersonShortNamePipe],
+  imports: [ProfileAvatarComponent, PersonNamePipe, PersonInitialsPipe, PersonShortNamePipe, TranslocoDirective],
   templateUrl: './work-item-assignee.component.html',
   styleUrl: './work-item-assignee.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

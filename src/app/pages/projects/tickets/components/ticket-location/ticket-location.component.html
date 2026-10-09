@@ -1,7 +1,7 @@
 @let item = ticket();
 
-<section class="ticket-location">
-  <h3>Location</h3>
+<section class="ticket-location" *transloco="let t">
+  <h3>{{ t('tasks.location') }}</h3>
 
   <div class="location-tree">
     <span class="location-level location-level--group">
@@ -20,7 +20,7 @@
           [current]="item"
           [items]="jump.items()"
           [kind]="kinds.Ticket"
-          label="Switch ticket"
+          [label]="t('tickets.switch')"
           [context]="jumpContext()"
           [groupLabel]="item.milestoneTitle"
           [loading]="jump.loading()"
@@ -45,6 +45,6 @@
     (click)="viewInPlan.emit()"
   >
     <i class="pi pi-list-check"></i>
-    <span>View in Plan</span>
+    <span>{{ t('plan.viewInPlan') }}</span>
   </button>
 </section>

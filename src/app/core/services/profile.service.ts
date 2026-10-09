@@ -14,6 +14,10 @@ export class ProfileService {
     return this.http.get<ProfileModel>(this.url);
   }
 
+  updateLanguage(language: string): Observable<void> {
+    return this.http.patch<void>(`${this.url}/language`, { language });
+  }
+
   update(command: UpdateProfileSettingsCommand): Observable<ProfileModel> {
     const data = new FormData();
     data.append('name', command.name);

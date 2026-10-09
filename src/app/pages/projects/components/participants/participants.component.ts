@@ -1,6 +1,7 @@
 import { LabelForDirective } from '../../../../core/directives/label-for.directive';
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
 import { AbstractControl, FormArray, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
 import { OrganizationModel } from '../../../../core/models/organizations/organizations.models';
@@ -17,12 +18,14 @@ interface ParticipantUserGroup {
 
 @Component({
   selector: 'app-project-participants',
-  imports: [ReactiveFormsModule, ButtonModule, SelectModule, LabelForDirective],
+  imports: [ReactiveFormsModule, ButtonModule, SelectModule, LabelForDirective, TranslocoDirective],
   templateUrl: './participants.component.html',
   styleUrl: './participants.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProjectParticipantsComponent {
+  private readonly transloco = inject(TranslocoService);
+
   readonly participants = input.required<FormArray>();
   readonly organization = input<OrganizationModel | null>(null);
   readonly teamMembers = input.required<WorkProjectParticipantCandidateModel[]>();
@@ -51,9 +54,14 @@ export class ProjectParticipantsComponent {
     const teamMembers = this.teamMembers().filter((user) => !selected.has(user.id));
     const clientUsers = (this.organization()?.users ?? []).filter((user) => !selected.has(user.id));
 
-    if (teamMembers.length > 0) groups.push({ label: 'Our team', items: teamMembers });
+    if (teamMembers.length > 0) {
+      groups.push({ label: this.transloco.translate('participants.ourTeam'), items: teamMembers });
+    }
     if (clientUsers.length > 0) {
-      groups.push({ label: 'Client organization', items: clientUsers });
+      groups.push({
+        label: this.transloco.translate('participants.clientOrganization'),
+        items: clientUsers,
+      });
     }
 
     return groups;
@@ -86,18 +94,22 @@ export class ProjectParticipantsComponent {
   participantSource(index: number): string {
     const userId = this.participants().at(index).get('userId')?.value as string | null;
     if (!userId) return '';
-    return this.isClientUser(userId) ? 'Client organization' : 'Our team';
+    return this.transloco.translate(
+      this.isClientUser(userId) ? 'participants.clientOrganization' : 'participants.ourTeam',
+    );
   }
 
   error(index: number, name: 'userId' | 'roleId'): string {
     const control = this.participants().at(index).get(name);
     if ((!this.submitted() && !control?.touched) || !control?.errors) return '';
-    return name === 'userId' ? 'User is required.' : 'Role is required.';
+    return this.transloco.translate(
+      name === 'userId' ? 'participants.userRequired' : 'participants.roleRequired',
+    );
   }
 
   participantsError(): string {
     return this.submitted() && this.participants().hasError('required')
-      ? 'At least one participant is required.'
+      ? this.transloco.translate('participants.atLeastOne')
       : '';
   }
 

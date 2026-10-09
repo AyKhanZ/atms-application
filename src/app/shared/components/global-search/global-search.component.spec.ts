@@ -11,6 +11,7 @@ import { globalSearchReducer } from '../../../store/global-search/global-search.
 import { GlobalSearchComponent } from './global-search.component';
 import { WorkItemKind } from '../../../core/models/work-items';
 
+import { translocoTestingProviders } from '../../../core/testing/transloco-testing';
 const empty = {
   projects: { items: [], hasMore: false },
   tickets: { items: [], hasMore: false },
@@ -32,7 +33,7 @@ describe('GlobalSearchComponent', () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
     await TestBed.configureTestingModule({
       imports: [GlobalSearchComponent],
-      providers: [
+      providers: [...translocoTestingProviders(), 
         provideRouter([]),
         provideHttpClient(),
         provideHttpClientTesting(),

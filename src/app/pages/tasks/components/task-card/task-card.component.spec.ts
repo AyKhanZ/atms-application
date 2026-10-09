@@ -3,13 +3,14 @@ import { provideRouter } from '@angular/router';
 import { taskFixture } from '../../testing/task-fixture';
 import { TaskCardComponent } from './task-card.component';
 
+import { translocoTestingProviders } from '../../../../core/testing/transloco-testing';
 describe('TaskCardComponent', () => {
   it.each([false, true])(
     'shows subtask progress only on a parent task (subtask=%s)',
     (isSubtask) => {
       TestBed.configureTestingModule({
         imports: [TaskCardComponent],
-        providers: [provideRouter([])],
+        providers: [...translocoTestingProviders(), provideRouter([])],
       });
       const fixture = TestBed.createComponent(TaskCardComponent);
       fixture.componentRef.setInput('task', taskFixture({ isSubtask }));

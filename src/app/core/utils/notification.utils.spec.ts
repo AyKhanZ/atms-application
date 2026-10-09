@@ -1,8 +1,11 @@
+import { TestBed } from '@angular/core/testing';
+import { TranslocoService } from '@jsverse/transloco';
 import { NotificationEntityType } from '../enums/notification-entity-type.enum';
 import { NotificationType } from '../enums/notification-type.enum';
 import { WorkTaskStatus } from '../enums/work-task-status.enum';
 import { NotificationModel } from '../models/notifications';
 import { WorkItemKind } from '../models/work-items';
+import { translocoTestingProviders } from '../testing/transloco-testing';
 import {
   groupNotificationsByDay,
   isSystemNotification,
@@ -54,10 +57,20 @@ const now = new Date(2026, 9, 5, 12);
 /** The second line as read: "Leyla M. moved it to [Done]". */
 const line = (value: NotificationModel) => {
   const view = notificationView(value, now);
-  return [view.actor, view.action, view.status && `[${view.status.name}]`].filter(Boolean).join(' ');
+  const transloco = TestBed.inject(TranslocoService);
+  const params = { ...view.actionParams };
+  if (view.includeActor) {
+    params['actor'] = view.actor ?? transloco.translate('notifications.someone');
+  }
+  const action = transloco.translate(view.actionKey, params);
+  return [action, view.status && `[${view.status.name}]`].filter(Boolean).join(' ');
 };
 
 describe('notificationView', () => {
+  beforeEach(() => {
+    TestBed.configureTestingModule({ providers: [...translocoTestingProviders()] });
+  });
+
   it.each([
     [notification(), 'Leyla M. assigned it to you'],
     [
@@ -212,11 +225,11 @@ describe('groupNotificationsByDay', () => {
       now,
     );
 
-    expect(groups.map((group) => [group.label, group.items.length])).toEqual([
-      ['Today', 2],
-      ['Yesterday', 1],
-      ['28 Sep', 1],
-      ['28 Dec 2025', 1],
+    expect(groups.map((group) => [group.day, group.items.length])).toEqual([
+      ['today', 2],
+      ['yesterday', 1],
+      ['date', 1],
+      ['date', 1],
     ]);
   });
 

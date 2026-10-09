@@ -1,6 +1,7 @@
+<ng-container *transloco="let t">
 <div class="history-tab">
   @if (loading()) {
-    <div class="history-skeleton" role="status" aria-label="Loading history">
+    <div class="history-skeleton" role="status" [attr.aria-label]="t('history.loading')">
       <p-skeleton width="60%" height="1.75rem" />
       <div class="history-skeleton__rows">
         @for (row of skeletonRows; track row) {
@@ -19,8 +20,8 @@
     <app-empty-state
       role="alert"
       icon="pi-history"
-      title="History isn't available right now"
-      description="It couldn't be loaded. Check your connection and try again."
+      [title]="t('history.unavailable')"
+      [description]="t('history.unavailableHint')"
     >
       <button
         pButton
@@ -30,17 +31,17 @@
         class="history-retry"
         (click)="load()"
       >
-        <i class="pi pi-refresh" aria-hidden="true"></i><span>Try again</span>
+        <i class="pi pi-refresh" aria-hidden="true"></i><span>{{ t('common.retry') }}</span>
       </button>
     </app-empty-state>
   } @else if (!entries().length) {
     <app-empty-state
       icon="pi-history"
-      title="No activity yet"
-      description="Every change will be recorded here."
+      [title]="t('history.empty')"
+      [description]="t('history.emptyHint')"
     />
   } @else {
-    <app-collapsible-section title="Status graph" [(open)]="statesOpen">
+    <app-collapsible-section [title]="t('history.statusGraph')" [(open)]="statesOpen">
       <div class="history-section__body">
         <app-history-state-bar
           [states]="list()?.states ?? null"
@@ -51,7 +52,7 @@
       </div>
     </app-collapsible-section>
 
-    <app-collapsible-section title="History" [(open)]="entriesOpen">
+    <app-collapsible-section [title]="t('common.history')" [(open)]="entriesOpen">
       <div class="history-columns" appHistoryPaneHeight [class.is-details-open]="detailsOpen()">
         <div class="history-pane history-pane--list">
           <app-history-list
@@ -70,7 +71,7 @@
         <div class="history-pane history-pane--details" aria-live="polite">
           <button type="button" class="history-back" (click)="closeDetails()">
             <i class="pi pi-arrow-left" aria-hidden="true"></i>
-            <span>All changes</span>
+            <span>{{ t('history.allChanges') }}</span>
           </button>
           @if (selected(); as entry) {
             <app-history-entry-details
@@ -84,3 +85,4 @@
     </app-collapsible-section>
   }
 </div>
+</ng-container>

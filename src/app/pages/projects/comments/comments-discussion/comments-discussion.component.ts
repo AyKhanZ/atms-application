@@ -16,6 +16,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { ConfirmationService } from 'primeng/api';
+import { TranslocoDirective } from '@jsverse/transloco';
 import { ButtonModule } from 'primeng/button';
 import { SkeletonModule } from 'primeng/skeleton';
 import { WorkProjectParticipantModel } from '../../../../core/models/work-projects';
@@ -50,6 +51,7 @@ import { CommentEditorComponent } from '../components/comment-editor/comment-edi
     PersonNamePipe,
     ProfileAvatarComponent,
     SkeletonModule,
+    TranslocoDirective,
   ],
   providers: [CommentActionsService, ConfirmationService],
   templateUrl: './comments-discussion.component.html',

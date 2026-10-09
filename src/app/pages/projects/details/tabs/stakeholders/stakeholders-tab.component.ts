@@ -12,11 +12,13 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 import { Actions, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { ConfirmationService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { TooltipModule } from 'primeng/tooltip';
 import { maxProjectParticipants } from '../../../../../core/constants/project-participants.constants';
+import { currentLanguage } from '../../../../../core/i18n/active-language';
 import { ProjectPermissions } from '../../../../../core/enums/project-permissions.enum';
 import {
   InviteWorkProjectParticipantCommand,
@@ -49,6 +51,7 @@ const inviteFieldsByServerName: Partial<Record<string, InviteField>> = {
   imports: [
     ButtonModule,
     ConfirmDialogModule,
+    TranslocoDirective,
     TooltipModule,
     RouterLink,
     AddParticipantDialogComponent,
@@ -69,11 +72,16 @@ export class StakeholdersTabComponent {
   private readonly projectAccess = inject(ProjectAccessService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
+  private readonly transloco = inject(TranslocoService);
 
   readonly project = input.required<WorkProjectModel>();
   readonly isSaving = input(false);
   readonly maxParticipants = maxProjectParticipants;
-  readonly limitTooltip = `Up to ${maxProjectParticipants} participants in a project`;
+  // read when shown, so a language change does not keep the English sentence
+  readonly limitTooltip = computed(() => {
+    currentLanguage();
+    return this.transloco.translate('participants.limit', { max: maxProjectParticipants });
+  });
   readonly projectReturnUrl = this.router.url;
 
   readonly roles = signal<WorkProjectRoleModel[]>([]);
@@ -89,7 +97,9 @@ export class StakeholdersTabComponent {
   readonly participantsCount = computed(
     () => this.project().participants.length + this.project().invitations.length,
   );
-  readonly placesLeft = computed(() => Math.max(0, this.maxParticipants - this.participantsCount()));
+  readonly placesLeft = computed(() =>
+    Math.max(0, this.maxParticipants - this.participantsCount()),
+  );
   readonly limitReached = computed(() => this.placesLeft() === 0);
   readonly canInviteClient = computed(() =>
     this.projectPermissions().includes(ProjectPermissions.Participant.InviteClient),
@@ -222,11 +232,13 @@ export class StakeholdersTabComponent {
   confirmRemove(participant: WorkProjectParticipantModel): void {
     this.confirmation.confirm({
       key: 'projectParticipantDanger',
-      header: 'Remove participant',
-      message: `Remove ${personFullName(participant)} from this project?`,
+      header: this.transloco.translate('participants.removeTitle'),
+      message: this.transloco.translate('participants.removeNamed', {
+        name: personFullName(participant),
+      }),
       icon: 'pi pi-exclamation-triangle',
-      acceptLabel: 'Remove',
-      rejectLabel: 'Cancel',
+      acceptLabel: this.transloco.translate('common.remove'),
+      rejectLabel: this.transloco.translate('common.cancel'),
       acceptButtonStyleClass: 'p-button-danger participant-danger-confirm-button',
       rejectButtonStyleClass: 'p-button-outlined',
       accept: () => {
@@ -243,11 +255,13 @@ export class StakeholdersTabComponent {
   confirmCancelInvitation(invitation: WorkProjectInvitationModel): void {
     this.confirmation.confirm({
       key: 'projectParticipantDanger',
-      header: 'Cancel invitation',
-      message: `Cancel the invitation for ${invitation.email}? They will not join this project.`,
+      header: this.transloco.translate('participants.cancelInvitationTitle'),
+      message: this.transloco.translate('participants.cancelInvitationMessage', {
+        email: invitation.email,
+      }),
       icon: 'pi pi-exclamation-triangle',
-      acceptLabel: 'Cancel invitation',
-      rejectLabel: 'Keep',
+      acceptLabel: this.transloco.translate('participants.cancelInvitation'),
+      rejectLabel: this.transloco.translate('common.keep'),
       acceptButtonStyleClass: 'p-button-danger participant-danger-confirm-button',
       rejectButtonStyleClass: 'p-button-outlined',
       accept: () => {

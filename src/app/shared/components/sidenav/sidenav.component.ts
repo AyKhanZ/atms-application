@@ -1,4 +1,5 @@
 import { Component, HostListener, computed, inject } from '@angular/core';
+import { TranslocoDirective } from '@jsverse/transloco';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { HasPermissionDirective } from '../../../core/directives/has-permission.directive';
 import { Permissions } from '../../../core/enums/permissions.enum';
@@ -9,7 +10,7 @@ import { isSuperAdmin } from '../../../core/utils/super-admin.utils';
 
 @Component({
   selector: 'app-sidenav',
-  imports: [RouterLink, RouterLinkActive, HasPermissionDirective],
+  imports: [RouterLink, RouterLinkActive, HasPermissionDirective, TranslocoDirective],
   templateUrl: './sidenav.component.html',
   styleUrl: './sidenav.component.scss',
 })

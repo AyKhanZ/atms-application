@@ -3,6 +3,7 @@ import { GlobalSearchItemModel } from '../../../core/models/global-search';
 import { WorkItemKind } from '../../../core/models/work-items';
 import { SearchResultRowComponent } from './search-result-row.component';
 
+import { translocoTestingProviders } from '../../../core/testing/transloco-testing';
 function item(extra: Partial<GlobalSearchItemModel> = {}): GlobalSearchItemModel {
   return {
     itemType: WorkItemKind.Task,
@@ -22,7 +23,7 @@ describe('SearchResultRowComponent', () => {
   let fixture: ComponentFixture<SearchResultRowComponent>;
 
   async function render(value: GlobalSearchItemModel, query = '') {
-    await TestBed.configureTestingModule({
+    await TestBed.configureTestingModule({ providers: [...translocoTestingProviders()],
       imports: [SearchResultRowComponent],
     }).compileComponents();
     fixture = TestBed.createComponent(SearchResultRowComponent);

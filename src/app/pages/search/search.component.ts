@@ -6,6 +6,8 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
+import { currentLanguage } from '../../core/i18n/active-language';
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
@@ -26,8 +28,8 @@ import { ListSearchComponent } from '../../shared/components/list-search/list-se
 import { BackButtonComponent } from '../../shared/components/back-button/back-button.component';
 import { NavigationHistoryService } from '../../core/services/navigation-history.service';
 import {
+  workItemKindLabelKey,
   workItemKindOrder,
-  workItemKinds,
 } from '../../shared/components/work-item-ref/work-item-kinds';
 
 @Component({
@@ -40,6 +42,7 @@ import {
     EmptyStateComponent,
     LoadMoreButtonComponent,
     BackButtonComponent,
+    TranslocoDirective,
   ],
   templateUrl: './search.component.html',
   styleUrl: './search.component.scss',
@@ -50,6 +53,7 @@ export class SearchComponent implements OnDestroy {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly navigationHistory = inject(NavigationHistoryService);
+  private readonly transloco = inject(TranslocoService);
 
   readonly query = signal('');
   readonly itemType = signal(WorkItemKind.Task);
@@ -64,11 +68,14 @@ export class SearchComponent implements OnDestroy {
 
   readonly empty = computed(() => !this.loading() && !this.failed() && this.items().length === 0);
 
-  readonly chips: SearchFilterChip[] = workItemKindOrder.map((type) => ({
-    type,
-    label: workItemKinds[type].pluralLabel,
-    disabled: false,
-  }));
+  readonly chips = computed<SearchFilterChip[]>(() => {
+    currentLanguage();
+    return workItemKindOrder.map((type) => ({
+      type,
+      label: this.transloco.translate(workItemKindLabelKey(type, true)),
+      disabled: false,
+    }));
+  });
 
   constructor() {
     this.typing

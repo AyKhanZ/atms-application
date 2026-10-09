@@ -1,11 +1,11 @@
-<div class="container">
+<div class="container" *transloco="let t">
   <section class="auth-card">
     <header class="auth-card__header">
-      <h1>Welcome back!</h1>
-      <p>Sign in to your account</p>
+      <h1>{{ t('auth.welcome') }}</h1>
+      <p>{{ t('auth.signInSubtitle') }}</p>
     </header>
 
-    @if (notice; as message) {
+    @if (notice(); as message) {
       <p class="auth-notice" role="status">{{ message }}</p>
     }
 
@@ -22,14 +22,14 @@
             formControlName="email"
             autocomplete="email"
           />
-          <label for="email">Email</label>
+          <label for="email">{{ t('common.email') }}</label>
         </p-floatlabel>
         <div class="field-error">
           @if (formControl.email.hasError('email') && formControl.email.touched) {
-            <small>Please enter a valid email address</small>
+            <small>{{ t('validation.email') }}</small>
           }
           @if (formControl.email.hasError('required') && formControl.email.touched) {
-            <small>Email is required</small>
+            <small>{{ t('validation.emailRequired') }}</small>
           }
         </div>
       </div>
@@ -45,21 +45,21 @@
             [toggleMask]="true"
             fluid
           />
-          <label for="password">Password</label>
+          <label for="password">{{ t('common.password') }}</label>
         </p-floatlabel>
         <div class="field-error">
           @if (form.controls.password.hasError('required') && form.controls.password.touched) {
-            <small>Password is required</small>
+            <small>{{ t('validation.passwordRequired') }}</small>
           }
         </div>
       </div>
 
       <div class="forgot-wrapper">
-        <a routerLink="/forgot-password" class="forgot-link">Forgot password?</a>
+        <a routerLink="/forgot-password" class="forgot-link">{{ t('auth.forgotPassword') }}</a>
       </div>
 
       <button pButton type="submit" class="submit-btn" [disabled]="isLoading() || form.invalid">
-        {{ isLoading() ? 'Signing in...' : 'Sign in' }}
+        {{ isLoading() ? t('auth.signingIn') : t('common.signIn') }}
       </button>
     </form>
   </section>

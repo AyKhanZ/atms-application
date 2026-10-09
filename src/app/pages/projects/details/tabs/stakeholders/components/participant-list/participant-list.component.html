@@ -1,89 +1,91 @@
-@if (!isEmpty()) {
-  <div class="participants-table" role="table" aria-label="Participants">
-    <div class="participants-row participants-row--head" role="row">
-      <span role="columnheader">Participant</span>
-      <span role="columnheader">Role</span>
-      @if (hasActionsColumn()) {
-        <span role="columnheader" class="actions-head">Actions</span>
-      }
-    </div>
-
-    @for (participant of participants(); track participant.id) {
-      <div class="participants-row" role="row">
-        <div class="person-cell" role="cell">
-          <app-profile-avatar
-            [imageUrl]="participant.avatarPath"
-            [fullName]="participant | personName"
-            [initials]="participant | personInitials"
-            [previewEnabled]="true"
-          />
-          <div class="person-copy">
-            <strong>{{ participant | personName }}</strong>
-            <span>{{ participant.email }}</span>
-          </div>
-        </div>
-        <div class="role-cell" role="cell">
-          <span>{{ participant.role.name }}</span>
-          @if (!participant.hasCompletedOnboarding) {
-            <span class="invited-status">Invited</span>
-          }
-        </div>
-        @if (hasParticipantActions(participant)) {
-          <div class="actions-cell" role="cell">
-            <button
-              type="button"
-              class="row-menu-button"
-              [attr.aria-label]="'Actions for ' + (participant | personName)"
-              (click)="openParticipantMenu($event, participant, participantMenu)"
-            >
-              <i class="pi pi-ellipsis-v"></i>
-            </button>
-          </div>
+<ng-container *transloco="let t">
+  @if (!isEmpty()) {
+    <div class="participants-table" role="table" [attr.aria-label]="t('participants.title')">
+      <div class="participants-row participants-row--head" role="row">
+        <span role="columnheader">{{ t('participants.person') }}</span>
+        <span role="columnheader">{{ t('common.role') }}</span>
+        @if (hasActionsColumn()) {
+          <span role="columnheader" class="actions-head">{{ t('common.actions') }}</span>
         }
       </div>
-    }
 
-    <!-- waiting for the account admin creates, only cancel is possible -->
-    @for (invitation of invitations(); track invitation.id) {
-      <div class="participants-row" role="row">
-        <div class="person-cell" role="cell">
-          <app-profile-avatar
-            [fullName]="invitation | personName"
-            [initials]="invitation | personInitials"
-            [previewEnabled]="false"
-          />
-          <div class="person-copy">
-            <strong>{{ invitation | personName }}</strong>
-            <span>{{ invitation.email }}</span>
+      @for (participant of participants(); track participant.id) {
+        <div class="participants-row" role="row">
+          <div class="person-cell" role="cell">
+            <app-profile-avatar
+              [imageUrl]="participant.avatarPath"
+              [fullName]="participant | personName"
+              [initials]="participant | personInitials"
+              [previewEnabled]="true"
+            />
+            <div class="person-copy">
+              <strong>{{ participant | personName }}</strong>
+              <span>{{ participant.email }}</span>
+            </div>
           </div>
-        </div>
-        <div class="role-cell" role="cell">
-          <span>{{ invitation.role.name }}</span>
-          <span class="invited-status">Invited</span>
-        </div>
-        @if (hasActionsColumn()) {
-          <div class="actions-cell" role="cell">
-            @if (canCancelInvitations()) {
+          <div class="role-cell" role="cell">
+            <span>{{ participant.role.name }}</span>
+            @if (!participant.hasCompletedOnboarding) {
+              <span class="invited-status">{{ t('participants.invited') }}</span>
+            }
+          </div>
+          @if (hasParticipantActions(participant)) {
+            <div class="actions-cell" role="cell">
               <button
                 type="button"
                 class="row-menu-button"
-                [attr.aria-label]="'Actions for invitation of ' + invitation.email"
-                (click)="openInvitationMenu($event, invitation, invitationMenu)"
+                [attr.aria-label]="t('workItem.actionsFor', { name: (participant | personName) })"
+                (click)="openParticipantMenu($event, participant, participantMenu)"
               >
                 <i class="pi pi-ellipsis-v"></i>
               </button>
-            }
-          </div>
-        }
-      </div>
-    }
-  </div>
-} @else {
-  <div class="participants-empty">
-    <i class="pi pi-users"></i>
-    <span>No participants yet</span>
-  </div>
-}
+            </div>
+          }
+        </div>
+      }
 
-<p-menu #participantMenu [model]="participantActions()" [popup]="true" appendTo="body" />
-<p-menu #invitationMenu [model]="invitationActions" [popup]="true" appendTo="body" />
+      <!-- waiting for the account admin creates, only cancel is possible -->
+      @for (invitation of invitations(); track invitation.id) {
+        <div class="participants-row" role="row">
+          <div class="person-cell" role="cell">
+            <app-profile-avatar
+              [fullName]="invitation | personName"
+              [initials]="invitation | personInitials"
+              [previewEnabled]="false"
+            />
+            <div class="person-copy">
+              <strong>{{ invitation | personName }}</strong>
+              <span>{{ invitation.email }}</span>
+            </div>
+          </div>
+          <div class="role-cell" role="cell">
+            <span>{{ invitation.role.name }}</span>
+            <span class="invited-status">{{ t('participants.invited') }}</span>
+          </div>
+          @if (hasActionsColumn()) {
+            <div class="actions-cell" role="cell">
+              @if (canCancelInvitations()) {
+                <button
+                  type="button"
+                  class="row-menu-button"
+                  [attr.aria-label]="t('participants.inviteActions', { email: invitation.email })"
+                  (click)="openInvitationMenu($event, invitation, invitationMenu)"
+                >
+                  <i class="pi pi-ellipsis-v"></i>
+                </button>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+  } @else {
+    <div class="participants-empty">
+      <i class="pi pi-users"></i>
+      <span>{{ t('participants.empty') }}</span>
+    </div>
+  }
+
+  <p-menu #participantMenu [model]="participantActions()" [popup]="true" appendTo="body" />
+  <p-menu #invitationMenu [model]="invitationActions()" [popup]="true" appendTo="body" />
+</ng-container>

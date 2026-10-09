@@ -2,9 +2,10 @@ import { TestBed } from '@angular/core/testing';
 import { taskFixture } from '../../testing/task-fixture';
 import { TaskCalendarChipComponent } from './task-calendar-chip.component';
 
+import { translocoTestingProviders } from '../../../../core/testing/transloco-testing';
 describe('TaskCalendarChipComponent', () => {
   function render(inputs: Record<string, unknown>) {
-    TestBed.configureTestingModule({ imports: [TaskCalendarChipComponent] });
+    TestBed.configureTestingModule({ providers: [...translocoTestingProviders()], imports: [TaskCalendarChipComponent] });
     const fixture = TestBed.createComponent(TaskCalendarChipComponent);
     for (const [name, value] of Object.entries(inputs)) fixture.componentRef.setInput(name, value);
     fixture.detectChanges();

@@ -11,6 +11,7 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { Actions, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { Router } from '@angular/router';
@@ -23,6 +24,7 @@ import {
 import { Menu, MenuModule } from 'primeng/menu';
 import { TooltipModule } from 'primeng/tooltip';
 import { ProjectPermissions } from '../../../../../core/enums/project-permissions.enum';
+import { currentLanguage } from '../../../../../core/i18n/active-language';
 import {
   MilestoneOptionModel,
   WorkGroupKind,
@@ -58,6 +60,7 @@ interface SelectedWorkGroup {
   imports: [
     LoadingStateComponent,
     EmptyStateComponent,
+    TranslocoDirective,
     ButtonModule,
     ConfirmDialogComponent,
     MenuModule,
@@ -72,6 +75,7 @@ interface SelectedWorkGroup {
 })
 export class GroupsTabComponent implements OnInit, OnDestroy {
   private readonly store = inject(Store);
+  private readonly transloco = inject(TranslocoService);
   private readonly actions$ = inject(Actions);
   private readonly confirmation = inject(ConfirmationService);
   private readonly expansionState = inject(WorkGroupExpansionStateService);
@@ -131,38 +135,42 @@ export class GroupsTabComponent implements OnInit, OnDestroy {
   readonly dialogParentWorkGroupId = signal<string | null>(null);
   readonly dialogParentLocked = signal(false);
 
-  readonly addActions = computed<MenuItem[]>(() => [
-    {
-      label: 'Group',
-      icon: 'pi pi-folder',
-      disabled: this.saving() || !this.canEdit(),
-      command: () => this.openCreateDialog('group'),
-    },
-    {
-      label: 'Milestone',
-      icon: 'pi pi-flag',
-      disabled: this.saving() || !this.canEdit() || this.groups().length === 0,
-      command: () => this.openCreateDialog('milestone'),
-    },
-    {
-      separator: true,
-    },
-    {
-      label: 'Ticket',
-      icon: 'pi pi-ticket',
-      disabled: this.saving() || !this.canCreateTickets() || !this.hasMilestones(),
-      command: () => this.createTicket(),
-    },
-  ]);
+  readonly addActions = computed<MenuItem[]>(() => {
+    currentLanguage();
+    return [
+      {
+        label: this.transloco.translate('common.group'),
+        icon: 'pi pi-folder',
+        disabled: this.saving() || !this.canEdit(),
+        command: () => this.openCreateDialog('group'),
+      },
+      {
+        label: this.transloco.translate('plan.milestone'),
+        icon: 'pi pi-flag',
+        disabled: this.saving() || !this.canEdit() || this.groups().length === 0,
+        command: () => this.openCreateDialog('milestone'),
+      },
+      {
+        separator: true,
+      },
+      {
+        label: this.transloco.translate('workItem.kind.ticket'),
+        icon: 'pi pi-ticket',
+        disabled: this.saving() || !this.canCreateTickets() || !this.hasMilestones(),
+        command: () => this.createTicket(),
+      },
+    ];
+  });
 
   readonly itemActions = computed<MenuItem[]>(() => {
+    currentLanguage();
     const selected = this.selectedWorkGroup();
     if (!selected) return [];
 
     const actions: MenuItem[] = [];
     if (this.canCreateTickets() && selected.kind === 'milestone') {
       actions.push({
-        label: 'Create ticket',
+        label: this.transloco.translate('plan.createTicket'),
         icon: 'pi pi-ticket',
         command: () => this.createTicket(selected.item),
       });
@@ -171,7 +179,7 @@ export class GroupsTabComponent implements OnInit, OnDestroy {
 
     if (this.canEdit() && selected.kind === 'group') {
       actions.push({
-        label: 'Add milestone',
+        label: this.transloco.translate('plan.addMilestone'),
         icon: 'pi pi-plus',
         disabled: this.saving(),
         command: () => this.openCreateDialog('milestone', selected.item.id, true),
@@ -181,7 +189,7 @@ export class GroupsTabComponent implements OnInit, OnDestroy {
 
     if (this.canEdit()) {
       actions.push({
-        label: 'Edit',
+        label: this.transloco.translate('common.edit'),
         icon: 'pi pi-pencil',
         disabled: this.saving(),
         command: () => this.openEditDialog(selected),
@@ -190,7 +198,7 @@ export class GroupsTabComponent implements OnInit, OnDestroy {
 
     if (this.canDelete()) {
       actions.push({
-        label: 'Delete',
+        label: this.transloco.translate('common.delete'),
         icon: 'pi pi-trash',
         styleClass: 'work-groups-menu-danger',
         disabled: this.saving(),
@@ -462,14 +470,18 @@ export class GroupsTabComponent implements OnInit, OnDestroy {
   }
 
   private requestDelete(selected: SelectedWorkGroup): void {
-    const blockedReason = workGroupDeleteBlockReason(selected.item, selected.kind);
+    const blockedReason = workGroupDeleteBlockReason(selected.item, selected.kind, (key, params) =>
+      this.transloco.translate(key, params),
+    );
     if (blockedReason) {
       this.confirmation.confirm({
         key: 'workGroupsDanger',
-        header: `This ${selected.kind} can't be deleted yet`,
+        header: this.transloco.translate(
+          selected.kind === 'group' ? 'plan.blockedGroup' : 'plan.blockedMilestone',
+        ),
         message: `${selected.item.title}
 ${blockedReason}`,
-        acceptLabel: 'Got it',
+        acceptLabel: this.transloco.translate('common.gotIt'),
         rejectVisible: false,
         acceptButtonProps: confirmTone('warning'),
       });
@@ -478,11 +490,15 @@ ${blockedReason}`,
 
     this.confirmation.confirm({
       key: 'workGroupsDanger',
-      header: `Delete ${selected.kind}?`,
+      header: this.transloco.translate(
+        selected.kind === 'group' ? 'plan.deleteGroup' : 'plan.deleteMilestone',
+      ),
       message: `${selected.item.title}
-The ${selected.kind} will be removed from the plan. This action cannot be undone.`,
-      acceptLabel: 'Delete',
-      rejectLabel: 'Cancel',
+${this.transloco.translate(
+  selected.kind === 'group' ? 'plan.deleteGroupMessage' : 'plan.deleteMilestoneMessage',
+)}`,
+      acceptLabel: this.transloco.translate('common.delete'),
+      rejectLabel: this.transloco.translate('common.cancel'),
       acceptButtonProps: confirmTone('danger'),
       accept: () => {
         this.store.dispatch(
@@ -533,10 +549,11 @@ export function completedMilestoneCount(group: WorkGroupModel): number {
 export function workGroupDeleteBlockReason(
   item: WorkGroupModel,
   kind: WorkGroupKind,
+  translate: (key: string, params?: Record<string, unknown>) => string,
 ): string | null {
   if (kind === 'milestone') {
     return item.ticketCount > 0
-      ? `Remove its ${formatCount(item.ticketCount, 'ticket')} first, then delete the milestone.`
+      ? translate('plan.blockedTickets', { count: item.ticketCount })
       : null;
   }
 
@@ -545,15 +562,14 @@ export function workGroupDeleteBlockReason(
     item.ticketCount +
     item.milestones.reduce((total, milestone) => total + milestone.ticketCount, 0);
   if (milestoneCount === 0 && ticketCount === 0) return null;
+  if (milestoneCount > 0 && ticketCount > 0) {
+    return translate('plan.blockedGroupBoth', {
+      milestones: milestoneCount,
+      tickets: ticketCount,
+    });
+  }
+  if (milestoneCount > 0)
+    return translate('plan.blockedGroupMilestones', { count: milestoneCount });
 
-  const contents = [
-    milestoneCount > 0 ? formatCount(milestoneCount, 'milestone') : null,
-    ticketCount > 0 ? formatCount(ticketCount, 'ticket') : null,
-  ].filter((value): value is string => Boolean(value));
-
-  return `Remove its ${contents.join(' and ')} first, then delete the group.`;
-}
-
-function formatCount(count: number, label: string): string {
-  return `${count} ${label}${count === 1 ? '' : 's'}`;
+  return translate('plan.blockedGroupTickets', { count: ticketCount });
 }

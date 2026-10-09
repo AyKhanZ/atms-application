@@ -1,7 +1,12 @@
-<form class="panel panel-padding project-filters" [formGroup]="form" (ngSubmit)="submit()">
+<form
+  class="panel panel-padding project-filters"
+  *transloco="let t"
+  [formGroup]="form"
+  (ngSubmit)="submit()"
+>
   <div class="filter-grid">
     <div class="field">
-      <label id="projectTypeLabel" appLabelFor="projectType">Type</label
+      <label id="projectTypeLabel" appLabelFor="projectType">{{ t('common.type') }}</label
       ><p-select
         inputId="projectType"
         ariaLabelledBy="projectTypeLabel"
@@ -9,13 +14,13 @@
         [options]="types()"
         optionLabel="name"
         optionValue="id"
-        placeholder="Any type"
+        [placeholder]="t('projects.anyType')"
         [showClear]="true"
         appendTo="body"
       />
     </div>
     <div class="field">
-      <label id="projectKindLabel" appLabelFor="projectKind">Kind</label
+      <label id="projectKindLabel" appLabelFor="projectKind">{{ t('common.kind') }}</label
       ><p-select
         inputId="projectKind"
         ariaLabelledBy="projectKindLabel"
@@ -23,13 +28,13 @@
         [options]="kinds()"
         optionLabel="name"
         optionValue="id"
-        placeholder="Any kind"
+        [placeholder]="t('projects.anyKind')"
         [showClear]="true"
         appendTo="body"
       />
     </div>
     <div class="field">
-      <label id="projectStatusLabel" appLabelFor="projectStatus">Status</label
+      <label id="projectStatusLabel" appLabelFor="projectStatus">{{ t('common.status') }}</label
       ><p-select
         inputId="projectStatus"
         ariaLabelledBy="projectStatusLabel"
@@ -37,13 +42,13 @@
         [options]="statuses()"
         optionLabel="name"
         optionValue="id"
-        placeholder="Any status"
+        [placeholder]="t('projects.anyStatus')"
         [showClear]="true"
         appendTo="body"
       />
     </div>
     <div class="field">
-      <label for="startDate">Starts from</label
+      <label for="startDate">{{ t('projects.startsFrom') }}</label
       ><p-datepicker
         inputId="startDate"
         formControlName="startDate"
@@ -54,7 +59,7 @@
       />
     </div>
     <div class="field">
-      <label for="endDate">Ends by</label
+      <label for="endDate">{{ t('projects.endsBy') }}</label
       ><p-datepicker
         inputId="endDate"
         formControlName="endDate"
@@ -66,11 +71,11 @@
     </div>
   </div>
   @if (form.hasError('dateRange') && (form.touched || form.dirty)) {
-    <small class="filter-error">Start date cannot be later than end date.</small>
+    <small class="filter-error">{{ t('projects.filterDateRange') }}</small>
   }
   <div class="toolbar">
     <button type="submit" class="apply-button" [disabled]="form.invalid">
-      <i class="pi pi-filter"></i><span>Apply</span></button
+      <i class="pi pi-filter"></i><span>{{ t('common.apply') }}</span></button
     ><app-clear-button (clicked)="clearForm()" />
   </div>
 </form>

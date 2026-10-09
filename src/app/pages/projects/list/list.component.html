@@ -1,10 +1,10 @@
 <p-confirmDialog />
-<section class="page">
-  <h1 class="page-title">Projects</h1>
+<section class="page" *transloco="let t">
+  <h1 class="page-title">{{ t('nav.projects') }}</h1>
   <div class="projects-header management-list-header">
     <app-list-search
       class="management-list-search"
-      placeholder="Search by title, code or organization"
+      [placeholder]="t('projects.search')"
       [value]="searchTerm()"
       (valueChange)="onSearchChange($event)"
     />
@@ -15,7 +15,7 @@
         (clicked)="toggleFilters()"
       />
       <ng-container *hasRole="Roles.SuperAdmin">
-        <app-create-button label="Create" (clicked)="openCreate()" />
+        <app-create-button [label]="t('common.create')" (clicked)="openCreate()" />
       </ng-container>
     </div>
   </div>
@@ -49,14 +49,16 @@
     >
       <ng-template pTemplate="header"
         ><tr>
-          <th pSortableColumn="code">Code <p-sortIcon field="code" /></th>
-          <th pSortableColumn="title">Project <p-sortIcon field="title" /></th>
-          <th>Organization</th>
-          <th>Type</th>
-          <th>Status</th>
-          <th pSortableColumn="startDate">Timeline <p-sortIcon field="startDate" /></th>
+          <th pSortableColumn="code">{{ t('common.code') }} <p-sortIcon field="code" /></th>
+          <th pSortableColumn="title">
+            {{ t('workItem.kind.project') }} <p-sortIcon field="title" />
+          </th>
+          <th>{{ t('common.organization') }}</th>
+          <th>{{ t('common.type') }}</th>
+          <th>{{ t('common.status') }}</th>
+          <th pSortableColumn="startDate">{{ t('projects.timeline') }} <p-sortIcon field="startDate" /></th>
           @if (showActions()) {
-            <th class="actions-column">Actions</th>
+            <th class="actions-column">{{ t('common.actions') }}</th>
           }
         </tr></ng-template
       >
@@ -71,15 +73,17 @@
               ><small>{{ project.projectKind.name }}</small>
             </div>
           </td>
-          <td>{{ project.organization?.title || 'Not assigned' }}</td>
+          <td>{{ project.organization?.title || t('projects.notAssigned') }}</td>
           <td>{{ project.projectType.name }}</td>
           <td>
             <app-project-status-badge [status]="project.projectStatus" />
           </td>
           <td>
-            {{ project.startDate ? (project.startDate | date: 'dd.MM.yyyy') : 'Not set' }}
+            {{
+              project.startDate ? (project.startDate | appDate: 'dd.MM.yyyy') : t('common.notSet')
+            }}
             <span class="date-separator">-</span>
-            {{ project.endDate ? (project.endDate | date: 'dd.MM.yyyy') : 'Open' }}
+            {{ project.endDate ? (project.endDate | appDate: 'dd.MM.yyyy') : t('projects.openEnd') }}
           </td>
           @if (showActions()) {
             <td class="actions-cell" (click)="$event.stopPropagation()">
@@ -95,8 +99,8 @@
         ><tr>
           <td [attr.colspan]="showActions() ? 7 : 6">
             <div class="empty-state">
-              <i class="pi pi-briefcase"></i><strong>No projects found</strong
-              ><span>Try changing the search or filters.</span>
+              <i class="pi pi-briefcase"></i><strong>{{ t('projects.empty') }}</strong
+              ><span>{{ t('projects.emptyHint') }}</span>
             </div>
           </td>
         </tr></ng-template

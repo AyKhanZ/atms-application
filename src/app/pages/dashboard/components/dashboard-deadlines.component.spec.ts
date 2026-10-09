@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { DashboardDeadlineModel } from '../../../core/models/dashboard';
 import { DashboardDeadlinesComponent } from './dashboard-deadlines.component';
 
+import { translocoTestingProviders } from '../../../core/testing/transloco-testing';
 const deadline: DashboardDeadlineModel = {
   ref: { projectId: 'project-1', workTicketId: 'ticket-1', workTaskId: 'task-1' },
   code: '41',
@@ -14,7 +15,7 @@ const deadline: DashboardDeadlineModel = {
 
 describe('DashboardDeadlinesComponent', () => {
   function create(total: number) {
-    TestBed.configureTestingModule({ imports: [DashboardDeadlinesComponent] });
+    TestBed.configureTestingModule({ providers: [...translocoTestingProviders()], imports: [DashboardDeadlinesComponent] });
     const fixture = TestBed.createComponent(DashboardDeadlinesComponent);
     fixture.componentRef.setInput('deadlines', [deadline]);
     fixture.componentRef.setInput('total', total);

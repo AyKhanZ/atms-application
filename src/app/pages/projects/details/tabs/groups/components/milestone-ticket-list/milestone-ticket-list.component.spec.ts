@@ -2,11 +2,12 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { WorkTicketModel } from '../../../../../../../core/models/work-tickets';
 import { MilestoneTicketListComponent } from './milestone-ticket-list.component';
 
+import { translocoTestingProviders } from '../../../../../../../core/testing/transloco-testing';
 describe('MilestoneTicketListComponent', () => {
   let fixture: ComponentFixture<MilestoneTicketListComponent>;
 
   beforeEach(async () => {
-    await TestBed.configureTestingModule({
+    await TestBed.configureTestingModule({ providers: [...translocoTestingProviders()],
       imports: [MilestoneTicketListComponent],
     }).compileComponents();
 
