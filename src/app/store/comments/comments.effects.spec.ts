@@ -4,6 +4,7 @@ import { provideMockActions } from '@ngrx/effects/testing';
 import { Action } from '@ngrx/store';
 import { MockStore, provideMockStore } from '@ngrx/store/testing';
 import { Observable, Subject, of, throwError } from 'rxjs';
+import { translocoTestingProviders } from '../../core/testing/transloco-testing';
 import { CommentModel } from '../../core/models/comments';
 import { CommentChangedEvent } from '../../core/models/realtime/comment-changed.event';
 import { CommentsService } from '../../core/services/comments.service';
@@ -89,6 +90,7 @@ describe('CommentsEffects', () => {
     };
     TestBed.configureTestingModule({
       providers: [
+        ...translocoTestingProviders(),
         CommentsEffects,
         provideMockActions(() => actions),
         provideMockStore({ initialState: { comments: { lists: {} } } }),

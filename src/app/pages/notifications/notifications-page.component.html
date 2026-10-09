@@ -25,10 +25,10 @@
     />
 
     <div class="notifications-panel__list">
-      @for (group of groups(); track group.label) {
-        <section class="day" [attr.aria-label]="group.day === 'today' ? t('common.today') : group.day === 'yesterday' ? t('notifications.yesterday') : group.label">
+      @for (group of groups(); track group.items[0].id) {
+        <section class="day" [attr.aria-label]="groupTitle(group)">
           <h2 class="day__label">
-            {{ group.day === 'today' ? t('common.today') : group.day === 'yesterday' ? t('notifications.yesterday') : group.label }}
+            {{ groupTitle(group) }}
           </h2>
           @for (item of group.items; track item.id) {
             <div class="row" [class.row--unread]="!item.readAt">

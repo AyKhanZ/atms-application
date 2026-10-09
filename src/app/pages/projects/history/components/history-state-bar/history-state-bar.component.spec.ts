@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { translocoTestingProviders } from '../../../../../core/testing/transloco-testing';
 import { provideRouter } from '@angular/router';
 import { HistoryEntityType } from '../../../../../core/enums/history-entity-type.enum';
 import { HistoryStateModel } from '../../../../../core/models/history';
@@ -11,7 +12,7 @@ describe('HistoryStateBarComponent', () => {
   ) => {
     TestBed.configureTestingModule({
       imports: [HistoryStateBarComponent],
-      providers: [provideRouter([])],
+      providers: [...translocoTestingProviders(), provideRouter([])],
     });
     const fixture = TestBed.createComponent(HistoryStateBarComponent);
     fixture.componentRef.setInput('states', states);
@@ -59,7 +60,7 @@ describe('HistoryStateBarComponent', () => {
   it('folds all but the newest three on a phone until asked', () => {
     TestBed.configureTestingModule({
       imports: [HistoryStateBarComponent],
-      providers: [provideRouter([])],
+      providers: [...translocoTestingProviders(), provideRouter([])],
     });
     const fixture = TestBed.createComponent(HistoryStateBarComponent);
     fixture.componentRef.setInput(

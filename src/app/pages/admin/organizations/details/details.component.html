@@ -1,9 +1,10 @@
 <p-confirmDialog />
 
+<ng-container *transloco="let t">
 <section class="page organization-details-page">
   <div class="page-header details-header">
     <div>
-      <h1 class="page-title">Organization details</h1>
+      <h1 class="page-title">{{ t('organizations.details') }}</h1>
     </div>
 
     <div class="details-actions">
@@ -12,7 +13,7 @@
         @if (organization()) {
           <button pButton type="button" severity="secondary" outlined="true" (click)="openEdit()">
             <i class="pi pi-pencil"></i>
-            <span>Edit</span>
+            <span>{{ t('common.edit') }}</span>
           </button>
         }
       </ng-container>
@@ -27,7 +28,7 @@
             (click)="confirmDelete()"
           >
             <i class="pi pi-trash"></i>
-            <span>Delete</span>
+            <span>{{ t('common.delete') }}</span>
           </button>
         }
       </ng-container>
@@ -43,7 +44,7 @@
             type="button"
             class="logo-zoom"
             (click)="openLogoPreview()"
-            aria-label="Preview logo"
+            [attr.aria-label]="t('organizations.previewLogo')"
           >
             <i class="pi pi-search"></i>
           </button>
@@ -55,12 +56,12 @@
       <div class="organization-identity">
         <h2>{{ organization.title }}</h2>
         <div class="registration-number">
-          <span>VOEN</span>
+          <span>{{ t('common.voen') }}</span>
           <strong>{{ display(organization.voen) }}</strong>
         </div>
         <p class="created-meta">
           <i class="pi pi-calendar" aria-hidden="true"></i>
-          <span>Created {{ createdAt() ? (createdAt() | appDate: 'dd.MM.yyyy HH:mm') : '-' }}</span>
+          <span>{{ t('organizations.createdAt', { when: createdAt() ? (createdAt() | appDate: 'dd.MM.yyyy HH:mm') : '-' }) }}</span>
         </p>
       </div>
     </article>
@@ -68,10 +69,10 @@
     <section class="panel panel-padding employees-panel">
       <div class="section-heading">
         <div>
-          <h2>Organization employees</h2>
-          <p>People currently linked to this organization.</p>
+          <h2>{{ t('organizations.employees') }}</h2>
+          <p>{{ t('organizations.employeesHint') }}</p>
         </div>
-        <p-tag [value]="employees().length + ' total'" severity="secondary" />
+        <p-tag [value]="t('organizations.total', { count: employees().length })" severity="secondary" />
       </div>
 
       @if (employees().length) {
@@ -83,9 +84,9 @@
         >
           <ng-template pTemplate="header">
             <tr>
-              <th>Employee</th>
-              <th>Email</th>
-              <th>Position</th>
+              <th>{{ t('common.employee') }}</th>
+              <th>{{ t('common.email') }}</th>
+              <th>{{ t('common.position') }}</th>
             </tr>
           </ng-template>
 
@@ -95,11 +96,11 @@
                 <div class="employee-cell">
                   <app-profile-avatar
                     [imageUrl]="user.avatarPath"
-                    [fullName]="user | personName: 'Unnamed user'"
+                    [fullName]="user | personName: t('organizations.unnamed')"
                     [initials]="user | personInitials"
                     [previewEnabled]="true"
                   />
-                  <span class="employee-name">{{ user | personName: 'Unnamed user' }}</span>
+                  <span class="employee-name">{{ user | personName: t('organizations.unnamed') }}</span>
                 </div>
               </td>
               <td>
@@ -112,15 +113,15 @@
       } @else {
         <div class="empty-employees">
           <i class="pi pi-users"></i>
-          <strong>No employees linked yet.</strong>
-          <span>Employees will appear here after they are added to this organization.</span>
+          <strong>{{ t('organizations.empty') }}</strong>
+          <span>{{ t('organizations.emptyHint') }}</span>
         </div>
       }
     </section>
   } @else if (loading()) {
-    <section class="panel"><app-loading-state text="Loading organization..." /></section>
+    <section class="panel"><app-loading-state [text]="t('organizations.loading')" /></section>
   } @else {
-    <div class="panel panel-padding">Organization was not found.</div>
+    <div class="panel panel-padding">{{ t('organizations.notFound') }}</div>
   }
 
   <p-dialog
@@ -132,7 +133,7 @@
     styleClass="organization-logo-preview"
   >
     @if (logoUrl()) {
-      <img [src]="logoUrl()" [alt]="organization()?.title || 'Organization logo'" />
+      <img [src]="logoUrl()" [alt]="organization()?.title || t('organizations.logoAlt')" />
     }
   </p-dialog>
 
@@ -142,3 +143,4 @@
     (saved)="onSaved()"
   />
 </section>
+</ng-container>

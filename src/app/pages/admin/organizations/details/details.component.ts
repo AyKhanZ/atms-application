@@ -32,6 +32,7 @@ import {
 import { BackButtonComponent } from '../../../../shared/components/back-button/back-button.component';
 import { ProfileAvatarComponent } from '../../../../shared/components/profile-avatar/profile-avatar.component';
 import { PersonInitialsPipe, PersonNamePipe } from '../../../../shared/pipes/person-name.pipe';
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { OrganizationCreateDialogComponent } from '../components/organization-create-dialog/organization-create-dialog.component';
 import { LoadingStateComponent } from '../../../../shared/components/loading-state/loading-state.component';
 
@@ -51,6 +52,7 @@ import { LoadingStateComponent } from '../../../../shared/components/loading-sta
     ProfileAvatarComponent,
     TableModule,
     TagModule,
+    TranslocoDirective,
   ],
   providers: [ConfirmationService],
   templateUrl: './details.component.html',
@@ -63,6 +65,7 @@ export class DetailsComponent implements OnInit, OnDestroy {
   private readonly store = inject(Store);
   private readonly actions$ = inject(Actions);
   private readonly confirmationService = inject(ConfirmationService);
+  private readonly transloco = inject(TranslocoService);
   private readonly imageUrlService = inject(ImageUrlService);
   private readonly breadcrumbOverride = inject(BreadcrumbOverrideService);
   private organizationId: string | null = null;
@@ -135,11 +138,11 @@ export class DetailsComponent implements OnInit, OnDestroy {
     }
 
     this.confirmationService.confirm({
-      header: 'Delete organization?',
-      message: `“${organization.title}” will be deleted. This action cannot be undone.`,
+      header: this.transloco.translate('organizations.deleteTitle'),
+      message: this.transloco.translate('organizations.deleteMessage', { name: organization.title }),
       icon: 'pi pi-exclamation-triangle',
-      acceptLabel: 'Delete',
-      rejectLabel: 'Cancel',
+      acceptLabel: this.transloco.translate('common.delete'),
+      rejectLabel: this.transloco.translate('common.cancel'),
       acceptButtonStyleClass: 'p-button-danger',
       rejectButtonStyleClass: 'p-button-outlined',
       accept: () =>

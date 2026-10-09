@@ -1,6 +1,7 @@
+<ng-container *transloco="let t">
 <p-dialog
   [(visible)]="visible"
-  header="Register user"
+  [header]="t('users.register')"
   [modal]="true"
   [style]="{ width: 'min(90vw, 48rem)' }"
   [draggable]="false"
@@ -14,21 +15,21 @@
     <section class="details-panel">
       <div class="fields-grid">
         <label>
-          <span>Name <b>*</b></span>
+          <span>{{ t('common.name') }} <b>*</b></span>
           <input pInputText formControlName="name" autocomplete="given-name" maxlength="100" />
           <small [class.visible]="hasError('name')">{{ errorMessage('name') || ' ' }}</small>
           <em>{{ nameLength() }}/100</em>
         </label>
 
         <label>
-          <span>Surname <b>*</b></span>
+          <span>{{ t('common.surname') }} <b>*</b></span>
           <input pInputText formControlName="surname" autocomplete="family-name" maxlength="100" />
           <small [class.visible]="hasError('surname')">{{ errorMessage('surname') || ' ' }}</small>
           <em>{{ surnameLength() }}/100</em>
         </label>
 
         <label>
-          <span>Email <b>*</b></span>
+          <span>{{ t('common.email') }} <b>*</b></span>
           <input
             pInputText
             type="email"
@@ -41,7 +42,7 @@
         </label>
 
         <label appLabelFor="registerRole">
-          <span id="registerRoleLabel">Role <b>*</b></span>
+          <span id="registerRoleLabel">{{ t('common.role') }} <b>*</b></span>
           <p-select
             inputId="registerRole"
             ariaLabelledBy="registerRoleLabel"
@@ -51,7 +52,7 @@
             optionLabel="label"
             optionValue="value"
             appendTo="body"
-            placeholder="Select role"
+            [placeholder]="t('users.selectRole')"
             [loading]="rolesLoading()"
           />
           <small [class.visible]="hasError('roleId')">{{ errorMessage('roleId') || ' ' }}</small>
@@ -60,7 +61,7 @@
 
       @if (requiresOrganization()) {
         <label class="organization-field" appLabelFor="registerOrganization">
-          <span id="registerOrganizationLabel">Organization <b>*</b></span>
+          <span id="registerOrganizationLabel">{{ t('common.organization') }} <b>*</b></span>
           <p-select
             inputId="registerOrganization"
             ariaLabelledBy="registerOrganizationLabel"
@@ -70,7 +71,7 @@
             optionLabel="title"
             optionValue="id"
             appendTo="body"
-            placeholder="Search organization"
+            [placeholder]="t('users.searchOrganization')"
             [filter]="true"
             filterBy="title,voen"
             [loading]="organizationsLoading()"
@@ -111,7 +112,7 @@
                 </div>
                 <div class="organization-copy">
                   <strong>{{ organization.title }}</strong>
-                  <small>VOEN {{ organization.voen }}</small>
+                  <small>{{ t('users.voenLine', { label: t('common.voen'), voen: organization.voen }) }}</small>
                 </div>
               </div>
             </ng-template>
@@ -133,12 +134,13 @@
         [disabled]="isSaving()"
       >
         <i class="pi pi-times"></i>
-        <span>Cancel</span>
+        <span>{{ t('common.cancel') }}</span>
       </button>
       <button pButton type="submit" [loading]="isSaving()">
         <i class="pi pi-check"></i>
-        <span>Register</span>
+        <span>{{ t('users.registerAction') }}</span>
       </button>
     </div>
   </form>
 </p-dialog>
+</ng-container>

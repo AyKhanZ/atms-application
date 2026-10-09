@@ -1,5 +1,6 @@
 import { HttpErrorResponse, HttpEventType } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
+import { TranslocoService } from '@jsverse/transloco';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import {
   EMPTY,
@@ -18,7 +19,7 @@ import {
 import { AttachmentUploadFilesService } from '../../core/services/attachment-upload-files.service';
 import { AttachmentsService } from '../../core/services/attachments.service';
 import { toMutationError, validationMessage } from '../../core/utils/http-error.utils';
-import { MAX_ATTACHMENT_SIZE_MB } from '../../core/utils/attachment.utils';
+import { MAX_ATTACHMENT_SIZE_BYTES, formatFileSize } from '../../core/utils/attachment.utils';
 import { AuthStoreActions } from '../auth';
 import * as ActionsStore from './attachments.actions';
 
@@ -30,6 +31,7 @@ export class AttachmentsEffects {
   private readonly actions$ = inject(Actions);
   private readonly attachments = inject(AttachmentsService);
   private readonly uploadFiles = inject(AttachmentUploadFilesService);
+  private readonly transloco = inject(TranslocoService);
   private readonly reset$ = this.actions$.pipe(
     ofType(ActionsStore.reset, AuthStoreActions.logoutCompleted),
   );
@@ -45,7 +47,7 @@ export class AttachmentsEffects {
             this.attachments.getAttachments(projectId, scope).pipe(
               map((list) => ActionsStore.loadListSuccess({ listKey, list })),
               catchError(() =>
-                of(ActionsStore.loadListFailure({ listKey, error: 'Files could not be loaded.' })),
+                of(ActionsStore.loadListFailure({ listKey, error: this.text('attachments.loadFailed') })),
               ),
               takeUntil(this.listGone(listKey)),
             ),
@@ -66,7 +68,7 @@ export class AttachmentsEffects {
               map((tree) => ActionsStore.loadTreeSuccess({ projectId, tree })),
               catchError(() =>
                 of(
-                  ActionsStore.loadTreeFailure({ projectId, error: 'Files could not be loaded.' }),
+                  ActionsStore.loadTreeFailure({ projectId, error: this.text('attachments.loadFailed') }),
                 ),
               ),
               takeUntil(this.treeGone(projectId)),
@@ -103,7 +105,7 @@ export class AttachmentsEffects {
             // kept only while Retry can use it
             if (!retryable) this.uploadFiles.delete(uploadId);
             return of(
-              ActionsStore.uploadFailure({ uploadId, error: uploadErrorMessage(error), retryable }),
+              ActionsStore.uploadFailure({ uploadId, error: this.uploadErrorMessage(error), retryable }),
             );
           }),
           takeUntil(
@@ -179,14 +181,23 @@ export class AttachmentsEffects {
       ),
     );
   }
-}
 
-function uploadErrorMessage(error: unknown): string {
-  if (!(error instanceof HttpErrorResponse)) return 'The file could not be uploaded.';
-  if (error.status === 413) return `This file is larger than ${MAX_ATTACHMENT_SIZE_MB} MB.`;
-  if (error.status === 0) return 'The server could not be reached. Check the connection and retry.';
-  if (error.status === 403) return 'You can no longer add files to this task.';
-  return validationMessage(error) ?? 'The file could not be uploaded. Try again.';
+  private uploadErrorMessage(error: unknown): string {
+    const translate = (key: string, params?: Record<string, string | number>) => this.text(key, params);
+    if (!(error instanceof HttpErrorResponse)) return this.text('attachments.uploadFailed');
+    if (error.status === 413) {
+      return this.text('attachments.tooLarge', {
+        size: formatFileSize(MAX_ATTACHMENT_SIZE_BYTES, translate),
+      });
+    }
+    if (error.status === 0) return this.text('attachments.uploadRetry');
+    if (error.status === 403) return this.text('attachments.uploadDenied');
+    return validationMessage(error) ?? this.text('attachments.uploadFailedRetry');
+  }
+
+  private text(key: string, params?: Record<string, string | number>): string {
+    return this.transloco.translate(key, params);
+  }
 }
 
 // file wasnt judged, retry can work

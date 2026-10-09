@@ -1,11 +1,12 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { TranslocoDirective } from '@jsverse/transloco';
 import { SkeletonModule } from 'primeng/skeleton';
 
 @Component({
   selector: 'app-attachment-list-skeleton',
-  imports: [SkeletonModule],
+  imports: [SkeletonModule, TranslocoDirective],
   template: `
-    <div class="skeleton-list" role="status" aria-label="Loading files">
+    <div class="skeleton-list" role="status" *transloco="let t" [attr.aria-label]="t('attachments.loading')">
       @for (row of rowList(); track row) {
         <div class="skeleton-row">
           <p-skeleton width="2.25rem" height="2.25rem" borderRadius="8px" />

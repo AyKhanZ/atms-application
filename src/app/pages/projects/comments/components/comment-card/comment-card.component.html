@@ -1,147 +1,160 @@
-@let item = comment();
+<ng-container *transloco="let t">
+  @let item = comment();
+  @let author = item.createdBy | personName: t('comments.unknownUser');
 
-<article
-  class="card"
-  [id]="anchor()"
-  [class.is-target]="target()"
-  [class.is-deleted]="item.isDeleted"
-  [attr.aria-label]="
-    (item.isDeleted ? 'Deleted comment by ' : 'Comment by ') +
-    (item.createdBy | personName: 'Unknown user')
-  "
->
-  <header class="card__header">
-    <app-profile-avatar
-      class="card__avatar"
-      [imageUrl]="item.createdBy.avatarPath"
-      [fullName]="item.createdBy | personName: 'Unknown user'"
-      [initials]="item.createdBy | personInitials"
-      [previewEnabled]="false"
-    />
-    <p class="card__meta">
-      <strong class="card__author">{{ item.createdBy | personName: 'Unknown user' }}</strong>
-      <a
-        class="card__when"
-        [routerLink]="[]"
-        [queryParams]="{ tab: null }"
-        queryParamsHandling="merge"
-        [fragment]="anchor()"
-        [title]="item.createdAt | historyTime: 'full'"
-      >
-        commented {{ item.createdAt | historyTime }}
-      </a>
-      @if (item.updatedAt && !item.isDeleted) {
-        <span class="card__edited" [title]="'Edited ' + (item.updatedAt | historyTime: 'full')">
-          · edited
-        </span>
-      }
-    </p>
-
-    @if (!editing() && !item.isDeleted) {
-      <div class="card__actions">
-        <button
-          type="button"
-          class="card__action"
-          title="Copy link"
-          aria-label="Copy link to the comment"
-          (click)="actions.copyLink(item.id)"
-        >
-          <i class="pi pi-link" aria-hidden="true"></i>
-        </button>
-        @if (item.canEdit) {
-          <button
-            type="button"
-            class="card__action"
-            title="Edit"
-            aria-label="Edit the comment"
-            (click)="actions.startEdit(item)"
-          >
-            <i class="pi pi-pencil" aria-hidden="true"></i>
-          </button>
-        }
-        @if (item.canDelete) {
-          <button
-            type="button"
-            class="card__action"
-            title="More"
-            aria-haspopup="menu"
-            aria-label="More actions"
-            (click)="openMenu(menu, $event, menuItems())"
-          >
-            <i class="pi pi-ellipsis-h" aria-hidden="true"></i>
-          </button>
-        }
-      </div>
-      <button
-        type="button"
-        class="card__action card__actions-compact"
-        title="Actions"
-        aria-haspopup="menu"
-        aria-label="Comment actions"
-        (click)="openMenu(menu, $event, compactMenuItems())"
-      >
-        <i class="pi pi-ellipsis-h" aria-hidden="true"></i>
-      </button>
-    }
-  </header>
-
-  <div class="card__body">
-    @if (item.isDeleted) {
-      <!-- who deleted it and when, never the text -->
-      <p class="card__deleted">
-        <i class="pi pi-trash" aria-hidden="true"></i>
-        <span>
-          Comment deleted
-          @if (item.deletedBy; as deletedBy) {
-            @if (deletedBy.id !== item.createdBy.id) {
-              by {{ deletedBy | personName: 'Unknown user' }}
-            }
-          }
-          @if (item.deletedAt; as deletedAt) {
-            <span [title]="deletedAt | historyTime: 'full'">· {{ deletedAt | historyTime }}</span>
-          }
-        </span>
-      </p>
-    } @else if (editing()) {
-      <app-comment-editor
-        label="Edit comment"
-        [initialText]="item.text"
-        [people]="mentionable()"
-        [projectId]="projectId()"
-        [expanded]="true"
-        [busy]="actions.saving()"
-        [error]="actions.editError()"
-        (submitted)="actions.save(item.id, $event)"
-        (cancelled)="actions.cancelEdit()"
+  <article
+    class="card"
+    [id]="anchor()"
+    [class.is-target]="target()"
+    [class.is-deleted]="item.isDeleted"
+    [attr.aria-label]="t(item.isDeleted ? 'comments.deletedByAria' : 'comments.byAria', { name: author })"
+  >
+    <header class="card__header">
+      <app-profile-avatar
+        class="card__avatar"
+        [imageUrl]="item.createdBy.avatarPath"
+        [fullName]="author"
+        [initials]="item.createdBy | personInitials"
+        [previewEnabled]="false"
       />
-    } @else {
-      <div class="card__text" [id]="anchor() + '-text'" [class.is-folded]="long() && !unfolded()">
-        <app-comment-text
-          #text
-          [text]="item.text"
-          [mentions]="item.mentions"
-          [references]="item.references"
-        />
-      </div>
-      @if (long()) {
+      <p class="card__meta">
+        <strong class="card__author">{{ author }}</strong>
+        <a
+          class="card__when"
+          [routerLink]="[]"
+          [queryParams]="{ tab: null }"
+          queryParamsHandling="merge"
+          [fragment]="anchor()"
+          [title]="item.createdAt | historyTime: 'full'"
+        >
+          {{ t('comments.commentedAt', { when: (item.createdAt | historyTime) }) }}
+        </a>
+        @if (item.updatedAt && !item.isDeleted) {
+          <span class="card__edited" [title]="t('comments.editedAt', { when: (item.updatedAt | historyTime: 'full') })">
+            · {{ t('comments.edited') }}
+          </span>
+        }
+      </p>
+
+      @if (!editing() && !item.isDeleted) {
+        <div class="card__actions">
+          <button
+            type="button"
+            class="card__action"
+            [title]="t('comments.copyLink')"
+            [attr.aria-label]="t('comments.copyLinkTo')"
+            (click)="actions.copyLink(item.id)"
+          >
+            <i class="pi pi-link" aria-hidden="true"></i>
+          </button>
+          @if (item.canEdit) {
+            <button
+              type="button"
+              class="card__action"
+              [title]="t('common.edit')"
+              [attr.aria-label]="t('comments.editThe')"
+              (click)="actions.startEdit(item)"
+            >
+              <i class="pi pi-pencil" aria-hidden="true"></i>
+            </button>
+          }
+          @if (item.canDelete) {
+            <button
+              type="button"
+              class="card__action"
+              [title]="t('comments.more')"
+              aria-haspopup="menu"
+              [attr.aria-label]="t('comments.moreActions')"
+              (click)="openMenu(menu, $event, menuItems())"
+            >
+              <i class="pi pi-ellipsis-h" aria-hidden="true"></i>
+            </button>
+          }
+        </div>
         <button
           type="button"
-          class="card__fold"
-          [attr.aria-expanded]="unfolded()"
-          [attr.aria-controls]="anchor() + '-text'"
-          (click)="unfolded.set(!unfolded())"
+          class="card__action card__actions-compact"
+          [title]="t('comments.actions')"
+          aria-haspopup="menu"
+          [attr.aria-label]="t('comments.commentActions')"
+          (click)="openMenu(menu, $event, compactMenuItems())"
         >
-          {{ unfolded() ? 'Show less' : 'Show more' }}
-          <i
-            class="pi"
-            [class]="unfolded() ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"
-            aria-hidden="true"
-          ></i>
+          <i class="pi pi-ellipsis-h" aria-hidden="true"></i>
         </button>
       }
-    }
-  </div>
-</article>
+    </header>
 
-<!-- delete alone on a wide screen, every action on a phone -->
-<p-menu #menu [popup]="true" [model]="menuModel()" appendTo="body" />
+    <div class="card__body">
+      @if (item.isDeleted) {
+        <!-- who deleted it and when, never the text -->
+        <p class="card__deleted">
+          <i class="pi pi-trash" aria-hidden="true"></i>
+          <span>
+            @if (item.deletedBy; as deletedBy) {
+              @if (deletedBy.id !== item.createdBy.id) {
+                @if (item.deletedAt; as deletedAt) {
+                  {{
+                    t('comments.deletedByAt', {
+                      name: (deletedBy | personName: t('comments.unknownUser')),
+                      when: (deletedAt | historyTime),
+                    })
+                  }}
+                } @else {
+                  {{ t('comments.deletedBy', { name: (deletedBy | personName: t('comments.unknownUser')) }) }}
+                }
+              } @else if (item.deletedAt; as deletedAt) {
+                {{ t('comments.deletedAt', { when: (deletedAt | historyTime) }) }}
+              } @else {
+                {{ t('comments.deleted') }}
+              }
+            } @else if (item.deletedAt; as deletedAt) {
+              {{ t('comments.deletedAt', { when: (deletedAt | historyTime) }) }}
+            } @else {
+              {{ t('comments.deleted') }}
+            }
+          </span>
+        </p>
+      } @else if (editing()) {
+        <app-comment-editor
+          [label]="t('comments.edit')"
+          [initialText]="item.text"
+          [people]="mentionable()"
+          [projectId]="projectId()"
+          [expanded]="true"
+          [busy]="actions.saving()"
+          [error]="actions.editError()"
+          (submitted)="actions.save(item.id, $event)"
+          (cancelled)="actions.cancelEdit()"
+        />
+      } @else {
+        <div class="card__text" [id]="anchor() + '-text'" [class.is-folded]="long() && !unfolded()">
+          <app-comment-text
+            #text
+            [text]="item.text"
+            [mentions]="item.mentions"
+            [references]="item.references"
+          />
+        </div>
+        @if (long()) {
+          <button
+            type="button"
+            class="card__fold"
+            [attr.aria-expanded]="unfolded()"
+            [attr.aria-controls]="anchor() + '-text'"
+            (click)="unfolded.set(!unfolded())"
+          >
+            {{ unfolded() ? t('comments.showLess') : t('comments.showMore') }}
+            <i
+              class="pi"
+              [class]="unfolded() ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"
+              aria-hidden="true"
+            ></i>
+          </button>
+        }
+      }
+    </div>
+  </article>
+
+  <!-- delete alone on a wide screen, every action on a phone -->
+  <p-menu #menu [popup]="true" [model]="menuModel()" appendTo="body" />
+</ng-container>

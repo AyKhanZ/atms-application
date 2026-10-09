@@ -220,8 +220,6 @@ export function notificationDeletedTarget(notification: NotificationModel): stri
 }
 
 export interface NotificationDayGroup {
-  // "Today", "Yesterday", or a formatted date; day picks the translation
-  label: string;
   day: 'today' | 'yesterday' | 'date';
   items: NotificationModel[];
 }
@@ -238,19 +236,12 @@ export function groupNotificationsByDay(
     const days = Math.round((today.getTime() - day.getTime()) / 86_400_000);
     const dayKind: NotificationDayGroup['day'] =
       days <= 0 ? 'today' : days === 1 ? 'yesterday' : 'date';
-    const label =
-      dayKind === 'today'
-        ? 'Today'
-        : dayKind === 'yesterday'
-          ? 'Yesterday'
-          : formatDate(
-              day,
-              day.getFullYear() === now.getFullYear() ? 'd MMM' : 'd MMM y',
-              angularLocale(),
-            );
     const last = groups.at(-1);
-    if (last?.label === label) last.items.push(item);
-    else groups.push({ label, day: dayKind, items: [item] });
+    const sameDay =
+      last?.day === dayKind &&
+      (dayKind !== 'date' || startOfDay(last.items[0].createdAt).getTime() === day.getTime());
+    if (sameDay) last.items.push(item);
+    else groups.push({ day: dayKind, items: [item] });
   }
 
   return groups;

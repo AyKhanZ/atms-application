@@ -37,6 +37,7 @@ import { EditActionButtonComponent } from '../../../../shared/components/edit-ac
 import { DeleteActionButtonComponent } from '../../../../shared/components/delete-action-button/delete-action-button.component';
 import { OrganizationLogoComponent } from '../../../../shared/components/organization-logo/organization-logo.component';
 import { OrganizationsFilterComponent } from '../components/filter-organizations.component/filter-organizations.component';
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { OrganizationCreateDialogComponent } from '../components/organization-create-dialog/organization-create-dialog.component';
 import { OrganizationsListQueryService } from './services/organizations-list-query.service';
 
@@ -55,6 +56,7 @@ import { OrganizationsListQueryService } from './services/organizations-list-que
     OrganizationsFilterComponent,
     OrganizationCreateDialogComponent,
     TableModule,
+    TranslocoDirective,
   ],
   providers: [ConfirmationService, OrganizationsListQueryService],
   templateUrl: './list.component.html',
@@ -66,6 +68,7 @@ export class ListComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly store = inject(Store);
   private readonly confirmationService = inject(ConfirmationService);
+  private readonly transloco = inject(TranslocoService);
   private readonly query = inject(OrganizationsListQueryService);
   private readonly tableLazyLoad = inject(TableLazyLoadService);
   private readonly searchChanges = new Subject<string>();
@@ -150,11 +153,11 @@ export class ListComponent implements OnInit, OnDestroy {
 
   confirmDeleteOrganization(organization: OrganizationListItemModel): void {
     this.confirmationService.confirm({
-      header: 'Delete organization?',
-      message: `“${organization.title}” will be deleted. This action cannot be undone.`,
+      header: this.transloco.translate('organizations.deleteTitle'),
+      message: this.transloco.translate('organizations.deleteMessage', { name: organization.title }),
       icon: 'pi pi-exclamation-triangle',
-      acceptLabel: 'Delete',
-      rejectLabel: 'Cancel',
+      acceptLabel: this.transloco.translate('common.delete'),
+      rejectLabel: this.transloco.translate('common.cancel'),
       acceptButtonStyleClass: 'p-button-danger',
       rejectButtonStyleClass: 'p-button-outlined',
       accept: () =>

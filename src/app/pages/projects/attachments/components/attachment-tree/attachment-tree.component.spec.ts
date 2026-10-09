@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { translocoTestingProviders } from '../../../../../core/testing/transloco-testing';
 import { provideRouter } from '@angular/router';
 import { AttachmentTreeNode } from '../../attachment-tree-node';
 import { AttachmentTreeComponent } from './attachment-tree.component';
@@ -25,7 +26,7 @@ function node(key: string, extra: Partial<AttachmentTreeNode> = {}): AttachmentT
 
 describe('AttachmentTreeComponent', () => {
   function render(nodes: AttachmentTreeNode[]) {
-    TestBed.configureTestingModule({ providers: [provideRouter([])] });
+    TestBed.configureTestingModule({ providers: [...translocoTestingProviders(), provideRouter([])] });
     const fixture = TestBed.createComponent(AttachmentTreeComponent);
     fixture.componentRef.setInput('nodes', nodes);
     fixture.componentRef.setInput('heading', 'Files');

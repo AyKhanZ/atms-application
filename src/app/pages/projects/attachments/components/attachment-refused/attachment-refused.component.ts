@@ -1,4 +1,6 @@
-import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
+import { currentLanguage } from '../../../../../core/i18n/active-language';
 
 export interface RefusedAttachment {
   id: string;
@@ -15,6 +17,7 @@ interface RefusedGroup {
 // same reason = one line, ten .md files are one problem
 @Component({
   selector: 'app-attachment-refused',
+  imports: [TranslocoDirective],
   templateUrl: './attachment-refused.component.html',
   styleUrl: './attachment-refused.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -23,9 +26,11 @@ export class AttachmentRefusedComponent {
   readonly items = input.required<RefusedAttachment[]>();
   readonly dismiss = output<void>();
 
+  private readonly transloco = inject(TranslocoService);
+
   readonly title = computed(() => {
-    const count = this.items().length;
-    return count === 1 ? '1 file was not added' : `${count} files were not added`;
+    currentLanguage();
+    return this.transloco.translate('attachments.refused', { count: this.items().length });
   });
 
   readonly groups = computed<RefusedGroup[]>(() => {

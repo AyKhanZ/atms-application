@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideMockActions } from '@ngrx/effects/testing';
 import { MockStore, provideMockStore } from '@ngrx/store/testing';
 import { ReplaySubject } from 'rxjs';
+import { translocoTestingProviders } from '../../core/testing/transloco-testing';
 import { UserStatus } from '../../core/enums/user-status.enum';
 import { SnackBarService } from '../../core/services/snack-bar.service';
 import { UsersService } from '../../core/services/users.service';
@@ -35,6 +36,7 @@ describe('UsersEffects', () => {
     actions$ = new ReplaySubject<unknown>(1);
     TestBed.configureTestingModule({
       providers: [
+        ...translocoTestingProviders(),
         UsersEffects,
         provideMockActions(() => actions$),
         provideMockStore(),

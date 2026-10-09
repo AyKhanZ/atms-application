@@ -1,7 +1,8 @@
+<ng-container *transloco="let t">
 @let item = value();
 @if (!item.name) {
   <span class="history-value history-value--unknown" [class.history-value--muted]="muted()"
-    >Unknown</span
+    >{{ t('history.unknown') }}</span
   >
 } @else {
   @switch (field()) {
@@ -113,3 +114,4 @@
     }
   }
 }
+</ng-container>

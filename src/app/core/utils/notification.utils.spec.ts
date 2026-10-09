@@ -225,11 +225,11 @@ describe('groupNotificationsByDay', () => {
       now,
     );
 
-    expect(groups.map((group) => [group.label, group.items.length])).toEqual([
-      ['Today', 2],
-      ['Yesterday', 1],
-      ['28 Sep', 1],
-      ['28 Dec 2025', 1],
+    expect(groups.map((group) => [group.day, group.items.length])).toEqual([
+      ['today', 2],
+      ['yesterday', 1],
+      ['date', 1],
+      ['date', 1],
     ]);
   });
 

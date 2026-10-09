@@ -1,4 +1,5 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
+import { TranslocoService } from '@jsverse/transloco';
 import { Store } from '@ngrx/store';
 import { AttachmentUploadFilesService } from '../../../core/services/attachment-upload-files.service';
 import {
@@ -21,6 +22,7 @@ export interface AttachmentUploadTarget {
 export class AttachmentUploadQueueService {
   private readonly store = inject(Store);
   private readonly files = inject(AttachmentUploadFilesService);
+  private readonly transloco = inject(TranslocoService);
   private readonly uploads = this.store.selectSignal(AttachmentsStoreSelectors.getUploads);
 
   readonly target = signal<AttachmentUploadTarget | null>(null);
@@ -70,10 +72,14 @@ export class AttachmentUploadQueueService {
     const rejected: RefusedAttachment[] = [];
     for (const file of chosen) {
       const id = crypto.randomUUID();
+      const translate = (key: string, params?: Record<string, string | number>) =>
+        this.transloco.translate(key, params);
       const reason =
-        attachmentFileError(file) ??
+        attachmentFileError(file, translate) ??
         (room <= 0
-          ? `This ${target.kind} can hold ${MAX_ATTACHMENTS_PER_TASK} files. Delete some to add more.`
+          ? translate(target.kind === 'subtask' ? 'attachments.roomSubtask' : 'attachments.roomTask', {
+              max: MAX_ATTACHMENTS_PER_TASK,
+            })
           : null);
       if (reason) {
         rejected.push({ id, fileName: file.name, reason });

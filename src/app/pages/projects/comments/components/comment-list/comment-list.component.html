@@ -1,3 +1,4 @@
+<ng-container *transloco="let t">
 @let current = list();
 
 @if (current.style === 'numbers') {
@@ -29,7 +30,7 @@
               class="checklist__box checklist__box--button"
               role="checkbox"
               [attr.aria-checked]="item.checked"
-              [attr.aria-label]="item.checked ? 'Mark as not done' : 'Mark as done'"
+              [attr.aria-label]="item.checked ? t('comments.markNotDone') : t('comments.markDone')"
               (click)="checkToggled.emit(item.line)"
             >
               @if (item.checked) {
@@ -40,7 +41,7 @@
             <span
               class="checklist__box"
               role="img"
-              [attr.aria-label]="item.checked ? 'Done' : 'Not done'"
+              [attr.aria-label]="item.checked ? t('comments.done') : t('comments.notDone')"
             >
               @if (item.checked) {
                 <i class="pi pi-check" aria-hidden="true"></i>
@@ -65,3 +66,4 @@
     }
   </ul>
 }
+</ng-container>

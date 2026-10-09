@@ -1,3 +1,4 @@
+<ng-container *transloco="let t">
 <section class="refused" role="alert" aria-labelledby="attachmentRefusedTitle">
   <i class="pi pi-ban refused__icon" aria-hidden="true"></i>
   <div class="refused__body">
@@ -15,7 +16,8 @@
       }
     </ul>
   </div>
-  <button type="button" class="icon-button" aria-label="Dismiss" (click)="dismiss.emit()">
+  <button type="button" class="icon-button" [attr.aria-label]="t('attachments.dismiss')" (click)="dismiss.emit()">
     <i class="pi pi-times" aria-hidden="true"></i>
   </button>
 </section>
+</ng-container>

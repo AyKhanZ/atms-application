@@ -103,7 +103,7 @@ describe('Organization DetailsComponent', () => {
     );
 
     expect((fixture.nativeElement as HTMLElement).querySelector('p-tag')?.textContent).toContain(
-      '1 total',
+      '1 employee',
     );
   });
 });

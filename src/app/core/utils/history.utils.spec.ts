@@ -1,3 +1,6 @@
+import { TestBed } from '@angular/core/testing';
+import { TranslocoService } from '@jsverse/transloco';
+import { translocoTestingProviders } from '../testing/transloco-testing';
 import { HistoryAction } from '../enums/history-action.enum';
 import { HistoryEntityType } from '../enums/history-entity-type.enum';
 import { HistoryField } from '../enums/history-field.enum';
@@ -25,6 +28,13 @@ const change = (overrides: Partial<HistoryChangeModel>): HistoryChangeModel => (
   ...overrides,
 });
 
+const translate = (key: string, params?: Record<string, string | number>) =>
+  TestBed.inject(TranslocoService).translate(key, params);
+
+beforeEach(() => {
+  TestBed.configureTestingModule({ providers: translocoTestingProviders() });
+});
+
 describe('historyKey', () => {
   it.each([
     [{ kind: 'project' } as const, 'project:p'],
@@ -50,12 +60,12 @@ describe('groupHistory', () => {
       now,
     );
 
-    expect(groups.map((group) => [group.label, group.entries.map((item) => item.id)])).toEqual([
-      ['Today', ['today']],
-      ['Yesterday', ['yesterday']],
-      ['Last 7 days', ['week']],
-      ['Last 30 days', ['month']],
-      ['Older', ['older']],
+    expect(groups.map((group) => [group.id, group.entries.map((item) => item.id)])).toEqual([
+      ['today', ['today']],
+      ['yesterday', ['yesterday']],
+      ['last7', ['week']],
+      ['last30', ['month']],
+      ['older', ['older']],
     ]);
   });
 
@@ -69,7 +79,7 @@ describe('historyShortTime', () => {
   const now = new Date(2026, 8, 24, 15, 0);
 
   it.each([
-    [new Date(2026, 8, 24, 14, 59, 30), 'now'],
+    [new Date(2026, 8, 24, 14, 59, 30), 'just now'],
     [new Date(2026, 8, 24, 14, 55), '5 minutes ago'],
     [new Date(2026, 8, 24, 14, 0), '1 hour ago'],
     [new Date(2026, 8, 24, 5, 10), '9 hours ago'],
@@ -78,7 +88,7 @@ describe('historyShortTime', () => {
     [new Date(2026, 8, 9, 9), '9 Sep'],
     [new Date(2025, 7, 12, 9), '12 Aug 2025'],
   ])('writes %s as %s', (date, expected) => {
-    expect(historyShortTime(date.toISOString(), now)).toBe(expected);
+    expect(historyShortTime(date.toISOString(), translate, now)).toBe(expected);
   });
 });
 
@@ -195,11 +205,11 @@ describe('historySummary', () => {
       'renamed group Backend to Core',
     ],
   ])('describes %s', (_, item, expected) => {
-    expect(historySummary(item, 'task')).toBe(expected);
+    expect(historySummary(item, 'task', translate)).toBe(expected);
   });
 
   it('names the subtask when the history is a subtask', () => {
-    expect(historySummary(entry({ action: HistoryAction.Created }), 'subtask')).toBe(
+    expect(historySummary(entry({ action: HistoryAction.Created }), 'subtask', translate)).toBe(
       'created the subtask',
     );
   });
@@ -215,7 +225,7 @@ describe('historyFieldList', () => {
       ],
     });
 
-    expect(historyFieldList(item)).toBe('Status · Files');
+    expect(historyFieldList(item, translate)).toBe('Status · Files');
   });
 });
 
@@ -224,6 +234,7 @@ describe('historyMarker', () => {
     const done = { id: '3', code: 'Done', name: 'Done' };
     const marker = historyMarker(
       entry({ changes: [change({ field: HistoryField.Status, newValue: done }), change({})] }),
+      translate,
     );
 
     expect(marker).toEqual({ kind: 'status', status: done, tooltip: 'Status set to Done' });
@@ -237,6 +248,7 @@ describe('historyMarker', () => {
           change({ field: HistoryField.Status, newValue: { id: '1', code: '', name: 'New' } }),
         ],
       }),
+      translate,
     );
 
     expect(marker?.tooltip).toBe('Created as New');
@@ -273,14 +285,14 @@ describe('historyMarker', () => {
       'Stakeholders changed',
     ],
   ])('marks %s with an icon', (_, changes, icon, tooltip) => {
-    expect(historyMarker(entry({ changes }))).toEqual({ kind: 'icon', icon, tooltip });
+    expect(historyMarker(entry({ changes }), translate)).toEqual({ kind: 'icon', icon, tooltip });
   });
 
   it('leaves a plain edit unmarked', () => {
-    expect(historyMarker(entry({ changes: [change({ field: HistoryField.Title })] }))).toBeNull();
+    expect(historyMarker(entry({ changes: [change({ field: HistoryField.Title })] }), translate)).toBeNull();
   });
 
   it('marks a deletion', () => {
-    expect(historyMarker(entry({ action: HistoryAction.Deleted }))?.kind).toBe('icon');
+    expect(historyMarker(entry({ action: HistoryAction.Deleted }), translate)?.kind).toBe('icon');
   });
 });

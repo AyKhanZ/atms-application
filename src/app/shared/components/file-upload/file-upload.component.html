@@ -1,6 +1,6 @@
 <section class="file-upload" *transloco="let t">
   <div class="file-upload__heading">
-    <span>{{ label() }}</span>
+    <span>{{ label() || t('common.image') }}</span>
   </div>
 
   <div class="file-upload__body">
@@ -10,7 +10,7 @@
       [class.file-upload__preview--round]="roundPreview()"
     >
       @if (previewUrl()) {
-        <img [src]="previewUrl()" [alt]="previewAlt()" />
+        <img [src]="previewUrl()" [alt]="previewAlt() || t('common.imagePreview')" />
       } @else {
         <i class="pi pi-image"></i>
       }
@@ -21,7 +21,7 @@
         <p-fileUpload
           #upload
           mode="basic"
-          [chooseLabel]="chooseLabel()"
+          [chooseLabel]="chooseLabel() || t('common.chooseFile')"
           chooseIcon="pi pi-upload"
           [accept]="accept"
           [maxFileSize]="imageValidator.maxSizeBytes"

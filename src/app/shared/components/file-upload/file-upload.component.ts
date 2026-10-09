@@ -30,9 +30,9 @@ export interface FileUploadValue {
 export class FileUploadComponent implements OnDestroy {
   readonly imageValidator = inject(ImageFileValidator);
 
-  readonly label = input('Image');
-  readonly chooseLabel = input('Choose file');
-  readonly previewAlt = input('Image preview');
+  readonly label = input('');
+  readonly chooseLabel = input('');
+  readonly previewAlt = input('');
   readonly existingFileName = input('');
   readonly existingPreviewUrl = input<string | null>(null);
   readonly resetKey = input<unknown>(null);

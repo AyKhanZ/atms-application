@@ -17,7 +17,7 @@ export interface DashboardActivityLine {
   tone: DashboardActivityTone;
 }
 
-export type Translate = (key: string, params?: Record<string, string>) => string;
+export type Translate = (key: string, params?: Record<string, string | number>) => string;
 
 export function dashboardActivityLine(
   activity: DashboardActivityModel,
@@ -42,7 +42,7 @@ export function dashboardActivityLine(
     entry.entityType === HistoryEntityType.Milestone
   ) {
     const tone = entry.action === HistoryAction.Deleted ? 'deleted' : 'edited';
-    return line(historySummary(entry, 'project'), tone, true);
+    return line(historySummary(entry, 'project', translate), tone, true);
   }
 
   if (entry.action === HistoryAction.Created) return line(translate('dashboard.activity.created'), 'new');
@@ -53,13 +53,13 @@ export function dashboardActivityLine(
   if (entry.changes.length === 1 && status) {
     return line(
       translate('dashboard.activity.movedTo', {
-        status: historyValueText(HistoryField.Status, status),
+        status: historyValueText(HistoryField.Status, status, translate),
       }),
       tone,
     );
   }
 
-  return line(historySummary(entry, subject.type), tone, true);
+  return line(historySummary(entry, subject.type, translate), tone, true);
 }
 
 function statusTone(statusId: string): DashboardActivityTone {

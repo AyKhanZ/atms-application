@@ -1,3 +1,6 @@
+import { TestBed } from '@angular/core/testing';
+import { TranslocoService } from '@jsverse/transloco';
+import { translocoTestingProviders } from '../testing/transloco-testing';
 import {
   MAX_ATTACHMENT_SIZE_BYTES,
   MAX_OFFICE_PREVIEW_BYTES,
@@ -13,8 +16,13 @@ import {
 } from './attachment.utils';
 
 const file = (name: string, size: number) => new File([new Uint8Array(size)], name);
+const translate = (key: string, params?: Record<string, string | number>) =>
+  TestBed.inject(TranslocoService).translate(key, params);
 
 describe('attachment utils', () => {
+  beforeEach(() => {
+    TestBed.configureTestingModule({ providers: translocoTestingProviders() });
+  });
   it.each([
     [0, '0 B'],
     [512, '512 B'],
@@ -22,7 +30,7 @@ describe('attachment utils', () => {
     [2.4 * 1024 * 1024, '2.4 MB'],
     [25 * 1024 * 1024, '25 MB'],
   ])('formats %d bytes as %s', (bytes, label) => {
-    expect(formatFileSize(bytes)).toBe(label);
+    expect(formatFileSize(bytes, translate)).toBe(label);
   });
 
   it.each([
@@ -85,23 +93,23 @@ describe('attachment utils', () => {
 
   describe('attachmentFileError', () => {
     it('accepts a listed type within the size', () => {
-      expect(attachmentFileError(file('spec.pdf', 10))).toBeNull();
+      expect(attachmentFileError(file('spec.pdf', 10), translate)).toBeNull();
     });
 
     it.each(['virus.exe', 'page.html', 'drawing.svg', 'archive.rar', 'noextension'])(
       'refuses %s',
       (name) => {
-        expect(attachmentFileError(file(name, 10))).toContain("isn't supported");
+        expect(attachmentFileError(file(name, 10), translate)).toContain("isn't supported");
       },
     );
 
     it('refuses an empty file', () => {
-      expect(attachmentFileError(file('empty.pdf', 0))).toBe('This file is empty.');
+      expect(attachmentFileError(file('empty.pdf', 0), translate)).toBe('This file is empty.');
     });
 
     it('refuses a file over 25 MB', () => {
       const big = { name: 'big.pdf', size: MAX_ATTACHMENT_SIZE_BYTES + 1 } as File;
-      expect(attachmentFileError(big)).toBe('This file is larger than 25 MB.');
+      expect(attachmentFileError(big, translate)).toBe('This file is larger than 25 MB.');
     });
   });
 
@@ -112,11 +120,11 @@ describe('attachment utils', () => {
       ['a'.repeat(201), 'The file name must be 200 characters or fewer.'],
       ['a/b', 'The file name can\'t contain \\ / : * ? " < > |'],
     ])('rejects %j', (name, message) => {
-      expect(attachmentNameError(name)).toBe(message);
+      expect(attachmentNameError(name, translate)).toBe(message);
     });
 
     it('accepts an ordinary name', () => {
-      expect(attachmentNameError('Отчёт за сентябрь')).toBeNull();
+      expect(attachmentNameError('Отчёт за сентябрь', translate)).toBeNull();
     });
   });
 });

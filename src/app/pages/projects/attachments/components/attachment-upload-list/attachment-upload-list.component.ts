@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { TranslocoDirective } from '@jsverse/transloco';
 import { ButtonModule } from 'primeng/button';
 import {
   AttachmentIconPipe,
@@ -18,7 +19,7 @@ export interface AttachmentUploadRow {
 
 @Component({
   selector: 'app-attachment-upload-list',
-  imports: [ButtonModule, AttachmentIconPipe, AttachmentTonePipe, FileSizePipe],
+  imports: [ButtonModule, AttachmentIconPipe, AttachmentTonePipe, FileSizePipe, TranslocoDirective],
   templateUrl: './attachment-upload-list.component.html',
   styleUrl: './attachment-upload-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

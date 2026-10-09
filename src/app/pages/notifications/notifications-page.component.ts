@@ -1,12 +1,14 @@
+import { formatDate } from '@angular/common';
 import { ChangeDetectionStrategy, Component, OnDestroy, computed, inject } from '@angular/core';
 import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
-import { currentLanguage } from '../../core/i18n/active-language';
+import { angularLocale, currentLanguage } from '../../core/i18n/active-language';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { ConfirmationService } from 'primeng/api';
 import { NotificationModel } from '../../core/models/notifications';
-import { groupNotificationsByDay } from '../../core/utils/notification.utils';
+import { startOfDay } from '../../core/utils/deadline.utils';
+import { NotificationDayGroup, groupNotificationsByDay } from '../../core/utils/notification.utils';
 import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import {
@@ -74,6 +76,14 @@ export class NotificationsPageComponent implements OnDestroy {
       const unreadOnly = params.get('filter') === 'unread';
       this.store.dispatch(NotificationsStoreActions.loadPage({ unreadOnly }));
     });
+  }
+
+  groupTitle(group: NotificationDayGroup): string {
+    if (group.day === 'today') return this.transloco.translate('common.today');
+    if (group.day === 'yesterday') return this.transloco.translate('notifications.yesterday');
+    const day = startOfDay(group.items[0].createdAt);
+    const pattern = day.getFullYear() === new Date().getFullYear() ? 'd MMM' : 'd MMM y';
+    return formatDate(day, pattern, angularLocale());
   }
 
   ngOnDestroy(): void {

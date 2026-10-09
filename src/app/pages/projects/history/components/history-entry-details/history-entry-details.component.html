@@ -1,9 +1,10 @@
+<ng-container *transloco="let t">
 @let item = entry();
 <header class="details-head">
   <app-history-author-avatar [author]="item.createdBy" />
   <div class="details-head__text">
-    <strong>{{ item.createdBy | personName: 'System' }}</strong>
-    <span>{{ item.createdBy | personName: 'System' }} {{ item | historySummary: subject() }}</span>
+    <strong>{{ item.createdBy | personName: t('dashboard.activity.system') }}</strong>
+    <span>{{ item.createdBy | personName: t('dashboard.activity.system') }} {{ item | historySummary: subject() }}</span>
   </div>
   <time class="details-head__time" [attr.datetime]="item.createdAt">
     {{ item.createdAt | historyTime: 'full' }}
@@ -13,23 +14,23 @@
 @if (unrecorded()) {
   <app-empty-state
     icon="pi-history"
-    title="Created before the history started"
-    description="Who created it and when is known; the values it started with weren't recorded."
+    [title]="t('history.unrecordedTitle')"
+    [description]="t('history.unrecordedHint')"
   />
 } @else if (deleted()) {
   <app-empty-state
     icon="pi-trash"
-    [title]="(item.subject?.name || 'This item') + ' was deleted'"
-    description="Its earlier changes stay in the history."
+    [title]="t('history.deletedTitle', { name: item.subject?.name || t('history.unknown') })"
+    [description]="t('history.deletedHint')"
   />
 } @else {
   <table class="changes" [class.changes--created]="created()">
     <thead>
       <tr>
-        <th scope="col">Field</th>
-        <th scope="col">{{ created() ? 'Value' : 'New' }}</th>
+        <th scope="col">{{ t('history.field') }}</th>
+        <th scope="col">{{ created() ? t('history.value') : t('history.new') }}</th>
         @if (!created()) {
-          <th scope="col">Old</th>
+          <th scope="col">{{ t('history.old') }}</th>
         }
       </tr>
     </thead>
@@ -42,7 +43,7 @@
             <td class="changes__cell" colspan="2">
               <div class="text-change">
                 <div class="text-change__part">
-                  <span class="text-change__label">New</span>
+                  <span class="text-change__label">{{ t('history.new') }}</span>
                   @if (change.newValue?.name; as text) {
                     <p class="text-change__block text-change__block--new">{{ text }}</p>
                   } @else {
@@ -50,7 +51,7 @@
                   }
                 </div>
                 <div class="text-change__part">
-                  <span class="text-change__label">Old</span>
+                  <span class="text-change__label">{{ t('history.old') }}</span>
                   @if (change.oldValue?.name; as text) {
                     <p class="text-change__block text-change__block--old">{{ text }}</p>
                   } @else {
@@ -69,7 +70,7 @@
                 {{ change.field | historyFieldLabel }}
               }
             </th>
-            <td class="changes__cell" data-label="New">
+            <td class="changes__cell" [attr.data-label]="t('history.new')">
               @if (change.newValue; as value) {
                 <span
                   class="change-value change-value--new"
@@ -87,7 +88,7 @@
               }
             </td>
             @if (!created()) {
-              <td class="changes__cell" data-label="Old">
+              <td class="changes__cell" [attr.data-label]="t('history.old')">
                 @if (change.oldValue; as value) {
                   <span
                     class="change-value change-value--old"
@@ -112,3 +113,4 @@
     </tbody>
   </table>
 }
+</ng-container>

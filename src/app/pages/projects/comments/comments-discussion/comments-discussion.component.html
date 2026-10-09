@@ -1,6 +1,7 @@
 <app-confirm-dialog key="commentDelete" />
 
 <!-- title and folding come from the section around it -->
+<ng-container *transloco="let t">
 <div class="discussion">
   @if (canWrite()) {
     <div class="discussion__new">
@@ -26,7 +27,7 @@
   }
 
   @if (loading()) {
-    <div class="discussion__skeleton" role="status" aria-label="Loading comments">
+    <div class="discussion__skeleton" role="status" [attr.aria-label]="t('comments.loading')">
       @for (row of skeletonRows; track row) {
         <div class="discussion__skeleton-card">
           <div class="discussion__skeleton-head">
@@ -40,20 +41,20 @@
   } @else if (error()) {
     <p class="discussion__state" role="alert">
       <i class="pi pi-exclamation-circle" aria-hidden="true"></i>
-      <span>Comments couldn't be loaded.</span>
+      <span>{{ t('comments.loadFailed') }}</span>
       <button pButton type="button" severity="secondary" [text]="true" (click)="load()">
-        Try again
+        {{ t('common.retry') }}
       </button>
     </p>
   } @else if (!comments().length && !linkedComment() && !linkedError()) {
     <!-- the empty field is the invitation, a line only for someone who cant write -->
     @if (!canWrite()) {
-      <p class="discussion__state discussion__state--empty">No comments yet.</p>
+      <p class="discussion__state discussion__state--empty">{{ t('comments.empty') }}</p>
     }
   } @else {
     @if (linkedComment(); as linked) {
       <div class="discussion__linked">
-        <p class="discussion__linked-label">Linked comment</p>
+        <p class="discussion__linked-label">{{ t('comments.linked') }}</p>
         <app-comment-card
           [comment]="linked"
           [projectId]="projectId()"
@@ -68,7 +69,7 @@
     }
 
     @if (comments().length) {
-      <ol class="discussion__list" aria-label="Comments, newest first">
+      <ol class="discussion__list" [attr.aria-label]="t('comments.listAria')">
         @for (comment of comments(); track comment.id) {
           <li>
             <app-comment-card
@@ -92,3 +93,4 @@
     }
   }
 </div>
+</ng-container>

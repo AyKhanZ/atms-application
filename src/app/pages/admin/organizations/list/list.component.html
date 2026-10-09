@@ -1,12 +1,12 @@
 <p-confirmDialog />
 
-<section class="page">
-  <h1 class="page-title">Organizations</h1>
+<section class="page" *transloco="let t">
+  <h1 class="page-title">{{ t('nav.organizations') }}</h1>
 
   <div class="page-header management-list-header">
     <app-list-search
       class="management-list-search"
-      placeholder="Search organizations"
+      [placeholder]="t('organizations.search')"
       [value]="searchTerm()"
       (valueChange)="onSearchChange($event)"
     />
@@ -18,7 +18,7 @@
         (clicked)="toggleFilters()"
       />
       <ng-container *hasPermission="Permissions.Organization.Edit">
-        <app-create-button label="Create" (clicked)="openCreateOrganization()" />
+        <app-create-button [label]="t('common.create')" (clicked)="openCreateOrganization()" />
       </ng-container>
     </div>
   </div>
@@ -55,16 +55,16 @@
       <ng-template pTemplate="header">
         <tr>
           <th pSortableColumn="title" [pSortableColumnDisabled]="tableRequestsBlocked()">
-            Title <p-sortIcon field="title" />
+            {{ t('common.title') }} <p-sortIcon field="title" />
           </th>
           <th pSortableColumn="voen" [pSortableColumnDisabled]="tableRequestsBlocked()">
-            VOEN <p-sortIcon field="voen" />
+            {{ t('common.voen') }} <p-sortIcon field="voen" />
           </th>
           <th pSortableColumn="createdAt" [pSortableColumnDisabled]="tableRequestsBlocked()">
-            Created <p-sortIcon field="createdAt" />
+            {{ t('common.created') }} <p-sortIcon field="createdAt" />
           </th>
           @if (showActions()) {
-            <th class="actions-column">Actions</th>
+            <th class="actions-column">{{ t('common.actions') }}</th>
           }
         </tr>
       </ng-template>
@@ -106,7 +106,7 @@
       <ng-template pTemplate="emptymessage">
         <tr class="empty-row">
           <td [attr.colspan]="showActions() ? 4 : 3">
-            <div class="table-empty-state">No organizations found.</div>
+            <div class="table-empty-state">{{ t('organizations.noneFound') }}</div>
           </td>
         </tr>
       </ng-template>

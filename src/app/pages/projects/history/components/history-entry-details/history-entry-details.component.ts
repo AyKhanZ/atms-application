@@ -12,6 +12,7 @@ import {
 } from '../../../../../shared/pipes/history.pipe';
 import { PersonNamePipe } from '../../../../../shared/pipes/person-name.pipe';
 import { HistoryAuthorAvatarComponent } from '../history-author-avatar/history-author-avatar.component';
+import { TranslocoDirective } from '@jsverse/transloco';
 import { HistoryValueComponent } from '../history-value/history-value.component';
 
 @Component({
@@ -24,6 +25,7 @@ import { HistoryValueComponent } from '../history-value/history-value.component'
     HistoryTimePipe,
     HistoryValueComponent,
     PersonNamePipe,
+    TranslocoDirective,
     WorkItemAssigneeComponent,
   ],
   templateUrl: './history-entry-details.component.html',

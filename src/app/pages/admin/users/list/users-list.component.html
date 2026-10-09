@@ -1,10 +1,10 @@
-<section class="page">
-  <h1 class="page-title">Users Management</h1>
+<section class="page" *transloco="let t">
+  <h1 class="page-title">{{ t('users.title') }}</h1>
 
   <div class="page-header management-list-header">
     <app-list-search
       class="management-list-search"
-      placeholder="Search users"
+      [placeholder]="t('users.search')"
       [value]="searchTerm()"
       (valueChange)="onSearchChange($event)"
     />
@@ -16,7 +16,7 @@
         (clicked)="toggleFilters()"
       />
       <ng-container *hasPermission="Permissions.User.Edit">
-        <app-create-button label="Register user" (clicked)="openRegisterUser()" />
+        <app-create-button [label]="t('users.register')" (clicked)="openRegisterUser()" />
       </ng-container>
     </div>
   </div>
@@ -52,19 +52,19 @@
       <ng-template pTemplate="header">
         <tr>
           <th pSortableColumn="name" [pSortableColumnDisabled]="tableRequestsBlocked()">
-            Full name <p-sortIcon field="name" />
+            {{ t('common.fullName') }} <p-sortIcon field="name" />
           </th>
           <th pSortableColumn="email" [pSortableColumnDisabled]="tableRequestsBlocked()">
-            Email <p-sortIcon field="email" />
+            {{ t('common.email') }} <p-sortIcon field="email" />
           </th>
           <th pSortableColumn="position" [pSortableColumnDisabled]="tableRequestsBlocked()">
-            Position <p-sortIcon field="position" />
+            {{ t('common.position') }} <p-sortIcon field="position" />
           </th>
           <th pSortableColumn="userStatus" [pSortableColumnDisabled]="tableRequestsBlocked()">
-            Status <p-sortIcon field="userStatus" />
+            {{ t('common.status') }} <p-sortIcon field="userStatus" />
           </th>
           <th pSortableColumn="createdAt" [pSortableColumnDisabled]="tableRequestsBlocked()">
-            Created <p-sortIcon field="createdAt" />
+            {{ t('common.created') }} <p-sortIcon field="createdAt" />
           </th>
         </tr>
       </ng-template>
@@ -105,7 +105,7 @@
       <ng-template pTemplate="emptymessage">
         <tr class="empty-row">
           <td colspan="5">
-            <div class="table-empty-state">No users found.</div>
+            <div class="table-empty-state">{{ t('users.empty') }}</div>
           </td>
         </tr>
       </ng-template>

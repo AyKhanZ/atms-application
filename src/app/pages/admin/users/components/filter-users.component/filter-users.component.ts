@@ -1,3 +1,5 @@
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
+import { currentLanguage } from '../../../../../core/i18n/active-language';
 import { LabelForDirective } from '../../../../../core/directives/label-for.directive';
 import {
   ChangeDetectionStrategy,
@@ -39,6 +41,7 @@ type StatusOption = Pick<DictionaryModel, 'name' | 'code'> & { id: number | null
     InputTextModule,
     SelectModule,
     LabelForDirective,
+    TranslocoDirective,
   ],
   templateUrl: './filter-users.component.html',
   styleUrl: './filter-users.component.scss',
@@ -46,6 +49,7 @@ type StatusOption = Pick<DictionaryModel, 'name' | 'code'> & { id: number | null
 })
 export class UsersFilterComponent {
   private readonly fb = inject(NonNullableFormBuilder);
+  private readonly transloco = inject(TranslocoService);
   private syncedFilterKey = '';
   readonly today = endOfToday();
 
@@ -55,13 +59,16 @@ export class UsersFilterComponent {
   readonly apply = output<Partial<UserListFilter>>();
   readonly clear = output<void>();
 
-  readonly statusOptions = computed<StatusOption[]>(() => [
-    { id: null, name: 'Any status', code: '' },
+  readonly statusOptions = computed<StatusOption[]>(() => {
+    currentLanguage();
+    return [
+    { id: null, name: this.transloco.translate('users.anyStatus'), code: '' },
     ...this.statuses().map((status) => ({
       ...status,
       id: Number(status.id),
     })),
-  ]);
+  ];
+  });
 
   readonly form = this.fb.group(
     {

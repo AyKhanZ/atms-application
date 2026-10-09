@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { translocoTestingProviders } from '../../../core/testing/transloco-testing';
 import { MockStore, provideMockStore } from '@ngrx/store/testing';
 import { AttachmentUploadModel } from '../../../core/models/attachments';
 import { AttachmentUploadFilesService } from '../../../core/services/attachment-upload-files.service';
@@ -32,7 +33,7 @@ describe('AttachmentUploadQueueService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [AttachmentUploadQueueService, provideMockStore()],
+      providers: [...translocoTestingProviders(), AttachmentUploadQueueService, provideMockStore()],
     });
     store = TestBed.inject(MockStore);
     uploads();

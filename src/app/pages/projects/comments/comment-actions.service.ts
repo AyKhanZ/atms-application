@@ -1,4 +1,5 @@
 import { DestroyRef, Injectable, inject, signal } from '@angular/core';
+import { TranslocoService } from '@jsverse/transloco';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Actions, ofType } from '@ngrx/effects';
@@ -27,6 +28,7 @@ export class CommentActionsService {
   private readonly snackBar = inject(SnackBarService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly transloco = inject(TranslocoService);
 
   private scope: CommentsScope | null = null;
   private request: string | null = null;
@@ -56,7 +58,7 @@ export class CommentActionsService {
         if (requestId !== this.request) return;
         this.request = null;
         this.sending.set(false);
-        this.sendError.set(mutationMessage(error, "The comment wasn't saved. Try again."));
+        this.sendError.set(this.mutationMessage(error, 'comments.saveFailed'));
       });
     actions
       .pipe(ofType(CommentsStoreActions.updateSuccess), takeUntilDestroyed(destroyRef))
@@ -70,15 +72,15 @@ export class CommentActionsService {
       .subscribe(({ commentId, error }) => {
         if (commentId !== this.editingId()) return;
         this.saving.set(false);
-        this.editError.set(mutationMessage(error, "The changes weren't saved. Try again."));
+        this.editError.set(this.mutationMessage(error, 'comments.editFailed'));
       });
     actions
       .pipe(ofType(CommentsStoreActions.removeFailure), takeUntilDestroyed(destroyRef))
       .subscribe(({ error }) =>
         this.snackBar.error(
           error.status === 403
-            ? 'Only the author, the project manager or an administrator can delete this comment.'
-            : mutationMessage(error, "The comment wasn't deleted. Try again."),
+            ? this.text('comments.deleteDenied')
+            : this.mutationMessage(error, 'comments.deleteFailed'),
         ),
       );
   }
@@ -149,10 +151,10 @@ export class CommentActionsService {
 
     this.confirmation.confirm({
       key: 'commentDelete',
-      header: 'Delete comment?',
-      message: "The comment is removed for everyone. This can't be undone.",
-      acceptLabel: 'Delete',
-      rejectLabel: 'Cancel',
+      header: this.text('comments.deleteTitle'),
+      message: this.text('comments.deleteMessage'),
+      acceptLabel: this.text('common.delete'),
+      rejectLabel: this.text('common.cancel'),
       acceptButtonProps: confirmTone('danger'),
       accept: () =>
         this.store.dispatch(
@@ -177,19 +179,21 @@ export class CommentActionsService {
 
   copyLink(commentId: string): void {
     navigator.clipboard.writeText(this.linkTo(commentId)).then(
-      () => this.snackBar.success('Link to the comment copied.'),
-      () => this.snackBar.error("The link couldn't be copied. Copy it from the address bar."),
+      () => this.snackBar.success(this.text('comments.linkCopied')),
+      () => this.snackBar.error(this.text('comments.linkCopyFailed')),
     );
   }
-}
 
-// server reason for 400, otherwise by status
-function mutationMessage(error: WorkItemMutationError, fallback: string): string {
-  if (error.message) return error.message;
-  if (error.status === 403) return "You can't comment in this project any more.";
-  if (error.status === 404) {
-    return 'This comment was deleted or is no longer available. Refresh the page.';
+  // server reason for 400, otherwise by status. fallback is a translation key
+  private mutationMessage(error: WorkItemMutationError, fallback: string): string {
+    if (error.message) return error.message;
+    if (error.status === 403) return this.text('comments.cannotComment');
+    if (error.status === 404) return this.text('comments.gone');
+    if (error.status === 0) return this.text('comments.offline');
+    return this.text(fallback);
   }
-  if (error.status === 0) return "The server can't be reached. Check the connection and try again.";
-  return fallback;
+
+  private text(key: string): string {
+    return this.transloco.translate(key);
+  }
 }

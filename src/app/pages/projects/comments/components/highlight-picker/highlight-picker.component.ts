@@ -1,9 +1,11 @@
 import { ChangeDetectionStrategy, Component, output, signal } from '@angular/core';
+import { TranslocoDirective } from '@jsverse/transloco';
 import { HIGHLIGHT_COLORS, HighlightColor } from '../../../../../core/utils/comment-markdown.utils';
 
 // button shows the last color; same color on a marked selection takes it off
 @Component({
   selector: 'app-highlight-picker',
+  imports: [TranslocoDirective],
   templateUrl: './highlight-picker.component.html',
   styleUrl: './highlight-picker.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

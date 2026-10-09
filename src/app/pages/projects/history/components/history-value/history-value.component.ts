@@ -12,6 +12,7 @@ import { HistoryDatePipe, HistoryDictionaryPipe } from '../../../../../shared/pi
 import { ProjectStatusBadgeComponent } from '../../../components/status-badge/project-status-badge.component';
 import { WorkGroupStatusBadgeComponent } from '../../../details/tabs/groups/components/work-group-status-badge/work-group-status-badge.component';
 import { TaskStatusBadgeComponent } from '../../../tasks/components/task-status-badge/task-status-badge.component';
+import { TranslocoDirective } from '@jsverse/transloco';
 import { TicketStatusBadgeComponent } from '../../../tickets/components/ticket-status-badge/ticket-status-badge.component';
 
 // drawn the same way the value looks everywhere else
@@ -28,6 +29,7 @@ import { TicketStatusBadgeComponent } from '../../../tickets/components/ticket-s
     WorkItemAssigneeComponent,
     WorkItemPriorityComponent,
     WorkItemRefComponent,
+    TranslocoDirective,
     WorkItemTypeComponent,
   ],
   templateUrl: './history-value.component.html',

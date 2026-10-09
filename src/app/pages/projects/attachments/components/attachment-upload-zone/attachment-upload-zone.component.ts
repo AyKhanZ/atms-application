@@ -1,14 +1,17 @@
-import { ChangeDetectionStrategy, Component, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { ButtonModule } from 'primeng/button';
+import { currentLanguage } from '../../../../../core/i18n/active-language';
 import {
   ATTACHMENT_ACCEPT,
-  ATTACHMENT_HINT,
-  ATTACHMENT_TYPES_TITLE,
+  ATTACHMENT_TYPES,
+  MAX_ATTACHMENT_SIZE_BYTES,
+  formatFileSize,
 } from '../../../../../core/utils/attachment.utils';
 
 @Component({
   selector: 'app-attachment-upload-zone',
-  imports: [ButtonModule],
+  imports: [ButtonModule, TranslocoDirective],
   templateUrl: './attachment-upload-zone.component.html',
   styleUrl: './attachment-upload-zone.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -17,9 +20,14 @@ export class AttachmentUploadZoneComponent {
   readonly kind = input<'task' | 'subtask'>('task');
   readonly filesChosen = output<File[]>();
 
+  private readonly transloco = inject(TranslocoService);
+
   protected readonly accept = ATTACHMENT_ACCEPT;
-  protected readonly hint = ATTACHMENT_HINT;
-  protected readonly typesTitle = ATTACHMENT_TYPES_TITLE;
+  protected readonly types = ATTACHMENT_TYPES;
+  protected readonly sizeLabel = computed(() => {
+    currentLanguage();
+    return formatFileSize(MAX_ATTACHMENT_SIZE_BYTES, (key, params) => this.transloco.translate(key, params));
+  });
   readonly dragging = signal(false);
 
   // dragenter/dragleave fire for every child, the depth tells the real ones

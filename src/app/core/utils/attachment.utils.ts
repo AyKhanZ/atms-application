@@ -31,9 +31,9 @@ export const ATTACHMENT_ACCEPT = ATTACHMENT_EXTENSIONS.map((extension) => `.${ex
   ',',
 );
 
-export const ATTACHMENT_HINT = `Up to ${MAX_ATTACHMENT_SIZE_MB} MB each · PDF, Word, Excel, PowerPoint, images, text, ZIP`;
+export const ATTACHMENT_TYPES = ATTACHMENT_EXTENSIONS.map((extension) => `.${extension}`).join(', ');
 
-export const ATTACHMENT_TYPES_TITLE = `Allowed: ${ATTACHMENT_EXTENSIONS.map((extension) => `.${extension}`).join(', ')}`;
+export type AttachmentTranslate = (key: string, params?: Record<string, string | number>) => string;
 
 const INVALID_NAME_CHARACTERS = /[\\/:*?"<>|\u0000-\u001f]/;
 
@@ -76,13 +76,14 @@ export function fileExtension(fileName: string): string {
   return splitFileName(fileName).extension.slice(1).toLowerCase();
 }
 
-// 512 B, 38 KB, 2.4 MB
-export function formatFileSize(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`;
+// 512 B, 38 KB, 2.4 MB — the unit is a translation, the number stays a parameter
+export function formatFileSize(bytes: number, translate: AttachmentTranslate): string {
+  if (bytes < 1024) return translate('attachments.size.b', { count: bytes });
   const kilobytes = bytes / 1024;
-  if (kilobytes < 1024) return `${Math.round(kilobytes)} KB`;
+  if (kilobytes < 1024) return translate('attachments.size.kb', { count: Math.round(kilobytes) });
   const megabytes = kilobytes / 1024;
-  return `${megabytes < 10 ? megabytes.toFixed(1) : Math.round(megabytes)} MB`;
+  const size = megabytes < 10 ? megabytes.toFixed(1) : String(Math.round(megabytes));
+  return translate('attachments.size.mb', { size });
 }
 
 export function attachmentIcon(fileName: string): string {
@@ -148,25 +149,25 @@ export function canPreviewAttachment(file: { contentType: string; size: number }
 }
 
 // null = ok, the server checks the content too
-export function attachmentFileError(file: File): string | null {
+export function attachmentFileError(file: File, translate: AttachmentTranslate): string | null {
   if (!ATTACHMENT_EXTENSIONS.includes(fileExtension(file.name))) {
-    return "This file type isn't supported. Use PDF, Word, Excel, PowerPoint, images, text or ZIP.";
+    return translate('attachments.typeUnsupported');
   }
-  if (file.size === 0) return 'This file is empty.';
+  if (file.size === 0) return translate('attachments.emptyFile');
   if (file.size > MAX_ATTACHMENT_SIZE_BYTES) {
-    return `This file is larger than ${MAX_ATTACHMENT_SIZE_MB} MB.`;
+    return translate('attachments.tooLarge', {
+      size: formatFileSize(MAX_ATTACHMENT_SIZE_BYTES, translate),
+    });
   }
   return null;
 }
 
-export function attachmentNameError(baseName: string): string | null {
+export function attachmentNameError(baseName: string, translate: AttachmentTranslate): string | null {
   const name = baseName.trim();
-  if (!name) return 'Enter a file name.';
+  if (!name) return translate('attachments.nameRequired');
   if (name.length > MAX_ATTACHMENT_BASE_NAME_LENGTH) {
-    return `The file name must be ${MAX_ATTACHMENT_BASE_NAME_LENGTH} characters or fewer.`;
+    return translate('attachments.nameTooLong', { max: MAX_ATTACHMENT_BASE_NAME_LENGTH });
   }
-  if (INVALID_NAME_CHARACTERS.test(name)) {
-    return 'The file name can\'t contain \\ / : * ? " < > |';
-  }
+  if (INVALID_NAME_CHARACTERS.test(name)) return translate('attachments.nameChars');
   return null;
 }

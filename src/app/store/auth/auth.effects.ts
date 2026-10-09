@@ -192,11 +192,11 @@ export class AuthEffects {
         return body.errors?.map((e) => `${e.field}: ${e.error}`) ?? [body.message];
       }
       case 401:
-        return [serverErrorMessage(err, 'Invalid email or password.')];
+        return [serverErrorMessage(err, this.transloco.translate('auth.invalidCredentials'))];
       case 423:
-        return [serverErrorMessage(err, 'Account temporarily locked.')];
+        return [serverErrorMessage(err, this.transloco.translate('auth.accountLocked'))];
       default:
-        return [serverErrorMessage(err, 'Unexpected server error.')];
+        return [serverErrorMessage(err, this.transloco.translate('auth.unexpected'))];
     }
   }
 }

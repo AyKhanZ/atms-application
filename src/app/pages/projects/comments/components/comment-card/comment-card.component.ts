@@ -12,6 +12,8 @@ import {
   viewChild,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
+import { currentLanguage } from '../../../../../core/i18n/active-language';
 import { MenuItem } from 'primeng/api';
 import { Menu, MenuModule } from 'primeng/menu';
 import { CommentModel } from '../../../../../core/models/comments';
@@ -35,6 +37,7 @@ import { CommentTextComponent } from '../comment-text/comment-text.component';
     PersonNamePipe,
     ProfileAvatarComponent,
     RouterLink,
+    TranslocoDirective,
   ],
   templateUrl: './comment-card.component.html',
   styleUrl: './comment-card.component.scss',
@@ -42,6 +45,7 @@ import { CommentTextComponent } from '../comment-text/comment-text.component';
 })
 export class CommentCardComponent {
   protected readonly actions = inject(CommentActionsService);
+  private readonly transloco = inject(TranslocoService);
 
   readonly comment = input.required<CommentModel>();
   readonly people = input<readonly MentionCandidate[]>([]);
@@ -62,10 +66,11 @@ export class CommentCardComponent {
   ]);
   // only Delete, the one action worth a second step
   readonly menuItems = computed<MenuItem[]>(() => {
+    currentLanguage();
     const comment = this.comment();
     return [
       {
-        label: 'Delete',
+        label: this.transloco.translate('common.delete'),
         icon: 'pi pi-trash',
         styleClass: 'work-groups-menu-danger',
         command: () => this.actions.confirmDelete(comment),
@@ -73,15 +78,22 @@ export class CommentCardComponent {
     ];
   });
   readonly compactMenuItems = computed<MenuItem[]>(() => {
+    currentLanguage();
     const comment = this.comment();
     return [
       {
-        label: 'Copy link',
+        label: this.transloco.translate('comments.copyLink'),
         icon: 'pi pi-link',
         command: () => this.actions.copyLink(comment.id),
       },
       ...(comment.canEdit
-        ? [{ label: 'Edit', icon: 'pi pi-pencil', command: () => this.actions.startEdit(comment) }]
+        ? [
+            {
+              label: this.transloco.translate('common.edit'),
+              icon: 'pi pi-pencil',
+              command: () => this.actions.startEdit(comment),
+            },
+          ]
         : []),
       ...(comment.canDelete ? this.menuItems() : []),
     ];

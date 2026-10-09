@@ -30,6 +30,7 @@ import { UsersListQueryService } from './services/users-list-query.service';
 import { ListSearchComponent } from '../../../../shared/components/list-search/list-search.component';
 import { FilterToggleButtonComponent } from '../../../../shared/components/filter-toggle-button/filter-toggle-button.component';
 import { CreateButtonComponent } from '../../../../shared/components/create-button/create-button.component';
+import { TranslocoDirective } from '@jsverse/transloco';
 import { UserRegisterDialogComponent } from '../components/user-register-dialog/user-register-dialog.component';
 import { HasPermissionDirective } from '../../../../core/directives/has-permission.directive';
 import { Permissions } from '../../../../core/enums/permissions.enum';
@@ -46,6 +47,7 @@ import { ImageUrlService } from '../../../../core/services/image-url.service';
     TableModule,
     TagModule,
     UsersFilterComponent,
+    TranslocoDirective,
     UserRegisterDialogComponent,
   ],
   providers: [UsersListQueryService],

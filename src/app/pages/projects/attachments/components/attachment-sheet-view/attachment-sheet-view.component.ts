@@ -1,9 +1,11 @@
 import { ChangeDetectionStrategy, Component, computed, input, signal } from '@angular/core';
+import { TranslocoDirective } from '@jsverse/transloco';
 import { MAX_SHEET_COLUMNS, MAX_SHEET_ROWS, SheetPreview } from '../../attachment-content';
 
 // cells are plain text, no formula runs
 @Component({
   selector: 'app-attachment-sheet-view',
+  imports: [TranslocoDirective],
   templateUrl: './attachment-sheet-view.component.html',
   styleUrl: './attachment-sheet-view.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -1,3 +1,4 @@
+<ng-container *transloco="let t">
 <p-dialog
   [visible]="visible()"
   (visibleChange)="visible.set($event)"
@@ -13,14 +14,14 @@
     <section class="details-panel">
       <div class="fields-row">
         <label class="title-field">
-          <span>Title <b>*</b></span>
+          <span>{{ t('common.title') }} <b>*</b></span>
           <input pInputText formControlName="title" autocomplete="organization" maxlength="100" />
           <small [class.visible]="hasError('title')">{{ errorMessage('title') || ' ' }}</small>
           <em>{{ titleLength() }}/100</em>
         </label>
 
         <label class="voen-field">
-          <span>VOEN <b>*</b></span>
+          <span>{{ t('common.voen') }} <b>*</b></span>
           <input pInputText formControlName="voen" maxlength="20" />
           <small [class.visible]="hasError('voen')">{{ errorMessage('voen') || ' ' }}</small>
           <em>{{ voenLength() }}/20</em>
@@ -28,9 +29,9 @@
       </div>
 
       <app-file-upload
-        label="Logo"
-        chooseLabel="Choose logo"
-        previewAlt="Organization logo preview"
+        [label]="t('organizations.logo')"
+        [chooseLabel]="t('organizations.chooseLogo')"
+        [previewAlt]="t('organizations.logoPreview')"
         [existingFileName]="existingImageFileName()"
         [existingPreviewUrl]="existingImageUrl()"
         [resetKey]="visible() + ':' + (organization()?.id ?? 'new')"
@@ -50,7 +51,7 @@
         (click)="cancel()"
       >
         <i class="pi pi-times"></i>
-        <span>Cancel</span>
+        <span>{{ t('common.cancel') }}</span>
       </button>
 
       <button pButton type="submit" [loading]="isSaving()">
@@ -60,3 +61,4 @@
     </div>
   </form>
 </p-dialog>
+</ng-container>

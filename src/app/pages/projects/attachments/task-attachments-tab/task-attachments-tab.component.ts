@@ -10,6 +10,7 @@ import {
   untracked,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { Actions, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { ConfirmationService } from 'primeng/api';
@@ -57,6 +58,7 @@ const OPEN_ALL_UP_TO = 20;
     AttachmentUploadListComponent,
     AttachmentUploadZoneComponent,
     AttachmentRefusedComponent,
+    TranslocoDirective,
   ],
   providers: [AttachmentUploadQueueService],
   templateUrl: './task-attachments-tab.component.html',
@@ -68,6 +70,7 @@ export class TaskAttachmentsTabComponent implements OnDestroy {
   private readonly actions = inject(Actions);
   private readonly confirmation = inject(ConfirmationService);
   private readonly snackBar = inject(SnackBarService);
+  private readonly transloco = inject(TranslocoService);
   private readonly files = inject(AttachmentFilesService);
 
   readonly task = input.required<WorkTaskModel>();
@@ -153,11 +156,11 @@ export class TaskAttachmentsTabComponent implements OnDestroy {
       .pipe(ofType(AttachmentsStoreActions.renameSuccess), takeUntilDestroyed())
       .subscribe(({ attachmentId }) => {
         if (this.renaming()?.id === attachmentId) this.renaming.set(null);
-        this.snackBar.success('File renamed.');
+        this.snackBar.success(this.transloco.translate('attachments.renamed'));
       });
     this.actions
       .pipe(ofType(AttachmentsStoreActions.removeSuccess), takeUntilDestroyed())
-      .subscribe(() => this.snackBar.success('File deleted.'));
+      .subscribe(() => this.snackBar.success(this.transloco.translate('attachments.deleted')));
     this.actions
       .pipe(
         ofType(AttachmentsStoreActions.renameFailure, AttachmentsStoreActions.removeFailure),
@@ -166,8 +169,8 @@ export class TaskAttachmentsTabComponent implements OnDestroy {
       .subscribe(({ error, type }) => {
         const fallback =
           type === AttachmentsStoreActions.renameFailure.type
-            ? 'The file could not be renamed. Try again.'
-            : 'The file could not be deleted. Try again.';
+            ? this.transloco.translate('attachments.renameFailed')
+            : this.transloco.translate('attachments.deleteFailed');
         this.snackBar.error(error.message ?? fallback);
       });
   }
@@ -200,13 +203,15 @@ export class TaskAttachmentsTabComponent implements OnDestroy {
   }
 
   confirmRemove(file: AttachmentModel): void {
-    const kind = this.task().isSubtask ? 'subtask' : 'task';
+    const subtask = this.task().isSubtask;
     this.confirmation.confirm({
       key: 'attachmentDelete',
-      header: 'Delete file?',
-      message: `${file.fileName}\nIt will be removed from this ${kind}, its ticket and the project.`,
-      acceptLabel: 'Delete',
-      rejectLabel: 'Cancel',
+      header: this.transloco.translate('attachments.deleteTitle'),
+      message: this.transloco.translate(subtask ? 'attachments.deleteFromSubtask' : 'attachments.deleteFromTask', {
+        name: file.fileName,
+      }),
+      acceptLabel: this.transloco.translate('common.delete'),
+      rejectLabel: this.transloco.translate('common.cancel'),
       acceptButtonProps: confirmTone('danger'),
       accept: () =>
         this.store.dispatch(

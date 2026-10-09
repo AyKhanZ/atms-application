@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { TranslocoDirective } from '@jsverse/transloco';
 import { CommentInline } from '../../../../../core/utils/comment-markdown.utils';
 import { PersonNamePipe } from '../../../../../shared/pipes/person-name.pipe';
 import { CommentLookups } from '../../comment-view';
@@ -6,7 +7,7 @@ import { CommentReferenceComponent } from '../comment-reference/comment-referenc
 
 @Component({
   selector: 'app-comment-inline',
-  imports: [CommentReferenceComponent, PersonNamePipe],
+  imports: [CommentReferenceComponent, PersonNamePipe, TranslocoDirective],
   templateUrl: './comment-inline.component.html',
   styleUrl: './comment-inline.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -10,7 +10,7 @@ import { dashboardActivityLine, Translate } from './dashboard-activity.utils';
 const translate: Translate = (key, params = {}) => {
   const text = key.split('.').reduce<unknown>((node, part) => (node as Record<string, unknown>)?.[part], en);
   return Object.entries(params).reduce(
-    (result, [name, value]) => result.replaceAll(`{${name}}`, value),
+    (result, [name, value]) => result.replaceAll(`{${name}}`, String(value)),
     typeof text === 'string' ? text : key,
   );
 };

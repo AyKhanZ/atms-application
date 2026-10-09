@@ -11,6 +11,7 @@ import {
   untracked,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { TranslocoDirective } from '@jsverse/transloco';
 import { ButtonModule } from 'primeng/button';
 import { SkeletonModule } from 'primeng/skeleton';
 import { AttachmentModel } from '../../../../../core/models/attachments';
@@ -41,6 +42,7 @@ const EXPANSION_CONTROLS_FROM = 4;
     SkeletonModule,
     WorkItemRefComponent,
     AttachmentRowComponent,
+    TranslocoDirective,
   ],
   templateUrl: './attachment-tree.component.html',
   styleUrl: './attachment-tree.component.scss',

@@ -274,8 +274,8 @@ export function replaceTrigger(
   };
 }
 
-export function mentionLabel(person: NamedPerson): string {
-  return `@${personFullName(person, 'Unknown user')}`;
+export function mentionLabel(person: NamedPerson, unknown: string): string {
+  return `@${personFullName(person, unknown)}`;
 }
 
 // field shows @Aykhan Zeynalov, server stores @[user:id]
@@ -283,13 +283,14 @@ export function mentionLabel(person: NamedPerson): string {
 export function mentionsToNames(
   text: string,
   people: readonly MentionPerson[],
+  unknown: string,
 ): { text: string; mentions: Map<string, string> } {
   const byId = new Map(people.map((person) => [person.id.toLowerCase(), person]));
   const mentions = new Map<string, string>();
   const shown = text.replace(MENTION_TOKEN, (token, id: string) => {
     const person = byId.get(id.toLowerCase());
     if (!person) return token;
-    const label = mentionLabel(person);
+    const label = mentionLabel(person, unknown);
     mentions.set(label, person.id);
     return label;
   });

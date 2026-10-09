@@ -14,7 +14,9 @@ function flatten(value: unknown, prefix = ''): Record<string, string> {
 }
 
 function parameters(value: string): string[] {
-  return [...value.matchAll(/\{([A-Za-z_][\w]*)/g)].map((match) => match[1]).sort();
+  // "{name}" or "{count, plural, …}"; an icu branch like "{in # days}" is text, not a parameter
+  const names = [...value.matchAll(/\{([A-Za-z_]\w*)\s*[,}]/g)].map((match) => match[1]);
+  return [...new Set(names)].sort();
 }
 
 describe('translation files', () => {

@@ -1,5 +1,7 @@
 import { AppDatePipe } from '../../../../../shared/pipes/app-date.pipe';
-import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
+import { currentLanguage } from '../../../../../core/i18n/active-language';
 import { MenuItem } from 'primeng/api';
 import { Menu, MenuModule } from 'primeng/menu';
 import { TooltipModule } from 'primeng/tooltip';
@@ -25,6 +27,7 @@ import { PersonShortNamePipe } from '../../../../../shared/pipes/person-name.pip
     AttachmentTonePipe,
     FileSizePipe,
     PersonShortNamePipe,
+    TranslocoDirective,
   ],
   templateUrl: './attachment-row.component.html',
   styleUrl: './attachment-row.component.scss',
@@ -41,22 +44,37 @@ export class AttachmentRowComponent {
   readonly rename = output<AttachmentModel>();
   readonly remove = output<AttachmentModel>();
 
+  private readonly transloco = inject(TranslocoService);
+
   readonly canPreview = computed(() => canPreviewAttachment(this.attachment()));
 
   // on a phone the eye and the arrow go into this menu too
   readonly menuItems = computed<MenuItem[]>(() => {
+    currentLanguage();
     const file = this.attachment();
     const items: MenuItem[] = [];
     if (this.canPreview()) {
-      items.push({ label: 'Preview', icon: 'pi pi-eye', command: () => this.preview.emit(file) });
+      items.push({
+        label: this.transloco.translate('common.preview'),
+        icon: 'pi pi-eye',
+        command: () => this.preview.emit(file),
+      });
     }
-    items.push({ label: 'Download', icon: 'pi pi-download', command: () => this.download.emit(file) });
+    items.push({
+      label: this.transloco.translate('common.download'),
+      icon: 'pi pi-download',
+      command: () => this.download.emit(file),
+    });
     if (this.editable()) {
       items.push(
         { separator: true },
-        { label: 'Rename', icon: 'pi pi-pencil', command: () => this.rename.emit(file) },
         {
-          label: 'Delete',
+          label: this.transloco.translate('common.rename'),
+          icon: 'pi pi-pencil',
+          command: () => this.rename.emit(file),
+        },
+        {
+          label: this.transloco.translate('common.delete'),
           icon: 'pi pi-trash',
           styleClass: 'work-groups-menu-danger',
           command: () => this.remove.emit(file),
