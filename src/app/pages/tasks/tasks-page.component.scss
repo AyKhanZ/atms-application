@@ -2,15 +2,6 @@
   display: block;
 }
 
-.tasks-header {
-  --management-search-max: 48rem;
-}
-
-.tasks-actions {
-  display: flex;
-  justify-content: flex-end;
-}
-
 .tasks-panel {
   min-width: 0;
   overflow: hidden;
@@ -27,9 +18,5 @@
 @media (max-width: 767px) {
   .tasks-body {
     padding: 0.75rem;
-  }
-
-  .tasks-actions > * {
-    width: 100%;
   }
 }
