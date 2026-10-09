@@ -230,6 +230,38 @@ describe('GroupsTabComponent', () => {
     expect(fixture.componentInstance.isExpanded('item-1')).toBe(true);
   });
 
+  it('hides Add from someone who can only create tickets while the plan has no milestones', () => {
+    fixture.componentInstance.projectPermissions.set([ProjectPermissions.Ticket.Create]);
+    store.setState({
+      [Features.WorkGroups]: {
+        ...initialWorkGroupsState,
+        projectId: 'project-1',
+        items: [workGroup()],
+      },
+    });
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('.groups-add-button')).toBeNull();
+  });
+
+  it('shows Add for ticket creation once a milestone exists', () => {
+    fixture.componentInstance.projectPermissions.set([ProjectPermissions.Ticket.Create]);
+    store.setState({
+      [Features.WorkGroups]: {
+        ...initialWorkGroupsState,
+        projectId: 'project-1',
+        items: [
+          workGroup({
+            milestones: [workGroup({ id: 'milestone-1', parentWorkGroupId: 'item-1' })],
+          }),
+        ],
+      },
+    });
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('.groups-add-button')).not.toBeNull();
+  });
+
   it('offers ticket creation from a milestone menu', () => {
     fixture.componentInstance.selectedWorkGroup.set({
       item: workGroup({ id: 'milestone-1', parentWorkGroupId: 'item-1' }),

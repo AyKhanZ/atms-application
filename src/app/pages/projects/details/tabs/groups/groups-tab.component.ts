@@ -102,7 +102,10 @@ export class GroupsTabComponent implements OnInit, OnDestroy {
   readonly canCreateTickets = computed(() =>
     this.projectPermissions().includes(ProjectPermissions.Ticket.Create),
   );
-  readonly canAdd = computed(() => this.canEdit() || this.canCreateTickets());
+  // a ticket needs a milestone, so with only ticket rights and an empty plan the menu would be all greyed out
+  readonly canAdd = computed(
+    () => this.canEdit() || (this.canCreateTickets() && this.hasMilestones()),
+  );
 
   readonly groups = this.store.selectSignal(WorkGroupsStoreSelectors.getItems);
   readonly loading = this.store.selectSignal(WorkGroupsStoreSelectors.isLoading);
