@@ -1,3 +1,4 @@
+import { TooltipModule } from 'primeng/tooltip';
 import { CommonModule } from '@angular/common';
 import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { currentLanguage } from '../../../../../core/i18n/active-language';
@@ -34,6 +35,7 @@ import {
 @Component({
   selector: 'app-organization-create-dialog',
   imports: [
+    TooltipModule,
     CommonModule,
     ReactiveFormsModule,
     ButtonModule,

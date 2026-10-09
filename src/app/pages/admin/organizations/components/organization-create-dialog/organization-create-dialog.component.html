@@ -21,7 +21,7 @@
         </label>
 
         <label class="voen-field">
-          <span>{{ t('common.voen') }} <b>*</b></span>
+          <span><abbr class="abbr" [pTooltip]="t('common.voenFull')" tooltipPosition="top">{{ t('common.voen') }}</abbr> <b>*</b></span>
           <input pInputText formControlName="voen" maxlength="20" />
           <small [class.visible]="hasError('voen')">{{ errorMessage('voen') || ' ' }}</small>
           <em>{{ voenLength() }}/20</em>

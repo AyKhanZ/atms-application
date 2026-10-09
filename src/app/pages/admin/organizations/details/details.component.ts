@@ -1,3 +1,4 @@
+import { TooltipModule } from 'primeng/tooltip';
 import { AppDatePipe } from '../../../../shared/pipes/app-date.pipe';
 import {
   ChangeDetectionStrategy,
@@ -39,6 +40,7 @@ import { LoadingStateComponent } from '../../../../shared/components/loading-sta
 @Component({
   selector: 'app-details.component',
   imports: [
+    TooltipModule,
     LoadingStateComponent,
     BackButtonComponent,
     ButtonModule,

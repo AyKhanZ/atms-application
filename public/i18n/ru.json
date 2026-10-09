@@ -97,7 +97,8 @@
     "upload": "Загрузить",
     "rename": "Переименовать",
     "employee": "Сотрудник",
-    "voen": "ВОЕН",
+    "voen": "ИНН",
+    "voenFull": "Идентификационный номер налогоплательщика",
     "fullName": "Полное имя",
     "created": "Создан"
   },
@@ -158,7 +159,7 @@
     "roleRequired": "Выберите роль.",
     "organizationRequired": "Выберите организацию.",
     "titleRequired": "Введите название.",
-    "voenRequired": "Введите ВОЕН."
+    "voenRequired": "Введите ИНН."
   },
   "auth": {
     "welcome": "С возвращением!",

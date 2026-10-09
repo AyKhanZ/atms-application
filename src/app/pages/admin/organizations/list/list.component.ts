@@ -1,3 +1,4 @@
+import { TooltipModule } from 'primeng/tooltip';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -44,6 +45,7 @@ import { OrganizationsListQueryService } from './services/organizations-list-que
 @Component({
   selector: 'app-organizations-list',
   imports: [
+    TooltipModule,
     ConfirmDialogModule,
     CreateButtonComponent,
     AppDatePipe,

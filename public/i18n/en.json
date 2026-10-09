@@ -97,7 +97,8 @@
     "upload": "Upload",
     "rename": "Rename",
     "employee": "Employee",
-    "voen": "VOEN",
+    "voen": "TIN",
+    "voenFull": "Taxpayer Identification Number",
     "fullName": "Full name",
     "created": "Created"
   },
@@ -158,7 +159,7 @@
     "roleRequired": "Role is required.",
     "organizationRequired": "Organization is required.",
     "titleRequired": "Title is required.",
-    "voenRequired": "VOEN is required."
+    "voenRequired": "TIN is required."
   },
   "auth": {
     "welcome": "Welcome back!",

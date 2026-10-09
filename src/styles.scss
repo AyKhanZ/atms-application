@@ -1109,3 +1109,10 @@ input[type='search']::-webkit-search-decoration {
 .p-datatable-sortable-column {
   white-space: nowrap;
 }
+
+// an abbreviation with its full name in a tooltip (TIN / ИНН / VÖEN)
+abbr.abbr {
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+  cursor: help;
+}

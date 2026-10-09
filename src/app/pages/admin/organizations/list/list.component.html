@@ -58,7 +58,7 @@
             {{ t('common.title') }} <p-sortIcon field="title" />
           </th>
           <th pSortableColumn="voen" [pSortableColumnDisabled]="tableRequestsBlocked()">
-            {{ t('common.voen') }} <p-sortIcon field="voen" />
+            <abbr class="abbr" [pTooltip]="t('common.voenFull')" tooltipPosition="top">{{ t('common.voen') }}</abbr> <p-sortIcon field="voen" />
           </th>
           <th pSortableColumn="createdAt" [pSortableColumnDisabled]="tableRequestsBlocked()">
             {{ t('common.created') }} <p-sortIcon field="createdAt" />

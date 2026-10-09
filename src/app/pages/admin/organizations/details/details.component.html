@@ -56,7 +56,7 @@
       <div class="organization-identity">
         <h2>{{ organization.title }}</h2>
         <div class="registration-number">
-          <span>{{ t('common.voen') }}</span>
+          <span><abbr class="abbr" [pTooltip]="t('common.voenFull')" tooltipPosition="top">{{ t('common.voen') }}</abbr></span>
           <strong>{{ display(organization.voen) }}</strong>
         </div>
         <p class="created-meta">
