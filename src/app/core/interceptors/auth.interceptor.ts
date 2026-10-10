@@ -1,13 +1,20 @@
 import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { TranslocoService } from '@jsverse/transloco';
 import { catchError, switchMap, throwError, timeout } from 'rxjs';
 import {
   API_TIMEOUT_MS,
   isServerUnavailable,
   isTerminalRefreshError,
+  isTooManyRequests,
+  serverErrorMessage,
 } from '../utils/http-error.utils';
 import { AuthSessionService, RefreshTokenMissingError } from '../services/auth-session.service';
+import { SnackBarService } from '../services/snack-bar.service';
+
+const TOO_MANY_REQUESTS_WARN_GAP_MS = 5_000;
+let lastTooManyRequestsWarnAt = 0;
 
 const PUBLIC_ENDPOINTS = [
   '/health',
@@ -27,6 +34,8 @@ const PUBLIC_ENDPOINTS = [
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const auth = inject(AuthSessionService);
   const router = inject(Router);
+  const snackBar = inject(SnackBarService);
+  const transloco = inject(TranslocoService);
   const accessToken = auth.accessModel()?.accessToken;
 
   // Кому не нужно добавлять заголовок
@@ -51,6 +60,14 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
           queryParams: { returnUrl },
           replaceUrl: true,
         });
+      }
+
+      if (isTooManyRequests(error) && !req.url.includes('/auth/login')) {
+        const now = Date.now();
+        if (now - lastTooManyRequestsWarnAt >= TOO_MANY_REQUESTS_WARN_GAP_MS) {
+          lastTooManyRequestsWarnAt = now;
+          snackBar.warn(serverErrorMessage(error, transloco.translate('errors.tooManyRequests')));
+        }
       }
 
       if (isPublic || isLogout || !(error instanceof HttpErrorResponse) || error.status !== 401) {

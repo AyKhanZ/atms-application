@@ -205,7 +205,8 @@
     "maintenance": "Texniki işlər gedir",
     "maintenanceHint": "Xidmət indi cavab vermir. Bir az gözləyin və yenidən cəhd edin.",
     "checking": "Yoxlanılır…",
-    "unsaved": "Saxlanılmamış dəyişikliklər var. Səhifədən çıxılsın?"
+    "unsaved": "Saxlanılmamış dəyişikliklər var. Səhifədən çıxılsın?",
+    "tooManyRequests": "Həddindən çox sorğu. Bir neçə saniyə gözləyib yenidən cəhd edin."
   },
   "search": {
     "byCodeOrTitle": "Kod və ya ad üzrə axtarış",

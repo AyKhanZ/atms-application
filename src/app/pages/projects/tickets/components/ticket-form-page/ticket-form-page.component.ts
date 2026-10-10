@@ -584,6 +584,7 @@ function ticketRequiredKey(name: string): string {
 }
 
 function ticketErrorMessage(error: WorkItemMutationError, transloco: TranslocoService): string {
+  if (error.status === 429) return error.message ?? transloco.translate('errors.tooManyRequests');
   if (error.message) return error.message;
   if (error.status === 403) return transloco.translate('tickets.editDenied');
   if (error.status === 404) return transloco.translate('tickets.missing');

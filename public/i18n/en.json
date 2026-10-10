@@ -205,7 +205,8 @@
     "maintenance": "Technical maintenance is in progress",
     "maintenanceHint": "The API is not responding right now. Please wait a little and try again.",
     "checking": "Checking...",
-    "unsaved": "You have unsaved changes. Leave this page anyway?"
+    "unsaved": "You have unsaved changes. Leave this page anyway?",
+    "tooManyRequests": "Too many requests. Wait a few seconds and try again."
   },
   "search": {
     "byCodeOrTitle": "Search by code or title",

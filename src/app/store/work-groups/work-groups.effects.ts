@@ -10,7 +10,7 @@ import { SnackBarService } from '../../core/services/snack-bar.service';
 import { WorkGroupsService } from '../../core/services/work-groups.service';
 import * as WorkGroupsStoreSelectors from './work-groups.selectors';
 import * as WorkGroupsStoreActions from './work-groups.actions';
-import { validationMessage } from '../../core/utils/http-error.utils';
+import { serverErrorMessage, validationMessage } from '../../core/utils/http-error.utils';
 
 @Injectable()
 export class WorkGroupsEffects {
@@ -183,6 +183,7 @@ function createErrorMessage(
 ): string {
   const invalid = validationMessage(error, 'title');
   if (invalid) return invalid;
+  if (error.status === 429) return tooManyRequestsMessage(error, translate);
   if (error.status === 409) return duplicateNameMessage(kind, translate);
   if (error.status === 404) {
     return translate(kind === 'milestone' ? 'plan.groupMissing' : 'plan.projectMissing');
@@ -198,6 +199,7 @@ function updateErrorMessage(
 ): string {
   const invalid = validationMessage(error, 'title');
   if (invalid) return invalid;
+  if (error.status === 429) return tooManyRequestsMessage(error, translate);
   if (error.status === 409) return duplicateNameMessage(kind, translate);
   if (error.status === 404) return unavailableItemMessage(kind, translate);
 
@@ -209,12 +211,21 @@ function deleteErrorMessage(
   kind: WorkGroupKind,
   translate: (key: string, params?: Record<string, unknown>) => string,
 ): string {
+  if (error.status === 429) return tooManyRequestsMessage(error, translate);
   if (error.status === 409) {
     return translate(kind === 'group' ? 'plan.groupStillHas' : 'plan.milestoneStillHas');
   }
   if (error.status === 404) return unavailableItemMessage(kind, translate);
 
   return translate(kind === 'group' ? 'plan.deleteGroupFailed' : 'plan.deleteMilestoneFailed');
+}
+
+// same text as the interceptor warning, so the snackbar shows it once
+function tooManyRequestsMessage(
+  error: HttpErrorResponse,
+  translate: (key: string, params?: Record<string, unknown>) => string,
+): string {
+  return serverErrorMessage(error, translate('errors.tooManyRequests'));
 }
 
 function duplicateNameMessage(

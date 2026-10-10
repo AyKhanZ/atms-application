@@ -18,7 +18,11 @@ import {
 } from 'rxjs';
 import { AttachmentUploadFilesService } from '../../core/services/attachment-upload-files.service';
 import { AttachmentsService } from '../../core/services/attachments.service';
-import { toMutationError, validationMessage } from '../../core/utils/http-error.utils';
+import {
+  serverErrorMessage,
+  toMutationError,
+  validationMessage,
+} from '../../core/utils/http-error.utils';
 import { MAX_ATTACHMENT_SIZE_BYTES, formatFileSize } from '../../core/utils/attachment.utils';
 import { AuthStoreActions } from '../auth';
 import * as ActionsStore from './attachments.actions';
@@ -192,6 +196,7 @@ export class AttachmentsEffects {
     }
     if (error.status === 0) return this.text('attachments.uploadRetry');
     if (error.status === 403) return this.text('attachments.uploadDenied');
+    if (error.status === 429) return serverErrorMessage(error, this.text('errors.tooManyRequests'));
     return validationMessage(error) ?? this.text('attachments.uploadFailedRetry');
   }
 
@@ -202,5 +207,10 @@ export class AttachmentsEffects {
 
 // file wasnt judged, retry can work
 function isTransient(error: unknown): boolean {
-  return !(error instanceof HttpErrorResponse) || error.status === 0 || error.status >= 500;
+  return (
+    !(error instanceof HttpErrorResponse) ||
+    error.status === 0 ||
+    error.status === 429 ||
+    error.status >= 500
+  );
 }

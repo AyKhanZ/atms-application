@@ -394,6 +394,7 @@ export class TaskFormPageComponent {
 }
 
 function taskErrorMessage(transloco: TranslocoService, error: WorkItemMutationError): string {
+  if (error.status === 429) return error.message ?? transloco.translate('errors.tooManyRequests');
   if (error.message) return error.message;
   if (error.status === 403) return transloco.translate('tasks.manageDenied');
   if (error.status === 404) return transloco.translate('tasks.missing');
