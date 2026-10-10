@@ -102,6 +102,37 @@ describe('WorkGroupsEffects', () => {
     subscription.unsubscribe();
   });
 
+  it('passes the server rate limit text through on create', () => {
+    const emittedAction = vi.fn();
+    service.createWorkGroup.mockReturnValue(
+      throwError(
+        () =>
+          new HttpErrorResponse({
+            status: 429,
+            error: { error: 'Too many requests. Try again in 3 s.' },
+          }),
+      ),
+    );
+
+    const subscription = effects.create$.subscribe(emittedAction);
+    actions$.next(
+      WorkGroupsStoreActions.createWorkGroup({
+        projectId: 'project-1',
+        kind: 'group',
+        command: { title: 'Discovery' },
+      }),
+    );
+
+    expect(emittedAction).toHaveBeenCalledWith(
+      WorkGroupsStoreActions.createWorkGroupFailure({
+        projectId: 'project-1',
+        kind: 'group',
+        error: 'Too many requests. Try again in 3 s.',
+      }),
+    );
+    subscription.unsubscribe();
+  });
+
   it('explains why a non-empty group cannot be deleted', () => {
     const emittedAction = vi.fn();
     service.deleteWorkGroup.mockReturnValue(

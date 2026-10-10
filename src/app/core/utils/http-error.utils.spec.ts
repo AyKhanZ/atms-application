@@ -1,6 +1,9 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import {
+  isServerUnavailable,
+  isTooManyRequests,
   serverErrorMessage,
+  toMutationError,
   validationErrorExcept,
   validationErrorFor,
   validationMessage,
@@ -57,6 +60,37 @@ describe('validationErrorFor', () => {
   it('is empty when that field was not refused', () => {
     expect(validationErrorFor(error, 'Position')).toBeNull();
     expect(validationErrorFor(new HttpErrorResponse({ status: 500 }), 'PhoneNumber')).toBeNull();
+  });
+});
+
+describe('isTooManyRequests', () => {
+  it('is a 429 and nothing else', () => {
+    expect(isTooManyRequests(new HttpErrorResponse({ status: 429 }))).toBe(true);
+    expect(isTooManyRequests(new HttpErrorResponse({ status: 503 }))).toBe(false);
+    expect(isServerUnavailable(new HttpErrorResponse({ status: 429 }))).toBe(false);
+  });
+});
+
+describe('toMutationError', () => {
+  it('keeps the server text when the limit is hit', () => {
+    const error = new HttpErrorResponse({
+      status: 429,
+      error: { error: 'Too many requests. Try again in 12 s.' },
+    });
+
+    expect(toMutationError(error)).toEqual({
+      status: 429,
+      message: 'Too many requests. Try again in 12 s.',
+    });
+  });
+
+  it('still reads a validation message for other statuses', () => {
+    const error = new HttpErrorResponse({
+      status: 400,
+      error: { errors: [{ field: 'title', error: 'Title is taken.' }] },
+    });
+
+    expect(toMutationError(error)).toEqual({ status: 400, message: 'Title is taken.' });
   });
 });
 

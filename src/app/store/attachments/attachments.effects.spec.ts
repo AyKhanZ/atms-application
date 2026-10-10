@@ -120,6 +120,25 @@ describe('AttachmentsEffects', () => {
     ]);
   });
 
+  it('lets a rate limit be retried', () => {
+    effects.upload$.subscribe((action) => emitted.push(action));
+    upload();
+    uploadResponse.error(
+      new HttpErrorResponse({
+        status: 429,
+        error: { error: 'Too many requests. Try again in 12 s.' },
+      }),
+    );
+
+    expect(emitted).toEqual([
+      Actions.uploadFailure({
+        uploadId: 'u1',
+        error: 'Too many requests. Try again in 12 s.',
+        retryable: true,
+      }),
+    ]);
+  });
+
   /* No answer is not a verdict on the file: only this failure offers Retry. */
   it('lets a lost connection be retried', () => {
     effects.upload$.subscribe((action) => emitted.push(action));

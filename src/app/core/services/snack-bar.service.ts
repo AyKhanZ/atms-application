@@ -10,11 +10,20 @@ const SEVERITIES: Record<SnackBarType, 'success' | 'error' | 'warn' | 'info'> = 
   info: 'info',
 };
 
+const DUPLICATE_DETAIL_MS = 3_000;
+
 @Injectable({ providedIn: 'root' })
 export class SnackBarService {
   private readonly messageService = inject(MessageService);
+  private lastDetail: string | null = null;
+  private lastDetailAt = 0;
 
   show(message: string, type: SnackBarType = 'info', duration = 4000): void {
+    const now = Date.now();
+    if (this.lastDetail === message && now - this.lastDetailAt < DUPLICATE_DETAIL_MS) return;
+
+    this.lastDetail = message;
+    this.lastDetailAt = now;
     this.messageService.add({
       severity: SEVERITIES[type],
       summary: this.getSummary(type),

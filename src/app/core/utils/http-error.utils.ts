@@ -16,6 +16,10 @@ export function isServerUnavailable(error: unknown): boolean {
   return error.status === 0 || error.status === 503 || error.status === 504;
 }
 
+export function isTooManyRequests(error: unknown): error is HttpErrorResponse {
+  return error instanceof HttpErrorResponse && error.status === 429;
+}
+
 export function isTerminalRefreshError(error: unknown): boolean {
   return error instanceof HttpErrorResponse && (error.status === 401 || error.status === 403);
 }
@@ -61,9 +65,13 @@ export function serverErrorMessage(error: HttpErrorResponse, fallback: string): 
 
 // plain data so the action stays serializable
 export function toMutationError(error: unknown): WorkItemMutationError {
-  return error instanceof HttpErrorResponse
-    ? { status: error.status, message: validationMessage(error) }
-    : { status: 0, message: null };
+  if (!(error instanceof HttpErrorResponse)) return { status: 0, message: null };
+
+  const message = isTooManyRequests(error)
+    ? serverErrorMessage(error, '') || null
+    : validationMessage(error);
+
+  return { status: error.status, message };
 }
 
 export function validationField(error: unknown): string | null {
