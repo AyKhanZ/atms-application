@@ -3,7 +3,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { HubConnectionState, IRetryPolicy, RetryContext } from '@microsoft/signalr';
 import { of, throwError } from 'rxjs';
 import { AuthSessionService, RefreshTokenMissingError } from './auth-session.service';
-import { REALTIME_RETRY_POLICY, RealtimeService } from './realtime.service';
+import { HUB_CONNECTION_BUILDER, REALTIME_RETRY_POLICY, RealtimeService } from './realtime.service';
 
 const fake = vi.hoisted(() => ({
   connection: {
@@ -19,30 +19,26 @@ const fake = vi.hoisted(() => ({
   retryPolicy: null as IRetryPolicy | null,
 }));
 
-vi.mock('@microsoft/signalr', () => {
-  return {
-    HubConnectionState: { Disconnected: 'Disconnected', Connected: 'Connected' },
-    LogLevel: { None: 6 },
-    HubConnectionBuilder: class {
-      withUrl(url: string, options: typeof fake.options) {
-        fake.url = url;
-        fake.options = options;
-        return this;
-      }
+class FakeHubConnectionBuilder {
+  withUrl(url: string, options: typeof fake.options) {
+    fake.url = url;
+    fake.options = options;
+    return this;
+  }
 
-      withAutomaticReconnect(policy: IRetryPolicy) {
-        fake.retryPolicy = policy;
-        return this;
-      }
-      configureLogging() {
-        return this;
-      }
-      build() {
-        return fake.connection;
-      }
-    },
-  };
-});
+  withAutomaticReconnect(policy: IRetryPolicy) {
+    fake.retryPolicy = policy;
+    return this;
+  }
+
+  configureLogging() {
+    return this;
+  }
+
+  build() {
+    return fake.connection;
+  }
+}
 
 describe('RealtimeService', () => {
   let service: RealtimeService;
@@ -70,6 +66,7 @@ describe('RealtimeService', () => {
     TestBed.configureTestingModule({
       providers: [
         RealtimeService,
+        { provide: HUB_CONNECTION_BUILDER, useValue: () => new FakeHubConnectionBuilder() },
         {
           provide: AuthSessionService,
           useValue: {
