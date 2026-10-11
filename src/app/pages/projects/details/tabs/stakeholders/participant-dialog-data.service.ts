@@ -1,16 +1,13 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, forkJoin, map, of } from 'rxjs';
-import {
-  OrganizationModel,
-  OrganizationUserModel,
-} from '../../../../../core/models/organizations/organization.model';
+import { TranslocoService } from '@jsverse/transloco';
+import { Observable, catchError, forkJoin, map, of } from 'rxjs';
 import {
   WorkProjectModel,
   WorkProjectParticipantCandidateModel,
   WorkProjectRoleModel,
 } from '../../../../../core/models/work-projects';
 import { DictionaryService } from '../../../../../core/services/dictionary.service';
-import { OrganizationsService } from '../../../../../core/services/organizations.service';
+import { SnackBarService } from '../../../../../core/services/snack-bar.service';
 import { WorkProjectsService } from '../../../../../core/services/work-projects.service';
 import { ParticipantCandidate, ParticipantSide } from './participant-candidate.model';
 
@@ -23,31 +20,47 @@ export interface ParticipantDialogData {
 @Injectable()
 export class ParticipantDialogDataService {
   private readonly dictionaries = inject(DictionaryService);
-  private readonly organizations = inject(OrganizationsService);
   private readonly projects = inject(WorkProjectsService);
+  private readonly snackBar = inject(SnackBarService);
+  private readonly transloco = inject(TranslocoService);
 
-  load(project: WorkProjectModel, isInternal: boolean): Observable<ParticipantDialogData> {
+  load(
+    project: WorkProjectModel,
+    isInternal: boolean,
+    includeTeamMembers: boolean,
+  ): Observable<ParticipantDialogData> {
+    const hasOrganization = !isInternal && !!project.organization?.id;
+
     return forkJoin({
-      roles: this.dictionaries.getProjectRoleDictionaries(),
-      teamMembers: this.projects.getTeamMembers(),
-      organization:
-        !isInternal && project.organization?.id
-          ? this.organizations.getOrganization(project.organization.id)
-          : of(null as OrganizationModel | null),
+      roles: this.keepWhatLoaded(this.dictionaries.getProjectRoleDictionaries(), []),
+      teamMembers: includeTeamMembers
+        ? this.keepWhatLoaded(this.projects.getTeamMembers(), [])
+        : of([]),
+      clientUsers: hasOrganization
+        ? this.keepWhatLoaded(this.projects.getClientCandidates(project.id), [])
+        : of([]),
     }).pipe(
-      map(({ roles, teamMembers, organization }) => ({
+      map(({ roles, teamMembers, clientUsers }) => ({
         roles,
         teamMembers: teamMembers.map((user) => toParticipantCandidate(user, 'team')),
-        clientUsers: (organization?.users ?? []).map((user) =>
-          toParticipantCandidate(user, 'client'),
-        ),
+        clientUsers: clientUsers.map((user) => toParticipantCandidate(user, 'client')),
       })),
+    );
+  }
+
+  // one 403 used to cancel the whole dialog; show the lists that arrived and say the rest failed
+  private keepWhatLoaded<T>(source: Observable<T>, fallback: T): Observable<T> {
+    return source.pipe(
+      catchError(() => {
+        this.snackBar.error(this.transloco.translate('participants.loadFailed'));
+        return of(fallback);
+      }),
     );
   }
 }
 
 function toParticipantCandidate(
-  user: WorkProjectParticipantCandidateModel | OrganizationUserModel,
+  user: WorkProjectParticipantCandidateModel,
   side: ParticipantSide,
 ): ParticipantCandidate {
   return {
@@ -55,7 +68,7 @@ function toParticipantCandidate(
     name: user.name,
     surname: user.surname,
     email: user.email,
-    avatarPath: 'avatarPath' in user ? user.avatarPath : null,
+    avatarPath: user.avatarPath ?? null,
     side,
   };
 }

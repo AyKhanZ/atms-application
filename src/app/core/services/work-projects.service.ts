@@ -41,6 +41,12 @@ export class WorkProjectsService {
     return this.http.get<WorkProjectParticipantCandidateModel[]>(`${this.baseUrl}/team-members`);
   }
 
+  getClientCandidates(projectId: string): Observable<WorkProjectParticipantCandidateModel[]> {
+    return this.http.get<WorkProjectParticipantCandidateModel[]>(
+      `${this.baseUrl}/${projectId}/client-candidates`,
+    );
+  }
+
   createProject(command: CreateWorkProjectCommand): Observable<string> {
     return this.http.post<string>(this.baseUrl, command);
   }
