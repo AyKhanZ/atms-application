@@ -2,8 +2,9 @@ import { inject, Injectable } from '@angular/core';
 import { TranslocoService } from '@jsverse/transloco';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { of } from 'rxjs';
-import { catchError, map, switchMap, tap } from 'rxjs/operators';
+import { catchError, filter, map, switchMap, tap } from 'rxjs/operators';
 import * as OrganizationsStoreActions from './organizations.actions';
+import { toMutationError, validationField } from '../../core/utils/http-error.utils';
 import { OrganizationsService } from '../../core/services/organizations.service';
 import { SnackBarService } from '../../core/services/snack-bar.service';
 
@@ -50,10 +51,14 @@ export class OrganizationsEffects {
       switchMap(({ command }) =>
         this.organizationsService.createOrganization(command).pipe(
           map((id) => OrganizationsStoreActions.createOrganizationSuccess({ id })),
-          catchError((err) => {
-            console.error('[organizations] Failed to create organization', err);
-            return of(OrganizationsStoreActions.createOrganizationFailure());
-          }),
+          catchError((error: unknown) =>
+            of(
+              OrganizationsStoreActions.createOrganizationFailure({
+                error: toMutationError(error),
+                field: validationField(error),
+              }),
+            ),
+          ),
         ),
       ),
     ),
@@ -65,10 +70,14 @@ export class OrganizationsEffects {
       switchMap(({ command }) =>
         this.organizationsService.updateOrganization(command).pipe(
           map(() => OrganizationsStoreActions.updateOrganizationSuccess()),
-          catchError((err) => {
-            console.error('[organizations] Failed to update organization', err);
-            return of(OrganizationsStoreActions.updateOrganizationFailure());
-          }),
+          catchError((error: unknown) =>
+            of(
+              OrganizationsStoreActions.updateOrganizationFailure({
+                error: toMutationError(error),
+                field: validationField(error),
+              }),
+            ),
+          ),
         ),
       ),
     ),
@@ -102,6 +111,8 @@ export class OrganizationsEffects {
     () =>
       this.actions$.pipe(
         ofType(OrganizationsStoreActions.updateOrganizationFailure),
+        // a validation message shows under its field in the dialog, anything else is a toast
+        filter(({ error }) => !error.message),
         tap(() => this.snackBar.error(this.transloco.translate('organizations.updateFailed'))),
       ),
     { dispatch: false },
@@ -137,6 +148,7 @@ export class OrganizationsEffects {
     () =>
       this.actions$.pipe(
         ofType(OrganizationsStoreActions.createOrganizationFailure),
+        filter(({ error }) => !error.message),
         tap(() => this.snackBar.error(this.transloco.translate('organizations.createFailed'))),
       ),
     { dispatch: false },
