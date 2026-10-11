@@ -7,6 +7,7 @@ import {
   OrganizationModel,
   UpdateOrganizationCommand,
 } from '../../core/models/organizations/organizations.models';
+import { WorkItemMutationError } from '../../core/models/work-items';
 
 const key = '[organizations]';
 
@@ -35,14 +36,20 @@ export const createOrganizationSuccess = createAction(
   `${key} Create Organization Success`,
   props<{ id: string }>(),
 );
-export const createOrganizationFailure = createAction(`${key} Create Organization Failure`);
+export const createOrganizationFailure = createAction(
+  `${key} Create Organization Failure`,
+  props<{ error: WorkItemMutationError; field: string | null }>(),
+);
 
 export const updateOrganization = createAction(
   `${key} Update Organization`,
   props<{ command: UpdateOrganizationCommand }>(),
 );
 export const updateOrganizationSuccess = createAction(`${key} Update Organization Success`);
-export const updateOrganizationFailure = createAction(`${key} Update Organization Failure`);
+export const updateOrganizationFailure = createAction(
+  `${key} Update Organization Failure`,
+  props<{ error: WorkItemMutationError; field: string | null }>(),
+);
 
 export const deleteOrganization = createAction(
   `${key} Delete Organization`,

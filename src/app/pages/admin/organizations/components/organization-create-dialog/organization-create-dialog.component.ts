@@ -32,6 +32,15 @@ import {
   OrganizationsStoreSelectors,
 } from '../../../../../store/organizations';
 
+type OrganizationField = 'title' | 'voen' | 'logo';
+
+// the api names fields in PascalCase (Title, Voen, Logo)
+const organizationFieldsByServerName: Record<string, OrganizationField> = {
+  title: 'title',
+  voen: 'voen',
+  logo: 'logo',
+};
+
 @Component({
   selector: 'app-organization-create-dialog',
   imports: [
@@ -61,6 +70,7 @@ export class OrganizationCreateDialogComponent {
   readonly saved = output<void>();
   readonly submitted = signal(false);
   readonly imageTouched = signal(false);
+  readonly serverError = signal<{ field: OrganizationField; message: string } | null>(null);
   readonly isSaving = this.store.selectSignal(OrganizationsStoreSelectors.isSubmitted);
   readonly isEditMode = computed(() => Boolean(this.organization()?.id));
   readonly dialogTitle = computed(() => {
@@ -105,6 +115,31 @@ export class OrganizationCreateDialogComponent {
         this.saved.emit();
         this.close();
       });
+
+    // a taken title or tax id comes back as a 400 with the field name; it goes under that field
+    this.actions$
+      .pipe(
+        ofType(
+          OrganizationsStoreActions.createOrganizationFailure,
+          OrganizationsStoreActions.updateOrganizationFailure,
+        ),
+        takeUntilDestroyed(),
+      )
+      .subscribe(({ error, field }) => {
+        const formField = organizationFieldsByServerName[field?.toLowerCase() ?? ''];
+        this.serverError.set(
+          error.message && formField ? { field: formField, message: error.message } : null,
+        );
+      });
+
+    for (const field of Object.values(organizationFieldsByServerName)) {
+      const control: AbstractControl = this.form.controls[field];
+      control.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
+        if (this.serverError()?.field === field) {
+          this.serverError.set(null);
+        }
+      });
+    }
   }
 
   onImageChange(value: FileUploadValue): void {
@@ -175,6 +210,11 @@ export class OrganizationCreateDialogComponent {
   }
 
   errorMessage(controlName: keyof typeof this.form.controls): string {
+    const serverError = this.serverError();
+    if (serverError?.field === controlName) {
+      return serverError.message;
+    }
+
     const shouldShow = this.submitted() || (controlName === 'logo' && this.imageTouched());
     if (!shouldShow) {
       return '';
@@ -196,6 +236,7 @@ export class OrganizationCreateDialogComponent {
     });
     this.submitted.set(false);
     this.imageTouched.set(false);
+    this.serverError.set(null);
   }
 
   private setImage(file: File | null, errors: Record<string, boolean> | null): void {
@@ -207,6 +248,7 @@ export class OrganizationCreateDialogComponent {
     this.form.reset({ title: '', voen: '', logo: null });
     this.submitted.set(false);
     this.imageTouched.set(false);
+    this.serverError.set(null);
   }
 
   private close(): void {
