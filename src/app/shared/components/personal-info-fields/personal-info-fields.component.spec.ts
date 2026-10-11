@@ -4,7 +4,7 @@ import { PersonalInfoFieldsComponent } from './personal-info-fields.component';
 
 import { translocoTestingProviders } from '../../../core/testing/transloco-testing';
 describe('PersonalInfoFieldsComponent phone', () => {
-  const render = async (phone: string, serverError?: string) => {
+  const render = async (phone: string, serverError?: string, languageChangesAfterContinue = false) => {
     await TestBed.configureTestingModule({ providers: [...translocoTestingProviders()],
       imports: [PersonalInfoFieldsComponent],
     }).compileComponents();
@@ -16,6 +16,7 @@ describe('PersonalInfoFieldsComponent phone', () => {
     fixture.componentRef.setInput('languages', []);
     fixture.componentRef.setInput('genders', []);
     fixture.componentRef.setInput('maritalStatuses', []);
+    fixture.componentRef.setInput('languageChangesAfterContinue', languageChangesAfterContinue);
     fixture.detectChanges();
     // The input writes its value back on the first render and would wipe a server error set before it.
     if (serverError) {
@@ -39,5 +40,17 @@ describe('PersonalInfoFieldsComponent phone', () => {
 
     expect(element.textContent).toContain('Enter a valid international phone number.');
     expect(element.textContent).not.toContain('digits after');
+  });
+
+  it('tells the user the language changes after Continue, under the language field', async () => {
+    const element = await render('', undefined, true);
+    const field = element.querySelector('#language')?.closest('.field');
+    const hint = field?.querySelector('.language-apply-hint');
+    const select = field?.querySelector('p-select');
+
+    expect(hint?.textContent?.trim()).toBe(
+      'The interface language changes after you press Continue.',
+    );
+    expect(select?.nextElementSibling?.nextElementSibling).toBe(hint);
   });
 });

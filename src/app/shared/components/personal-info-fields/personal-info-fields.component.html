@@ -124,6 +124,9 @@
         <small>{{ t('validation.languageRequired') }}</small>
       }
     </div>
+    @if (languageChangesAfterContinue()) {
+      <p class="language-apply-hint">{{ t('onboarding.languageAppliesOnContinue') }}</p>
+    }
   </div>
 
   <div class="field span-8">

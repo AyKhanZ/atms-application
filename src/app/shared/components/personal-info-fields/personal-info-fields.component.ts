@@ -31,6 +31,8 @@ export class PersonalInfoFieldsComponent {
   readonly languages = input.required<LanguageModel[]>();
   readonly genders = input.required<DictionaryModel[]>();
   readonly maritalStatuses = input.required<DictionaryModel[]>();
+  // onboarding only: the interface switches after Continue, not when the value changes
+  readonly languageChangesAfterContinue = input(false);
 
   readonly languageOptions = computed(() =>
     this.languages().map((language) => ({
