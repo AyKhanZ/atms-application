@@ -9,6 +9,7 @@ import {
   input,
   output,
   signal,
+  untracked,
   viewChild,
 } from '@angular/core';
 import { FileUploadValue } from '../../../shared/components/file-upload/file-upload.component';
@@ -43,8 +44,11 @@ export class SettingsPhotoComponent implements OnDestroy {
   constructor() {
     effect(() => {
       this.resetKey();
-      this.selection++;
-      this.clearChosen();
+      // reading the preview here would rerun the effect and wipe the file just chosen
+      untracked(() => {
+        this.selection++;
+        this.clearChosen();
+      });
     });
   }
 

@@ -52,6 +52,7 @@ describe('SettingsPhotoComponent', () => {
     const file = new File(['x'], 'me.png', { type: 'image/png' });
 
     await pick(input, file);
+    fixture.detectChanges();
 
     expect(emitted).toEqual([{ file, errors: null }]);
     expect(fixture.componentInstance.shownUrl()).toBe('blob:preview');
