@@ -6,6 +6,7 @@ import {
   Component,
   ElementRef,
   OnDestroy,
+  InjectionToken,
   computed,
   effect,
   inject,
@@ -23,6 +24,15 @@ import {
 } from 'chart.js';
 
 Chart.register(...registerables);
+
+// tests swap it through DI: the Angular test runner shares modules between spec files,
+// so mocking the chart.js module depends on which file loaded it first
+export const CHART_FACTORY = new InjectionToken<
+  (canvas: HTMLCanvasElement, config: ChartConfiguration<ChartType>) => Chart
+>('CHART_FACTORY', {
+  providedIn: 'root',
+  factory: () => (canvas, config) => new Chart(canvas, config),
+});
 
 export interface DashboardChartSeries {
   label: string;
@@ -46,6 +56,7 @@ const doughnutLegendBesideMinWidth = 320;
 export class DashboardChartComponent implements OnDestroy {
   private readonly document = inject(DOCUMENT);
   private readonly transloco = inject(TranslocoService);
+  private readonly createChart = inject(CHART_FACTORY);
   private readonly canvas = viewChild.required<ElementRef<HTMLCanvasElement>>('canvas');
   private chart: Chart | null = null;
   private renderedKind: ChartKind | null = null;
@@ -96,7 +107,7 @@ export class DashboardChartComponent implements OnDestroy {
     }
 
     this.chart?.destroy();
-    this.chart = new Chart(canvas, config);
+    this.chart = this.createChart(canvas, config);
     this.renderedKind = kind;
   }
 

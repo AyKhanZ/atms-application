@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, InjectionToken } from '@angular/core';
 import {
   HubConnection,
   HubConnectionBuilder,
@@ -25,9 +25,17 @@ export const REALTIME_RETRY_POLICY: IRetryPolicy = {
     RECONNECT_DELAYS_MS[Math.min(previousRetryCount, RECONNECT_DELAYS_MS.length - 1)],
 };
 
+// tests swap it through DI: the Angular test runner shares modules between spec files,
+// so mocking the signalr module depends on which file loaded it first
+export const HUB_CONNECTION_BUILDER = new InjectionToken<() => HubConnectionBuilder>(
+  'HUB_CONNECTION_BUILDER',
+  { providedIn: 'root', factory: () => () => new HubConnectionBuilder() },
+);
+
 @Injectable({ providedIn: 'root' })
 export class RealtimeService {
   private readonly auth = inject(AuthSessionService);
+  private readonly createBuilder = inject(HUB_CONNECTION_BUILDER);
   private readonly notificationCreatedSubject = new Subject<NotificationCreatedEvent>();
   private readonly notificationReadSubject = new Subject<NotificationReadEvent>();
   private readonly commentChangedSubject = new Subject<CommentChangedEvent>();
@@ -144,7 +152,7 @@ export class RealtimeService {
   }
 
   private createConnection(): HubConnection {
-    const connection = new HubConnectionBuilder()
+    const connection = this.createBuilder()
       .withUrl(`${environment.apiUrl}${REALTIME_HUB_PATH}`, {
         accessTokenFactory: () => this.getAccessToken(),
         withCredentials: false,

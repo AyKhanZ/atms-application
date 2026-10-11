@@ -1,46 +1,34 @@
 import { TestBed } from '@angular/core/testing';
 
 import { translocoTestingProviders } from '../../../core/testing/transloco-testing';
-let DashboardChartComponent: typeof import('./dashboard-chart.component').DashboardChartComponent;
+import { CHART_FACTORY, DashboardChartComponent } from './dashboard-chart.component';
 
-interface MockDataset {
-  data: number[];
+interface MockChart {
+  update: ReturnType<typeof vi.fn>;
+  destroy: ReturnType<typeof vi.fn>;
+  data: { labels: string[]; datasets: { data: number[] }[] };
+  options: object;
 }
 
-const chartMocks = vi.hoisted(() => ({
-  instances: [] as {
-    update: ReturnType<typeof vi.fn>;
-    destroy: ReturnType<typeof vi.fn>;
-    data: { labels: string[]; datasets: MockDataset[] };
-  }[],
-}));
-
-vi.mock('chart.js', () => ({
-  registerables: [],
-  Chart: class {
-    static register(): void {}
-
-    data: { labels: string[]; datasets: MockDataset[] };
-    options: object;
-    update = vi.fn();
-    destroy = vi.fn();
-
-    constructor(
-      _canvas: HTMLCanvasElement,
-      configuration: { data: { labels: string[]; datasets: MockDataset[] }; options: object },
-    ) {
-      this.data = configuration.data;
-      this.options = configuration.options;
-      chartMocks.instances.push(this);
-    }
-  },
-}));
-
 describe('DashboardChartComponent', () => {
-  beforeEach(async () => {
-    ({ DashboardChartComponent } = await import('./dashboard-chart.component'));
-    chartMocks.instances.length = 0;
-    TestBed.configureTestingModule({ providers: [...translocoTestingProviders()], imports: [DashboardChartComponent] });
+  let charts: MockChart[];
+
+  beforeEach(() => {
+    charts = [];
+    TestBed.configureTestingModule({
+      providers: [
+        ...translocoTestingProviders(),
+        {
+          provide: CHART_FACTORY,
+          useValue: (_canvas: HTMLCanvasElement, config: Omit<MockChart, 'update' | 'destroy'>) => {
+            const chart = { ...config, update: vi.fn(), destroy: vi.fn() };
+            charts.push(chart);
+            return chart;
+          },
+        },
+      ],
+      imports: [DashboardChartComponent],
+    });
   });
 
   function create(kind: 'line' | 'doughnut' | 'bar', labels: string[], values: number[]) {
@@ -55,14 +43,14 @@ describe('DashboardChartComponent', () => {
 
   it('updates the same chart for new data and destroys it on departure', () => {
     const fixture = create('line', ['24 Sep'], [1]);
-    expect(chartMocks.instances).toHaveLength(1);
-    const chart = chartMocks.instances[0];
+    expect(charts).toHaveLength(1);
+    const chart = charts[0];
 
     fixture.componentRef.setInput('labels', ['24 Sep', '25 Sep']);
     fixture.componentRef.setInput('series', [{ label: 'Tasks', values: [1, 2], color: '--orange' }]);
     fixture.detectChanges();
 
-    expect(chartMocks.instances).toHaveLength(1);
+    expect(charts).toHaveLength(1);
     expect(chart.data.labels).toEqual(['24 Sep', '25 Sep']);
     expect(chart.update).toHaveBeenCalledWith('none');
 
@@ -73,20 +61,20 @@ describe('DashboardChartComponent', () => {
   it('draws an empty doughnut as a full grey ring instead of nothing', () => {
     create('doughnut', ['New', 'Done'], [0, 0]);
 
-    expect(chartMocks.instances[0].data.datasets[0].data).toEqual([1]);
+    expect(charts[0].data.datasets[0].data).toEqual([1]);
   });
 
   it('keeps the axis of an empty bar chart', () => {
     create('bar', ['Alpha'], [0]);
 
-    expect(chartMocks.instances[0].data.labels).toEqual(['']);
-    expect(chartMocks.instances[0].data.datasets[0].data).toEqual([0]);
+    expect(charts[0].data.labels).toEqual(['']);
+    expect(charts[0].data.datasets[0].data).toEqual([0]);
   });
 
   it('cuts a long bar label on the axis', () => {
     create('bar', ['#7 Payment Gateway Integration for every region'], [3]);
 
-    expect(chartMocks.instances[0].data.labels[0]).toBe('#7 Payment Gateway Inte…');
+    expect(charts[0].data.labels[0]).toBe('#7 Payment Gateway Inte…');
   });
 
   it('exposes a chart summary and a hidden table of its values', () => {
