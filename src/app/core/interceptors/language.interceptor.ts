@@ -1,9 +1,11 @@
 import { HttpInterceptorFn } from '@angular/common/http';
-import { environment } from '../../../environments/environment';
+import { adminApiUrl, projectApiUrl } from '../constants/api-url.constants';
 import { currentLanguage } from '../i18n/active-language';
 
 export const languageInterceptor: HttpInterceptorFn = (req, next) => {
-  if (!req.url.startsWith(environment.apiUrl)) return next(req);
+  // apiUrl is empty in production, so startsWith(apiUrl) would match every request.
+  const isApiRequest = req.url.startsWith(adminApiUrl) || req.url.startsWith(projectApiUrl);
+  if (!isApiRequest) return next(req);
 
   return next(
     req.clone({

@@ -1,7 +1,8 @@
 import { EnvironmentProviders } from '@angular/core';
 
-// no real domain yet, the gateway runs on the same machine
-const apiUrl = 'http://localhost:5000';
+// Empty so requests stay relative (/admin/..., /project/...). nginx serves the
+// app and proxies those prefixes on the same host.
+const apiUrl = '';
 
 export const environment = {
   production: true,
