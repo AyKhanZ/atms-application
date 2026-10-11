@@ -87,6 +87,17 @@ server {
         proxy_pass http://gateway:8080;
     }
 
+    # Swagger UI lives on the gateway; it shows the APIs only where SWAGGER_ENABLED=true (the demo)
+    location ^~ /swagger {
+        limit_req zone=api burst=50 nodelay;
+        limit_conn addr 30;
+
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_pass http://gateway:8080;
+    }
+
     location ^~ /app/images/ {
         limit_req zone=api burst=50 nodelay;
         limit_conn addr 30;
