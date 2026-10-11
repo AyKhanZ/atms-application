@@ -1,0 +1,9 @@
+# vendor/xlsx-0.20.3.tgz stays in the context: npm ci installs it from a file: dependency.
+.git
+.angular
+.idea
+.vscode
+dist
+node_modules
+coverage
+*.md
