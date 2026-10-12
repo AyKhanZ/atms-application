@@ -30,8 +30,8 @@
 }
 
 .avatar-button:not(:disabled):hover .avatar {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.1);
+  transform: var(--avatar-hover-lift, translateY(-2px));
+  box-shadow: var(--avatar-hover-shadow, 0 10px 22px rgba(15, 23, 42, 0.1));
 }
 
 .avatar-button:not(:disabled):focus-visible .avatar {
@@ -39,20 +39,20 @@
   outline-offset: 4px;
 }
 
+// a small avatar in a list turns the corner lens into a soft overlay over the whole photo
 .avatar::after {
   content: '\e908';
   font-family: 'primeicons';
   position: absolute;
-  right: 0.5rem;
-  bottom: 0.5rem;
+  inset: var(--avatar-zoom-inset, auto 0.5rem 0.5rem auto);
   display: grid;
   place-items: center;
-  width: 2rem;
-  height: 2rem;
-  border-radius: 999px;
-  background: rgba(15, 23, 42, 0.72);
+  width: var(--avatar-zoom-size, 2rem);
+  height: var(--avatar-zoom-size, 2rem);
+  border-radius: var(--avatar-zoom-radius, 999px);
+  background: var(--avatar-zoom-background, rgba(15, 23, 42, 0.72));
   color: #fff;
-  font-size: 0.9rem;
+  font-size: var(--avatar-zoom-font-size, 0.9rem);
   opacity: 0;
   transition: opacity 0.18s ease;
 }
