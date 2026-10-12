@@ -1,9 +1,9 @@
 import { inject } from '@angular/core';
-import { CanActivateChildFn, Router } from '@angular/router';
+import { CanActivateFn, Router } from '@angular/router';
 import { filter, map, take } from 'rxjs';
 import { AuthSessionService } from '../services/auth-session.service';
 
-export const guestGuard: CanActivateChildFn = () => {
+export const guestGuard: CanActivateFn = () => {
   const auth = inject(AuthSessionService);
   const router = inject(Router);
 

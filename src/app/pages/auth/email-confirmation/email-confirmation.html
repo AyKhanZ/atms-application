@@ -48,7 +48,11 @@
         }
 
         <div class="navigation-wrapper">
-          <a routerLink="/login" class="back-link">{{ t('auth.backToLogin') }}</a>
+          @if (isSignedIn()) {
+            <a routerLink="/dashboard" class="back-link">{{ t('auth.goToApp') }}</a>
+          } @else {
+            <a routerLink="/login" class="back-link">{{ t('auth.backToLogin') }}</a>
+          }
         </div>
 
         <button
@@ -62,7 +66,11 @@
       </form>
     } @else {
       <div class="confirmed-actions">
-        <a pButton routerLink="/login" class="submit-btn">{{ t('auth.goToLogin') }}</a>
+        @if (isSignedIn()) {
+          <a pButton routerLink="/dashboard" class="submit-btn">{{ t('auth.goToApp') }}</a>
+        } @else {
+          <a pButton routerLink="/login" class="submit-btn">{{ t('auth.goToLogin') }}</a>
+        }
       </div>
     }
   </section>

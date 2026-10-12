@@ -170,6 +170,7 @@
     "send": "Send",
     "backToLogin": "Back to login",
     "goToLogin": "Go to login",
+    "goToApp": "Go to the app",
     "signingIn": "Signing in...",
     "resetTitle": "Reset your password",
     "resetSubtitle": "Create a new strong password for your account",
