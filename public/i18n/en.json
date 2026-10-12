@@ -312,6 +312,7 @@
     "choosePhoto": "Choose photo",
     "photoPreview": "Profile photo preview",
     "continue": "Continue",
+    "languageAppliesOnContinue": "The interface language changes after you press Continue.",
     "skip": "Skip for now",
     "ready": "Ready to finish",
     "everythingReady": "Everything is ready",

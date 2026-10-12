@@ -312,6 +312,7 @@
     "choosePhoto": "Выбрать фото",
     "photoPreview": "Просмотр фото профиля",
     "continue": "Далее",
+    "languageAppliesOnContinue": "Язык интерфейса сменится после того, как нажмёте «Далее».",
     "skip": "Пропустить пока",
     "ready": "Можно завершать",
     "everythingReady": "Всё готово",
