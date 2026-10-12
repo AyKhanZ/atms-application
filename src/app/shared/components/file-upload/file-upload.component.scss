@@ -31,6 +31,11 @@
   background: var(--white);
 }
 
+// the only field without an input border, so a missing photo is easy to overlook
+.file-upload--invalid .file-upload__body {
+  border-color: rgb(220 38 38 / 86%);
+}
+
 .file-upload__preview {
   position: relative;
   display: grid;

@@ -128,7 +128,7 @@
     "surnameRequired": "Surname is required.",
     "phoneRequired": "Phone number is required.",
     "phoneLength": "Enter 9 digits after +994.",
-    "phoneInvalid": "Enter a valid phone number.",
+    "phoneInvalid": "Enter a valid international phone number.",
     "positionRequired": "Position is required.",
     "languageRequired": "Select a language.",
     "birthDateRequired": "Birth date is required.",

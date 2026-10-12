@@ -43,9 +43,13 @@ import {
 } from './components/onboarding-invitations/onboarding-invitations.component';
 import { createNewPasswordForm } from '../../shared/components/new-password-fields/new-password.form';
 import { fromIsoDate, toIsoDate } from '../../core/utils/dashboard-query.utils';
-import { avatarErrorKey } from '../../core/utils/profile-avatar.utils';
+import { avatarErrorKey, avatarServerError } from '../../core/utils/profile-avatar.utils';
 import { validationMessage } from '../../core/utils/http-error.utils';
-import { showPhoneServerError } from '../../core/utils/phone-number.utils';
+import {
+  phoneFieldValue,
+  showPhoneServerError,
+  storedPhone,
+} from '../../core/utils/phone-number.utils';
 
 const LAST_ONBOARDING_VIEW_KEY = 'lastOnboardingView';
 const DEFAULT_INVITATION_ROWS = 3;
@@ -177,7 +181,7 @@ export class OnboardingComponent implements HasUnsavedChanges {
     const data = new FormData();
     data.append('name', value.name.trim());
     data.append('surname', value.surname.trim());
-    data.append('phoneNumber', value.phoneNumber.trim());
+    data.append('phoneNumber', storedPhone(value.phoneNumber));
     data.append('position', value.position.trim());
     data.append('languageId', value.languageId.toString());
     data.append('birthDate', toIsoDate(value.birthDate));
@@ -380,7 +384,7 @@ export class OnboardingComponent implements HasUnsavedChanges {
       name: personal.name,
       surname: personal.surname,
       email: personal.email,
-      phoneNumber: personal.phoneNumber ?? '',
+      phoneNumber: phoneFieldValue(personal.phoneNumber),
       position: personal.position ?? '',
       languageId: personal.languageId ?? this.currentLanguageId(),
       birthDate: fromIsoDate(personal.birthDate),
@@ -427,8 +431,12 @@ export class OnboardingComponent implements HasUnsavedChanges {
   }
 
   private reportPersonalInfoError(error: HttpErrorResponse): void {
+    const avatarMessage = avatarServerError(error);
+    if (avatarMessage) this.avatarError.set(avatarMessage);
+
     const phone = this.personalForm.controls.phoneNumber;
     if (showPhoneServerError(phone, error, (message) => this.snackBar.error(message))) return;
+    if (avatarMessage) return;
 
     this.handleError(error, this.transloco.translate('onboarding.personalSaveFailed'));
   }

@@ -37,8 +37,29 @@
   grid-column: span 13;
 }
 
+// +994 sits inside the border and cannot be erased, the input holds only 50 353 78 88
+.phone-input {
+  position: relative;
+}
+
+.phone-prefix {
+  position: absolute;
+  top: 50%;
+  left: 0.75rem;
+  transform: translateY(-50%);
+  color: var(--gray-text-strong);
+  // same size as the digits typed after it
+  font-size: var(--p-inputtext-font-size, 1rem);
+  pointer-events: none;
+}
+
+.phone-input input {
+  width: 100%;
+  padding-left: 3.5rem;
+}
+
 .language-apply-hint {
-  margin: 0.15rem 0 0;
+  margin: 0;
   color: var(--gray-text);
   font-size: 0.75rem;
   line-height: 1.3;

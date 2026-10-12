@@ -31,32 +31,33 @@ describe('phone number', () => {
     return form.controls.phoneNumber;
   };
 
-  it('explains a short Azerbaijan number by the missing digits', () => {
+  it.each(['50 123 45', '50 123 45 678'])('explains %s by the missing digits', (value) => {
     const control = phone();
-    control.setValue('+994 50 123 45');
+    control.setValue(value);
 
     expect(control.hasError('phoneLength')).toBe(true);
   });
 
-  it('accepts a full Azerbaijan number', () => {
+  it('accepts the 9 digits after +994', () => {
     const control = phone();
-    control.setValue('+994 50 123 45 00');
+    control.setValue('50 123 45 67');
 
     expect(control.errors).toBeNull();
   });
 
-  it('checks the shape before the length', () => {
+  it('rejects a number that starts with 0', () => {
     const control = phone();
-    control.setValue('+994 50 123 45 0x');
+    control.setValue('00 000 00 00');
 
     expect(control.hasError('pattern')).toBe(true);
     expect(control.hasError('phoneLength')).toBe(false);
   });
 
-  it('keeps the shape check for a number that is not a known country', () => {
+  it('leaves an empty value to required', () => {
     const control = phone();
-    control.setValue('0501234567');
+    control.setValue('');
 
-    expect(control.hasError('pattern')).toBe(true);
+    expect(control.hasError('required')).toBe(true);
+    expect(control.hasError('phoneLength')).toBe(false);
   });
 });

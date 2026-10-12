@@ -49,14 +49,21 @@
     <div class="field-label">
       <label for="phone">{{ t('common.phone') }}</label>
     </div>
-    <input
-      id="phone"
-      pInputText
-      maxlength="20"
-      autocomplete="tel"
-      placeholder="+994 50 000 00 00"
-      formControlName="phoneNumber"
-    />
+    <div class="phone-input">
+      <span class="phone-prefix" aria-hidden="true">+994</span>
+      <input
+        id="phone"
+        pInputText
+        inputmode="numeric"
+        autocomplete="tel-national"
+        placeholder="50 123 45 67"
+        formControlName="phoneNumber"
+        (beforeinput)="onPhoneBeforeInput($event)"
+        (keydown)="onPhoneKeydown($event)"
+        (paste)="onPhonePaste($event)"
+        (input)="onPhoneInput($event)"
+      />
+    </div>
     <div class="field-line">
       <div class="field-error">
         @if (form().controls.phoneNumber.touched) {
@@ -71,8 +78,8 @@
           }
         }
       </div>
-      @if (form().controls.phoneNumber.value.length) {
-        <small class="counter">{{ form().controls.phoneNumber.value.length }}/20</small>
+      @if (form().controls.phoneNumber.value | phoneDigits; as count) {
+        <small class="counter">{{ count }}/9</small>
       }
     </div>
   </div>
@@ -122,11 +129,10 @@
     <div class="field-error">
       @if (form().controls.languageId.touched && form().controls.languageId.invalid) {
         <small>{{ t('validation.languageRequired') }}</small>
+      } @else if (languageChangesAfterContinue()) {
+        <p class="language-apply-hint">{{ t('onboarding.languageAppliesOnContinue') }}</p>
       }
     </div>
-    @if (languageChangesAfterContinue()) {
-      <p class="language-apply-hint">{{ t('onboarding.languageAppliesOnContinue') }}</p>
-    }
   </div>
 
   <div class="field span-8">
@@ -180,7 +186,9 @@
   </div>
 
   <div class="field span-6">
-    <label id="maritalStatusLabel" appLabelFor="maritalStatus">{{ t('common.maritalStatus') }}</label>
+    <label id="maritalStatusLabel" appLabelFor="maritalStatus">{{
+      t('common.maritalStatus')
+    }}</label>
     <p-select
       inputId="maritalStatus"
       ariaLabelledBy="maritalStatusLabel"

@@ -5,7 +5,6 @@ import {
   ValidationErrors,
   Validators,
 } from '@angular/forms';
-import { hasWrongAzerbaijanLength } from '../../../core/utils/phone-number.utils';
 
 export type PersonalInfoForm = FormGroup<{
   name: FormControl<string>;
@@ -33,7 +32,7 @@ export function createPersonalInfoForm(): PersonalInfoForm {
     email: new FormControl('', { nonNullable: true }),
     phoneNumber: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(20), phoneNumberShape],
+      validators: [Validators.required, phoneNumberShape],
     }),
     position: new FormControl('', {
       nonNullable: true,
@@ -69,15 +68,12 @@ export function personalInfoSnapshot(value: ReturnType<PersonalInfoForm['getRawV
   ]);
 }
 
-const internationalShape = /^\+[0-9 ()-]{7,19}$/;
-
-// a +994 number of wrong length never reaches the server
+// the 9 digits after +994; whether the operator code exists is the server's call
 function phoneNumberShape(control: AbstractControl<string>): ValidationErrors | null {
-  const value = control.value.trim();
-  if (!value) return null;
-  if (!internationalShape.test(value)) return { pattern: true };
-
-  return hasWrongAzerbaijanLength(value) ? { phoneLength: true } : null;
+  const digits = control.value.replace(/\D/g, '');
+  if (!digits) return null;
+  if (digits.length !== 9) return { phoneLength: true };
+  return /^[1-9]/.test(digits) ? null : { pattern: true };
 }
 
 export function yearsAgo(years: number, now = new Date()): Date {
