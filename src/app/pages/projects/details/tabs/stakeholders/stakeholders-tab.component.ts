@@ -277,7 +277,7 @@ export class StakeholdersTabComponent {
 
   private loadDialogData(complete: () => void): void {
     this.dialogData
-      .load(this.project(), this.isInternal())
+      .load(this.project(), this.isInternal(), this.canInviteEmployee())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(({ roles, teamMembers, clientUsers }) => {
         this.roles.set(roles);

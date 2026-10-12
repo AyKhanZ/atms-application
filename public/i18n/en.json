@@ -544,6 +544,7 @@
     "inviteActions": "Actions for invitation of {email}",
     "inviteSent": "Invitation sent to {email}",
     "inviteFailed": "The invitation could not be sent. Please try again.",
+    "loadFailed": "Participants could not be loaded. Please try again.",
     "inviteCancelled": "Invitation cancelled.",
     "inviteCancelFailed": "The invitation could not be cancelled. Please try again.",
     "person": "Participant"

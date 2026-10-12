@@ -544,6 +544,7 @@
     "inviteActions": "{email} dəvəti üçün əməliyyatlar",
     "inviteSent": "Dəvət {email} ünvanına göndərildi",
     "inviteFailed": "Dəvəti göndərmək mümkün olmadı. Yenidən cəhd edin.",
+    "loadFailed": "İştirakçıları yükləmək mümkün olmadı. Yenidən cəhd edin.",
     "inviteCancelled": "Dəvət ləğv edildi.",
     "inviteCancelFailed": "Dəvəti ləğv etmək mümkün olmadı. Yenidən cəhd edin.",
     "person": "İştirakçı"

@@ -4,7 +4,7 @@ import { provideRouter } from '@angular/router';
 import { provideMockActions } from '@ngrx/effects/testing';
 import { MockStore, provideMockStore } from '@ngrx/store/testing';
 import { Action } from '@ngrx/store';
-import { ConfirmationService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { Tooltip } from 'primeng/tooltip';
 import { of, Subject } from 'rxjs';
 import { projectRoleIds } from '../../../../../core/constants/project-role-ids.constants';
@@ -15,7 +15,6 @@ import {
   WorkProjectParticipantModel,
 } from '../../../../../core/models/work-projects';
 import { DictionaryService } from '../../../../../core/services/dictionary.service';
-import { OrganizationsService } from '../../../../../core/services/organizations.service';
 import { ProjectAccessService } from '../../../../../core/services/project-access.service';
 import { WorkProjectsService } from '../../../../../core/services/work-projects.service';
 import { WorkProjectsStoreActions } from '../../../../../store/work-projects';
@@ -96,8 +95,11 @@ describe('StakeholdersTabComponent', { timeout: 20_000 }, () => {
         ConfirmationService,
         { provide: ProjectAccessService, useValue: { getPermissions: () => of(permissions) } },
         { provide: DictionaryService, useValue: { getProjectRoleDictionaries: () => of([]) } },
-        { provide: WorkProjectsService, useValue: { getTeamMembers: () => of([]) } },
-        { provide: OrganizationsService, useValue: { getOrganization: () => of(null) } },
+        {
+          provide: WorkProjectsService,
+          useValue: { getTeamMembers: () => of([]), getClientCandidates: () => of([]) },
+        },
+        { provide: MessageService, useValue: { add: vi.fn() } },
       ],
     }).compileComponents();
     confirmation = TestBed.inject(ConfirmationService);

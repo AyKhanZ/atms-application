@@ -1,11 +1,11 @@
 import { TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { projectRoleIds } from '../../../../../core/constants/project-role-ids.constants';
-import { OrganizationModel } from '../../../../../core/models/organizations/organization.model';
 import { WorkProjectModel } from '../../../../../core/models/work-projects';
 import { DictionaryService } from '../../../../../core/services/dictionary.service';
-import { OrganizationsService } from '../../../../../core/services/organizations.service';
+import { SnackBarService } from '../../../../../core/services/snack-bar.service';
 import { WorkProjectsService } from '../../../../../core/services/work-projects.service';
+import { translocoTestingProviders } from '../../../../../core/testing/transloco-testing';
 import { ParticipantDialogData, ParticipantDialogDataService } from './participant-dialog-data.service';
 
 describe('ParticipantDialogDataService', () => {
@@ -17,13 +17,12 @@ describe('ParticipantDialogDataService', () => {
     email: 'rustam@baim.az',
     avatarPath: '/avatars/rustam.png',
   };
-  const organization: OrganizationModel = {
-    id: 'org-id',
-    title: 'Apple',
-    voen: '8056783562',
-    logoPath: null,
-    createdAt: '2026-07-24T21:33:00Z',
-    users: [{ id: 'client-1', name: 'Diana', surname: 'Zeynalova', email: 'diana@client.com' }],
+  const client = {
+    id: 'client-1',
+    name: 'Diana',
+    surname: 'Zeynalova',
+    email: 'diana@client.com',
+    avatarPath: '/avatars/diana.png',
   };
 
   const project = (kind: 'External' | 'Internal'): WorkProjectModel => ({
@@ -39,40 +38,74 @@ describe('ParticipantDialogDataService', () => {
     createdAt: '2026-10-01T10:00:00Z',
   });
 
-  let getOrganization: ReturnType<typeof vi.fn>;
+  let getTeamMembers: ReturnType<typeof vi.fn>;
+  let getClientCandidates: ReturnType<typeof vi.fn>;
+  let snackBarError: ReturnType<typeof vi.fn>;
   let service: ParticipantDialogDataService;
 
   beforeEach(() => {
-    getOrganization = vi.fn().mockReturnValue(of(organization));
+    getTeamMembers = vi.fn().mockReturnValue(of([teamMember]));
+    getClientCandidates = vi.fn().mockReturnValue(of([client]));
+    snackBarError = vi.fn();
     TestBed.configureTestingModule({
       providers: [
+        ...translocoTestingProviders(),
         ParticipantDialogDataService,
         { provide: DictionaryService, useValue: { getProjectRoleDictionaries: () => of(roles) } },
-        { provide: WorkProjectsService, useValue: { getTeamMembers: () => of([teamMember]) } },
-        { provide: OrganizationsService, useValue: { getOrganization } },
+        {
+          provide: WorkProjectsService,
+          useValue: { getTeamMembers, getClientCandidates },
+        },
+        { provide: SnackBarService, useValue: { error: snackBarError } },
       ],
     });
     service = TestBed.inject(ParticipantDialogDataService);
   });
 
-  const load = (kind: 'External' | 'Internal'): Promise<ParticipantDialogData> =>
-    new Promise((resolve) => service.load(project(kind), kind === 'Internal').subscribe(resolve));
+  const load = (
+    kind: 'External' | 'Internal',
+    includeTeamMembers: boolean,
+  ): Promise<ParticipantDialogData> =>
+    new Promise((resolve) =>
+      service.load(project(kind), kind === 'Internal', includeTeamMembers).subscribe(resolve),
+    );
 
   it('marks team members and the organization clients with their side', async () => {
-    const data = await load('External');
+    const data = await load('External', true);
 
     expect(data.roles).toEqual(roles);
     expect(data.teamMembers).toEqual([{ ...teamMember, side: 'team' }]);
-    expect(data.clientUsers).toEqual([
-      { ...organization.users[0], avatarPath: null, side: 'client' },
-    ]);
-    expect(getOrganization).toHaveBeenCalledWith('org-id');
+    expect(data.clientUsers).toEqual([{ ...client, side: 'client' }]);
+    expect(getTeamMembers).toHaveBeenCalled();
+    expect(getClientCandidates).toHaveBeenCalledWith('project-id');
   });
 
-  it('does not ask for an organization in an internal project', async () => {
-    const data = await load('Internal');
+  it('does not ask for clients in an internal project', async () => {
+    const data = await load('Internal', true);
 
     expect(data.clientUsers).toEqual([]);
-    expect(getOrganization).not.toHaveBeenCalled();
+    expect(getClientCandidates).not.toHaveBeenCalled();
+  });
+
+  it('does not ask for BAIM employees when the user cannot invite them', async () => {
+    const data = await load('External', false);
+
+    expect(data.teamMembers).toEqual([]);
+    expect(data.clientUsers).toEqual([{ ...client, side: 'client' }]);
+    expect(getTeamMembers).not.toHaveBeenCalled();
+    expect(getClientCandidates).toHaveBeenCalledWith('project-id');
+  });
+
+  it('keeps the lists that loaded when one request fails', async () => {
+    getClientCandidates.mockReturnValue(throwError(() => new Error('forbidden')));
+
+    const data = await load('External', true);
+
+    expect(data.roles).toEqual(roles);
+    expect(data.teamMembers).toEqual([{ ...teamMember, side: 'team' }]);
+    expect(data.clientUsers).toEqual([]);
+    expect(snackBarError).toHaveBeenCalledWith(
+      'Participants could not be loaded. Please try again.',
+    );
   });
 });
