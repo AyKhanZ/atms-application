@@ -88,7 +88,7 @@ describe('Organization DetailsComponent', () => {
     expect((fixture.nativeElement as HTMLElement).textContent).not.toContain('No position yet');
   });
 
-  it('does not cover a small employee avatar with the preview button', () => {
+  it('lets the small employee avatar open the photo', () => {
     const fixture = render(
       organization([
         {
@@ -101,9 +101,11 @@ describe('Organization DetailsComponent', () => {
       ]),
     );
 
+    // the lens is a soft overlay from the page's css variables, not a corner badge over the face
     const row = (fixture.nativeElement as HTMLElement).querySelector('.employees-table tbody tr');
-    expect(row?.querySelector('button')).toBeNull();
-    expect(row?.querySelector('.pi-search')).toBeNull();
+    const button = row?.querySelector<HTMLButtonElement>('button.avatar-button');
+    expect(button).not.toBeNull();
+    expect(button?.disabled).toBe(false);
   });
 
   it('shows the empty state when the organization has no employees', () => {

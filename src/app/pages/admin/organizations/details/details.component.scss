@@ -197,6 +197,13 @@
   --avatar-zoom-opacity: 0;
   --avatar-radius: 50%;
   --avatar-font-size: 0.8rem;
+  --avatar-zoom-inset: 0;
+  --avatar-zoom-size: 100%;
+  --avatar-zoom-radius: 50%;
+  --avatar-zoom-background: rgba(15, 23, 42, 0.45);
+  --avatar-zoom-font-size: 0.75rem;
+  --avatar-hover-lift: none;
+  --avatar-hover-shadow: none;
 }
 
 .employee-cell span {
