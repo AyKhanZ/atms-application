@@ -88,6 +88,24 @@ describe('Organization DetailsComponent', () => {
     expect((fixture.nativeElement as HTMLElement).textContent).not.toContain('No position yet');
   });
 
+  it('does not cover a small employee avatar with the preview button', () => {
+    const fixture = render(
+      organization([
+        {
+          id: 'u1',
+          name: 'Ayxan',
+          surname: 'Zeynalov',
+          email: 'ayxan@client.com',
+          avatarPath: '/avatars/ayxan.png',
+        },
+      ]),
+    );
+
+    const row = (fixture.nativeElement as HTMLElement).querySelector('.employees-table tbody tr');
+    expect(row?.querySelector('button')).toBeNull();
+    expect(row?.querySelector('.pi-search')).toBeNull();
+  });
+
   it('shows the empty state when the organization has no employees', () => {
     const fixture = render(organization([]));
 
