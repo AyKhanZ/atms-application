@@ -1,13 +1,13 @@
 # BAIM — client (atms-application)
 
-The web client of BAIM: projects, tasks and teamwork for the company's staff and its clients.
+The web client of BAIM: projects, tasks and teamwork for the company's employee and its clients.
 The backend is in `../atms-services`; this app talks to it only through the Gateway
 (`http://localhost:5000` locally).
 
 ## Stack
 
 Angular 21 (standalone components, signals), PrimeNG + PrimeIcons, NgRx Store, SignalR for live
-updates, Chart.js for the dashboard, Vitest for unit tests.
+updates, Chart.js for the dashboard, Transloco for localization, Vitest for unit tests.
 
 ## Run it
 
