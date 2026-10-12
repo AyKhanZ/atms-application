@@ -1,4 +1,4 @@
-<section class="file-upload" *transloco="let t">
+<section class="file-upload" [class.file-upload--invalid]="errorMessage()" *transloco="let t">
   <div class="file-upload__heading">
     <span>{{ label() || t('common.image') }}</span>
   </div>

@@ -128,7 +128,7 @@
     "surnameRequired": "Soyadı daxil edin",
     "phoneRequired": "Telefonu daxil edin",
     "phoneLength": "+994-dən sonra 9 rəqəm daxil edin",
-    "phoneInvalid": "Düzgün telefon nömrəsi daxil edin",
+    "phoneInvalid": "Beynəlxalq formatda düzgün telefon nömrəsi daxil edin.",
     "positionRequired": "Vəzifəni daxil edin",
     "languageRequired": "Dil seçin",
     "birthDateRequired": "Doğum tarixini daxil edin",

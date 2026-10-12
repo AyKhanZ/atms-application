@@ -19,7 +19,11 @@ import { LoginNavigationState } from '../../../core/models/auth/login-navigation
 import { AuthService } from '../../../core/services/auth.service';
 import { AuthSessionService } from '../../../core/services/auth-session.service';
 import { SnackBarService } from '../../../core/services/snack-bar.service';
-import { serverErrorMessage, validationMessage } from '../../../core/utils/http-error.utils';
+import {
+  serverErrorMessage,
+  validationErrorFor,
+  validationMessage,
+} from '../../../core/utils/http-error.utils';
 import { tokenSubject } from '../../../core/utils/jwt-claims.utils';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { NewPasswordFieldsComponent } from '../../../shared/components/new-password-fields/new-password-fields.component';
@@ -163,12 +167,10 @@ export class SettingsPasswordComponent {
       return;
     }
 
-    const oldPasswordMessage = validationMessage(error, 'OldPassword');
-    const failures = error.error?.errors as { field?: string }[] | undefined;
-    if (failures?.some((failure) => failure.field?.toLowerCase() === 'oldpassword')) {
-      this.currentPasswordError.set(
-        oldPasswordMessage ?? this.transloco.translate('validation.currentPasswordIncorrect'),
-      );
+    // only OldPassword goes under that field, a new-password refusal is not about it
+    const oldPasswordMessage = validationErrorFor(error, 'OldPassword');
+    if (oldPasswordMessage) {
+      this.currentPasswordError.set(oldPasswordMessage);
       return;
     }
 

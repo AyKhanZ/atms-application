@@ -1,30 +1,56 @@
 import { FormControl } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
-import { hasWrongAzerbaijanLength, showPhoneServerError } from './phone-number.utils';
+import {
+  azerbaijanDigits,
+  formatPhoneDigits,
+  phoneFieldValue,
+  showPhoneServerError,
+  storedPhone,
+} from './phone-number.utils';
 
-describe('hasWrongAzerbaijanLength', () => {
-  it('refuses a short Azerbaijan number', () => {
-    expect(hasWrongAzerbaijanLength('+994 50 123 45')).toBe(true);
-    expect(hasWrongAzerbaijanLength('+9945012345')).toBe(true);
+describe('azerbaijanDigits', () => {
+  it.each([
+    '+994 50 353 78 88',
+    '+994503537888',
+    '994503537888',
+    '00994 50 353 78 88',
+    '050 353 78 88',
+    '(050) 353-78-88',
+    '503537888',
+  ])('takes the 9 digits after +994 from %s', (raw) => {
+    expect(azerbaijanDigits(raw)).toBe('503537888');
   });
 
-  it('refuses a too long Azerbaijan number', () => {
-    expect(hasWrongAzerbaijanLength('+994 50 123 45 001')).toBe(true);
+  // 99 is a real operator code, the 994 here is not a country code
+  it('keeps a 9-digit number that starts with 994', () => {
+    expect(azerbaijanDigits('99 450 35 37')).toBe('994503537');
   });
 
-  it('accepts a full Azerbaijan number, spaces included', () => {
-    expect(hasWrongAzerbaijanLength('+994 50 123 45 00')).toBe(false);
-    expect(hasWrongAzerbaijanLength('+994501234567')).toBe(false);
+  it('is empty for nothing or only zeros', () => {
+    expect(azerbaijanDigits('')).toBe('');
+    expect(azerbaijanDigits(null)).toBe('');
+    expect(azerbaijanDigits('000')).toBe('');
+  });
+});
+
+describe('formatPhoneDigits', () => {
+  it('groups the digits as 50 353 78 88 while they are typed', () => {
+    expect(formatPhoneDigits('5')).toBe('5');
+    expect(formatPhoneDigits('503')).toBe('50 3');
+    expect(formatPhoneDigits('5035378')).toBe('50 353 78');
+    expect(formatPhoneDigits('503537888')).toBe('50 353 78 88');
+  });
+});
+
+describe('phoneFieldValue and storedPhone', () => {
+  it('shows a stored number without +994 and stores it back with it', () => {
+    expect(phoneFieldValue('+994503537888')).toBe('50 353 78 88');
+    expect(storedPhone('50 353 78 88')).toBe('+994503537888');
   });
 
-  it('leaves other countries alone', () => {
-    expect(hasWrongAzerbaijanLength('+1 202 555 0143')).toBe(false);
-    expect(hasWrongAzerbaijanLength('+90 532 111 22 33')).toBe(false);
-  });
-
-  it('leaves an empty value to the required check', () => {
-    expect(hasWrongAzerbaijanLength('')).toBe(false);
-    expect(hasWrongAzerbaijanLength('   ')).toBe(false);
+  it('starts empty for a number of another country', () => {
+    expect(phoneFieldValue('+447911123456')).toBe('');
+    expect(phoneFieldValue(null)).toBe('');
   });
 });
 

@@ -30,8 +30,12 @@ import { SnackBarService } from '../../core/services/snack-bar.service';
 import { currentLanguage, toUiLanguage } from '../../core/i18n/active-language';
 import { fromIsoDate, toIsoDate } from '../../core/utils/dashboard-query.utils';
 import { serverErrorMessage, validationMessage } from '../../core/utils/http-error.utils';
-import { showPhoneServerError } from '../../core/utils/phone-number.utils';
-import { avatarErrorKey } from '../../core/utils/profile-avatar.utils';
+import {
+  phoneFieldValue,
+  showPhoneServerError,
+  storedPhone,
+} from '../../core/utils/phone-number.utils';
+import { avatarErrorKey, avatarServerError } from '../../core/utils/profile-avatar.utils';
 import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component';
 import {
   EntityTab,
@@ -187,7 +191,7 @@ export class SettingsComponent implements HasUnsavedChanges {
       .update({
         name: value.name.trim(),
         surname: value.surname.trim(),
-        phoneNumber: value.phoneNumber.trim(),
+        phoneNumber: storedPhone(value.phoneNumber),
         position: value.position.trim(),
         languageId: value.languageId,
         birthDate: toIsoDate(value.birthDate),
@@ -222,8 +226,12 @@ export class SettingsComponent implements HasUnsavedChanges {
   }
 
   private reportPersonalInfoError(error: HttpErrorResponse): void {
+    const avatarMessage = avatarServerError(error);
+    if (avatarMessage) this.avatarError.set(avatarMessage);
+
     const phone = this.personalForm.controls.phoneNumber;
     if (showPhoneServerError(phone, error, (message) => this.snackBar.error(message))) return;
+    if (avatarMessage) return;
 
     this.snackBar.error(
       validationMessage(error) ??
@@ -265,7 +273,7 @@ export class SettingsComponent implements HasUnsavedChanges {
       name: profile.name,
       surname: profile.surname,
       email: profile.email,
-      phoneNumber: profile.phoneNumber ?? '',
+      phoneNumber: phoneFieldValue(profile.phoneNumber),
       position: profile.position ?? '',
       languageId: profile.languageId,
       birthDate: fromIsoDate(profile.birthDate),

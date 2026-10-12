@@ -5,8 +5,7 @@ import { catchError, ignoreElements, map, switchMap, takeUntil } from 'rxjs/oper
 import { HttpErrorResponse } from '@angular/common/http';
 import * as AuthStoreActions from './auth.actions';
 import { AuthService } from '../../core/services/auth.service';
-import { ValidationErrorModel } from '../../core/models/auth/auth.models';
-import { serverErrorMessage } from '../../core/utils/http-error.utils';
+import { serverErrorMessage, validationErrors } from '../../core/utils/http-error.utils';
 import { SnackBarService } from '../../core/services/snack-bar.service';
 import { TranslocoService } from '@jsverse/transloco';
 import { Router } from '@angular/router';
@@ -188,8 +187,10 @@ export class AuthEffects {
   private mapErrors(err: HttpErrorResponse): string[] {
     switch (err.status) {
       case 400: {
-        const body = err.error as ValidationErrorModel;
-        return body.errors?.map((e) => `${e.field}: ${e.error}`) ?? [body.message];
+        const messages = validationErrors(err)
+          .map((item) => item.error)
+          .filter((item): item is string => Boolean(item));
+        return messages.length ? messages : [this.transloco.translate('auth.unexpected')];
       }
       case 401:
         return [serverErrorMessage(err, this.transloco.translate('auth.invalidCredentials'))];

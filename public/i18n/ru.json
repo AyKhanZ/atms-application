@@ -128,7 +128,7 @@
     "surnameRequired": "Введите фамилию",
     "phoneRequired": "Введите телефон",
     "phoneLength": "Введите 9 цифр после +994",
-    "phoneInvalid": "Введите корректный телефон",
+    "phoneInvalid": "Укажите корректный номер телефона в международном формате.",
     "positionRequired": "Введите должность",
     "languageRequired": "Выберите язык",
     "birthDateRequired": "Введите дату рождения",

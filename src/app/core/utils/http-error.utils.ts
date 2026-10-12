@@ -1,6 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { TimeoutError } from 'rxjs';
 import { WorkItemMutationError } from '../models/work-items';
+import { ValidationErrorModel } from '../models/auth/auth.models';
 
 export const API_TIMEOUT_MS = 10_000;
 
@@ -45,10 +46,10 @@ export function validationErrorExcept(error: HttpErrorResponse, field: string): 
   );
 }
 
-function validationErrors(error: HttpErrorResponse): { field?: string; error?: string }[] {
+export function validationErrors(error: HttpErrorResponse): { field?: string; error?: string }[] {
   if (error.status !== 400) return [];
 
-  const errors = error.error?.errors as { field?: string; error?: string }[] | undefined;
+  const errors = (error.error as Partial<ValidationErrorModel> | null)?.errors;
   return Array.isArray(errors) ? errors : [];
 }
 
@@ -77,6 +78,5 @@ export function toMutationError(error: unknown): WorkItemMutationError {
 export function validationField(error: unknown): string | null {
   if (!(error instanceof HttpErrorResponse) || error.status !== 400) return null;
 
-  const errors = error.error?.errors as { field?: string; error?: string }[] | undefined;
-  return errors?.find((item) => item.error)?.field ?? null;
+  return validationErrors(error).find((item) => item.error)?.field ?? null;
 }
