@@ -6,6 +6,7 @@ import { ButtonModule } from 'primeng/button';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
 import { AuthService } from '../../../core/services/auth.service';
+import { AuthSessionService } from '../../../core/services/auth-session.service';
 import { SnackBarService } from '../../../core/services/snack-bar.service';
 import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 
@@ -20,7 +21,10 @@ export class EmailConfirmationComponent {
   private readonly authService = inject(AuthService);
   private readonly snackBar = inject(SnackBarService);
   private readonly transloco = inject(TranslocoService);
+  private readonly session = inject(AuthSessionService);
 
+  // the link can be opened where another account is signed in; login would only bounce to the dashboard
+  readonly isSignedIn = this.session.isAuthenticated;
   readonly isResending = signal(false);
   readonly resendSent = signal(false);
   readonly status = computed(() => this.route.snapshot.queryParamMap.get('status'));

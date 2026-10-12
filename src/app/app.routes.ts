@@ -2,7 +2,6 @@ import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { permissionGuard } from './core/guards/permission.guard';
 import { Permissions } from './core/enums/permissions.enum';
-import { guestGuard } from './core/guards/guest.guard';
 import { onboardingCompletedGuard, onboardingPageGuard } from './core/guards/onboarding.guard';
 import { unsavedChangesGuard } from './core/guards/unsaved-changes.guard';
 import { skipNavigationHistory } from './core/services/navigation-history.service';
@@ -32,7 +31,6 @@ export const routes: Routes = [
     data: { [skipNavigationHistory]: true },
     loadComponent: () =>
       import('./shared/layouts/auth/auth-layout').then((c) => c.AuthLayoutComponent),
-    canActivateChild: [guestGuard],
     loadChildren: () => import('./pages/auth/auth.routes').then((c) => c.AUTH_ROUTES),
   },
   // Main layout
