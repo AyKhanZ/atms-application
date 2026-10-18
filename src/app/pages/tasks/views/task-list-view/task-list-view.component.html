@@ -90,11 +90,10 @@
 </div>
 
 @if (page()?.loading && page()?.items?.length) {
-  <div class="more-loading" aria-hidden="true">
-    @for (placeholder of [1, 2]; track placeholder) {
-      <p-skeleton height="2.75rem" borderRadius="8px" />
-    }
-  </div>
+  <p class="more-loading" role="status" *transloco="let t">
+    <i class="pi pi-spin pi-spinner" aria-hidden="true"></i>
+    <span>{{ t('common.loading') }}</span>
+  </p>
 }
 
 @if (items().length) {
