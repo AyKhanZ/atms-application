@@ -69,10 +69,16 @@
   font-size: 0.72rem;
 }
 
+// a long label like "Родительская задача" leaves ~150px, date and badge need ~200: the badge drops below
 .hover__deadline {
+  flex-wrap: wrap;
   align-items: center;
-  gap: 0.45rem;
+  gap: 0.25rem 0.45rem;
   font-variant-numeric: tabular-nums;
+}
+
+.hover__date {
+  white-space: nowrap;
 }
 
 .hover__deadline--overdue {
