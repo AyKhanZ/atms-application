@@ -24,7 +24,6 @@ export const ATTACHMENT_EXTENSIONS: readonly string[] = [
   'gif',
   'txt',
   'csv',
-  'zip',
 ];
 
 export const ATTACHMENT_ACCEPT = ATTACHMENT_EXTENSIONS.map((extension) => `.${extension}`).join(
