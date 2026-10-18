@@ -96,7 +96,7 @@ describe('attachment utils', () => {
       expect(attachmentFileError(file('spec.pdf', 10), translate)).toBeNull();
     });
 
-    it.each(['virus.exe', 'page.html', 'drawing.svg', 'archive.rar', 'noextension'])(
+    it.each(['virus.exe', 'page.html', 'drawing.svg', 'archive.zip', 'archive.rar', 'noextension'])(
       'refuses %s',
       (name) => {
         expect(attachmentFileError(file(name, 10), translate)).toContain("isn't supported");
