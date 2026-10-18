@@ -24,4 +24,24 @@ describe('TaskFiltersComponent', () => {
       fixture.componentInstance.deadlines().find((option) => option.value === 'none')?.disabled,
     ).toBe(false);
   });
+
+  it('has no Status field on the board, and a status picked in the list does not count there', () => {
+    TestBed.configureTestingModule({
+      imports: [TaskFiltersComponent],
+      providers: [...translocoTestingProviders()],
+    });
+    const fixture = TestBed.createComponent(TaskFiltersComponent);
+    fixture.componentRef.setInput('filter', { ...emptyWorkTaskBoardFilter, statusIds: [1] });
+    fixture.componentRef.setInput('board', true);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('#taskFilterStateLabel')).toBeNull();
+    expect(fixture.componentInstance.canClear()).toBe(false);
+
+    fixture.componentRef.setInput('board', false);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('#taskFilterStateLabel')).not.toBeNull();
+    expect(fixture.componentInstance.canClear()).toBe(true);
+  });
 });

@@ -91,6 +91,8 @@ export class TasksPageComponent implements OnDestroy {
     parseTasksPage(this.params(), this.me()?.id ?? null),
   );
   readonly query = computed<WorkTaskBoardQuery>(() => this.state().filter);
+  // the columns are the statuses: the board always shows all of them, the Status filter is for list and calendar
+  readonly boardQuery = computed<WorkTaskBoardQuery>(() => ({ ...this.query(), statusIds: [] }));
 
   // url follows after a pause in typing
   readonly searchTerm = linkedSignal(() => this.state().filter.search);
@@ -102,7 +104,7 @@ export class TasksPageComponent implements OnDestroy {
       filter.workTicketIds.length > 0,
       filter.kind !== null,
       filter.assigneeUserIds.length > 0 || filter.unassigned,
-      filter.statusIds.length > 0,
+      filter.statusIds.length > 0 && this.state().view !== 'board',
       filter.priorityIds.length > 0,
       filter.deadline !== 'any',
       filter.deadlineFrom !== null || filter.deadlineTo !== null,

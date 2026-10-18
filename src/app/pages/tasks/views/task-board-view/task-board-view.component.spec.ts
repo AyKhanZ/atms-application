@@ -224,15 +224,28 @@ describe('TaskBoardViewComponent', () => {
     });
   });
 
-  it('switches the phone to the first column shown when the Status filter hides its column', () => {
+  it('shows every status as a column: the board has no Status filter', () => {
     const { fixture } = setup();
-    expect(fixture.componentInstance.phoneColumn()).toBe(WorkTaskStatus.New);
 
     fixture.componentRef.setInput('query', {
       ...emptyWorkTaskBoardFilter,
       statusIds: [WorkTaskStatus.InProgress],
     });
-    expect(fixture.componentInstance.phoneColumn()).toBe(WorkTaskStatus.InProgress);
+
+    expect(fixture.componentInstance.columns().map((column) => column.status.id)).toEqual([
+      WorkTaskStatus.New,
+      WorkTaskStatus.InProgress,
+      WorkTaskStatus.Done,
+    ]);
+  });
+
+  it('switches the phone to the first column shown when the Overdue filter hides Done', () => {
+    const { fixture } = setup();
+    fixture.componentInstance.phoneColumn.set(WorkTaskStatus.Done);
+
+    fixture.componentRef.setInput('query', { ...emptyWorkTaskBoardFilter, deadline: 'overdue' });
+
+    expect(fixture.componentInstance.phoneColumn()).toBe(WorkTaskStatus.New);
   });
 
   it('does not reorder cards within Done: it is ordered by close date', () => {
