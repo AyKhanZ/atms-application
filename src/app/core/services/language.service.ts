@@ -66,7 +66,7 @@ export class LanguageService {
 
   // profile wins after onboarding; login activates in place, a running tab reloads once
   async applyProfile(
-    profileCode: string,
+    profileCode: string | null,
     roles: readonly { code: string }[],
     mode: 'activate' | 'reload',
   ): Promise<boolean> {
