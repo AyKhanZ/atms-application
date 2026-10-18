@@ -202,9 +202,16 @@
   color: var(--red-hover);
 }
 
+// one quiet line: grey bars under a table read as broken rows
 .more-loading {
-  display: grid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   gap: 0.5rem;
+  min-height: 2.75rem;
+  margin: 0;
+  color: var(--app-muted);
+  font-size: 0.85rem;
 }
 
 .rows {

@@ -24,6 +24,7 @@ import {
 import { Menu, MenuModule } from 'primeng/menu';
 import { TooltipModule } from 'primeng/tooltip';
 import { ProjectPermissions } from '../../../../../core/enums/project-permissions.enum';
+import { SortDirectionEnum } from '../../../../../core/enums/sort-direction.enum';
 import { currentLanguage } from '../../../../../core/i18n/active-language';
 import {
   MilestoneOptionModel,
@@ -397,6 +398,8 @@ export class GroupsTabComponent implements OnInit, OnDestroy {
         append: !reset,
         filter: {
           milestoneId,
+          // a plan reads top down: the first ticket created stays first, new ones go to the end
+          sortDirection: SortDirectionEnum.Asc,
           cursor: reset ? null : current?.nextCursor,
           pageSize: this.ticketPageSize,
         },

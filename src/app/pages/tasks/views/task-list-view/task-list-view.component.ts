@@ -14,7 +14,6 @@ import { TranslocoDirective } from '@jsverse/transloco';
 import { Store } from '@ngrx/store';
 import { SortEvent } from 'primeng/api';
 import { TableModule } from 'primeng/table';
-import { SkeletonModule } from 'primeng/skeleton';
 import { NgTemplateOutlet } from '@angular/common';
 import {
   WorkTaskBoardOrder,
@@ -62,7 +61,6 @@ const sorts: Record<string, WorkTaskBoardSort> = {
   imports: [
     AppDatePipe,
     TableModule,
-    SkeletonModule,
     NgTemplateOutlet,
     ScrollSentinelDirective,
     EmptyStateComponent,

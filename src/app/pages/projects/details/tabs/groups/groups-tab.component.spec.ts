@@ -10,6 +10,8 @@ import { ProjectAccessService } from '../../../../../core/services/project-acces
 import { Features } from '../../../../../store/features.enum';
 import { initialWorkGroupsState } from '../../../../../store/work-groups/work-groups.state';
 import { WorkGroupsStoreActions } from '../../../../../store/work-groups';
+import { WorkTicketsStoreActions } from '../../../../../store/work-tickets';
+import { SortDirectionEnum } from '../../../../../core/enums/sort-direction.enum';
 import { initialWorkTicketsState } from '../../../../../store/work-tickets/work-tickets.state';
 import {
   GroupsTabComponent,
@@ -149,6 +151,22 @@ describe('GroupsTabComponent', () => {
 
     expect(dispatch).toHaveBeenCalledWith(
       WorkGroupsStoreActions.loadWorkGroups({ projectId: 'project-1' }),
+    );
+  });
+
+  it('lists a milestone tickets oldest first, so a new ticket goes to the end', () => {
+    const dispatch = vi.spyOn(store, 'dispatch');
+
+    fixture.componentInstance.loadTicketsFor('milestone-1', true);
+
+    expect(dispatch).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: WorkTicketsStoreActions.loadTickets.type,
+        filter: expect.objectContaining({
+          milestoneId: 'milestone-1',
+          sortDirection: SortDirectionEnum.Asc,
+        }),
+      }),
     );
   });
 
