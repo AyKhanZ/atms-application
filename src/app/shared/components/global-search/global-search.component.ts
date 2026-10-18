@@ -233,7 +233,7 @@ export class GlobalSearchComponent {
       if (!this.isMobile()) return;
       const controls = Array.from(
         this.host.nativeElement.querySelectorAll<HTMLElement>(
-          '.search-shell--mobile input, .search-shell--mobile button:not(:disabled), .search-shell--mobile [tabindex="0"]',
+          '.search-shell--mobile input, .search-shell--mobile button:not(:disabled), .search-shell--mobile a[href]',
         ),
       );
       const first = controls[0];

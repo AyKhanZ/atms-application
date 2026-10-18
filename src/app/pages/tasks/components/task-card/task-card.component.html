@@ -1,18 +1,9 @@
+<!-- the title is the link, its overlay makes the whole card open like one; a drag starts from it too -->
 <article
   *transloco="let t"
   class="card"
   [class.card--subtask]="task().isSubtask"
   [class.card--overdue]="overdue()"
-  role="button"
-  tabindex="0"
-  [attr.aria-label]="
-    t('workItem.openNamed', {
-      kind: t(task().isSubtask ? 'workItem.kind.subtask' : 'workItem.kind.task'),
-      title: task().title,
-    })
-  "
-  (click)="open.emit()"
-  (keydown.enter)="open.emit()"
 >
   <header class="card__head">
     <app-work-item-ref [type]="kind()" [code]="task().code" />
@@ -20,14 +11,23 @@
       type="button"
       class="card__menu"
       [attr.aria-label]="t('workItem.actionsFor', { name: task().title })"
-      (click)="$event.stopPropagation(); actions.toggle($event)"
-      (keydown.enter)="$event.stopPropagation()"
+      (click)="actions.toggle($event)"
     >
       <i class="pi pi-ellipsis-v" aria-hidden="true"></i>
     </button>
   </header>
 
-  <p class="card__title" [title]="task().title">{{ task().title }}</p>
+  <a
+    class="card__title"
+    [routerLink]="route()"
+    [attr.aria-label]="
+      t('workItem.openNamed', {
+        kind: t(task().isSubtask ? 'workItem.kind.subtask' : 'workItem.kind.task'),
+        title: task().title,
+      })
+    "
+    >{{ task().title }}</a
+  >
 
   <app-work-item-assignee class="card__assignee" [assignee]="task().assignee" />
   <app-task-context [task]="task()" [showProject]="showProject()" />

@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { GlobalSearchItemModel } from '../../../core/models/global-search';
 import { WorkItemKind } from '../../../core/models/work-items';
 import { SearchResultRowComponent } from './search-result-row.component';
@@ -23,7 +24,8 @@ describe('SearchResultRowComponent', () => {
   let fixture: ComponentFixture<SearchResultRowComponent>;
 
   async function render(value: GlobalSearchItemModel, query = '') {
-    await TestBed.configureTestingModule({ providers: [...translocoTestingProviders()],
+    await TestBed.configureTestingModule({
+      providers: [...translocoTestingProviders(), provideRouter([])],
       imports: [SearchResultRowComponent],
     }).compileComponents();
     fixture = TestBed.createComponent(SearchResultRowComponent);
@@ -32,6 +34,17 @@ describe('SearchResultRowComponent', () => {
     fixture.detectChanges();
     return fixture.nativeElement as HTMLElement;
   }
+
+  it.each([
+    [WorkItemKind.Project, '/projects/p7'],
+    [WorkItemKind.Ticket, '/projects/p7/tickets/task-34'],
+    [WorkItemKind.Task, '/projects/p7/tickets/t28/tasks/task-34'],
+    [WorkItemKind.Subtask, '/projects/p7/tickets/t28/tasks/task-34'],
+  ])('links kind %s to its page, so it opens in a new tab too', async (itemType, href) => {
+    const element = await render(item({ itemType }));
+
+    expect(element.querySelector('a.row')?.getAttribute('href')).toBe(href);
+  });
 
   it('marks every occurrence of what was typed', async () => {
     await render(item(), 'плат');

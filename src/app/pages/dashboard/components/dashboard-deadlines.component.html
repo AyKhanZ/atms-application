@@ -9,11 +9,10 @@
   <ul class="dashboard-list__items">
     @for (row of rows(); track row.item.ref.workTaskId) {
       <li>
-        <button
-          type="button"
+        <a
           class="dashboard-deadline"
+          [routerLink]="row.item.ref | workItemRoute"
           [title]="row.item.title"
-          (click)="selected.emit(row.item.ref)"
         >
           <app-work-item-ref
             class="dashboard-deadline__ref"
@@ -26,7 +25,7 @@
           <time class="dashboard-deadline__date" [attr.datetime]="row.item.deadline">{{
             row.item.deadline | appDate: 'EEE, d MMM' : '+0400'
           }}</time>
-        </button>
+        </a>
       </li>
     } @empty {
       <li class="dashboard-list__empty">{{ t('dashboard.deadlines.empty') }}</li>

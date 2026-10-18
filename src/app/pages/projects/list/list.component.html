@@ -63,13 +63,15 @@
         </tr></ng-template
       >
       <ng-template pTemplate="body" let-project
-        ><tr class="clickable-row" (click)="openDetails(project)">
+        ><tr class="clickable-row">
           <td>
             <span class="project-code">#{{ project.code }}</span>
           </td>
           <td>
             <div class="project-title">
-              <strong>{{ project.title }}</strong
+              <a class="project-title__link" [routerLink]="['/projects', project.id]">{{
+                project.title
+              }}</a
               ><small>{{ project.projectKind.name }}</small>
             </div>
           </td>
@@ -86,7 +88,7 @@
             {{ project.endDate ? (project.endDate | appDate: 'dd.MM.yyyy') : t('projects.openEnd') }}
           </td>
           @if (showActions()) {
-            <td class="actions-cell" (click)="$event.stopPropagation()">
+            <td class="actions-cell">
               <div class="management-table-actions" *hasRole="Roles.SuperAdmin">
                 <app-edit-action-button (clicked)="openEdit(project)" /><app-delete-action-button
                   (clicked)="confirmDelete(project)"

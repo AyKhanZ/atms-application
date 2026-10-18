@@ -1,0 +1,41 @@
+// a row or card that opens like a link: the title is a real <a>, its ::after covers the host,
+// so middle click, ctrl+click and "open in new tab" work anywhere on it, and a plain click stays SPA
+
+// on the card or row; webkit ignores position on a <tr>, a transform gives it the containing block
+@mixin host {
+  position: relative;
+}
+
+@mixin table-row {
+  position: relative;
+  transform: translateZ(0);
+}
+
+// on the title link; the focus ring goes round the whole host, not the title text
+@mixin link($radius: 0) {
+  color: inherit;
+  text-decoration: none;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: $radius;
+  }
+
+  &:focus-visible {
+    outline: none;
+  }
+
+  &:focus-visible::after {
+    outline: 2px solid var(--orange-focus-outline);
+    outline-offset: -2px;
+  }
+}
+
+// menus, assignee, parent links: above the overlay so they keep their own clicks
+@mixin above {
+  position: relative;
+  z-index: 2;
+}

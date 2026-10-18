@@ -356,10 +356,6 @@ export class GroupsTabComponent implements OnInit, OnDestroy {
     });
   }
 
-  viewTicket(ticketId: string): void {
-    void this.router.navigate(['/projects', this.projectId(), 'tickets', ticketId]);
-  }
-
   private createTicket(milestone?: WorkGroupModel): void {
     const parentGroup = milestone
       ? this.groups().find((group) => group.id === milestone.parentWorkGroupId)

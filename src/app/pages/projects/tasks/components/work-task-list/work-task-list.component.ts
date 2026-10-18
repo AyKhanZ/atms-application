@@ -8,7 +8,7 @@ import {
   input,
   signal,
 } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { MenuItem } from 'primeng/api';
 import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
@@ -24,10 +24,13 @@ import { TaskStatusBadgeComponent } from '../task-status-badge/task-status-badge
 import { WorkItemRefComponent } from '../../../../../shared/components/work-item-ref/work-item-ref.component';
 import { WorkItemKind } from '../../../../../core/models/work-items';
 import { LoadingStateComponent } from '../../../../../shared/components/loading-state/loading-state.component';
+import { TaskRoutePipe } from '../../../../../shared/pipes/work-task.pipe';
 
 @Component({
   selector: 'app-work-task-list',
   imports: [
+    RouterLink,
+    TaskRoutePipe,
     LoadingStateComponent,
     WorkItemRefComponent,
     ButtonModule,
@@ -112,17 +115,6 @@ export class WorkTaskListComponent implements OnDestroy {
       queryParams: parentTaskId ? { parentTaskId } : undefined,
       state: { returnUrl: this.router.url },
     });
-  }
-
-  open(task: WorkTaskModel): void {
-    void this.router.navigate([
-      '/projects',
-      this.projectId(),
-      'tickets',
-      task.workTicket.id,
-      'tasks',
-      task.id,
-    ]);
   }
 
   edit(task: WorkTaskModel): void {

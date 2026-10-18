@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, OnDestroy, computed, inject } from 
 import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { angularLocale, currentLanguage } from '../../core/i18n/active-language';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { ConfirmationService } from 'primeng/api';
 import { NotificationModel } from '../../core/models/notifications';
@@ -22,6 +22,7 @@ import {
   NotificationOpenerService,
 } from '../../shared/components/notification-item/notification-opener.service';
 import { ScrollSentinelDirective } from '../../shared/directives/scroll-sentinel.directive';
+import { NotificationLinkPipe } from '../../shared/pipes/notification.pipe';
 import { NotificationsStoreActions, NotificationsStoreSelectors } from '../../store/notifications';
 
 type NotificationFilter = 'all' | 'unread';
@@ -29,6 +30,8 @@ type NotificationFilter = 'all' | 'unread';
 @Component({
   selector: 'app-notifications-page',
   imports: [
+    RouterLink,
+    NotificationLinkPipe,
     ConfirmDialogComponent,
     EmptyStateComponent,
     LoadMoreButtonComponent,
@@ -99,6 +102,10 @@ export class NotificationsPageComponent implements OnDestroy {
 
   open(notification: NotificationModel): void {
     this.opener.open(notification);
+  }
+
+  followed(notification: NotificationModel, event: MouseEvent): void {
+    this.opener.followed(notification, event);
   }
 
   toggleRead(notification: NotificationModel): void {

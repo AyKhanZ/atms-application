@@ -185,7 +185,6 @@
         [deadlines]="data.deadlines"
         [total]="data.deadlineCount"
         [priorities]="priorities()"
-        (selected)="openRef($event)"
         (showAll)="showAllDeadlines()"
       />
     </div>
@@ -193,7 +192,6 @@
     <app-dashboard-activity
       class="dashboard-activity-card"
       [activities]="data.activities"
-      (selected)="openRef($event)"
     />
   } @else if (loading()) {
     <div class="dashboard-skeleton" [attr.aria-label]="t('dashboard.loading')">

@@ -1,6 +1,7 @@
-import { TestBed } from '@angular/core/testing';
-import { Router } from '@angular/router';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Router, provideRouter } from '@angular/router';
 import { MockStore, provideMockStore } from '@ngrx/store/testing';
+import { Popover } from 'primeng/popover';
 import { NotificationModel } from '../../../core/models/notifications';
 import { NotificationsStoreActions } from '../../../store/notifications';
 import { initialNotificationsState, NotificationsState } from '../../../store/notifications/notifications.state';
@@ -36,7 +37,6 @@ const notification = (id: string, readAt: string | null = null): NotificationMod
 
 describe('NotificationBellComponent', () => {
   let store: MockStore;
-  let router: { navigate: ReturnType<typeof vi.fn> };
 
   const render = (state: Partial<NotificationsState> = {}) => {
     store.setState({ notifications: { ...initialNotificationsState, ...state } });
@@ -45,13 +45,17 @@ describe('NotificationBellComponent', () => {
     return { fixture, element: fixture.nativeElement as HTMLElement };
   };
 
+  const showPanel = (fixture: ComponentFixture<NotificationBellComponent>, element: HTMLElement) => {
+    (element.querySelector('.bell') as HTMLButtonElement).click();
+    fixture.detectChanges();
+  };
+
   beforeEach(async () => {
-    router = { navigate: vi.fn(() => Promise.resolve(true)) };
     await TestBed.configureTestingModule({
       imports: [NotificationBellComponent],
       providers: [...translocoTestingProviders(), 
         provideMockStore({ initialState: { notifications: initialNotificationsState } }),
-        { provide: Router, useValue: router },
+        provideRouter([]),
       ],
     }).compileComponents();
     store = TestBed.inject(MockStore);
@@ -116,11 +120,47 @@ describe('NotificationBellComponent', () => {
     expect(open).toHaveBeenCalledWith(item);
   });
 
+  it('links a notification to its target, so it opens in a new tab too', () => {
+    const { fixture, element } = render({ latest: [notification('a')], latestLoaded: true });
+    showPanel(fixture, element);
+
+    expect(element.ownerDocument.querySelector('a.row')?.getAttribute('href')).toBe(
+      '/projects/p1/tickets/k1/tasks/t1',
+    );
+  });
+
+  it('keeps a deleted target a button that explains itself', () => {
+    const { fixture, element } = render({
+      latest: [{ ...notification('a'), entityDeleted: true }],
+      latestLoaded: true,
+    });
+    showPanel(fixture, element);
+
+    expect(element.ownerDocument.querySelector('a.row')).toBeNull();
+    expect(element.ownerDocument.querySelector('button.row')).not.toBeNull();
+  });
+
+  it.each([
+    ['a plain click', { button: 0 }, true],
+    ['ctrl+click', { button: 0, ctrlKey: true }, false],
+    ['a middle click', { button: 1 }, false],
+  ])('marks it read on %s and closes the panel only when the app navigates', (_name, init, hides) => {
+    const { fixture } = render({ latest: [notification('a')], latestLoaded: true });
+    const hide = vi.spyOn(Popover.prototype, 'hide');
+
+    fixture.componentInstance.followed(notification('a'), new MouseEvent('click', init));
+
+    expect(store.dispatch).toHaveBeenCalledWith(NotificationsStoreActions.markRead({ id: 'a' }));
+    expect(hide).toHaveBeenCalledTimes(hides ? 1 : 0);
+    hide.mockRestore();
+  });
+
   it('leads to the full list', () => {
     const { fixture } = render();
+    const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
 
     fixture.componentInstance.viewAll();
 
-    expect(router.navigate).toHaveBeenCalledWith(['/notifications']);
+    expect(navigate).toHaveBeenCalledWith(['/notifications']);
   });
 });

@@ -19,13 +19,8 @@
     <div class="search-panel__list">
       @for (item of items(); track item.id) {
         <app-search-result-row
-          role="button"
-          tabindex="0"
           [item]="item"
           [query]="query()"
-          (click)="open(item)"
-          (keydown.enter)="open(item)"
-          (keydown.space)="$event.preventDefault(); open(item)"
         />
       }
 

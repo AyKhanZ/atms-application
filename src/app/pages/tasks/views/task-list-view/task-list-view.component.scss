@@ -1,5 +1,6 @@
 @use 'entity-code';
 @use 'list-state';
+@use 'stretched-link';
 
 :host {
   display: grid;
@@ -119,6 +120,8 @@
 }
 
 .clickable-row {
+  @include stretched-link.table-row;
+
   cursor: pointer;
 }
 
@@ -157,6 +160,8 @@
 }
 
 .task-cell__title {
+  @include stretched-link.link;
+
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;

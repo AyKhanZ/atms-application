@@ -1,10 +1,12 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { GlobalSearchItemModel } from '../../../core/models/global-search';
 import { WorkItemKind } from '../../../core/models/work-items';
 import { WorkItemAssigneeComponent } from '../work-item-assignee/work-item-assignee.component';
 import { WorkItemRefComponent } from '../work-item-ref/work-item-ref.component';
 import { workItemKinds } from '../work-item-ref/work-item-kinds';
 import { WorkItemStatusBadgeComponent } from '../work-item-status-badge/work-item-status-badge.component';
+import { workItemRoute } from './work-item-route';
 
 interface TrailStep {
   icon: string;
@@ -13,7 +15,12 @@ interface TrailStep {
 
 @Component({
   selector: 'app-search-result-row',
-  imports: [WorkItemRefComponent, WorkItemAssigneeComponent, WorkItemStatusBadgeComponent],
+  imports: [
+    RouterLink,
+    WorkItemRefComponent,
+    WorkItemAssigneeComponent,
+    WorkItemStatusBadgeComponent,
+  ],
   templateUrl: './search-result-row.component.html',
   styleUrl: './search-result-row.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -26,6 +33,7 @@ export class SearchResultRowComponent {
   readonly followsPointer = input(true);
 
   readonly kind = computed(() => workItemKinds[this.item().itemType]);
+  readonly route = computed(() => workItemRoute(this.item()));
 
   // project opens the chain, search crosses projects and the name alone is ambiguous
   readonly trail = computed<TrailStep[]>(() => {

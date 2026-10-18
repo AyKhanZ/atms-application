@@ -54,7 +54,6 @@
               [task]="task"
               [canMove]="canMove()"
               [showProject]="showProject()"
-              (open)="openTask.emit(task)"
               (moveTo)="moveTo(task, lane, $event)"
               (moveToTop)="moveToTop(task, column, lane)"
               (cdkDragStarted)="dragging.set(true)"

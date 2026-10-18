@@ -1,5 +1,6 @@
-<span
+<a
   class="row"
+  [routerLink]="route()"
   [class.row--active]="active()"
   [class.row--hoverable]="followsPointer()"
   [class.row--project]="item().itemType === 1"
@@ -47,4 +48,4 @@
       }
     </span>
   }
-</span>
+</a>

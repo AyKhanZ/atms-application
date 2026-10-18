@@ -52,7 +52,6 @@
             [hideAssignee]="onlyMine()"
             [reloadToken]="reloadToken()"
             (monthChange)="changeMonth($event)"
-            (openTask)="open($event)"
             (showOverdue)="selectView('list')"
           />
         }
@@ -63,7 +62,6 @@
             (orderChange)="changeOrder($event)"
             [reloadToken]="reloadToken()"
             [emptyText]="emptyText()"
-            (openTask)="open($event)"
           />
         }
         @default {
@@ -73,7 +71,6 @@
             [canMove]="canMove()"
             [showProject]="showProject()"
             [reloadToken]="reloadToken()"
-            (openTask)="open($event)"
           />
         }
       }

@@ -1,5 +1,5 @@
 import { WorkItemKind } from '../models/work-items';
-import { workTaskKind, workTaskParent } from './work-task.utils';
+import { workTaskKind, workTaskParent, workTaskRoute } from './work-task.utils';
 
 describe('work task utils', () => {
   const ticket = { id: 'ticket-1', code: '28', name: 'Payments' };
@@ -23,5 +23,11 @@ describe('work task utils', () => {
       ...ticket,
       kind: WorkItemKind.Ticket,
     });
+  });
+
+  it('routes a task under its ticket', () => {
+    expect(workTaskRoute({ id: 'task-2', workProjectId: 'project-1', workTicket: ticket })).toEqual(
+      ['/projects', 'project-1', 'tickets', 'ticket-1', 'tasks', 'task-2'],
+    );
   });
 });

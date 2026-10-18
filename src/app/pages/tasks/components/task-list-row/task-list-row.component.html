@@ -1,9 +1,8 @@
-<button
-  type="button"
+<a
   class="row"
   [class.row--subtask]="task().isSubtask"
   [class.row--overdue]="overdue()"
-  (click)="open.emit()"
+  [routerLink]="route()"
 >
   <span class="row__head">
     <app-work-item-ref [type]="kind()" [code]="task().code" [labelled]="false" />
@@ -19,4 +18,4 @@
     }
     <app-work-item-assignee class="row__assignee" [assignee]="task().assignee" [avatarOnly]="true" />
   </span>
-</button>
+</a>

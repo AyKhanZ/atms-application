@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { DashboardDeadlineModel } from '../../../core/models/dashboard';
 import { DashboardDeadlinesComponent } from './dashboard-deadlines.component';
 
@@ -15,7 +16,10 @@ const deadline: DashboardDeadlineModel = {
 
 describe('DashboardDeadlinesComponent', () => {
   function create(total: number) {
-    TestBed.configureTestingModule({ providers: [...translocoTestingProviders()], imports: [DashboardDeadlinesComponent] });
+    TestBed.configureTestingModule({
+      providers: [...translocoTestingProviders(), provideRouter([])],
+      imports: [DashboardDeadlinesComponent],
+    });
     const fixture = TestBed.createComponent(DashboardDeadlinesComponent);
     fixture.componentRef.setInput('deadlines', [deadline]);
     fixture.componentRef.setInput('total', total);
@@ -32,6 +36,12 @@ describe('DashboardDeadlinesComponent', () => {
     expect(footer.textContent).toContain('The nearest 1 of 14');
     (footer.querySelector('button') as HTMLButtonElement).click();
     expect(showAll).toHaveBeenCalledOnce();
+  });
+
+  it('links each deadline to its task, so it opens in a new tab too', () => {
+    const row = create(1).nativeElement.querySelector('.dashboard-deadline') as HTMLAnchorElement;
+
+    expect(row.getAttribute('href')).toBe('/projects/project-1/tickets/ticket-1/tasks/task-1');
   });
 
   it('has no footer when every deadline is listed', () => {

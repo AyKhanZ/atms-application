@@ -35,7 +35,12 @@ import { WorkItemAssigneeComponent } from '../../../../shared/components/work-it
 import { WorkItemPriorityComponent } from '../../../../shared/components/work-item-priority/work-item-priority.component';
 import { WorkItemRefComponent } from '../../../../shared/components/work-item-ref/work-item-ref.component';
 import { OverdueBadgeComponent } from '../../../../shared/components/overdue-badge/overdue-badge.component';
-import { IsOverdueTaskPipe, TaskKindPipe } from '../../../../shared/pipes/work-task.pipe';
+import { RouterLink } from '@angular/router';
+import {
+  IsOverdueTaskPipe,
+  TaskKindPipe,
+  TaskRoutePipe,
+} from '../../../../shared/pipes/work-task.pipe';
 import { ScrollSentinelDirective } from '../../../../shared/directives/scroll-sentinel.directive';
 import { TaskListRowComponent } from '../../components/task-list-row/task-list-row.component';
 import { TaskStatusBadgeComponent } from '../../../projects/tasks/components/task-status-badge/task-status-badge.component';
@@ -75,6 +80,8 @@ const sorts: Record<string, WorkTaskBoardSort> = {
     TaskKindPipe,
     IsOverdueTaskPipe,
     TranslocoDirective,
+    RouterLink,
+    TaskRoutePipe,
   ],
   templateUrl: './task-list-view.component.html',
   styleUrl: './task-list-view.component.scss',
@@ -87,7 +94,6 @@ export class TaskListViewComponent {
   readonly query = input.required<WorkTaskBoardQuery>();
   readonly reloadToken = input(0);
   readonly emptyText = input('No tasks yet');
-  readonly openTask = output<WorkTaskModel>();
   readonly order = input<WorkTaskBoardOrder>(defaultListOrder);
   readonly orderChange = output<WorkTaskBoardOrder>();
   readonly sortField = computed(

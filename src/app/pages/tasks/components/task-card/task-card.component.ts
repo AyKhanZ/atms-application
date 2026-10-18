@@ -1,9 +1,10 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import { MenuItem } from 'primeng/api';
 import { MenuModule } from 'primeng/menu';
+import { RouterLink } from '@angular/router';
 import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { currentLanguage } from '../../../../core/i18n/active-language';
-import { workTaskKind } from '../../../../core/utils/work-task.utils';
+import { workTaskKind, workTaskRoute } from '../../../../core/utils/work-task.utils';
 import { WorkTaskModel } from '../../../../core/models/work-tasks';
 import { WorkTaskStatus } from '../../../../core/enums/work-task-status.enum';
 import { WorkItemRefComponent } from '../../../../shared/components/work-item-ref/work-item-ref.component';
@@ -17,6 +18,7 @@ import { TaskContextComponent } from '../task-context/task-context.component';
   selector: 'app-task-card',
   imports: [
     MenuModule,
+    RouterLink,
     WorkItemRefComponent,
     WorkItemAssigneeComponent,
     WorkItemPriorityComponent,
@@ -35,11 +37,11 @@ export class TaskCardComponent {
   readonly showProject = input(false);
   // off for people who cant edit
   readonly canMove = input(false);
-  readonly open = output<void>();
   readonly moveTo = output<WorkTaskStatus>();
   readonly moveToTop = output<void>();
 
   protected readonly kind = computed(() => workTaskKind(this.task()));
+  protected readonly route = computed(() => workTaskRoute(this.task()));
 
   protected readonly done = computed(() => this.task().status.id === WorkTaskStatus.Done);
 
@@ -92,7 +94,7 @@ export class TaskCardComponent {
       {
         label: this.transloco.translate('common.open'),
         icon: 'pi pi-external-link',
-        command: () => this.open.emit(),
+        routerLink: this.route(),
       },
     ];
   });

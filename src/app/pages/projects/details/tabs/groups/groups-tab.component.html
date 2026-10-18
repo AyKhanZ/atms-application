@@ -218,7 +218,6 @@
                             [milestoneTitle]="milestone.title"
                             [page]="ticketPageFor(milestone.id)"
                             [canEditTickets]="canEditTickets()"
-                            (viewTicket)="viewTicket($event)"
                             (editTicket)="editTicket($event)"
                             (loadMore)="loadTicketsFor(milestone.id)"
                           />

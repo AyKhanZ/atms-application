@@ -41,9 +41,21 @@
               >
                 <span class="row__dot"></span>
               </button>
-              <button type="button" class="row__open" (click)="open(item)">
-                <app-notification-item [notification]="item" />
-              </button>
+              @if (item | notificationLink; as link) {
+                <a
+                  class="row__open"
+                  [routerLink]="link.commands"
+                  [fragment]="link.fragment"
+                  (click)="followed(item, $event)"
+                  (auxclick)="followed(item, $event)"
+                >
+                  <app-notification-item [notification]="item" />
+                </a>
+              } @else {
+                <button type="button" class="row__open" (click)="open(item)">
+                  <app-notification-item [notification]="item" />
+                </button>
+              }
             </div>
           }
         </section>

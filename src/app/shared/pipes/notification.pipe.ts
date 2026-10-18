@@ -2,10 +2,20 @@ import { Pipe, PipeTransform } from '@angular/core';
 import { NotificationModel } from '../../core/models/notifications';
 import {
   isSystemNotification,
+  NotificationLink,
+  notificationLink,
   notificationShowsDeletedComment,
   NotificationView,
   notificationView,
 } from '../../core/utils/notification.utils';
+
+// null when the target was deleted
+@Pipe({ name: 'notificationLink' })
+export class NotificationLinkPipe implements PipeTransform {
+  transform(notification: NotificationModel): NotificationLink | null {
+    return notificationLink(notification);
+  }
+}
 
 @Pipe({ name: 'notificationView' })
 export class NotificationViewPipe implements PipeTransform {

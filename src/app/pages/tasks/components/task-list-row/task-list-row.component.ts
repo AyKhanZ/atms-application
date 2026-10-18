@@ -1,8 +1,9 @@
-import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { AppDatePipe } from '../../../../shared/pipes/app-date.pipe';
 import { WorkTaskModel } from '../../../../core/models/work-tasks';
 import { isOverdueTask } from '../../../../core/utils/deadline.utils';
-import { workTaskKind } from '../../../../core/utils/work-task.utils';
+import { workTaskKind, workTaskRoute } from '../../../../core/utils/work-task.utils';
 import { WorkItemRefComponent } from '../../../../shared/components/work-item-ref/work-item-ref.component';
 import { WorkItemAssigneeComponent } from '../../../../shared/components/work-item-assignee/work-item-assignee.component';
 import { WorkItemPriorityComponent } from '../../../../shared/components/work-item-priority/work-item-priority.component';
@@ -13,6 +14,7 @@ import { TaskStatusBadgeComponent } from '../../../projects/tasks/components/tas
 @Component({
   selector: 'app-task-list-row',
   imports: [
+    RouterLink,
     AppDatePipe,
     WorkItemRefComponent,
     WorkItemAssigneeComponent,
@@ -26,8 +28,7 @@ import { TaskStatusBadgeComponent } from '../../../projects/tasks/components/tas
 })
 export class TaskListRowComponent {
   readonly task = input.required<WorkTaskModel>();
-  readonly open = output<void>();
-
   protected readonly kind = computed(() => workTaskKind(this.task()));
+  protected readonly route = computed(() => workTaskRoute(this.task()));
   protected readonly overdue = computed(() => isOverdueTask(this.task()));
 }

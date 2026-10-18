@@ -38,11 +38,26 @@
           <button type="button" class="panel__action" (click)="retry()">{{ t('common.retry') }}</button>
         </div>
       } @else {
+        <!-- a link while the target exists, so it opens in a new tab too; a deleted one explains itself -->
         @for (item of latest(); track item.id) {
-          <button type="button" class="row" [class.row--unread]="!item.readAt" (click)="open(item)">
-            <span class="row__dot" [attr.aria-label]="item.readAt ? null : t('notifications.unread')"></span>
-            <app-notification-item class="row__item" [notification]="item" />
-          </button>
+          @if (item | notificationLink; as link) {
+            <a
+              class="row"
+              [class.row--unread]="!item.readAt"
+              [routerLink]="link.commands"
+              [fragment]="link.fragment"
+              (click)="followed(item, $event)"
+              (auxclick)="followed(item, $event)"
+            >
+              <span class="row__dot" [attr.aria-label]="item.readAt ? null : t('notifications.unread')"></span>
+              <app-notification-item class="row__item" [notification]="item" />
+            </a>
+          } @else {
+            <button type="button" class="row" [class.row--unread]="!item.readAt" (click)="open(item)">
+              <span class="row__dot" [attr.aria-label]="item.readAt ? null : t('notifications.unread')"></span>
+              <app-notification-item class="row__item" [notification]="item" />
+            </button>
+          }
         } @empty {
           <div class="panel__empty">
             <i class="pi pi-check-circle" aria-hidden="true"></i>

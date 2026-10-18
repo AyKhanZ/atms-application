@@ -20,3 +20,12 @@ export function workTaskParent(task: {
     ? { ...task.parentWorkTask, kind: WorkItemKind.Task }
     : { ...task.workTicket, kind: WorkItemKind.Ticket };
 }
+
+// subtask has the same route as a task, the page tells them apart
+export function workTaskRoute(task: {
+  id: string;
+  workProjectId: string;
+  workTicket: { id: string };
+}): string[] {
+  return ['/projects', task.workProjectId, 'tickets', task.workTicket.id, 'tasks', task.id];
+}

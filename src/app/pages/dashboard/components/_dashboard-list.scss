@@ -52,7 +52,8 @@
   .dashboard-list__items li:last-child {
     border-bottom: 0;
   }
-  .dashboard-list__items button {
+  .dashboard-list__items a {
+    display: block;
     width: 100%;
     min-width: 0;
     padding: 0.5rem;
@@ -61,18 +62,18 @@
     background: transparent;
     color: var(--app-text);
     text-align: left;
+    text-decoration: none;
     cursor: pointer;
   }
-  .dashboard-list__items button:hover:not(:disabled) {
+  .dashboard-list__items a[href]:hover {
     background: var(--orange-light-hover);
   }
-  .dashboard-list__items button:focus-visible {
+  .dashboard-list__items a:focus-visible {
     outline: 3px solid var(--orange-focus-outline);
     outline-offset: -3px;
   }
-  .dashboard-list__items button:disabled {
+  .dashboard-list__items a:not([href]) {
     cursor: default;
-    opacity: 1;
   }
   .dashboard-list__items .dashboard-list__empty {
     display: grid;

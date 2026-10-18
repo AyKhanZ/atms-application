@@ -12,7 +12,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { Store } from '@ngrx/store';
-import { GlobalSearchItemModel } from '../../core/models/global-search';
 import { WorkItemKind } from '../../core/models/work-items';
 import { GlobalSearchStoreActions, GlobalSearchStoreSelectors } from '../../store/global-search';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
@@ -22,7 +21,6 @@ import {
   SearchFilterChip,
   SearchFiltersComponent,
 } from '../../shared/components/global-search/search-filters.component';
-import { workItemRoute } from '../../shared/components/global-search/work-item-route';
 import { ScrollSentinelDirective } from '../../shared/directives/scroll-sentinel.directive';
 import { ListSearchComponent } from '../../shared/components/list-search/list-search.component';
 import { BackButtonComponent } from '../../shared/components/back-button/back-button.component';
@@ -121,10 +119,6 @@ export class SearchComponent implements OnDestroy {
   // dashboard when opened by link; switching kind or query is one stop in history
   back(): void {
     if (!this.navigationHistory.back()) void this.router.navigateByUrl('/dashboard');
-  }
-
-  open(item: GlobalSearchItemModel): void {
-    void this.router.navigateByUrl(workItemRoute(item));
   }
 
   loadMore(): void {

@@ -10,13 +10,12 @@
           [class.ticket-row--with-menu]="canEditTickets()"
           [class.ticket-row--current]="ticket.id === currentTicketId()"
         >
-          <button
-            type="button"
+          <a
             class="ticket-main"
+            [routerLink]="['/projects', ticket.workProjectId, 'tickets', ticket.id]"
             [attr.aria-label]="
               t('workItem.viewNamed', { kind: t('workItem.kind.ticket'), title: ticket.title })
             "
-            (click)="viewTicket.emit(ticket.id)"
           >
             <app-work-item-ref [type]="kinds.Ticket" [code]="ticket.code" />
             <span class="ticket-title-group">
@@ -25,7 +24,7 @@
                 <span class="ticket-current-tag">{{ t('plan.current') }}</span>
               }
             </span>
-          </button>
+          </a>
 
           <div class="ticket-meta">
             <app-work-item-type [type]="ticket.workTicketType" />

@@ -68,7 +68,6 @@ export class TaskCalendarViewComponent {
   readonly hideAssignee = input(false);
   readonly reloadToken = input(0);
   readonly monthChange = output<string>();
-  readonly openTask = output<WorkTaskModel>();
   readonly showOverdue = output<void>();
 
   readonly weekdays = computed(() => {

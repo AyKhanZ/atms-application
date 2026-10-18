@@ -1,7 +1,7 @@
 import { Pipe, PipeTransform } from '@angular/core';
 import { WorkItemKind } from '../../core/models/work-items';
 import { isOverdueTask } from '../../core/utils/deadline.utils';
-import { workTaskKind } from '../../core/utils/work-task.utils';
+import { workTaskKind, workTaskRoute } from '../../core/utils/work-task.utils';
 
 @Pipe({ name: 'taskKind' })
 export class TaskKindPipe implements PipeTransform {
@@ -15,5 +15,12 @@ export class TaskKindPipe implements PipeTransform {
 export class IsOverdueTaskPipe implements PipeTransform {
   transform(task: { deadline?: string | null; status: { id: number } }): boolean {
     return isOverdueTask(task);
+  }
+}
+
+@Pipe({ name: 'taskRoute' })
+export class TaskRoutePipe implements PipeTransform {
+  transform(task: { id: string; workProjectId: string; workTicket: { id: string } }): string[] {
+    return workTaskRoute(task);
   }
 }

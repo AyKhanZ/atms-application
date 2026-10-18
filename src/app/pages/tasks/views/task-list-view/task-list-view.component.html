@@ -12,7 +12,7 @@
     <!-- phone: two lines per task like a tickets Tasks tab -->
     <ul class="rows" [attr.aria-label]="t('nav.tasks')">
       @for (task of items(); track task.id) {
-        <li><app-task-list-row [task]="task" (open)="openTask.emit(task)" /></li>
+        <li><app-task-list-row [task]="task" /></li>
       } @empty {
         @if (!loading() && !page()?.error) {
           <li><app-empty-state icon="pi-list-check" [title]="emptyText()" /></li>
@@ -45,7 +45,6 @@
         ><tr
           class="clickable-row"
           [class.overdue-row]="task | isOverdueTask"
-          (click)="openTask.emit(task)"
         >
           <td class="code-cell" [class.code-cell--subtask]="task.isSubtask">#{{ task.code }}</td>
           <td>
@@ -58,7 +57,9 @@
                 [title]="t(task.isSubtask ? 'workItem.kind.subtask' : 'workItem.kind.task')"
                 [attr.aria-label]="t(task.isSubtask ? 'workItem.kind.subtask' : 'workItem.kind.task')"
               />
-              <strong class="task-cell__title" [title]="task.title">{{ task.title }}</strong>
+              <a class="task-cell__title" [routerLink]="task | taskRoute" [title]="task.title">{{
+                task.title
+              }}</a>
             </div>
           </td>
           <td><app-task-status-badge [status]="task.status" /></td>

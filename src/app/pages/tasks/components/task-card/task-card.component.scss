@@ -1,3 +1,5 @@
+@use 'stretched-link';
+
 :host {
   display: block;
   min-width: 0;
@@ -6,6 +8,8 @@
 // inset shadow so the content doesnt shift
 .card {
   --kind-color: var(--kind-task);
+
+  @include stretched-link.host;
 
   display: grid;
   gap: 0.35rem;
@@ -32,11 +36,6 @@
 .card--overdue {
   border-color: var(--overdue-border-strong);
   background: var(--overdue-bg);
-}
-
-.card:focus-visible {
-  outline: 2px solid var(--orange-focus-outline);
-  outline-offset: 1px;
 }
 
 .card__head {
@@ -74,6 +73,8 @@
 }
 
 .card__menu {
+  @include stretched-link.above;
+
   display: grid;
   width: 1.75rem;
   height: 1.75rem;
@@ -97,6 +98,8 @@
 
 // whole title, a long one makes the card taller instead of "…"
 .card__title {
+  @include stretched-link.link(var(--radius-card));
+
   margin: 0;
   color: var(--app-text);
   font-size: 0.875rem;

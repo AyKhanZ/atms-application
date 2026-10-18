@@ -1,6 +1,5 @@
 <ng-template #details><app-task-hover [task]="task()" /></ng-template>
-<button
-  type="button"
+<a
   class="chip"
   [class.chip--phone]="phone()"
   [class.chip--subtask]="task().isSubtask"
@@ -13,7 +12,7 @@
   appendTo="body"
   [showDelay]="300"
   [attr.aria-label]="label() + ', ' + (task().assignee | personName)"
-  (click)="open.emit()"
+  [routerLink]="route()"
 >
   <!-- on the grid the left edge shows the kind and hover the code; the agenda has room -->
   @if (phone()) {
@@ -33,4 +32,4 @@
       [shortName]="true"
     />
   }
-</button>
+</a>

@@ -161,6 +161,16 @@ describe('TaskListViewComponent', () => {
     expect(fixture.nativeElement.querySelector('.rows')).toBeNull();
   });
 
+  it('links the title of each row, its overlay makes the whole row open in a new tab too', () => {
+    const { fixture } = setup();
+    const row: HTMLElement = fixture.nativeElement.querySelector('tr.clickable-row');
+
+    expect(row.querySelector('a.task-cell__title')?.getAttribute('href')).toBe(
+      '/projects/project-1/tickets/ticket-1/tasks/task-1',
+    );
+    expect(row.querySelectorAll('a')).toHaveLength(1);
+  });
+
   it('draws a two-line row per task for the phone, overdue marked the same way', () => {
     const { fixture, answer } = setup(true);
     answer(

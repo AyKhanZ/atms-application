@@ -24,9 +24,7 @@ export class NotificationOpenerService {
   private readonly transloco = inject(TranslocoService);
 
   open(notification: NotificationModel): void {
-    if (!notification.readAt) {
-      this.store.dispatch(NotificationsStoreActions.markRead({ id: notification.id }));
-    }
+    this.markRead(notification);
 
     const link = notificationLink(notification);
     if (!link) {
@@ -35,6 +33,18 @@ export class NotificationOpenerService {
     }
 
     void this.router.navigate(link.commands, { fragment: link.fragment });
+  }
+
+  // the link navigates itself; a click, ctrl+click or middle click is a visit, a right click only opens the menu
+  followed(notification: NotificationModel, event: MouseEvent): void {
+    if (event.button > 1) return;
+    this.markRead(notification);
+  }
+
+  private markRead(notification: NotificationModel): void {
+    if (!notification.readAt) {
+      this.store.dispatch(NotificationsStoreActions.markRead({ id: notification.id }));
+    }
   }
 
   private noticeDeleted(notification: NotificationModel): void {
