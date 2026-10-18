@@ -6,12 +6,14 @@ import {
   inject,
   viewChild,
 } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { ConfirmationService } from 'primeng/api';
 import { Popover, PopoverModule } from 'primeng/popover';
 import { NotificationModel } from '../../../core/models/notifications';
 import { unreadBadge } from '../../../core/utils/notification.utils';
+import { isPlainClick } from '../../../core/utils/link-click.utils';
+import { NotificationLinkPipe } from '../../pipes/notification.pipe';
 import {
   NotificationsStoreActions,
   NotificationsStoreSelectors,
@@ -27,7 +29,14 @@ import { currentLanguage } from '../../../core/i18n/active-language';
 
 @Component({
   selector: 'app-notification-bell',
-  imports: [PopoverModule, ConfirmDialogComponent, NotificationItemComponent, TranslocoDirective],
+  imports: [
+    RouterLink,
+    PopoverModule,
+    ConfirmDialogComponent,
+    NotificationItemComponent,
+    NotificationLinkPipe,
+    TranslocoDirective,
+  ],
   templateUrl: './notification-bell.component.html',
   styleUrl: './notification-bell.component.scss',
   providers: [ConfirmationService, NotificationOpenerService],
@@ -84,6 +93,12 @@ export class NotificationBellComponent implements OnInit {
   open(notification: NotificationModel): void {
     this.panel().hide();
     this.opener.open(notification);
+  }
+
+  // the panel stays open when the browser takes the link to a new tab
+  followed(notification: NotificationModel, event: MouseEvent): void {
+    this.opener.followed(notification, event);
+    if (isPlainClick(event)) this.panel().hide();
   }
 
   viewAll(): void {

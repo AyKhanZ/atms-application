@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { Router } from '@angular/router';
+import { Router, provideRouter } from '@angular/router';
 import { provideEffects } from '@ngrx/effects';
 import { Store, provideStore } from '@ngrx/store';
 import { NEVER, of } from 'rxjs';
@@ -30,11 +30,10 @@ const task: WorkTaskModel = {
 };
 
 async function setup(canEdit: boolean) {
-  const navigate = vi.fn().mockResolvedValue(true);
   TestBed.configureTestingModule({
     imports: [WorkTaskListComponent],
     providers: [...translocoTestingProviders(), 
-      { provide: Router, useValue: { navigate, url: '/projects/p/tickets/t?tab=tasks' } },
+      provideRouter([]),
       provideStore({ [Features.WorkTasks]: workTasksReducer }),
       provideEffects(WorkTasksEffects),
       {
@@ -51,6 +50,7 @@ async function setup(canEdit: boolean) {
       },
     ],
   });
+  const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
   const fixture = TestBed.createComponent(WorkTaskListComponent);
   fixture.componentRef.setInput('projectId', 'p');
   fixture.componentRef.setInput('ticketId', 't');
@@ -96,6 +96,14 @@ describe('WorkTaskListComponent', () => {
 
     expect(element.querySelectorAll('.task-row')).toHaveLength(1);
     expect(element.querySelector('app-loading-state')).toBeNull();
+  });
+
+  it('links each task to its page, so it opens in a new tab too', async () => {
+    const { element } = await setup(false);
+
+    expect(element.querySelector('a.task-main')?.getAttribute('href')).toBe(
+      '/projects/p/tickets/t/tasks/a',
+    );
   });
 
   it('does not navigate to edit without permission', async () => {

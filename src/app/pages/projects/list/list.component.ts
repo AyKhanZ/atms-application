@@ -8,7 +8,7 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { debounceTime, distinctUntilChanged, forkJoin, Subject } from 'rxjs';
 import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
@@ -41,6 +41,7 @@ import { ProjectListQueryService } from './services/list-query.service';
 @Component({
   selector: 'app-project-list',
   imports: [
+    RouterLink,
     AppDatePipe,
     ConfirmDialogModule,
     TableModule,
@@ -150,9 +151,6 @@ export class ProjectListComponent implements OnDestroy {
       relativeTo: this.route,
       state: { cancelUrl: this.router.url },
     });
-  }
-  openDetails(project: WorkProjectItemModel): void {
-    void this.router.navigate([project.id], { relativeTo: this.route });
   }
   openEdit(project: WorkProjectItemModel): void {
     void this.router.navigate([project.id, 'edit'], {

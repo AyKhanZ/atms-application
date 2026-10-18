@@ -1,11 +1,12 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { TooltipModule } from 'primeng/tooltip';
 import { TranslocoService } from '@jsverse/transloco';
 import { currentLanguage } from '../../../../core/i18n/active-language';
 import { WorkTaskModel } from '../../../../core/models/work-tasks';
 import { WorkTaskStatus } from '../../../../core/enums/work-task-status.enum';
 import { isOverdueTask } from '../../../../core/utils/deadline.utils';
-import { workTaskKind } from '../../../../core/utils/work-task.utils';
+import { workTaskKind, workTaskRoute } from '../../../../core/utils/work-task.utils';
 import { WorkItemRefComponent } from '../../../../shared/components/work-item-ref/work-item-ref.component';
 import { WorkItemAssigneeComponent } from '../../../../shared/components/work-item-assignee/work-item-assignee.component';
 import { OverdueBadgeComponent } from '../../../../shared/components/overdue-badge/overdue-badge.component';
@@ -16,6 +17,7 @@ import { TaskHoverComponent } from '../task-hover/task-hover.component';
 @Component({
   selector: 'app-task-calendar-chip',
   imports: [
+    RouterLink,
     TooltipModule,
     WorkItemRefComponent,
     WorkItemAssigneeComponent,
@@ -33,9 +35,8 @@ export class TaskCalendarChipComponent {
   readonly phone = input(false);
   // every task on the page is the viewers own, an avatar on each says nothing
   readonly hideAssignee = input(false);
-  readonly open = output<void>();
-
   protected readonly kind = computed(() => workTaskKind(this.task()));
+  protected readonly route = computed(() => workTaskRoute(this.task()));
   protected readonly done = computed(() => this.task().status.id === WorkTaskStatus.Done);
   protected readonly overdue = computed(() => isOverdueTask(this.task()));
   protected readonly label = computed(() => {

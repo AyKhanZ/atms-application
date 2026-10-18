@@ -22,7 +22,6 @@ export class SearchResultsComponent {
   readonly groups = input.required<SearchResultGroup[]>();
   readonly query = input('');
   readonly activeId = input<string | null>(null);
-  readonly choose = output<GlobalSearchItemModel>();
   readonly point = output<{ id: string; event: MouseEvent }>();
   readonly showAll = output<WorkItemKind>();
 }

@@ -61,17 +61,12 @@
             <h2 class="body__title">{{ t('search.recent') }}</h2>
             @for (item of recent(); track item.id) {
               <app-search-result-row
-                role="button"
-                tabindex="0"
                 class="body__row"
                 [attr.data-result-id]="item.id"
                 [item]="item"
                 [active]="item.id === activeId()"
                 [followsPointer]="false"
                 (mousemove)="point(item.id, $event)"
-                (click)="choose(item)"
-                (keydown.enter)="choose(item)"
-                (keydown.space)="$event.preventDefault(); choose(item)"
               />
             }
           } @else {
@@ -93,7 +88,6 @@
             [query]="query()"
             [activeId]="activeId()"
             (point)="point($event.id, $event.event)"
-            (choose)="choose($event)"
             (showAll)="showAll($event)"
           />
         }

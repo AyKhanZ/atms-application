@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { ActivatedRoute, convertToParamMap, ParamMap, Router } from '@angular/router';
+import { ActivatedRoute, convertToParamMap, ParamMap, Router, provideRouter } from '@angular/router';
 import { MockStore, provideMockStore } from '@ngrx/store/testing';
 import { BehaviorSubject } from 'rxjs';
 import { NotificationModel } from '../../core/models/notifications';
@@ -40,7 +40,6 @@ const notification = (id: string, readAt: string | null = null): NotificationMod
 describe('NotificationsPageComponent', () => {
   let store: MockStore;
   let queryParams: BehaviorSubject<ParamMap>;
-  let router: { navigate: ReturnType<typeof vi.fn> };
 
   const render = (page: Partial<NotificationPageState> = {}, unreadCount = 0) => {
     store.setState({
@@ -57,12 +56,11 @@ describe('NotificationsPageComponent', () => {
 
   beforeEach(async () => {
     queryParams = new BehaviorSubject(convertToParamMap({}));
-    router = { navigate: vi.fn(() => Promise.resolve(true)) };
     await TestBed.configureTestingModule({
       imports: [NotificationsPageComponent],
       providers: [...translocoTestingProviders(), 
         provideMockStore({ initialState: { notifications: initialNotificationsState } }),
-        { provide: Router, useValue: router },
+        provideRouter([]),
         { provide: ActivatedRoute, useValue: { queryParamMap: queryParams } },
       ],
     }).compileComponents();
@@ -80,12 +78,13 @@ describe('NotificationsPageComponent', () => {
 
   it('puts the filter in the address', () => {
     const { fixture } = render();
+    const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
 
     fixture.componentInstance.changeFilter('unread');
     fixture.componentInstance.changeFilter('all');
 
-    expect(router.navigate).toHaveBeenCalledWith([], expect.objectContaining({ queryParams: { filter: 'unread' } }));
-    expect(router.navigate).toHaveBeenCalledWith([], expect.objectContaining({ queryParams: { filter: null } }));
+    expect(navigate).toHaveBeenCalledWith([], expect.objectContaining({ queryParams: { filter: 'unread' } }));
+    expect(navigate).toHaveBeenCalledWith([], expect.objectContaining({ queryParams: { filter: null } }));
   });
 
   it('shows the rows under their day', () => {
@@ -94,6 +93,17 @@ describe('NotificationsPageComponent', () => {
     expect(element.querySelector('.day__label')?.textContent?.trim()).toBe('Today');
     expect(element.querySelectorAll('.row')).toHaveLength(2);
     expect(element.querySelectorAll('.row--unread')).toHaveLength(1);
+  });
+
+  it('links a row to its target, so it opens in a new tab too; a deleted one stays a button', () => {
+    const { element } = render({
+      loaded: true,
+      items: [notification('a'), { ...notification('b'), entityDeleted: true }],
+    });
+    const opens = element.querySelectorAll('.row__open');
+
+    expect(opens[0].getAttribute('href')).toBe('/projects/p1/tickets/k1/tasks/t1');
+    expect(opens[1].tagName).toBe('BUTTON');
   });
 
   it('marks a row read or unread from its dot', () => {

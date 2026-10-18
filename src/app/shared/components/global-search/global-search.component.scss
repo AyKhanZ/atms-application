@@ -94,10 +94,6 @@
 .body__row {
   margin-inline: 0;
 }
-.body__row:focus-visible {
-  outline: 2px solid var(--orange-focus-outline);
-  outline-offset: -2px;
-}
 .message {
   display: flex;
   min-height: 11.5rem;

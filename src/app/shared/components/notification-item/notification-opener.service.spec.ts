@@ -107,4 +107,15 @@ describe('NotificationOpenerService', () => {
       }),
     );
   });
+
+  it.each([
+    ['a click', 0, true],
+    ['a middle click', 1, true],
+    ['a right click', 2, false],
+  ])('counts %s on the link as a visit = %s, the link navigates itself', (_name, button, read) => {
+    opener.followed(notification(), new MouseEvent('click', { button }));
+
+    expect(store.dispatch).toHaveBeenCalledTimes(read ? 1 : 0);
+    expect(router.navigate).not.toHaveBeenCalled();
+  });
 });

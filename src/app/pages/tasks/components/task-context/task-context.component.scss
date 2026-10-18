@@ -1,3 +1,5 @@
+@use 'stretched-link';
+
 :host {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
@@ -10,6 +12,8 @@
 }
 
 .link {
+  @include stretched-link.above;
+
   display: flex;
   align-items: center;
   gap: 0.35rem;

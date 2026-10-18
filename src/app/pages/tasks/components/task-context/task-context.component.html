@@ -6,8 +6,6 @@
     class="link link--project"
     [routerLink]="project.url"
     [title]="project.name"
-    (click)="$event.stopPropagation()"
-    (keydown.enter)="$event.stopPropagation()"
   >
     <app-work-item-ref [type]="projectKind" [code]="project.code" [labelled]="false" />
     <span class="link__name">{{ project.name }}</span>
@@ -19,8 +17,6 @@
   [class.link--task]="parent().kind === taskKind"
   [routerLink]="parent().url"
   [title]="parent().name"
-  (click)="$event.stopPropagation()"
-  (keydown.enter)="$event.stopPropagation()"
 >
   <app-work-item-ref [type]="parent().kind" [code]="parent().code" [labelled]="false" />
   <span class="link__name">{{ parent().name }}</span>

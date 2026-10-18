@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { WorkTicketModel } from '../../../../../../../core/models/work-tickets';
 import { MilestoneTicketListComponent } from './milestone-ticket-list.component';
 
@@ -7,7 +8,8 @@ describe('MilestoneTicketListComponent', () => {
   let fixture: ComponentFixture<MilestoneTicketListComponent>;
 
   beforeEach(async () => {
-    await TestBed.configureTestingModule({ providers: [...translocoTestingProviders()],
+    await TestBed.configureTestingModule({
+      providers: [...translocoTestingProviders(), provideRouter([])],
       imports: [MilestoneTicketListComponent],
     }).compileComponents();
 
@@ -40,6 +42,19 @@ describe('MilestoneTicketListComponent', () => {
     expect(rows[1].querySelector(':scope > .item-menu-button')).toBeTruthy();
     expect(metadata[0].querySelector('app-profile-avatar')).toBeTruthy();
     expect(metadata[1].querySelector('.assignee-chip--unassigned .pi-user')).toBeTruthy();
+  });
+
+  it('links each ticket to its page, so it opens in a new tab too', () => {
+    fixture.componentRef.setInput('page', {
+      items: [ticket('assigned', 'Aykhan', 'Zeynalov')],
+      nextCursor: null,
+      hasMore: false,
+      loading: false,
+    });
+    fixture.detectChanges();
+
+    const link: HTMLAnchorElement = fixture.nativeElement.querySelector('a.ticket-main');
+    expect(link.getAttribute('href')).toBe('/projects/project/tickets/assigned');
   });
 });
 

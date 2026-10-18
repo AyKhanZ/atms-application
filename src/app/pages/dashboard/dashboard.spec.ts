@@ -255,7 +255,7 @@ describe('Dashboard navigation', () => {
     });
   });
 
-  it('opens a ticket segment and a work item reference', () => {
+  it('opens a ticket segment', () => {
     fixture.componentInstance.openSecondary(0);
     expect(navigate).toHaveBeenLastCalledWith(['/tasks'], {
       queryParams: {
@@ -266,18 +266,5 @@ describe('Dashboard navigation', () => {
         ticket: 'ticket-1',
       },
     });
-    fixture.componentInstance.openRef({
-      projectId: 'project-1',
-      workTicketId: 'ticket-1',
-      workTaskId: 'task-1',
-    });
-    expect(navigate).toHaveBeenLastCalledWith([
-      '/projects',
-      'project-1',
-      'tickets',
-      'ticket-1',
-      'tasks',
-      'task-1',
-    ]);
   });
 });

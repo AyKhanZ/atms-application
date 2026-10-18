@@ -22,7 +22,6 @@ import {
   DashboardPeriod,
   DashboardQuery,
 } from '../../core/models/dashboard';
-import { WorkItemRefModel } from '../../core/models/work-items';
 import { WorkTaskStatus } from '../../core/enums/work-task-status.enum';
 import { WorkTaskBoardSort } from '../../core/models/work-task-board';
 import { workItemPriorityTone } from '../../shared/components/work-item-priority/work-item-priority.component';
@@ -35,7 +34,6 @@ import {
   toIsoDate,
 } from '../../core/utils/dashboard-query.utils';
 import { VisiblePageRefreshService } from '../../core/services/visible-page-refresh.service';
-import { workItemRoute } from '../../core/utils/work-item-route.utils';
 import { DashboardStoreActions, DashboardStoreSelectors } from '../../store/dashboard';
 import { DashboardActivityComponent } from './components/dashboard-activity.component';
 import {
@@ -514,10 +512,6 @@ export class Dashboard implements OnDestroy {
       deadlineFrom: today.toISOString(),
       deadlineTo: addDays(today, 7).toISOString(),
     });
-  }
-
-  openRef(ref: WorkItemRefModel): void {
-    void this.router.navigate(workItemRoute(ref));
   }
 
   private navigate(query: DashboardQuery): void {

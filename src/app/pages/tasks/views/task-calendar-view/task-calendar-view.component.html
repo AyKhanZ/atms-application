@@ -52,7 +52,6 @@
             [task]="task"
             [phone]="true"
             [hideAssignee]="hideAssignee()"
-            (open)="openTask.emit(task)"
           />
         }
       </section>
@@ -96,7 +95,6 @@
                 <app-task-calendar-chip
                   [task]="task"
                   [hideAssignee]="hideAssignee()"
-                  (open)="openTask.emit(task)"
                 />
               </div>
             }

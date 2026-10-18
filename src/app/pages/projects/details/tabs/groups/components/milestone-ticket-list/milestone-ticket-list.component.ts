@@ -7,6 +7,7 @@ import {
   output,
   signal,
 } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { MenuItem } from 'primeng/api';
 import { Menu, MenuModule } from 'primeng/menu';
@@ -30,6 +31,7 @@ export interface MilestoneTicketPageState {
 @Component({
   selector: 'app-milestone-ticket-list',
   imports: [
+    RouterLink,
     LoadingStateComponent,
     WorkItemRefComponent,
     LoadMoreButtonComponent,
@@ -51,7 +53,6 @@ export class MilestoneTicketListComponent {
   readonly canEditTickets = input(false);
   readonly currentTicketId = input<string | null>(null);
 
-  readonly viewTicket = output<string>();
   readonly editTicket = output<string>();
   readonly loadMore = output<void>();
 

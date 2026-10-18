@@ -1,11 +1,15 @@
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { taskFixture } from '../../testing/task-fixture';
 import { TaskCalendarChipComponent } from './task-calendar-chip.component';
 
 import { translocoTestingProviders } from '../../../../core/testing/transloco-testing';
 describe('TaskCalendarChipComponent', () => {
   function render(inputs: Record<string, unknown>) {
-    TestBed.configureTestingModule({ providers: [...translocoTestingProviders()], imports: [TaskCalendarChipComponent] });
+    TestBed.configureTestingModule({
+      providers: [...translocoTestingProviders(), provideRouter([])],
+      imports: [TaskCalendarChipComponent],
+    });
     const fixture = TestBed.createComponent(TaskCalendarChipComponent);
     for (const [name, value] of Object.entries(inputs)) fixture.componentRef.setInput(name, value);
     fixture.detectChanges();
@@ -37,12 +41,9 @@ describe('TaskCalendarChipComponent', () => {
     expect(element.querySelector('app-work-item-assignee')).toBeNull();
   });
 
-  it('opens the task on click', () => {
-    const fixture = render({ task: taskFixture() });
-    const open = vi.spyOn(fixture.componentInstance.open, 'emit');
+  it('is a link to the task, so it opens in a new tab too', () => {
+    const chip: HTMLAnchorElement = render({ task: taskFixture() }).nativeElement.querySelector('a.chip');
 
-    fixture.nativeElement.querySelector('button').click();
-
-    expect(open).toHaveBeenCalled();
+    expect(chip.getAttribute('href')).toBe('/projects/project-1/tickets/ticket-1/tasks/task-1');
   });
 });

@@ -1,11 +1,15 @@
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { taskFixture } from '../../testing/task-fixture';
 import { TaskListRowComponent } from './task-list-row.component';
 
 import { translocoTestingProviders } from '../../../../core/testing/transloco-testing';
 describe('TaskListRowComponent', () => {
   function render(task = taskFixture()) {
-    TestBed.configureTestingModule({ providers: [...translocoTestingProviders()], imports: [TaskListRowComponent] });
+    TestBed.configureTestingModule({
+      providers: [...translocoTestingProviders(), provideRouter([])],
+      imports: [TaskListRowComponent],
+    });
     const fixture = TestBed.createComponent(TaskListRowComponent);
     fixture.componentRef.setInput('task', task);
     fixture.detectChanges();
@@ -30,5 +34,11 @@ describe('TaskListRowComponent', () => {
     expect(element.querySelector('.row--overdue')).not.toBeNull();
     expect(element.querySelector('app-overdue-badge')).not.toBeNull();
     expect(element.querySelector('.row__deadline')).toBeNull();
+  });
+
+  it('is a link to the task, so it opens in a new tab too', () => {
+    const row: HTMLAnchorElement = render().nativeElement.querySelector('a.row');
+
+    expect(row.getAttribute('href')).toBe('/projects/project-1/tickets/ticket-1/tasks/task-1');
   });
 });

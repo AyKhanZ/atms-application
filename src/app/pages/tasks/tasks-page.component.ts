@@ -24,7 +24,6 @@ import {
   WorkTaskBoardOrder,
 } from '../../core/models/work-task-board';
 import { WorkItemMutationError } from '../../core/models/work-items';
-import { WorkTaskModel } from '../../core/models/work-tasks';
 import { Permissions } from '../../core/enums/permissions.enum';
 import { SnackBarService } from '../../core/services/snack-bar.service';
 import { VisiblePageRefreshService } from '../../core/services/visible-page-refresh.service';
@@ -230,17 +229,6 @@ export class TasksPageComponent implements OnDestroy {
 
   changeMonth(month: string): void {
     this.navigate({ month });
-  }
-
-  open(task: WorkTaskModel): void {
-    void this.router.navigate([
-      '/projects',
-      task.workProjectId,
-      'tickets',
-      task.workTicket.id,
-      'tasks',
-      task.id,
-    ]);
   }
 
   private navigate(patch: Partial<TasksPageState>): void {

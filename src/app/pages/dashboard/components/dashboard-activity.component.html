@@ -8,12 +8,11 @@
   <ul class="dashboard-list__items dashboard-activity-list">
     @for (row of rows(); track row.item.entry.id) {
       <li>
-        <button
-          type="button"
+        <!-- deleted work has nowhere to go: no href, so neither a link nor a tab stop -->
+        <a
           [class]="'dashboard-activity dashboard-activity--' + row.line.tone"
-          [disabled]="row.item.subject.isDeleted"
+          [routerLink]="row.item.subject.isDeleted ? null : (row.item.ref | workItemRoute)"
           [title]="'#' + row.line.code + ' ' + row.line.title + ' — ' + row.line.change"
-          (click)="selected.emit(row.item.ref)"
         >
           <span class="dashboard-activity__dot" aria-hidden="true"></span>
           <span class="dashboard-activity__text">
@@ -31,7 +30,7 @@
               row.item.entry.createdAt | historyTime
             }}</time>
           </span>
-        </button>
+        </a>
       </li>
     } @empty {
       <li class="dashboard-list__empty">{{ t('dashboard.activity.empty') }}</li>

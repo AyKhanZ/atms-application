@@ -1,7 +1,7 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { Router, provideRouter } from '@angular/router';
 import { provideEffects } from '@ngrx/effects';
 import { provideStore } from '@ngrx/store';
 import { projectApiUrl } from '../../../core/constants/api-url.constants';
@@ -301,6 +301,27 @@ describe('GlobalSearchComponent', () => {
       .dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }));
   const pointAt = (row: Element, x: number, y: number) =>
     row.dispatchEvent(new MouseEvent('mousemove', { clientX: x, clientY: y, bubbles: true }));
+
+  it('draws each row as a link, so it opens in a new tab too, with one tab stop per row', async () => {
+    const element = await openWithRecent();
+    const rows = element.querySelectorAll('app-search-result-row');
+
+    expect(rows[0].querySelector('a.row')?.getAttribute('href')).toMatch(
+      /^\/projects\/p7\/tickets\/.+\/tasks\/a$/,
+    );
+    expect(rows[0].hasAttribute('tabindex')).toBe(false);
+    expect(rows[0].getAttribute('role')).toBeNull();
+  });
+
+  it('opens the picked row once on Enter from the field', async () => {
+    const element = await openWithRecent();
+    const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+
+    press(element, 'ArrowDown');
+    press(element, 'Enter');
+
+    expect(navigate).toHaveBeenCalledOnce();
+  });
 
   it('walks the rows with the arrows', async () => {
     const element = await openWithRecent();

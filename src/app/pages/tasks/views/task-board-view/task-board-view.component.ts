@@ -6,7 +6,6 @@ import {
   inject,
   input,
   linkedSignal,
-  output,
   signal,
   untracked,
 } from '@angular/core';
@@ -89,7 +88,6 @@ export class TaskBoardViewComponent {
   readonly canMove = input(false);
   readonly showProject = input(false);
   readonly reloadToken = input(0);
-  readonly openTask = output<WorkTaskModel>();
 
   private readonly pages = this.store.selectSignal(TaskBoardStoreSelectors.getPages);
   readonly counts = this.store.selectSignal(TaskBoardStoreSelectors.getCounts);

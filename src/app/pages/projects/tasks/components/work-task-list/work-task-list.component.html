@@ -22,10 +22,9 @@
     <div class="task-list" [class.task-list--with-progress]="!parentTaskId()">
       @for (task of items(); track task.id) {
         <article class="task-row" [class.task-row--with-menu]="canEdit()">
-          <button
-            type="button"
+          <a
             class="task-main"
-            (click)="open(task)"
+            [routerLink]="task | taskRoute"
             [attr.aria-label]="
               t('workItem.viewNamed', {
                 kind: t(parentTaskId() ? 'workItem.kind.subtask' : 'workItem.kind.task'),
@@ -38,7 +37,7 @@
               [code]="task.code"
             />
             <strong class="task-title" [title]="task.title">{{ task.title }}</strong>
-          </button>
+          </a>
           <div class="task-meta">
             @if (task.subtaskCount > 0) {
               <span class="progress">{{ task.doneSubtaskCount }}/{{ task.subtaskCount }}</span>
