@@ -12,6 +12,8 @@ export class LoadMoreButtonComponent {
   readonly loading = input(false);
   // for the bottom of a dropdown
   readonly compact = input(false);
+  // "Show earlier comments" and the like; the common "Load more" otherwise
+  readonly label = input<string | null>(null);
 
   // so a dropdown can stop it from closing the panel
   readonly clicked = output<MouseEvent>();
