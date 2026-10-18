@@ -14,6 +14,8 @@ import { TranslocoDirective } from '@jsverse/transloco';
 import { Store } from '@ngrx/store';
 import { SortEvent } from 'primeng/api';
 import { TableModule } from 'primeng/table';
+import { SkeletonModule } from 'primeng/skeleton';
+import { NgTemplateOutlet } from '@angular/common';
 import {
   WorkTaskBoardOrder,
   WorkTaskBoardQuery,
@@ -29,12 +31,12 @@ import {
   TaskBoardStoreSelectors,
 } from '../../../../store/task-board';
 import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
-import { LoadMoreButtonComponent } from '../../../../shared/components/load-more-button/load-more-button.component';
 import { WorkItemAssigneeComponent } from '../../../../shared/components/work-item-assignee/work-item-assignee.component';
 import { WorkItemPriorityComponent } from '../../../../shared/components/work-item-priority/work-item-priority.component';
 import { WorkItemRefComponent } from '../../../../shared/components/work-item-ref/work-item-ref.component';
 import { OverdueBadgeComponent } from '../../../../shared/components/overdue-badge/overdue-badge.component';
 import { IsOverdueTaskPipe, TaskKindPipe } from '../../../../shared/pipes/work-task.pipe';
+import { ScrollSentinelDirective } from '../../../../shared/directives/scroll-sentinel.directive';
 import { TaskListRowComponent } from '../../components/task-list-row/task-list-row.component';
 import { TaskStatusBadgeComponent } from '../../../projects/tasks/components/task-status-badge/task-status-badge.component';
 import { defaultListOrder, filterKey } from '../../tasks-page.utils';
@@ -60,8 +62,10 @@ const sorts: Record<string, WorkTaskBoardSort> = {
   imports: [
     AppDatePipe,
     TableModule,
+    SkeletonModule,
+    NgTemplateOutlet,
+    ScrollSentinelDirective,
     EmptyStateComponent,
-    LoadMoreButtonComponent,
     WorkItemAssigneeComponent,
     WorkItemPriorityComponent,
     WorkItemRefComponent,
@@ -136,6 +140,10 @@ export class TaskListViewComponent {
   });
   readonly items = computed(() => this.displayed().items);
   readonly loading = computed(() => this.page()?.loading ?? !this.page());
+  readonly canLoadMore = computed(() => {
+    const page = this.page();
+    return !!page?.hasMore && !page.loading && !page.error;
+  });
 
   constructor() {
     effect(() => {
@@ -163,6 +171,12 @@ export class TaskListViewComponent {
     const source = this.sources().find((candidate) => this.pages()[candidate.key]?.hasMore);
     const page = source && this.pages()[source.key];
     if (source && page?.nextCursor && !page.loading) this.load(source, page.nextCursor);
+  }
+
+  // no cursor yet = the first page failed
+  retry(): void {
+    const source = this.sources().find((candidate) => this.pages()[candidate.key]?.error);
+    if (source) this.load(source, this.pages()[source.key]?.nextCursor ?? null);
   }
 
   private loadFirst(): void {
