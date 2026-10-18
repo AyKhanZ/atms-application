@@ -82,6 +82,29 @@ describe('ScrollSentinelDirective', () => {
     expect(fixture.componentInstance.reached).toBe(0);
   });
 
+  // A page that came back short leaves the element in view; the browser reports no new crossing then.
+  it('asks again when switched back on while the element is still in view', () => {
+    FakeIntersectionObserver.last?.trigger(true);
+    fixture.componentInstance.enabled.set(false);
+    fixture.detectChanges();
+
+    fixture.componentInstance.enabled.set(true);
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.reached).toBe(2);
+  });
+
+  it('waits for the element when switched back on out of view', () => {
+    FakeIntersectionObserver.last?.trigger(false);
+    fixture.componentInstance.enabled.set(false);
+    fixture.detectChanges();
+
+    fixture.componentInstance.enabled.set(true);
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.reached).toBe(0);
+  });
+
   it('stops watching when the element goes away', () => {
     const observer = FakeIntersectionObserver.last;
     fixture.destroy();

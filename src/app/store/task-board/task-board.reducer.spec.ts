@@ -77,6 +77,19 @@ describe('taskBoardReducer', () => {
     expect(ids(answered, 'new')).toEqual(['2']);
   });
 
+  it('adds a next page under the cards, without a card dragged in meanwhile coming twice', () => {
+    const state = taskBoardReducer(
+      withPages({ new: ['1', 'dragged'] }),
+      Actions.loadPageSuccess({
+        key: 'new',
+        append: true,
+        page: { items: [task('dragged'), task('3')], hasMore: false, nextCursor: null, pageSize: 20 },
+      }),
+    );
+
+    expect(ids(state, 'new')).toEqual(['1', 'dragged', '3']);
+  });
+
   it('drops every list the view no longer shows', () => {
     const state = taskBoardReducer(
       withPages({ old: ['1'], new: ['2'] }),
