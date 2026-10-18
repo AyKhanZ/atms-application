@@ -27,6 +27,7 @@ export class WorkTicketsService {
     if (filter.search?.trim()) params = params.set('search', filter.search.trim());
     if (filter.cursor) params = params.set('cursor', filter.cursor);
     if (filter.milestoneId) params = params.set('milestoneId', filter.milestoneId);
+    if (filter.sortDirection) params = params.set('sortDirection', filter.sortDirection);
 
     return this.http.get<WorkTicketPageModel>(this.workTicketsUrl(projectId), { params });
   }

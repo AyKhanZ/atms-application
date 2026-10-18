@@ -2,6 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { projectApiUrl } from '../constants/api-url.constants';
+import { SortDirectionEnum } from '../enums/sort-direction.enum';
 import { WorkTicketsService } from './work-tickets.service';
 
 describe('WorkTicketsService', () => {
@@ -39,6 +40,17 @@ describe('WorkTicketsService', () => {
     );
     expect(request.request.method).toBe('GET');
     request.flush({ items: [], nextCursor: null, hasMore: false, pageSize: 25 });
+  });
+
+  it('asks for the oldest tickets first when told to', () => {
+    service
+      .getWorkTickets('project-1', { milestoneId: 'milestone-1', sortDirection: SortDirectionEnum.Asc })
+      .subscribe();
+
+    const request = http.expectOne(
+      `${collectionUrl}?pageSize=50&milestoneId=milestone-1&sortDirection=${SortDirectionEnum.Asc}`,
+    );
+    request.flush({ items: [], nextCursor: null, hasMore: false, pageSize: 50 });
   });
 
   it('creates a ticket without a client-provided status', () => {
