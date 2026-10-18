@@ -57,6 +57,8 @@
               (open)="openTask.emit(task)"
               (moveTo)="moveTo(task, lane, $event)"
               (moveToTop)="moveToTop(task, column, lane)"
+              (cdkDragStarted)="dragging.set(true)"
+              (cdkDragEnded)="dragging.set(false)"
             />
           } @empty {
             @if (loading(column)) {
@@ -66,18 +68,24 @@
             }
           }
 
-          @if (page(lane)?.error; as error) {
-            <p class="column__state column__state--error" role="alert">{{ error }}</p>
+          @if (page(lane)?.loading && page(lane)?.items?.length) {
+            @for (placeholder of [1, 2]; track placeholder) {
+              <p-skeleton height="5.5rem" borderRadius="8px" />
+            }
           }
-        </div>
 
-        @if (page(lane)?.hasMore) {
-          <app-load-more-button
-            class="column__more"
-            [loading]="page(lane)?.loading ?? false"
-            (clicked)="loadMore(column, lane)"
-          />
-        }
+          @if (page(lane)?.error; as error) {
+            <div class="column__state column__state--error" role="alert">
+              <span>{{ error }}</span>
+              <button type="button" (click)="retry(column, lane)">
+                {{ t('common.retry') }}
+              </button>
+            </div>
+          }
+
+          <!-- under the last card: reaching it loads the next page, also when a drag shortens the column -->
+          <div [appScrollSentinel]="canLoadMore(lane)" (reached)="loadMore(column, lane)"></div>
+        </div>
       }
     </section>
   } @empty {

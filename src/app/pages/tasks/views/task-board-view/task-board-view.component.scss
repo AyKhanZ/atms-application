@@ -1,3 +1,5 @@
+@use 'list-state';
+
 :host {
   display: block;
   min-width: 0;
@@ -123,12 +125,12 @@
   text-align: center;
 }
 
+// narrow column: the message above its button
 .column__state--error {
-  color: var(--red-hover);
-}
+  @include list-state.error;
 
-.column__more {
-  align-self: center;
+  flex-direction: column;
+  color: var(--red-hover);
 }
 
 :host ::ng-deep .cdk-drag-preview {

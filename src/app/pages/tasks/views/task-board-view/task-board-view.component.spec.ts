@@ -153,6 +153,77 @@ describe('TaskBoardViewComponent', () => {
     );
   });
 
+  describe('next page', () => {
+    const done = (loads: () => LoadPage[]) =>
+      loads().find((load) => load.query.statusIds[0] === WorkTaskStatus.Done)!.key;
+    const lane = (key: string) => ({ key, overdue: null });
+    const page = (overrides: Partial<TaskBoardPageState>): TaskBoardPageState => ({
+      items: [taskFixture({ id: 'shown', status: statuses[2] })],
+      hasMore: true,
+      nextCursor: 'next',
+      loading: false,
+      error: null,
+      ...overrides,
+    });
+
+    it('is read when the end of a column is reached, with no Load more button to find', () => {
+      const { fixture, pages, loads } = setup();
+      const key = done(loads);
+      pages.set({ [key]: page({}) });
+      fixture.detectChanges();
+      const board = fixture.componentInstance;
+
+      expect(board.canLoadMore(lane(key))).toBe(true);
+      expect(fixture.nativeElement.querySelector('app-load-more-button')).toBeNull();
+
+      board.loadMore(board.columns()[2], lane(key));
+      expect(loads().at(-1)).toEqual(expect.objectContaining({ key, cursor: 'next' }));
+    });
+
+    it.each([
+      ['nothing is left', { hasMore: false, nextCursor: null }],
+      ['it is already being read', { loading: true }],
+      ['the last try failed', { error: 'Tasks could not be loaded.' }],
+    ])('is not read when %s', (_, overrides) => {
+      const { pages, loads, fixture } = setup();
+      const key = done(loads);
+      pages.set({ [key]: page(overrides) });
+
+      expect(fixture.componentInstance.canLoadMore(lane(key))).toBe(false);
+    });
+
+    // a page arriving under the pointer would move the card being dragged
+    it('waits while a card is dragged', () => {
+      const { pages, loads, fixture } = setup();
+      const key = done(loads);
+      pages.set({ [key]: page({}) });
+
+      fixture.componentInstance.dragging.set(true);
+
+      expect(fixture.componentInstance.canLoadMore(lane(key))).toBe(false);
+    });
+
+    it.each([
+      ['the first page again when it failed', null],
+      ['the page that failed after the first', 'next'],
+    ])('Try again reads %s', (_, cursor) => {
+      const { fixture, pages, loads } = setup();
+      const key = done(loads);
+      pages.set({
+        [key]: page({
+          items: cursor ? page({}).items : [],
+          nextCursor: cursor,
+          error: 'Tasks could not be loaded.',
+        }),
+      });
+      fixture.detectChanges();
+
+      fixture.nativeElement.querySelector('[role="alert"] button').click();
+
+      expect(loads().at(-1)).toEqual(expect.objectContaining({ key, cursor }));
+    });
+  });
+
   it('switches the phone to the first column shown when the Status filter hides its column', () => {
     const { fixture } = setup();
     expect(fixture.componentInstance.phoneColumn()).toBe(WorkTaskStatus.New);

@@ -58,6 +58,11 @@ function forget(state: TaskBoardState, keys: string[]): TaskBoardState {
   return { ...state, pages };
 }
 
+function appendNew(items: WorkTaskModel[], next: WorkTaskModel[]): WorkTaskModel[] {
+  const shown = new Set(items.map((item) => item.id));
+  return [...items, ...next.filter((item) => !shown.has(item.id))];
+}
+
 // list the view dropped meanwhile must not come back
 function answer(state: TaskBoardState, key: string, page: TaskBoardPageState): TaskBoardState {
   return key in state.pages ? { ...state, pages: { ...state.pages, [key]: page } } : state;
@@ -90,9 +95,10 @@ const reducer = createReducer(
   ),
   on(
     Actions.loadPageSuccess,
+    // a card dragged into the list meanwhile can come again in the next page
     (state, { key, append, page }): TaskBoardState =>
       answer(state, key, {
-        items: append ? [...pageOf(state, key).items, ...page.items] : page.items,
+        items: append ? appendNew(pageOf(state, key).items, page.items) : page.items,
         nextCursor: page.nextCursor,
         hasMore: page.hasMore,
         loading: false,

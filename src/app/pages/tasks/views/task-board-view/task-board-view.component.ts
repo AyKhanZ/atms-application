@@ -7,6 +7,7 @@ import {
   input,
   linkedSignal,
   output,
+  signal,
   untracked,
 } from '@angular/core';
 import { CdkDrag, CdkDragDrop, CdkDropList, CdkDropListGroup } from '@angular/cdk/drag-drop';
@@ -36,7 +37,7 @@ import {
 } from '../../../../shared/components/confirm-dialog/close-open-work';
 import { TaskCardComponent } from '../../components/task-card/task-card.component';
 import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
-import { LoadMoreButtonComponent } from '../../../../shared/components/load-more-button/load-more-button.component';
+import { ScrollSentinelDirective } from '../../../../shared/directives/scroll-sentinel.directive';
 import { filterKey } from '../../tasks-page.utils';
 
 const pageSize = 20;
@@ -72,7 +73,7 @@ interface Drop {
     TaskCardComponent,
     TranslocoDirective,
     EmptyStateComponent,
-    LoadMoreButtonComponent,
+    ScrollSentinelDirective,
   ],
   templateUrl: './task-board-view.component.html',
   styleUrl: './task-board-view.component.scss',
@@ -92,6 +93,7 @@ export class TaskBoardViewComponent {
 
   private readonly pages = this.store.selectSignal(TaskBoardStoreSelectors.getPages);
   readonly counts = this.store.selectSignal(TaskBoardStoreSelectors.getCounts);
+  readonly dragging = signal(false);
 
   // every status, shown or not: a card can be moved into a hidden one
   private readonly allColumns = computed<Column[]>(() => {
@@ -191,9 +193,20 @@ export class TaskBoardViewComponent {
     });
   }
 
+  // a page arriving mid-drag would shift the cards under the pointer
+  canLoadMore(lane: Lane): boolean {
+    const page = this.page(lane);
+    return !!page?.nextCursor && !page.loading && !page.error && !this.dragging();
+  }
+
   loadMore(column: Column, lane: Lane): void {
     const page = this.page(lane);
     if (page?.nextCursor && !page.loading) this.load(column, lane, page.nextCursor);
+  }
+
+  // no cursor yet = the first page failed
+  retry(column: Column, lane: Lane): void {
+    this.load(column, lane, this.page(lane)?.nextCursor ?? null);
   }
 
   drop(event: CdkDragDrop<Drop, Drop, WorkTaskModel>): void {
