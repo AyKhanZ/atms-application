@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { AppDatePipe } from '../../../../shared/pipes/app-date.pipe';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 import { ConfirmationService } from 'primeng/api';
@@ -45,6 +45,7 @@ import { OrganizationsListQueryService } from './services/organizations-list-que
 @Component({
   selector: 'app-organizations-list',
   imports: [
+    RouterLink,
     TooltipModule,
     ConfirmDialogModule,
     CreateButtonComponent,
@@ -87,6 +88,8 @@ export class ListComponent implements OnInit, OnDestroy {
   readonly filtersOpen = signal(false);
   readonly createDialogVisible = signal(false);
   readonly selectedOrganization = signal<OrganizationListItemModel | null>(null);
+  // the details page goes back to this list with its search, filters and page
+  readonly returnUrl = signal(this.router.url);
   readonly first = computed(() => (this.filter().page - 1) * this.filter().pageSize);
   readonly activeFilterCount = computed(() => this.query.activeFilterCount(this.filter()));
   readonly isSuperAdmin = computed(() => isSuperAdmin(this.roles()));
@@ -115,6 +118,7 @@ export class ListComponent implements OnInit, OnDestroy {
 
     this.route.queryParams.pipe(takeUntilDestroyed()).subscribe((params) => {
       const filter = this.query.fromParams(params);
+      this.returnUrl.set(this.router.url);
       this.searchTerm.set(filter.search ?? '');
       if (this.query.hasAdvancedFilters(filter)) this.filtersOpen.set(true);
       this.filter.set(filter);
@@ -187,13 +191,6 @@ export class ListComponent implements OnInit, OnDestroy {
     return organization.createdAt && !organization.createdAt.startsWith('0001-')
       ? organization.createdAt
       : null;
-  }
-
-  openDetails(organization: OrganizationListItemModel): void {
-    void this.router.navigate([organization.id], {
-      relativeTo: this.route,
-      state: { returnUrl: this.router.url },
-    });
   }
 
   private loadOrganizations(filter: OrganizationListFilter): void {

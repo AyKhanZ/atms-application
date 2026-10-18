@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AppDatePipe } from '../../../../shared/pipes/app-date.pipe';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 import { TableLazyLoadEvent, TableModule } from 'primeng/table';
@@ -39,6 +39,7 @@ import { ImageUrlService } from '../../../../core/services/image-url.service';
 @Component({
   selector: 'app-users-list',
   imports: [
+    RouterLink,
     CreateButtonComponent,
     AppDatePipe,
     FilterToggleButtonComponent,
@@ -81,6 +82,8 @@ export class UsersListComponent implements OnInit, OnDestroy {
   readonly searchTerm = signal('');
   readonly filtersOpen = signal(false);
   readonly registerDialogVisible = signal(false);
+  // the details page goes back to this list with its search, filters and page
+  readonly returnUrl = signal(this.router.url);
   readonly Permissions = Permissions;
   readonly first = computed(() => (this.filter().page - 1) * this.filter().pageSize);
   readonly activeFilterCount = computed(() => this.query.activeFilterCount(this.filter()));
@@ -110,6 +113,7 @@ export class UsersListComponent implements OnInit, OnDestroy {
 
     this.route.queryParams.pipe(takeUntilDestroyed()).subscribe((params) => {
       const filter = this.query.fromParams(params);
+      this.returnUrl.set(this.router.url);
       this.searchTerm.set(filter.search ?? '');
       if (this.query.hasAdvancedFilters(filter)) {
         this.filtersOpen.set(true);
@@ -197,13 +201,6 @@ export class UsersListComponent implements OnInit, OnDestroy {
 
   onAvatarError(user: UserListItemModel): void {
     this.failedAvatarIds.update((ids) => new Set(ids).add(user.id));
-  }
-
-  openDetails(user: UserListItemModel): void {
-    void this.router.navigate([user.id], {
-      relativeTo: this.route,
-      state: { returnUrl: this.router.url },
-    });
   }
 
   private loadUsers(filter: UserListFilter): void {
