@@ -93,7 +93,7 @@ export class TaskBoardViewComponent {
   readonly counts = this.store.selectSignal(TaskBoardStoreSelectors.getCounts);
   readonly dragging = signal(false);
 
-  // every status, shown or not: a card can be moved into a hidden one
+  // every status, Done too while the Overdue filter hides it: a card can still be moved there
   private readonly allColumns = computed<Column[]>(() => {
     const filter = filterKey(this.query());
     const deadline = this.query().deadline;
@@ -117,13 +117,11 @@ export class TaskBoardViewComponent {
     });
   });
 
-  // overdue work is open work, so that filter hides Done too
+  // overdue work is open work, so that filter hides Done; no Status filter here, the columns are the statuses
   readonly columns = computed<Column[]>(() => {
-    const { statusIds, deadline } = this.query();
+    const { deadline } = this.query();
     return this.allColumns().filter(
-      (column) =>
-        (statusIds.length === 0 || statusIds.includes(column.status.id)) &&
-        !(deadline === 'overdue' && column.status.id === WorkTaskStatus.Done),
+      (column) => !(deadline === 'overdue' && column.status.id === WorkTaskStatus.Done),
     );
   });
 

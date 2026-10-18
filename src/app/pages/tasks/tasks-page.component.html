@@ -23,6 +23,7 @@
     <app-task-filters
       [filter]="state().filter"
       [calendar]="state().view === 'calendar'"
+      [board]="state().view === 'board'"
       [projects]="options.projects"
       [tickets]="options.tickets"
       [me]="options.meOption()"
@@ -66,7 +67,7 @@
         }
         @default {
           <app-task-board-view
-            [query]="query()"
+            [query]="boardQuery()"
             [statuses]="options.statuses()"
             [canMove]="canMove()"
             [showProject]="showProject()"

@@ -73,26 +73,28 @@
         appendTo="body"
       />
     </div>
-    <div class="field field--narrow">
-      <label id="taskFilterStateLabel" appLabelFor="taskFilterState">{{ t('common.status') }}</label>
-      <p-multiselect
-        inputId="taskFilterState"
-        ariaLabelledBy="taskFilterStateLabel"
-        [placeholder]="t('tasks.all')"
-        [options]="statuses()"
-        optionLabel="label"
-        optionValue="value"
-        [ngModel]="filter().statusIds"
-        (ngModelChange)="change({ statusIds: $event })"
-        [filter]="false"
-        [showHeader]="false"
-        appendTo="body"
-      >
-        <ng-template #selecteditems let-selected>
-          {{ selected | filterSummary }}
-        </ng-template>
-      </p-multiselect>
-    </div>
+    @if (!board()) {
+      <div class="field field--narrow">
+        <label id="taskFilterStateLabel" appLabelFor="taskFilterState">{{ t('common.status') }}</label>
+        <p-multiselect
+          inputId="taskFilterState"
+          ariaLabelledBy="taskFilterStateLabel"
+          [placeholder]="t('tasks.all')"
+          [options]="statuses()"
+          optionLabel="label"
+          optionValue="value"
+          [ngModel]="filter().statusIds"
+          (ngModelChange)="change({ statusIds: $event })"
+          [filter]="false"
+          [showHeader]="false"
+          appendTo="body"
+        >
+          <ng-template #selecteditems let-selected>
+            {{ selected | filterSummary }}
+          </ng-template>
+        </p-multiselect>
+      </div>
+    }
     <div class="field field--narrow">
       <label id="taskFilterPriorityLabel" appLabelFor="taskFilterPriority">{{ t('common.priority') }}</label>
       <p-multiselect

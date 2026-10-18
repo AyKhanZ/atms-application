@@ -45,6 +45,8 @@ export class TaskFiltersComponent {
   private readonly transloco = inject(TranslocoService);
   readonly filter = input.required<WorkTaskBoardFilter>();
   readonly calendar = input(false);
+  // the board has a column per status, a Status filter there only hid columns
+  readonly board = input(false);
   // searched on the server, a page at a time
   readonly projects = input<RemoteOptions | null>(null);
   readonly tickets = input<RemoteOptions | null>(null);
@@ -110,7 +112,9 @@ export class TaskFiltersComponent {
     ...(this.filter().unassigned ? [unassigned] : []),
   ]);
 
-  readonly canClear = computed(() => hasFilters(this.filter()));
+  readonly canClear = computed(() =>
+    hasFilters(this.board() ? { ...this.filter(), statusIds: [] } : this.filter()),
+  );
 
   change(patch: Partial<WorkTaskBoardFilter>): void {
     const next = { ...this.filter(), ...patch };
