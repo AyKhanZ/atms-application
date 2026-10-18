@@ -34,7 +34,8 @@ describe('OrganizationCreateDialogComponent', () => {
     });
   });
 
-  it('puts a refusal under the field the server named', () => {
+  // the first render of the whole dialog takes over 5 s while the full suite runs in parallel
+  it('puts a refusal under the field the server named', { timeout: 15000 }, () => {
     const dialog = render();
 
     actions.next(voenTaken);
