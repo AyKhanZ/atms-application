@@ -1,4 +1,5 @@
 @use 'entity-code';
+@use 'list-state';
 
 :host {
   display: grid;
@@ -10,6 +11,31 @@
 .tasks-table-shell {
   position: relative;
   min-width: 0;
+  container-type: inline-size;
+}
+
+// the column headers stay on top while scrolling; only when the table fits,
+// a horizontal scroll box would hold them and they would scroll away anyway
+@container (min-width: 60rem) {
+  :host ::ng-deep .tasks-table :is(.p-datatable-wrapper, .p-datatable-table-container) {
+    overflow: visible;
+  }
+
+  :host ::ng-deep .tasks-table .p-datatable-thead > tr > th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    box-shadow: inset 0 -1px 0 var(--app-border);
+  }
+
+  // the box no longer clips, so the corner cells round themselves
+  :host ::ng-deep .tasks-table .p-datatable-thead > tr > th:first-child {
+    border-top-left-radius: 8px;
+  }
+
+  :host ::ng-deep .tasks-table .p-datatable-thead > tr > th:last-child {
+    border-top-right-radius: 8px;
+  }
 }
 
 // same table as other lists
@@ -171,11 +197,14 @@
 }
 
 .state--error {
+  @include list-state.error;
+
   color: var(--red-hover);
 }
 
-.more {
-  justify-self: center;
+.more-loading {
+  display: grid;
+  gap: 0.5rem;
 }
 
 .rows {
@@ -184,10 +213,4 @@
   margin: 0;
   padding: 0;
   list-style: none;
-}
-
-@media (max-width: 767px) {
-  .more {
-    justify-self: stretch;
-  }
 }

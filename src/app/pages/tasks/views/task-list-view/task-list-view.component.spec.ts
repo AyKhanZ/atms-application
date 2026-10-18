@@ -81,6 +81,41 @@ describe('TaskListViewComponent', () => {
     expect(fixture.componentInstance.items().map((task) => task.id)).toEqual(['late', 'rest']);
   });
 
+  it('reads the next page when the last row is reached, with no Show more button to find', () => {
+    const { fixture, answer } = setup();
+
+    answer(pageOf([]), pageOf([taskFixture()], 'next'));
+
+    expect(fixture.componentInstance.canLoadMore()).toBe(true);
+    expect(fixture.nativeElement.querySelector('app-load-more-button')).toBeNull();
+  });
+
+  it.each([
+    ['nothing is left', pageOf([taskFixture()])],
+    ['a page is being read', { ...pageOf([taskFixture()], 'next'), loading: true }],
+    ['the last try failed', { ...pageOf([taskFixture()], 'next'), error: 'Tasks could not be loaded.' }],
+  ])('does not read on when %s', (_, rest) => {
+    const { fixture, answer } = setup();
+
+    answer(pageOf([]), rest);
+
+    expect(fixture.componentInstance.canLoadMore()).toBe(false);
+  });
+
+  it.each([
+    ['the first page again when it failed', [], null],
+    ['the page that failed after the rows shown', [taskFixture()], 'next'],
+  ])('Try again reads %s', (_, items, cursor) => {
+    const { fixture, requests, answer } = setup();
+    answer(pageOf([]), { ...pageOf(items, cursor), error: 'Tasks could not be loaded.' });
+
+    fixture.nativeElement.querySelector('[role="alert"] button').click();
+
+    expect(requests().at(-1)).toEqual(
+      expect.objectContaining({ cursor, query: expect.objectContaining({ overdue: false }) }),
+    );
+  });
+
   it('asks only for work without a deadline when that filter is on: none of it can be overdue', () => {
     const { fixture, requests } = setup();
     fixture.componentRef.setInput('query', { ...emptyWorkTaskBoardFilter, deadline: 'none' });

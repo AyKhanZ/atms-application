@@ -4,8 +4,9 @@
       ><i class="pi pi-spin pi-spinner" aria-hidden="true"></i
     ></span>
   }
-  @if (page()?.error; as error) {
-    <p class="state state--error" role="alert">{{ error }}</p>
+  <!-- nothing read yet: the error takes the place of the rows -->
+  @if (!items().length) {
+    <ng-container *ngTemplateOutlet="failure" />
   }
   @if (isPhone()) {
     <!-- phone: two lines per task like a tickets Tasks tab -->
@@ -88,6 +89,26 @@
   }
 </div>
 
-@if (page()?.hasMore) {
-  <app-load-more-button class="more" [loading]="loading()" (clicked)="loadMore()" />
+@if (page()?.loading && page()?.items?.length) {
+  <div class="more-loading" aria-hidden="true">
+    @for (placeholder of [1, 2]; track placeholder) {
+      <p-skeleton height="2.75rem" borderRadius="8px" />
+    }
+  </div>
 }
+
+@if (items().length) {
+  <ng-container *ngTemplateOutlet="failure" />
+}
+
+<!-- under the last row: reaching it loads the next page -->
+<div [appScrollSentinel]="canLoadMore()" (reached)="loadMore()"></div>
+
+<ng-template #failure>
+  @if (page()?.error; as error) {
+    <div class="state state--error" role="alert" *transloco="let t">
+      <span>{{ error }}</span>
+      <button type="button" (click)="retry()">{{ t('common.retry') }}</button>
+    </div>
+  }
+</ng-template>

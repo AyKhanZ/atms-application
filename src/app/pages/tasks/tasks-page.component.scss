@@ -2,9 +2,10 @@
   display: block;
 }
 
+// clip, not hidden: hidden would catch the sticky header of the list
 .tasks-panel {
   min-width: 0;
-  overflow: hidden;
+  overflow: clip;
 }
 
 // all three views fill the same card so switching doesnt jump
