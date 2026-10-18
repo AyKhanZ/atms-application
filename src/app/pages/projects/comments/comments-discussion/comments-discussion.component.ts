@@ -78,6 +78,8 @@ export class CommentsDiscussionComponent implements OnDestroy {
   private readonly lists = this.store.selectSignal(CommentsStoreSelectors.getLists);
   readonly list = computed<CommentListState | undefined>(() => this.lists()[this.key()]);
   readonly comments = computed(() => this.list()?.items ?? []);
+  // the store keeps pages newest first (the API order), the page reads oldest to newest
+  readonly shown = computed(() => [...this.comments()].reverse());
   // linked comment no loaded page has, shown above the list
   readonly linkedComment = computed(() => this.list()?.linked ?? null);
   readonly linkedError = computed(() => this.list()?.linkedError ?? null);

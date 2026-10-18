@@ -90,6 +90,25 @@ describe('CommentsDiscussionComponent', () => {
     vi.spyOn(store, 'dispatch');
   });
 
+  // the store keeps the API order, newest first; a new comment lands right above the field
+  it('shows the conversation oldest to newest', () => {
+    withList({
+      items: [
+        { ...linked, id: 'newest' },
+        { ...linked, id: 'middle' },
+        { ...linked, id: 'oldest' },
+      ],
+    });
+
+    const fixture = render();
+
+    expect(fixture.componentInstance.shown().map((comment) => comment.id)).toEqual([
+      'oldest',
+      'middle',
+      'newest',
+    ]);
+  });
+
   it('asks the store for a linked comment no page holds, instead of paging back to it', () => {
     render();
 

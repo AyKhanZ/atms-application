@@ -10,5 +10,5 @@
   @if (loading()) {
     <i class="pi pi-spin pi-spinner" aria-hidden="true"></i>
   }
-  <span>{{ t('common.loadMore') }}</span>
+  <span>{{ label() ?? t('common.loadMore') }}</span>
 </button>
