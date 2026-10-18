@@ -70,7 +70,7 @@
       </ng-template>
 
       <ng-template pTemplate="body" let-user>
-        <tr class="clickable-row" (click)="openDetails(user)">
+        <tr class="clickable-row">
           <td>
             <div class="user-cell">
               <div class="user-photo">
@@ -84,17 +84,16 @@
                   <span>{{ initials(user) }}</span>
                 }
               </div>
-              <span>{{ fullName(user) }}</span>
+              <a
+                class="user-name__link"
+                [routerLink]="['/users', user.id]"
+                [state]="{ returnUrl: returnUrl() }"
+                >{{ fullName(user) }}</a
+              >
             </div>
           </td>
           <td>
-            <a
-              class="email-link"
-              [href]="'mailto:' + user.email"
-              (click)="$event.stopPropagation()"
-            >
-              {{ user.email }}
-            </a>
+            <a class="email-link" [href]="'mailto:' + user.email">{{ user.email }}</a>
           </td>
           <td>{{ user.position ?? '-' }}</td>
           <td><p-tag [value]="userStatus(user)" [severity]="statusSeverity(user)" /></td>

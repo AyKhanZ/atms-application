@@ -70,14 +70,19 @@
       </ng-template>
 
       <ng-template pTemplate="body" let-organization>
-        <tr class="clickable-row" (click)="openDetails(organization)">
+        <tr class="clickable-row">
           <td>
             <div class="organization-cell">
               <app-organization-logo
                 [logoPath]="organization.logoPath"
                 [title]="organization.title"
               />
-              <span>{{ organization.title }}</span>
+              <a
+                class="organization-title__link"
+                [routerLink]="['/organizations', organization.id]"
+                [state]="{ returnUrl: returnUrl() }"
+                >{{ organization.title }}</a
+              >
             </div>
           </td>
           <td>{{ organization.voen }}</td>
@@ -89,7 +94,7 @@
             }}
           </td>
           @if (showActions()) {
-            <td class="actions-cell" (click)="$event.stopPropagation()">
+            <td class="actions-cell">
               <div class="management-table-actions">
                 <ng-container *hasPermission="Permissions.Organization.Edit">
                   <app-edit-action-button (clicked)="openEditOrganization(organization)" />
