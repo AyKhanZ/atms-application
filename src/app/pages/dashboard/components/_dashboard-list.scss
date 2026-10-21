@@ -52,8 +52,8 @@
   .dashboard-list__items li:last-child {
     border-bottom: 0;
   }
+  // no display here: each row lays itself out as a grid, a block would override it
   .dashboard-list__items a {
-    display: block;
     width: 100%;
     min-width: 0;
     padding: 0.5rem;
