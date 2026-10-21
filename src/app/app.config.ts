@@ -56,6 +56,8 @@ import { NavigationHistoryService } from './core/services/navigation-history.ser
 import { AppRouteReuseStrategy } from './core/routing/app-route-reuse.strategy';
 import { taskBoardReducer } from './store/task-board/task-board.reducer';
 import { TaskBoardEffects } from './store/task-board/task-board.effects';
+import { boardColumnsReducer } from './store/board-columns/board-columns.reducer';
+import { BoardColumnsEffects } from './store/board-columns/board-columns.effects';
 import { DashboardEffects } from './store/dashboard/dashboard.effects';
 import { dashboardReducer } from './store/dashboard/dashboard.reducer';
 import { notificationsReducer } from './store/notifications/notifications.reducer';
@@ -143,6 +145,7 @@ export const appConfig: ApplicationConfig = {
       [Features.History]: historyReducer,
       [Features.Comments]: commentsReducer,
       [Features.TaskBoard]: taskBoardReducer,
+      [Features.BoardColumns]: boardColumnsReducer,
       [Features.Dashboard]: dashboardReducer,
       [Features.User]: userReducer,
       [Features.Dictionary]: dictionaryReducer,
@@ -161,6 +164,7 @@ export const appConfig: ApplicationConfig = {
       HistoryEffects,
       CommentsEffects,
       TaskBoardEffects,
+      BoardColumnsEffects,
       DashboardEffects,
       UserEffects,
       DictionaryEffects,

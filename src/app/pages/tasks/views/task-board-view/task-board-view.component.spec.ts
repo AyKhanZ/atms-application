@@ -17,11 +17,12 @@ import { translocoTestingProviders } from '../../../../core/testing/transloco-te
 type LoadPage = ReturnType<typeof TaskBoardStoreActions.loadPage>;
 type MoveTask = ReturnType<typeof TaskBoardStoreActions.moveTask>;
 
-const statuses = [
-  { id: WorkTaskStatus.New, code: 'New', name: 'New' },
-  { id: WorkTaskStatus.InProgress, code: 'InProgress', name: 'In Progress' },
-  { id: WorkTaskStatus.Done, code: 'Done', name: 'Done' },
+const columns = [
+  { id: WorkTaskStatus.New, code: 'New', name: 'New', label: 'New', category: WorkTaskStatus.New, order: 1},
+  { id: WorkTaskStatus.InProgress, code: 'InProgress', name: 'In Progress', label: 'In Progress', category: WorkTaskStatus.InProgress, order: 1},
+  { id: WorkTaskStatus.Done, code: 'Done', name: 'Done', label: 'Done', category: WorkTaskStatus.Done, order: 1},
 ];
+const statuses = columns.map((column) => ({ id: column.category, code: column.code, name: column.name }));
 const past = '2020-01-01T00:00:00Z';
 const future = '2099-01-01T00:00:00Z';
 
@@ -46,6 +47,7 @@ describe('TaskBoardViewComponent', () => {
     });
     const fixture = TestBed.createComponent(TaskBoardViewComponent);
     fixture.componentRef.setInput('query', { ...emptyWorkTaskBoardFilter, deadline });
+    fixture.componentRef.setInput('columns', columns);
     fixture.componentRef.setInput('statuses', statuses);
     fixture.componentRef.setInput('canMove', true);
     fixture.detectChanges();
@@ -64,7 +66,7 @@ describe('TaskBoardViewComponent', () => {
     const { loads } = setup();
     const byStatus = (status: WorkTaskStatus) =>
       loads()
-        .filter((load) => load.query.statusIds[0] === status)
+        .filter((load) => load.query.boardColumnIds?.[0] === status)
         .map((load) => load.query.overdue);
 
     expect(byStatus(WorkTaskStatus.New)).toEqual([true, false]);
@@ -88,7 +90,7 @@ describe('TaskBoardViewComponent', () => {
       Object.fromEntries(
         loads().map((load) => [
           load.key,
-          load.query.overdue === true && load.query.statusIds[0] === WorkTaskStatus.New
+          load.query.overdue === true && load.query.boardColumnIds?.[0] === WorkTaskStatus.New
             ? { ...empty, items: late }
             : empty,
         ]),
@@ -103,14 +105,14 @@ describe('TaskBoardViewComponent', () => {
 
     const late = fixture.nativeElement.querySelectorAll('.column__list--late');
     expect(late.length).toBe(1);
-    expect(late[0].closest('.column').getAttribute('data-status')).toBe('New');
+    expect(late[0].closest('.group').getAttribute('data-status')).toBe('New');
     expect(fixture.nativeElement.textContent).not.toContain('Overdue');
   });
 
   it('sends a reopened overdue card to the top of the Overdue group, whatever spot it was aimed at', () => {
     const { fixture, pages, loads, moves } = setup();
     const late = loads().find(
-      (load) => load.query.statusIds[0] === WorkTaskStatus.New && load.query.overdue === true,
+      (load) => load.query.boardColumnIds?.[0] === WorkTaskStatus.New && load.query.overdue === true,
     )!.key;
     const waiting = taskFixture({ id: 'waiting', deadline: past });
     pages.set({
@@ -140,7 +142,7 @@ describe('TaskBoardViewComponent', () => {
     const { fixture, pages, loads } = setup();
     answer(pages, loads, []);
     const late = loads().find(
-      (load) => load.query.statusIds[0] === WorkTaskStatus.New && load.query.overdue === true,
+      (load) => load.query.boardColumnIds?.[0] === WorkTaskStatus.New && load.query.overdue === true,
     )!.key;
     pages.update((all) => ({
       ...all,
@@ -155,7 +157,7 @@ describe('TaskBoardViewComponent', () => {
 
   describe('next page', () => {
     const done = (loads: () => LoadPage[]) =>
-      loads().find((load) => load.query.statusIds[0] === WorkTaskStatus.Done)!.key;
+      loads().find((load) => load.query.boardColumnIds?.[0] === WorkTaskStatus.Done)!.key;
     const lane = (key: string) => ({ key, overdue: null });
     const page = (overrides: Partial<TaskBoardPageState>): TaskBoardPageState => ({
       items: [taskFixture({ id: 'shown', status: statuses[2] })],
@@ -232,7 +234,7 @@ describe('TaskBoardViewComponent', () => {
       statusIds: [WorkTaskStatus.InProgress],
     });
 
-    expect(fixture.componentInstance.columns().map((column) => column.status.id)).toEqual([
+    expect(fixture.componentInstance.columns().map((column) => column.id)).toEqual([
       WorkTaskStatus.New,
       WorkTaskStatus.InProgress,
       WorkTaskStatus.Done,
@@ -252,7 +254,7 @@ describe('TaskBoardViewComponent', () => {
     const { fixture, moves } = setup();
     const done = fixture.componentInstance
       .columns()
-      .find((c) => c.status.id === WorkTaskStatus.Done)!;
+      .find((c) => c.category === WorkTaskStatus.Done)!;
     const lane = { column: done, lane: done.lanes[0] };
 
     fixture.componentInstance.drop({
@@ -272,7 +274,7 @@ describe('TaskBoardViewComponent', () => {
     const drag = (deadline: string) => ({ data: taskFixture({ deadline }) }) as never;
     const into = (status: WorkTaskStatus) =>
       ({
-        data: { column: { lanes: board.columns().find((c) => c.status.id === status)!.lanes } },
+        data: { column: { lanes: board.columns().find((c) => c.category === status)!.lanes } },
       }) as never;
     answer(pages, loads, [taskFixture({ id: 'late', deadline: past })]);
 
@@ -283,5 +285,68 @@ describe('TaskBoardViewComponent', () => {
     expect(board.acceptsOnTime(drag(future), into(WorkTaskStatus.New))).toBe(true);
     // In Progress has none: a late card lands anywhere and is moved on top after the drop.
     expect(board.acceptsOnTime(drag(past), into(WorkTaskStatus.InProgress))).toBe(true);
+  });
+
+  // In Progress holds Doing and Done under one status header, like split columns in Azure
+  it('puts the columns of one status side by side under its header, with one total', () => {
+    const { fixture } = setup();
+    const split = [
+      columns[0],
+      { id: 2, code: 'InProgressDoing', name: 'Doing', label: 'In Progress · Doing', category: WorkTaskStatus.InProgress, order: 2 },
+      { id: 4, code: 'InProgressDone', name: 'Done', label: 'In Progress · Done', category: WorkTaskStatus.InProgress, order: 3 },
+      columns[2],
+    ];
+    fixture.componentRef.setInput('columns', split);
+    fixture.componentRef.setInput('statuses', statuses);
+    fixture.detectChanges();
+    const board = fixture.componentInstance;
+
+    expect(board.groups().map((group) => [group.name, group.columns.map((column) => column.name)])).toEqual([
+      ['New', ['New']],
+      ['In Progress', ['Doing', 'Done']],
+      ['Done', ['Done']],
+    ]);
+    const element: HTMLElement = fixture.nativeElement;
+    expect(element.querySelectorAll('.group')).toHaveLength(3);
+    // a single column needs no sub-heading, the status header names it
+    expect(element.querySelectorAll('.column__sub')).toHaveLength(2);
+    expect(board.boardTemplate()).toBe('minmax(0, 1fr) minmax(0, 2fr) minmax(0, 1fr)');
+    // the phone has a tab per status, not per column
+    expect(element.querySelectorAll('.switcher__tab')).toHaveLength(3);
+    expect(element.querySelector('.halves')).toBeNull();
+  });
+
+  // a split status shows its halves as a toggle, and coming back to it opens the half left open
+  it('switches the halves of a split status on the phone and remembers the open one', () => {
+    const { fixture } = setup();
+    const split = [
+      columns[0],
+      { id: 2, code: 'InProgressDoing', name: 'Doing', label: 'In Progress · Doing', category: WorkTaskStatus.InProgress, order: 2 },
+      { id: 4, code: 'InProgressDone', name: 'Done', label: 'In Progress · Done', category: WorkTaskStatus.InProgress, order: 3 },
+      columns[2],
+    ];
+    fixture.componentRef.setInput('columns', split);
+    fixture.componentRef.setInput('statuses', statuses);
+    fixture.detectChanges();
+    const element: HTMLElement = fixture.nativeElement;
+    const tab = (index: number) => element.querySelectorAll<HTMLButtonElement>('.switcher__tab')[index];
+    // jsdom has no scrolling
+    const scrollIntoView = Element.prototype.scrollIntoView;
+    Element.prototype.scrollIntoView = vi.fn();
+    onTestFinished(() => {
+      Element.prototype.scrollIntoView = scrollIntoView;
+    });
+
+    tab(1).click();
+    fixture.detectChanges();
+    const halves = element.querySelectorAll<HTMLButtonElement>('.halves__tab');
+    expect([...halves].map((half) => half.textContent?.trim().split(/\s+/)[0])).toEqual(['Doing', 'Done']);
+    expect(fixture.componentInstance.phoneColumn()).toBe(2);
+
+    halves[1].click();
+    tab(0).click();
+    tab(1).click();
+    fixture.detectChanges();
+    expect(fixture.componentInstance.phoneColumn()).toBe(4);
   });
 });

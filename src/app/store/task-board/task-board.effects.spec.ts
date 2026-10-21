@@ -64,6 +64,7 @@ describe('TaskBoardEffects', () => {
         to: 'done',
         index: 0,
         status: { id: 3, code: 'Done', name: 'Done' },
+        boardColumn: { id: 3, code: 'Done', name: 'Done' },
         previousWorkTaskId: null,
         nextWorkTaskId: null,
         completeSubtasks: false,

@@ -44,6 +44,8 @@ const fieldLabelKeys: Record<HistoryField, string> = {
   [HistoryField.EndDate]: 'history.fields.endDate',
   [HistoryField.Stakeholder]: 'history.fields.stakeholders',
   [HistoryField.Attachment]: 'history.fields.files',
+  // Doing or Done inside In Progress; plain 'Column' read like a second status
+  [HistoryField.BoardColumn]: 'history.fields.boardColumn',
 };
 
 const subjectKeys: Record<HistorySubject, string> = {

@@ -5,6 +5,7 @@ import { RouterLink } from '@angular/router';
 import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { currentLanguage } from '../../../../core/i18n/active-language';
 import { workTaskKind, workTaskRoute } from '../../../../core/utils/work-task.utils';
+import { BoardColumnModel } from '../../../../core/models/board-columns';
 import { WorkTaskModel } from '../../../../core/models/work-tasks';
 import { WorkTaskStatus } from '../../../../core/enums/work-task-status.enum';
 import { WorkItemRefComponent } from '../../../../shared/components/work-item-ref/work-item-ref.component';
@@ -37,7 +38,8 @@ export class TaskCardComponent {
   readonly showProject = input(false);
   // off for people who cant edit
   readonly canMove = input(false);
-  readonly moveTo = output<WorkTaskStatus>();
+  readonly columns = input<BoardColumnModel[]>([]);
+  readonly moveTo = output<number>();
   readonly moveToTop = output<void>();
 
   protected readonly kind = computed(() => workTaskKind(this.task()));
@@ -60,24 +62,18 @@ export class TaskCardComponent {
 
   protected readonly menu = computed<MenuItem[]>(() => {
     currentLanguage();
-    const status = this.task().status.id;
+    const current = this.task().boardColumn?.id ?? this.task().status.id;
+    const done = this.task().status.id === WorkTaskStatus.Done;
     const moves: MenuItem[] = this.canMove()
       ? [
-          ...[
-            { id: WorkTaskStatus.New, label: this.transloco.translate('workItem.status.new') },
-            {
-              id: WorkTaskStatus.InProgress,
-              label: this.transloco.translate('workItem.status.inProgress'),
-            },
-            { id: WorkTaskStatus.Done, label: this.transloco.translate('workItem.status.done') },
-          ]
-            .filter((target) => target.id !== status)
+          ...this.columns()
+            .filter((target) => target.id !== current)
             .map((target) => ({
               label: this.transloco.translate('workItem.moveTo', { status: target.label }),
               icon: 'pi pi-arrow-right',
               command: () => this.moveTo.emit(target.id),
             })),
-          ...(status === WorkTaskStatus.Done
+          ...(done
             ? []
             : [
                 {

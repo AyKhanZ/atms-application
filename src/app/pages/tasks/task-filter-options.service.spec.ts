@@ -11,7 +11,7 @@ import { UserStoreSelectors } from '../../store/user';
 import { TaskFilterOptionsService } from './task-filter-options.service';
 
 describe('TaskFilterOptionsService', () => {
-  function setup() {
+  function setup(roles: { code: string }[] = []) {
     const dispatch = vi.fn();
     const getWorkTickets = vi.fn(() =>
       of({
@@ -36,7 +36,9 @@ describe('TaskFilterOptionsService', () => {
                       { id: 'me', name: 'Aykhan', surname: 'Z' },
                       { id: 'p2', name: 'Rustam', surname: 'Agaev' },
                     ])
-                  : signal(null),
+                  : selector === UserStoreSelectors.getRoles
+                    ? signal(roles)
+                    : signal(null),
           },
         },
         {
@@ -59,6 +61,13 @@ describe('TaskFilterOptionsService', () => {
     });
     return { service: TestBed.inject(TaskFilterOptionsService), dispatch, getWorkTickets };
   }
+
+  // a super admin is never an assignee (05-tasks), "Me" would always find nothing
+  it('offers no Me to a super admin', () => {
+    const { service } = setup([{ code: 'SuperAdmin' }]);
+
+    expect(service.meOption()).toBeNull();
+  });
 
   it('offers statuses, priorities and the first page of projects, and everyone but me as people', () => {
     const { service } = setup();

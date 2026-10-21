@@ -2,6 +2,7 @@ import { DestroyRef, Injectable, computed, inject, signal } from '@angular/core'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslocoService } from '@jsverse/transloco';
 import { Store } from '@ngrx/store';
+import { isSuperAdmin } from '../../core/utils/super-admin.utils';
 import { currentLanguage } from '../../core/i18n/active-language';
 import { Observable, catchError, map, of } from 'rxjs';
 import { DictionaryModel } from '../../core/models/dictionary.model';
@@ -67,10 +68,12 @@ export class TaskFilterOptionsService {
     this.statuses().map((status) => ({ value: status.id, label: status.name })),
   );
   readonly priorityOptions = signal<FilterOption<number>[]>([]);
+  private readonly roles = this.store.selectSignal(UserStoreSelectors.getRoles);
+  // a super admin is never an assignee: no "Me" to pick
   readonly meOption = computed<FilterOption | null>(() => {
     currentLanguage();
     const person = this.me();
-    return person
+    return person && !isSuperAdmin(this.roles() ?? [])
       ? { value: person.id, label: this.transloco.translate('common.me'), person }
       : null;
   });

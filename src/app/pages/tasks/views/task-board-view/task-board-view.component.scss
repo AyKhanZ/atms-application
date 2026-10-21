@@ -1,43 +1,60 @@
 @use 'list-state';
 
+// no sideways scroll box here: it would catch the sticky headers, and four columns fit from 768px up
 :host {
+  // the page scroller has this padding (main-layout .page-content); sticking at 0 left a strip above the
+  // headers where cards showed through, so they stick at the scroller's very edge
+  --sticky-top: calc(-1 * clamp(1rem, 2vw, 2rem));
+
+  container: board / inline-size;
   display: block;
   min-width: 0;
 }
 
-.switcher {
+.switcher,
+.halves {
   display: none;
 }
 
 // the longest column sets the height, no column scrolls on its own
 .board {
   display: grid;
-  grid-template-columns: repeat(var(--columns, 3), minmax(0, 1fr));
+  grid-template-columns: repeat(var(--board-columns, 3), minmax(0, 1fr));
   align-items: stretch;
   gap: 1rem;
   min-width: 0;
 }
 
-// one neutral grey, tinted columns fought the card colors
-.column {
+// one light grey box per status, no frame: a frame inside a frame read as clutter
+.group {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
   min-width: 0;
-  padding: 0.75rem;
-  border: 1px solid var(--app-border);
-  border-radius: var(--radius-card);
+  padding: 0.625rem;
+  border-radius: 10px;
   background: var(--app-surface-muted);
 }
 
-.column__head {
+// the status header rides along while the page scrolls, so a long column never loses its name
+.group__head {
+  position: sticky;
+  top: var(--sticky-top);
+  // above the links inside the cards (z-index 2, open-in-new-tab)
+  z-index: 4;
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  box-sizing: border-box;
+  height: 2.625rem;
+  margin: -0.625rem -0.625rem 0;
+  padding: 0.625rem 0.625rem 0;
+  border-radius: 10px 10px 0 0;
+  background: var(--app-surface-muted);
   color: var(--app-text);
 }
 
-.column__head::before {
+.group__head::before {
   width: 0.55rem;
   height: 0.55rem;
   margin-left: 0.25rem;
@@ -46,7 +63,7 @@
   content: '';
 }
 
-.column,
+.group,
 .switcher__tab {
   --column-text: var(--status-new-text);
   --column-bg: var(--status-new-bg);
@@ -65,7 +82,60 @@
   --column-dot: var(--status-dot-done);
 }
 
-.column__title {
+.group__columns {
+  display: grid;
+  flex: 1;
+  grid-template-columns: repeat(var(--group-columns, 1), minmax(0, 1fr));
+  min-width: 0;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+// a single column starts its cards where the halves of In Progress start theirs, under the sub-heading
+.group:not(.group--split) .column {
+  padding-top: 1.625rem;
+}
+
+// Doing | Done of one status: one thin line between them, same background — a darker Done read as a
+// disabled or empty column
+.group--split .column:first-child {
+  padding-right: 0.5rem;
+}
+
+.group--split .column + .column {
+  padding-left: 0.5rem;
+  border-left: 1px solid var(--app-border);
+}
+
+// sticks right under the status header
+.column__sub {
+  position: sticky;
+  top: calc(var(--sticky-top) + 2.625rem);
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  height: 0.875rem;
+  margin: 0;
+  padding: 0.25rem 0.25rem 0.5rem;
+  background: var(--app-surface-muted);
+  color: color-mix(in srgb, var(--app-text) 75%, transparent);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.column__sub-count {
+  font-weight: 500;
+}
+
+.group__title {
   padding: 0.25rem 0;
   border-radius: 5px;
   background: transparent;
@@ -105,9 +175,11 @@
   border-bottom: 1px dashed var(--overdue-border-strong);
 }
 
+// a small dashed plate on top: centred in a tall column it sat halfway down the page and looked unloaded
 .column__empty {
   display: grid;
-  flex: 1;
+  flex: none;
+  min-height: 7rem;
   place-content: center;
   justify-items: center;
   gap: 0.5rem;
@@ -147,7 +219,9 @@
   transition: transform 200ms cubic-bezier(0, 0, 0.2, 1);
 }
 
-@media (max-width: 767px) {
+// narrower than ~56rem a column falls under ~200px and cards break (code under the menu, four-line titles):
+// one column at a time with the switcher, on a phone, a tablet or a narrow window alike
+@container board (max-width: 56rem) {
   .switcher {
     display: flex;
     gap: 0.35rem;
@@ -157,7 +231,8 @@
 
   .switcher__tab {
     display: inline-flex;
-    flex: 1 0 auto;
+    flex: 1 1 0;
+    min-width: 0;
     align-items: center;
     justify-content: center;
     gap: 0.4rem;
@@ -184,19 +259,96 @@
     font-size: 0.75rem;
   }
 
+  // a second, quieter level: a segmented toggle, so it doesnt read as two more statuses
+  .halves {
+    display: flex;
+    gap: 0.25rem;
+    margin-bottom: 0.75rem;
+    padding: 0.2rem;
+    border-radius: var(--radius-btn);
+    background: var(--app-surface-muted);
+  }
+
+  .halves__tab {
+    display: inline-flex;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    min-height: 2.25rem;
+    border: 0;
+    border-radius: calc(var(--radius-btn) - 2px);
+    background: transparent;
+    color: var(--app-muted);
+    font: inherit;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .halves__tab--active {
+    background: var(--app-surface);
+    box-shadow: var(--shadow-card);
+    color: var(--app-text);
+  }
+
+  .halves__count {
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+
   .board {
+    // beats the inline template the groups set on wide screens
+    grid-template-columns: minmax(0, 1fr) !important;
+    min-width: 0;
+  }
+
+  .group:not(.group--phone-active) {
+    display: none;
+  }
+
+  .group__columns {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .group:not(.group--split) .column,
+  .group--split .column:first-child,
+  .group--split .column + .column {
+    padding: 0;
+    border-left: 0;
+    border-radius: 0;
+    background: transparent;
   }
 
   .column:not(.column--phone-active) {
     display: none;
   }
 
-  .column__head {
+  // the switcher names the status and the column
+  .group__head,
+  .column__sub {
     display: none;
   }
 
   .column__list {
     min-height: 20rem;
+  }
+}
+
+// a phone: "Выполнено 51" in a row did not fit a third of 375px, the count goes under the name
+@container board (max-width: 30rem) {
+  .switcher__tab {
+    flex-direction: column;
+    gap: 0.1rem;
+    min-height: 2.9rem;
+    padding: 0.3rem 0.4rem;
+    line-height: 1.15;
+  }
+
+  .switcher__name {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }

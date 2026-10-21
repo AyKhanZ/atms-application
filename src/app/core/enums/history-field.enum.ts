@@ -16,4 +16,5 @@ export enum HistoryField {
   EndDate = 14,
   Stakeholder = 15,
   Attachment = 16,
+  BoardColumn = 17,
 }

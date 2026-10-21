@@ -15,30 +15,6 @@
   container-type: inline-size;
 }
 
-// the column headers stay on top while scrolling; only when the table fits,
-// a horizontal scroll box would hold them and they would scroll away anyway
-@container (min-width: 60rem) {
-  :host ::ng-deep .tasks-table :is(.p-datatable-wrapper, .p-datatable-table-container) {
-    overflow: visible;
-  }
-
-  :host ::ng-deep .tasks-table .p-datatable-thead > tr > th {
-    position: sticky;
-    top: 0;
-    z-index: 2;
-    box-shadow: inset 0 -1px 0 var(--app-border);
-  }
-
-  // the box no longer clips, so the corner cells round themselves
-  :host ::ng-deep .tasks-table .p-datatable-thead > tr > th:first-child {
-    border-top-left-radius: 8px;
-  }
-
-  :host ::ng-deep .tasks-table .p-datatable-thead > tr > th:last-child {
-    border-top-right-radius: 8px;
-  }
-}
-
 // same table as other lists
 :host ::ng-deep .tasks-table {
   display: block;
@@ -56,6 +32,37 @@
   overflow-y: visible;
   border-radius: 8px 8px 0 0;
   scrollbar-width: thin;
+}
+
+// the column headers stay on top while scrolling; only when the table fits,
+// a horizontal scroll box would hold them and they would scroll away anyway.
+// After the rule above, it set overflow back with the same weight; !important beats the inline
+// overflow: auto PrimeNG puts on the container, a scroll box would catch the sticky headers
+@container (min-width: 60rem) {
+  :host ::ng-deep .tasks-table :is(.p-datatable-wrapper, .p-datatable-table-container) {
+    overflow: visible !important;
+  }
+
+  // PrimeNG makes the thead sticky, that is a layer of its own: the cells z-index stays inside it and
+  // the rows (their stretched links) painted over the header, so the layer itself goes on top
+  :host ::ng-deep .tasks-table .p-datatable-thead {
+    z-index: 3;
+  }
+
+  // the page scroller has padding (main-layout .page-content): at 0 the rows showed through above
+  :host ::ng-deep .tasks-table .p-datatable-thead > tr > th {
+    position: sticky;
+    top: calc(-1 * clamp(1rem, 2vw, 2rem));
+    z-index: 2;
+    box-shadow: inset 0 -1px 0 var(--app-border);
+  }
+
+  // the frame rounds the corners, not the corner cells: rounded cells kept their cut-outs once the
+  // header stuck, and the rows with their kind stripe showed through. clip is not a scroll box, so
+  // the header still sticks to the page; stuck, it is inside the frame and stays square
+  :host ::ng-deep .tasks-table {
+    overflow: clip;
+  }
 }
 
 :host ::ng-deep .tasks-table .p-datatable-table {

@@ -1,98 +1,161 @@
-<!-- on a phone the columns become a switcher -->
+<!-- on a phone the statuses become a switcher, the halves of In Progress a toggle under it -->
 <div class="switcher" role="tablist" *transloco="let t" [attr.aria-label]="t('tasks.columns')">
-  @for (column of columns(); track column.key) {
+  @for (group of groups(); track group.category) {
     <button
       type="button"
       role="tab"
       class="switcher__tab"
-      [attr.data-status]="column.status.code"
-      [class.switcher__tab--active]="phoneColumn() === column.status.id"
-      [attr.aria-selected]="phoneColumn() === column.status.id"
-      (click)="phoneColumn.set(column.status.id)"
+      [attr.data-status]="group.statusCode"
+      [class.switcher__tab--active]="hasPhoneColumn(group)"
+      [attr.aria-selected]="hasPhoneColumn(group)"
+      (click)="pickPhoneGroup(group, $event)"
     >
-      {{ column.status.name }}
-      <span class="switcher__count">{{ counts()?.[column.status.id] ?? 0 }}</span>
+      <span class="switcher__name">{{ group.name }}</span>
+      <span class="switcher__count">{{ groupCount(group) }}</span>
     </button>
   }
 </div>
 
-<div class="board" *transloco="let t" cdkDropListGroup [style.--columns]="columns().length || 3">
-  @for (column of columns(); track column.key) {
+@if (phoneGroup(); as group) {
+  @if (group.columns.length > 1) {
+    <div class="halves" role="tablist" [attr.aria-label]="group.name">
+      @for (column of group.columns; track column.key) {
+        <button
+          type="button"
+          role="tab"
+          class="halves__tab"
+          [class.halves__tab--active]="phoneColumn() === column.id"
+          [attr.aria-selected]="phoneColumn() === column.id"
+          (click)="pickPhoneHalf(group, column)"
+        >
+          {{ column.name }}
+          <span class="halves__count">{{ counts()?.[column.id] ?? 0 }}</span>
+        </button>
+      }
+    </div>
+  }
+}
+
+<!-- one box per status; In Progress holds Doing and Done side by side, like split columns in Azure DevOps -->
+<div
+  class="board"
+  *transloco="let t"
+  cdkDropListGroup
+  [style.--board-columns]="columns().length || 3"
+  [style.grid-template-columns]="boardTemplate()"
+>
+  @for (group of groups(); track group.category) {
     <section
-      class="column"
-      [attr.data-status]="column.status.code"
-      [class.column--phone-active]="phoneColumn() === column.status.id"
-      [attr.aria-label]="column.status.name"
+      class="group"
+      [attr.data-status]="group.statusCode"
+      [class.group--split]="group.columns.length > 1"
+      [class.group--phone-active]="hasPhoneColumn(group)"
+      [attr.aria-label]="group.name"
     >
-      <header class="column__head">
-        <h2 class="column__title">{{ column.status.name }}</h2>
-        <span class="column__count">{{ counts()?.[column.status.id] ?? 0 }}</span>
+      <header class="group__head">
+        <h2 class="group__title">{{ group.name }}</h2>
+        <span class="column__count">{{ groupCount(group) }}</span>
       </header>
 
-      @for (lane of shownLanes(column); track lane.key) {
-        <!-- overdue on top under a dashed line, no heading, red cards say it -->
-        <div
-          class="column__list"
-          [class.column__list--late]="lane.overdue && grouped(column)"
-          cdkDropList
-          [cdkDropListData]="{ column, lane }"
-          [cdkDropListDisabled]="!canMove()"
-          [cdkDropListSortingDisabled]="lane.overdue === null"
-          [cdkDropListEnterPredicate]="
-            lane.overdue === true
-              ? acceptsLate
-              : lane.overdue === false
-                ? acceptsOnTime
-                : acceptsAny
-          "
-          (cdkDropListDropped)="drop($event)"
-        >
-          @for (task of page(lane)?.items ?? []; track task.id) {
-            <app-task-card
-              cdkDrag
-              [cdkDragData]="task"
-              [task]="task"
-              [canMove]="canMove()"
-              [showProject]="showProject()"
-              (moveTo)="moveTo(task, lane, $event)"
-              (moveToTop)="moveToTop(task, column, lane)"
-              (cdkDragStarted)="dragging.set(true)"
-              (cdkDragEnded)="dragging.set(false)"
-            />
-          } @empty {
-            @if (loading(column)) {
-              <ng-container *ngTemplateOutlet="skeletonCards" />
-            } @else if (empty(column)) {
-              <app-empty-state class="column__empty" icon="pi-inbox" [title]="t('tasks.emptyColumn')" />
+      <div class="group__columns" [style.--group-columns]="group.columns.length">
+        @for (column of group.columns; track column.key) {
+          <div
+            class="column"
+            role="group"
+            [class.column--phone-active]="phoneColumn() === column.id"
+            [attr.aria-label]="column.label"
+          >
+            @if (group.columns.length > 1) {
+              <h3 class="column__sub">
+                {{ column.name }}
+                <span class="column__sub-count">{{ counts()?.[column.id] ?? 0 }}</span>
+              </h3>
             }
-          }
 
-          @if (page(lane)?.loading && page(lane)?.items?.length) {
-            @for (placeholder of [1, 2]; track placeholder) {
-              <p-skeleton height="5.5rem" borderRadius="8px" />
+            @for (lane of shownLanes(column); track lane.key) {
+              <!-- overdue on top under a dashed line, no heading, red cards say it -->
+              <div
+                class="column__list"
+                [class.column__list--late]="lane.overdue && grouped(column)"
+                cdkDropList
+                [cdkDropListData]="{ column, lane }"
+                [cdkDropListDisabled]="!canMove()"
+                [cdkDropListSortingDisabled]="lane.overdue === null"
+                [cdkDropListEnterPredicate]="
+                  lane.overdue === true
+                    ? acceptsLate
+                    : lane.overdue === false
+                      ? acceptsOnTime
+                      : acceptsAny
+                "
+                (cdkDropListDropped)="drop($event)"
+              >
+                @for (task of page(lane)?.items ?? []; track task.id) {
+                  <app-task-card
+                    cdkDrag
+                    [cdkDragData]="task"
+                    [task]="task"
+                    [columns]="columnsInput()"
+                    [canMove]="canMove()"
+                    [showProject]="showProject()"
+                    (moveTo)="moveTo(task, lane, $event)"
+                    (moveToTop)="moveToTop(task, column, lane)"
+                    (cdkDragStarted)="dragging.set(true)"
+                    (cdkDragEnded)="dragging.set(false)"
+                  />
+                } @empty {
+                  @if (loading(column)) {
+                    <ng-container *ngTemplateOutlet="skeletonCards" />
+                  } @else if (empty(column)) {
+                    <app-empty-state
+                      class="column__empty"
+                      icon="pi-inbox"
+                      [title]="t('tasks.emptyColumn')"
+                    />
+                  }
+                }
+
+                @if (page(lane)?.loading && page(lane)?.items?.length) {
+                  @for (placeholder of [1, 2]; track placeholder) {
+                    <p-skeleton height="5.5rem" borderRadius="8px" />
+                  }
+                }
+
+                @if (page(lane)?.error; as error) {
+                  <div class="column__state column__state--error" role="alert">
+                    <span>{{ error }}</span>
+                    <button type="button" (click)="retry(column, lane)">
+                      {{ t('common.retry') }}
+                    </button>
+                  </div>
+                }
+
+                <!-- under the last card: reaching it loads the next page, also when a drag shortens the column -->
+                <div
+                  [appScrollSentinel]="canLoadMore(lane)"
+                  (reached)="loadMore(column, lane)"
+                ></div>
+              </div>
             }
-          }
-
-          @if (page(lane)?.error; as error) {
-            <div class="column__state column__state--error" role="alert">
-              <span>{{ error }}</span>
-              <button type="button" (click)="retry(column, lane)">
-                {{ t('common.retry') }}
-              </button>
-            </div>
-          }
-
-          <!-- under the last card: reaching it loads the next page, also when a drag shortens the column -->
-          <div [appScrollSentinel]="canLoadMore(lane)" (reached)="loadMore(column, lane)"></div>
-        </div>
-      }
+          </div>
+        }
+      </div>
     </section>
   } @empty {
-    <!-- statuses still loading: draw the outline so the board doesnt appear from nothing -->
-    @for (placeholder of [1, 2, 3]; track placeholder) {
-      <section class="column" aria-hidden="true">
-        <header class="column__head"><p-skeleton width="7rem" height="1.25rem" /></header>
-        <div class="column__list"><ng-container *ngTemplateOutlet="skeletonCards" /></div>
+    <!-- columns still loading: draw the outline so the board doesnt appear from nothing -->
+    @for (halves of [1, 2, 1]; track $index) {
+      <section class="group" [class.group--split]="halves > 1" aria-hidden="true">
+        <header class="group__head"><p-skeleton width="7rem" height="1.25rem" /></header>
+        <div class="group__columns" [style.--group-columns]="halves">
+          @for (half of halves > 1 ? [1, 2] : [1]; track half) {
+            <div class="column">
+              @if (halves > 1) {
+                <p class="column__sub"><p-skeleton width="4rem" height="0.6rem" /></p>
+              }
+              <div class="column__list"><ng-container *ngTemplateOutlet="skeletonCards" /></div>
+            </div>
+          }
+        </div>
       </section>
     }
   }

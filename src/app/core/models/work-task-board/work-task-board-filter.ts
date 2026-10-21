@@ -21,6 +21,8 @@ export interface WorkTaskBoardFilter {
 
 // adds to the filters on the page, doesnt replace them
 export interface WorkTaskBoardQuery extends WorkTaskBoardFilter {
+  // one board column's page
+  boardColumnIds?: number[];
   noDeadline?: boolean;
   // true = only overdue, false = everything else
   overdue?: boolean;

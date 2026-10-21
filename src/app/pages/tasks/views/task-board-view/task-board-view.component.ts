@@ -16,6 +16,8 @@ import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { NgTemplateOutlet } from '@angular/common';
 import { SkeletonModule } from 'primeng/skeleton';
 import { DictionaryModel } from '../../../../core/models/dictionary.model';
+import { BoardColumnModel } from '../../../../core/models/board-columns';
+import { boardColumnStatusCode } from '../../../../core/utils/board-column.utils';
 import {
   WorkTaskBoardOrder,
   WorkTaskBoardQuery,
@@ -48,10 +50,24 @@ interface Lane {
 }
 
 interface Column {
-  status: DictionaryModel;
+  id: number;
+  code: string;
+  name: string;
+  // with the status, for places without the group header (screen readers)
+  label: string;
+  category: number;
+  statusCode: string;
   key: string;
   order: WorkTaskBoardOrder;
   lanes: Lane[];
+}
+
+// a status on the board: its header over one column, or over Doing and Done
+interface Group {
+  category: number;
+  statusCode: string;
+  name: string;
+  columns: Column[];
 }
 
 interface Drop {
@@ -84,7 +100,8 @@ export class TaskBoardViewComponent {
   private readonly transloco = inject(TranslocoService);
 
   readonly query = input.required<WorkTaskBoardQuery>();
-  readonly statuses = input.required<DictionaryModel[]>();
+  readonly columnsInput = input.required<BoardColumnModel[]>({ alias: 'columns' });
+  readonly statuses = input<DictionaryModel[]>([]);
   readonly canMove = input(false);
   readonly showProject = input(false);
   readonly reloadToken = input(0);
@@ -93,17 +110,22 @@ export class TaskBoardViewComponent {
   readonly counts = this.store.selectSignal(TaskBoardStoreSelectors.getCounts);
   readonly dragging = signal(false);
 
-  // every status, Done too while the Overdue filter hides it: a card can still be moved there
+  // every column, Done too while the Overdue filter hides it: a card can still be moved there
   private readonly allColumns = computed<Column[]>(() => {
     const filter = filterKey(this.query());
     const deadline = this.query().deadline;
-    return this.statuses().map((status) => {
-      const key = `board|${filter}|${status.id}`;
+    return this.columnsInput().map((column) => {
+      const key = `board|${filter}|${column.id}`;
       const late: Lane = { key: `${key}|late`, overdue: true };
       const onTime: Lane = { key: `${key}|on-time`, overdue: false };
-      const done = status.id === WorkTaskStatus.Done;
+      const done = column.category === WorkTaskStatus.Done;
       return {
-        status,
+        id: column.id,
+        code: column.code,
+        name: column.name,
+        label: column.label,
+        category: column.category,
+        statusCode: boardColumnStatusCode(column.category),
         key,
         order: done ? doneOrder : boardOrder,
         lanes: done
@@ -117,22 +139,45 @@ export class TaskBoardViewComponent {
     });
   });
 
-  // overdue work is open work, so that filter hides Done; no Status filter here, the columns are the statuses
+  // overdue work is open work, so that filter hides Done-category columns
   readonly columns = computed<Column[]>(() => {
     const { deadline } = this.query();
     return this.allColumns().filter(
-      (column) => !(deadline === 'overdue' && column.status.id === WorkTaskStatus.Done),
+      (column) => !(deadline === 'overdue' && column.category === WorkTaskStatus.Done),
     );
+  });
+
+  // columns come ordered by the server, a status's columns stand side by side
+  readonly groups = computed<Group[]>(() => {
+    const groups: Group[] = [];
+    for (const column of this.columns()) {
+      const last = groups.at(-1);
+      if (last?.category === column.category) {
+        last.columns.push(column);
+        continue;
+      }
+      groups.push({
+        category: column.category,
+        statusCode: column.statusCode,
+        name: this.statusName(column.category) ?? column.name,
+        columns: [column],
+      });
+    }
+    return groups;
   });
 
   // hidden column gives way to the first shown, so the phone never shows an empty board
   readonly phoneColumn = linkedSignal<Column[], number>({
     source: () => this.columns(),
     computation: (columns, previous) =>
-      previous && columns.some((column) => column.status.id === previous.value)
+      previous && columns.some((column) => column.id === previous.value)
         ? previous.value
-        : (columns[0]?.status.id ?? WorkTaskStatus.New),
+        : (columns[0]?.id ?? WorkTaskStatus.New),
   });
+
+  // phone: one tab per status, a split status shows its halves as a toggle under the tabs
+  readonly phoneGroup = computed(() => this.groups().find((group) => this.hasPhoneColumn(group)));
+  private readonly lastHalf = new Map<number, number>();
 
   // overdue only among overdue, the rest below; column without overdue: drop anywhere, goes on top
   readonly acceptsLate = (drag: CdkDrag<WorkTaskModel>): boolean =>
@@ -217,8 +262,8 @@ export class TaskBoardViewComponent {
     void this.move(event.item.data, from.lane, to.column, to.lane, event.currentIndex);
   }
 
-  moveTo(task: WorkTaskModel, from: Lane, statusId: WorkTaskStatus): void {
-    const to = this.allColumns().find((column) => column.status.id === statusId);
+  moveTo(task: WorkTaskModel, from: Lane, columnId: number): void {
+    const to = this.allColumns().find((column) => column.id === columnId);
     if (to) void this.move(task, from, to, null, 0);
   }
 
@@ -233,7 +278,7 @@ export class TaskBoardViewComponent {
     aimed: Lane | null,
     index: number,
   ): Promise<void> {
-    const closing = to.status.id === WorkTaskStatus.Done && task.status.id !== WorkTaskStatus.Done;
+    const closing = to.category === WorkTaskStatus.Done && task.status.id !== WorkTaskStatus.Done;
     const openSubtasks = task.subtaskCount - task.doneSubtaskCount;
     let completeSubtasks = false;
     if (closing && openSubtasks > 0) {
@@ -251,9 +296,9 @@ export class TaskBoardViewComponent {
     // deadline decides the group, not the drop position
     const late = daysLate(task.deadline) > 0;
     const lane = to.lanes.find((candidate) => candidate.overdue === late) ?? to.lanes[0];
-    const target = to.status.id === WorkTaskStatus.Done || lane.key !== aimed?.key ? 0 : index;
+    const target = to.category === WorkTaskStatus.Done || lane.key !== aimed?.key ? 0 : index;
     const neighbours =
-      to.status.id === WorkTaskStatus.Done
+      to.category === WorkTaskStatus.Done
         ? []
         : (this.page(lane)?.items ?? []).filter((item) => item.id !== task.id);
     this.store.dispatch(
@@ -262,12 +307,48 @@ export class TaskBoardViewComponent {
         from: from.key,
         to: lane.key,
         index: target,
-        status: to.status,
+        status: { id: to.category, code: to.statusCode, name: this.statusName(to.category) ?? to.name },
+        boardColumn: { id: to.id, code: to.code, name: to.name },
         previousWorkTaskId: neighbours[target - 1]?.id ?? null,
         nextWorkTaskId: neighbours[target]?.id ?? null,
         completeSubtasks,
       }),
     );
+  }
+
+  // a status takes as much width as it has columns
+  boardTemplate(): string {
+    const groups = this.groups();
+    // still loading: the outline already has the board's proportions, so nothing jumps when it arrives
+    if (groups.length === 0) return 'minmax(0, 1fr) minmax(0, 2fr) minmax(0, 1fr)';
+    return groups.map((group) => `minmax(0, ${group.columns.length}fr)`).join(' ');
+  }
+
+  // the tab row scrolls sideways on a phone: bring the picked tab fully into view
+  // back to a split status: the half that was open there, not always Doing
+  pickPhoneGroup(group: Group, event: Event): void {
+    const last = this.lastHalf.get(group.category);
+    const column = group.columns.find((candidate) => candidate.id === last) ?? group.columns[0];
+    if (column) this.phoneColumn.set(column.id);
+    (event.currentTarget as HTMLElement | null)?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  }
+
+  pickPhoneHalf(group: Group, column: Column): void {
+    this.lastHalf.set(group.category, column.id);
+    this.phoneColumn.set(column.id);
+  }
+
+  hasPhoneColumn(group: Group): boolean {
+    return group.columns.some((column) => column.id === this.phoneColumn());
+  }
+
+  groupCount(group: Group): number {
+    const counts = this.counts();
+    return group.columns.reduce((sum, column) => sum + (counts?.[column.id] ?? 0), 0);
+  }
+
+  private statusName(category: number): string | undefined {
+    return this.statuses().find((status) => status.id === category)?.name;
   }
 
   private load(column: Column, lane: Lane, cursor: string | null): void {
@@ -276,7 +357,7 @@ export class TaskBoardViewComponent {
         key: lane.key,
         query: {
           ...this.query(),
-          statusIds: [column.status.id],
+          boardColumnIds: [column.id],
           ...(lane.overdue === null ? {} : { overdue: lane.overdue }),
         },
         order: column.order,

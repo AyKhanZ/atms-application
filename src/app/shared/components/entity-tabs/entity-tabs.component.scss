@@ -65,3 +65,10 @@
     padding-inline: 0.5rem;
   }
 }
+
+@container (max-width: 26rem) {
+  .entity-tabs button {
+    gap: 0.35rem;
+    padding: 0 0.55rem;
+  }
+}
