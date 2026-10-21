@@ -3,7 +3,8 @@ import { createPersonalInfoForm, PersonalInfoForm } from './personal-info.form';
 import { PersonalInfoFieldsComponent } from './personal-info-fields.component';
 
 import { translocoTestingProviders } from '../../../core/testing/transloco-testing';
-describe('PersonalInfoFieldsComponent phone', () => {
+// the first render of the whole form takes over 5 s while the full suite runs in parallel
+describe('PersonalInfoFieldsComponent phone', { timeout: 15000 }, () => {
   let form: PersonalInfoForm;
 
   const render = async (
