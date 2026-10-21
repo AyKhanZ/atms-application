@@ -12,6 +12,7 @@ export enum Features {
   History = 'history',
   Comments = 'comments',
   TaskBoard = 'taskBoard',
+  BoardColumns = 'boardColumns',
   Dashboard = 'dashboard',
   Dictionary = 'dictionary',
   Notifications = 'notifications',

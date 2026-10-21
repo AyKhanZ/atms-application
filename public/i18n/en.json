@@ -934,6 +934,7 @@
       "endDate": "End date",
       "stakeholders": "Stakeholders",
       "files": "Files",
+      "boardColumn": "Board column",
       "field": "Field"
     },
     "subject": {
@@ -1013,6 +1014,9 @@
     "activated": "User activated.",
     "statusFailed": "Failed to update user status.",
     "registerAction": "Register"
+  },
+  "boardColumns": {
+    "loadFailed": "The board columns couldn't be loaded. Please try again."
   },
   "organizations": {
     "search": "Search organizations",

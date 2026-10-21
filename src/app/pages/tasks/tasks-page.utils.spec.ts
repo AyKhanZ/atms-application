@@ -22,6 +22,14 @@ describe('tasks page address', () => {
     expect(state.filter.unassigned).toBe(false);
   });
 
+  // the page passes no "me" for a super admin: never an assignee, so the default is everyone's work
+  it('opens on all work when there is no "me"', () => {
+    const state = parseTasksPage(convertToParamMap({}), null);
+
+    expect(state.filter.assigneeUserIds).toEqual([]);
+    expect(hasFilters(state.filter)).toBe(false);
+  });
+
   it('reads an empty assignee as anyone', () => {
     const state = parseTasksPage(convertToParamMap({ assignee: '' }), meId);
 

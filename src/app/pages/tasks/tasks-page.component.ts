@@ -14,6 +14,7 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Actions, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
+import { isSuperAdmin } from '../../core/utils/super-admin.utils';
 import { ConfirmationService } from 'primeng/api';
 import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { Subject, debounceTime } from 'rxjs';
@@ -28,6 +29,7 @@ import { Permissions } from '../../core/enums/permissions.enum';
 import { SnackBarService } from '../../core/services/snack-bar.service';
 import { VisiblePageRefreshService } from '../../core/services/visible-page-refresh.service';
 import { TaskBoardStoreActions } from '../../store/task-board';
+import { BoardColumnsStoreActions, BoardColumnsStoreSelectors } from '../../store/board-columns';
 import { UserStoreSelectors } from '../../store/user';
 import { FilterToggleButtonComponent } from '../../shared/components/filter-toggle-button/filter-toggle-button.component';
 import { ListSearchComponent } from '../../shared/components/list-search/list-search.component';
@@ -87,9 +89,13 @@ export class TasksPageComponent implements OnDestroy {
     initialValue: this.route.snapshot.queryParamMap,
   });
 
-  readonly state = computed<TasksPageState>(() =>
-    parseTasksPage(this.params(), this.me()?.id ?? null),
+  private readonly roles = this.store.selectSignal(UserStoreSelectors.getRoles);
+  // a super admin is never an assignee (05-tasks): "my tasks" means nothing, the default is everyone
+  private readonly meId = computed(() =>
+    isSuperAdmin(this.roles() ?? []) ? null : (this.me()?.id ?? null),
   );
+
+  readonly state = computed<TasksPageState>(() => parseTasksPage(this.params(), this.meId()));
   readonly query = computed<WorkTaskBoardQuery>(() => this.state().filter);
   // the columns are the statuses: the board always shows all of them, the Status filter is for list and calendar
   readonly boardQuery = computed<WorkTaskBoardQuery>(() => ({ ...this.query(), statusIds: [] }));
@@ -124,14 +130,14 @@ export class TasksPageComponent implements OnDestroy {
   readonly canMove = computed(() => this.permissions().includes(Permissions.Project.Edit));
   readonly onlyMine = computed(() => {
     const { assigneeUserIds, unassigned } = this.state().filter;
-    const meId = this.me()?.id;
+    const meId = this.meId();
     return !!meId && !unassigned && assigneeUserIds.length === 1 && assigneeUserIds[0] === meId;
   });
   // plain text for default "my tasks", else say filters hid it
   readonly emptyText = computed(() => {
     currentLanguage();
     const filter = this.state().filter;
-    const meId = this.me()?.id;
+    const meId = this.meId();
     const onlyMe =
       !!meId &&
       hasFilters(filter) &&
@@ -149,8 +155,10 @@ export class TasksPageComponent implements OnDestroy {
   readonly reloadToken = signal(0);
 
   readonly options = inject(TaskFilterOptionsService);
+  readonly boardColumns = this.store.selectSignal(BoardColumnsStoreSelectors.getItems);
 
   constructor() {
+    this.store.dispatch(BoardColumnsStoreActions.load());
     this.restoreLastIfEmpty();
 
     effect(() => {
@@ -165,7 +173,7 @@ export class TasksPageComponent implements OnDestroy {
     });
 
     effect(() => {
-      const params = tasksPageParams(this.state(), this.me()?.id ?? null);
+      const params = tasksPageParams(this.state(), this.meId());
       untracked(() => rememberTasksPage(params));
     });
 
@@ -237,7 +245,7 @@ export class TasksPageComponent implements OnDestroy {
     const next = { ...this.state(), ...patch };
     void this.router.navigate([], {
       relativeTo: this.route,
-      queryParams: tasksPageParams(next, this.me()?.id ?? null),
+      queryParams: tasksPageParams(next, this.meId()),
       // filters arent steps to go back through
       replaceUrl: true,
     });

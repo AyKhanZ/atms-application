@@ -17,6 +17,7 @@ export interface WorkTaskModel {
   parentWorkTask?: DictionaryModel<string> | null;
   isSubtask: boolean;
   status: DictionaryModel;
+  boardColumn?: DictionaryModel | null;
   priority: DictionaryModel;
   deadline?: string | null;
   // last time it moved to Done

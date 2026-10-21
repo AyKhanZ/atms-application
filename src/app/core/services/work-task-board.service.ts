@@ -51,6 +51,7 @@ function toParams(query: WorkTaskBoardQuery): HttpParams {
   for (const id of query.workTicketIds) params = params.append('workTicketIds', id);
   for (const id of query.assigneeUserIds) params = params.append('assigneeUserIds', id);
   for (const id of query.statusIds) params = params.append('statusIds', id);
+  for (const id of query.boardColumnIds ?? []) params = params.append('boardColumnIds', id);
   for (const id of query.priorityIds) params = params.append('priorityIds', id);
   // server uses its own scale here: 1 task, 2 subtask
   if (query.kind !== null) params = params.set('kind', query.kind === WorkItemKind.Task ? 1 : 2);

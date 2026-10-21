@@ -934,6 +934,7 @@
       "endDate": "Bitmə tarixi",
       "stakeholders": "İştirakçılar",
       "files": "Fayllar",
+      "boardColumn": "Lövhə sütunu",
       "field": "Sahə"
     },
     "subject": {
@@ -1013,6 +1014,9 @@
     "activated": "İstifadəçi aktiv edildi.",
     "statusFailed": "İstifadəçi statusunu dəyişmək mümkün olmadı.",
     "registerAction": "Qeydiyyatdan keçir"
+  },
+  "boardColumns": {
+    "loadFailed": "Lövhə sütunlarını yükləmək mümkün olmadı. Yenidən cəhd edin."
   },
   "organizations": {
     "search": "Təşkilat axtarışı",

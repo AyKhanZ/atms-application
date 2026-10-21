@@ -68,6 +68,7 @@
         @default {
           <app-task-board-view
             [query]="boardQuery()"
+            [columns]="boardColumns()"
             [statuses]="options.statuses()"
             [canMove]="canMove()"
             [showProject]="showProject()"

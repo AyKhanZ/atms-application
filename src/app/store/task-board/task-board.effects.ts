@@ -139,10 +139,10 @@ export class TaskBoardEffects {
       this.actions$.pipe(
         ofType(ActionsStore.moveTask),
         concatMap(
-          ({ task, from, to, status, previousWorkTaskId, nextWorkTaskId, completeSubtasks }) =>
+          ({ task, from, to, boardColumn, previousWorkTaskId, nextWorkTaskId, completeSubtasks }) =>
             this.tasks
               .moveWorkTask(task.workProjectId, task.id, {
-                statusId: status.id,
+                boardColumnId: boardColumn.id,
                 previousWorkTaskId,
                 nextWorkTaskId,
                 completeSubtasks,

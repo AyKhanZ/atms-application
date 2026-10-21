@@ -122,8 +122,12 @@ const reducer = createReducer(
   ),
   on(
     Actions.moveTask,
-    (state, { task, from, to, index, status }): TaskBoardState =>
-      countSubtask(moveCard(state, task, { ...task, status }, from, to, index), task, status.id),
+    (state, { task, from, to, index, status, boardColumn }): TaskBoardState =>
+      countSubtask(
+        moveCard(state, task, { ...task, status, boardColumn }, from, to, index),
+        task,
+        status.id,
+      ),
   ),
   on(
     Actions.moveTaskFailure,

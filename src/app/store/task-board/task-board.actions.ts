@@ -72,6 +72,7 @@ export const moveTask = createAction(
     to: string;
     index: number;
     status: DictionaryModel;
+    boardColumn: DictionaryModel;
     previousWorkTaskId: string | null;
     nextWorkTaskId: string | null;
     completeSubtasks: boolean;
