@@ -36,6 +36,7 @@ function page(items: { id: string }[], nextCursor: string | null) {
 
 describe('SearchComponent', () => {
   let http: HttpTestingController;
+  let harness: RouterTestingHarness;
 
   async function open(query = 'плат') {
     vi.useFakeTimers({ shouldAdvanceTime: true });
@@ -54,7 +55,7 @@ describe('SearchComponent', () => {
     });
     http = TestBed.inject(HttpTestingController);
 
-    const harness = await RouterTestingHarness.create(`/search?q=${query}&type=3`);
+    harness = await RouterTestingHarness.create(`/search?q=${query}&type=3`);
     return harness.routeDebugElement!.componentInstance as SearchComponent;
   }
 
@@ -123,6 +124,40 @@ describe('SearchComponent', () => {
     const request = http.expectOne((value) => value.params.get('q') === 'платеж');
     request.flush(page([{ id: '9' }], null));
     expect(component.items().map((item) => item.id)).toEqual(['9']);
+  });
+
+  it('asks nothing for two letters and says what to type, like the search in the header', async () => {
+    const component = await open('пр');
+    const element = harness.routeNativeElement!;
+
+    http.expectNone(() => true);
+    expect(component.searchable()).toBe(false);
+    expect(component.failed()).toBe(false);
+    expect(component.empty()).toBe(false);
+    expect(element.textContent).toContain('Enter a code or at least 3 letters from a title.');
+    expect(element.textContent).not.toContain('Results could not be loaded.');
+  });
+
+  it.each([['7'], ['#7']])('still finds a one-digit code "%s"', async (query) => {
+    await open(encodeURIComponent(query));
+
+    const request = http.expectOne((value) => value.url === `${projectApiUrl}/search/task`);
+    expect(request.request.params.get('q')).toBe(query);
+    request.flush(page([], null));
+  });
+
+  it('drops the results when the query is cut below three letters', async () => {
+    const component = await open();
+    http
+      .expectOne((value) => value.url === `${projectApiUrl}/search/task`)
+      .flush(page([{ id: '1' }], null));
+
+    component.changeQuery('пл');
+    await vi.advanceTimersByTimeAsync(300);
+
+    http.expectNone(() => true);
+    expect(component.items()).toHaveLength(0);
+    expect(component.failed()).toBe(false);
   });
 
   it('reports a failed page and retries the same cursor', async () => {
