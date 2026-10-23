@@ -729,6 +729,7 @@
     "monthCut": "Showing the first {count, plural, one {# task} other {# tasks}} of this month. Narrow the filters to see the rest.",
     "noDeadlinesMonth": "No deadlines this month.",
     "more": "+ {count, plural, one {# more} other {# more}}",
+    "dayTasks": "{count, plural, one {# task} other {# tasks}}",
     "projectLabel": "Project:",
     "parentLabel": "Parent:",
     "selectTask": "Select task",

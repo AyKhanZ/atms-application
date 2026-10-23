@@ -25,13 +25,10 @@ export function calendarVisibleCount(
 export class CalendarDayCapacityDirective {
   private readonly element = inject<ElementRef<HTMLElement>>(ElementRef);
   readonly taskCount = input(0);
-  readonly expanded = input(false);
   private readonly measured = signal({ height: 0, card: 0, gap: 0, more: 0 });
   readonly visibleCount = computed(() => {
     const { height, card, gap, more } = this.measured();
-    return this.expanded()
-      ? this.taskCount()
-      : calendarVisibleCount(this.taskCount(), height, card, gap, more);
+    return calendarVisibleCount(this.taskCount(), height, card, gap, more);
   });
 
   constructor() {
@@ -41,13 +38,11 @@ export class CalendarDayCapacityDirective {
     inject(DestroyRef).onDestroy(() => observer?.disconnect());
     afterRenderEffect(() => {
       this.taskCount();
-      this.expanded();
       this.measure();
     });
   }
 
   private measure(): void {
-    if (this.expanded()) return;
     const element = this.element.nativeElement;
     const card = element.querySelector<HTMLElement>('.chip');
     if (!card) return;

@@ -729,6 +729,7 @@
     "monthCut": "Показаны первые {count, plural, one {# задача} few {# задачи} many {# задач} other {# задачи}} этого месяца. Сузьте фильтры, чтобы увидеть остальные.",
     "noDeadlinesMonth": "В этом месяце нет сроков.",
     "more": "{count, plural, other {ещё #}}",
+    "dayTasks": "{count, plural, one {# задача} few {# задачи} many {# задач} other {# задачи}}",
     "projectLabel": "Проект:",
     "parentLabel": "Родительская задача:",
     "selectTask": "Выберите задачу",
