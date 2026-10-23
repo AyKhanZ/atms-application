@@ -1,4 +1,9 @@
-limit_req_zone $binary_remote_addr zone=api:10m rate=20r/s;
+# A rough flood guard by IP; each user has a fair limit in the API itself.
+# A client's whole office comes from one IP behind NAT, and one board is dozens of requests at once,
+# so 20r/s with a burst of 50 answered 429 to ordinary work.
+limit_req_zone $binary_remote_addr zone=api:10m rate=50r/s;
+# avatars and pictures: a list of cards asks for many at once, they get their own allowance
+limit_req_zone $binary_remote_addr zone=images:10m rate=100r/s;
 limit_conn_zone $binary_remote_addr zone=addr:10m;
 
 # SignalR negotiate is a plain POST: send "Connection: upgrade" only when the client asked for it.
@@ -31,6 +36,14 @@ server {
     limit_req_status 429;
     limit_conn_status 429;
 
+    # the default 429 is an html page, and the app showed it to the user as text
+    error_page 429 @too_many_requests;
+
+    location @too_many_requests {
+        default_type application/json;
+        return 429 '{}';
+    }
+
     gzip on;
     gzip_min_length 1024;
     gzip_types text/css application/javascript application/json image/svg+xml;
@@ -54,8 +67,8 @@ server {
     # and "<guid>.png" would otherwise be looked up as a static file and return 404.
 
     location ^~ /project/hubs/ {
-        limit_req zone=api burst=50 nodelay;
-        limit_conn addr 30;
+        limit_req zone=api burst=200 nodelay;
+        limit_conn addr 100;
 
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
@@ -68,8 +81,8 @@ server {
     }
 
     location ^~ /admin/ {
-        limit_req zone=api burst=50 nodelay;
-        limit_conn addr 30;
+        limit_req zone=api burst=200 nodelay;
+        limit_conn addr 100;
 
         proxy_set_header Host $host;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -78,8 +91,8 @@ server {
     }
 
     location ^~ /project/ {
-        limit_req zone=api burst=50 nodelay;
-        limit_conn addr 30;
+        limit_req zone=api burst=200 nodelay;
+        limit_conn addr 100;
 
         proxy_set_header Host $host;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -89,8 +102,8 @@ server {
 
     # Swagger UI lives on the gateway; it shows the APIs only where SWAGGER_ENABLED=true (the demo)
     location ^~ /swagger {
-        limit_req zone=api burst=50 nodelay;
-        limit_conn addr 30;
+        limit_req zone=api burst=200 nodelay;
+        limit_conn addr 100;
 
         proxy_set_header Host $host;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -99,8 +112,8 @@ server {
     }
 
     location ^~ /app/images/ {
-        limit_req zone=api burst=50 nodelay;
-        limit_conn addr 30;
+        limit_req zone=images burst=300 nodelay;
+        limit_conn addr 100;
 
         proxy_set_header Host $host;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;

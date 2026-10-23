@@ -57,9 +57,12 @@ function sameField(actual: string | undefined, expected: string): boolean {
   return actual?.toLowerCase() === expected.toLowerCase();
 }
 
-// non-validation errors come as a plain string or { error }
+// non-validation errors come as a plain string or { error };
+// a proxy in front of the api (nginx 429, 502) answers with an html page, that is not a message
 export function serverErrorMessage(error: HttpErrorResponse, fallback: string): string {
-  if (typeof error.error === 'string' && error.error) return error.error;
+  if (typeof error.error === 'string' && error.error && !error.error.trimStart().startsWith('<')) {
+    return error.error;
+  }
   if (typeof error.error?.error === 'string' && error.error.error) return error.error.error;
   return fallback;
 }
