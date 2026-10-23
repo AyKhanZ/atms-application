@@ -17,6 +17,7 @@ import { GlobalSearchStoreActions, GlobalSearchStoreSelectors } from '../../stor
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { LoadMoreButtonComponent } from '../../shared/components/load-more-button/load-more-button.component';
 import { SearchResultRowComponent } from '../../shared/components/global-search/search-result-row.component';
+import { isSearchable } from '../../shared/components/global-search/work-item-route';
 import {
   SearchFilterChip,
   SearchFiltersComponent,
@@ -61,10 +62,14 @@ export class SearchComponent implements OnDestroy {
   readonly loading = this.store.selectSignal(GlobalSearchStoreSelectors.isPageLoading);
   readonly pageError = this.store.selectSignal(GlobalSearchStoreSelectors.getPageError);
   readonly failed = computed(() => this.pageError() !== null);
+  // same rule as the search in the header: a code, or at least 3 letters of a title
+  readonly searchable = computed(() => isSearchable(this.query()));
 
   private readonly typing = new Subject<string>();
 
-  readonly empty = computed(() => !this.loading() && !this.failed() && this.items().length === 0);
+  readonly empty = computed(
+    () => this.searchable() && !this.loading() && !this.failed() && this.items().length === 0,
+  );
 
   readonly chips = computed<SearchFilterChip[]>(() => {
     currentLanguage();
@@ -134,8 +139,13 @@ export class SearchComponent implements OnDestroy {
     this.load(null);
   }
 
+  // the server refuses a title shorter than 3 letters, so asking would only show "could not be loaded"
   private load(cursor: string | null): void {
     const query = this.query().trim();
+    if (!isSearchable(query)) {
+      this.store.dispatch(GlobalSearchStoreActions.resetPage());
+      return;
+    }
     this.store.dispatch(
       GlobalSearchStoreActions.loadPage({ query, itemType: this.itemType(), cursor }),
     );

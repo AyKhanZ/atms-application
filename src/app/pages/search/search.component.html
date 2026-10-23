@@ -17,41 +17,49 @@
     <app-search-filters [chips]="chips()" [active]="itemType()" (select)="changeType($event)" />
 
     <div class="search-panel__list">
-      @for (item of items(); track item.id) {
-        <app-search-result-row
-          [item]="item"
-          [query]="query()"
-        />
-      }
-
-      @if (empty()) {
+      @if (!searchable()) {
         <app-empty-state
           icon="pi-search"
-          [title]="t('search.none')"
-          [description]="t('search.tryDifferent')"
+          [title]="t('search.find')"
+          [description]="t('search.hint')"
         />
-      }
+      } @else {
+        @for (item of items(); track item.id) {
+          <app-search-result-row
+            [item]="item"
+            [query]="query()"
+          />
+        }
 
-      @if (loading()) {
-        <div class="search-panel__skeleton" aria-hidden="true">
-          @for (line of [1, 2, 3]; track line) {
-            <span></span>
-          }
-        </div>
-      }
+        @if (empty()) {
+          <app-empty-state
+            icon="pi-search"
+            [title]="t('search.none')"
+            [description]="t('search.tryDifferent')"
+          />
+        }
 
-      @if (failed()) {
-        <div class="search-panel__error" role="alert">
-          <span>{{ t('search.loadFailed') }}</span>
-          <button type="button" (click)="retry()">{{ t('common.retry') }}</button>
-        </div>
-      }
+        @if (loading()) {
+          <div class="search-panel__skeleton" aria-hidden="true">
+            @for (line of [1, 2, 3]; track line) {
+              <span></span>
+            }
+          </div>
+        }
 
-      <!-- loads the next page by itself, the button is a fallback -->
-      <div [appScrollSentinel]="hasMore() && !loading() && !failed()" (reached)="loadMore()"></div>
+        @if (failed()) {
+          <div class="search-panel__error" role="alert">
+            <span>{{ t('search.loadFailed') }}</span>
+            <button type="button" (click)="retry()">{{ t('common.retry') }}</button>
+          </div>
+        }
 
-      @if (hasMore() && !loading()) {
-        <app-load-more-button class="search-panel__more" (clicked)="loadMore()" />
+        <!-- loads the next page by itself, the button is a fallback -->
+        <div [appScrollSentinel]="hasMore() && !loading() && !failed()" (reached)="loadMore()"></div>
+
+        @if (hasMore() && !loading()) {
+          <app-load-more-button class="search-panel__more" (clicked)="loadMore()" />
+        }
       }
     </div>
   </article>
