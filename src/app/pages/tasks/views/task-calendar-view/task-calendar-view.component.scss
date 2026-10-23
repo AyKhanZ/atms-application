@@ -189,11 +189,6 @@
 .day__tasks > * {
   flex: none;
 }
-.day__tasks--expanded {
-  height: auto;
-  min-height: calc(var(--calendar-day-height) - 2.2rem);
-}
-
 .day--outside .day__number {
   color: var(--gray-icon-muted);
 }
@@ -221,6 +216,40 @@
 .day__more:hover {
   background: var(--gray-hover);
   color: var(--app-text);
+}
+
+.more {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.more__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.more__date {
+  margin: 0;
+  color: var(--app-text);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.more__count {
+  color: var(--app-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+// a day can hold a hundred tasks, the list scrolls instead of the panel running off the screen
+.more__list {
+  display: grid;
+  gap: 0.25rem;
+  max-height: min(22rem, 60vh);
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 :host ::ng-deep .cdk-drag-preview {

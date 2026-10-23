@@ -87,8 +87,6 @@
             appCalendarDayCapacity
             #capacity="calendarCapacity"
             [taskCount]="tasks.length"
-            [expanded]="expanded().has(day.key)"
-            [class.day__tasks--expanded]="expanded().has(day.key)"
           >
             @for (task of tasks.slice(0, capacity.visibleCount()); track task.id) {
               <div cdkDrag [cdkDragData]="task" [cdkDragDisabled]="!canMove()">
@@ -99,7 +97,13 @@
               </div>
             }
             @if (tasks.length > capacity.visibleCount()) {
-              <button type="button" class="day__more" (click)="expand(day)">
+              <button
+                type="button"
+                class="day__more"
+                aria-haspopup="dialog"
+                [attr.aria-expanded]="moreOpen() && moreDay()?.key === day.key"
+                (click)="toggleMore(day, $event)"
+              >
                 {{ t('tasks.more', { count: tasks.length - capacity.visibleCount() }) }}
               </button>
             }
@@ -108,4 +112,26 @@
       }
     }
   </div>
+
+  <p-popover
+    #morePanel
+    styleClass="calendar-day-panel"
+    (onShow)="moreOpen.set(true)"
+    (onHide)="moreOpen.set(false)"
+  >
+    @if (moreDay(); as day) {
+      @let tasks = byDay().get(day.key) ?? [];
+      <section class="more" *transloco="let t" [attr.aria-label]="day.date | appDate: 'EEEE, d MMMM'">
+        <header class="more__head">
+          <h3 class="more__date">{{ day.date | appDate: 'EEE, d MMM' }}</h3>
+          <span class="more__count">{{ t('tasks.dayTasks', { count: tasks.length }) }}</span>
+        </header>
+        <div class="more__list">
+          @for (task of tasks; track task.id) {
+            <app-task-calendar-chip [task]="task" [hideAssignee]="hideAssignee()" />
+          }
+        </div>
+      </section>
+    }
+  </p-popover>
 }

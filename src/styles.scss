@@ -518,6 +518,16 @@ input:-webkit-autofill:focus {
   padding: 0;
 }
 
+// the rest of a busy calendar day; about the width of two day cells
+.calendar-day-panel.p-popover {
+  width: min(20rem, calc(100vw - 1rem));
+  border-radius: var(--radius-card);
+}
+
+.calendar-day-panel .p-popover-content {
+  padding: 0.75rem;
+}
+
 .p-toast .p-toast-message {
   border-radius: 8px;
 }

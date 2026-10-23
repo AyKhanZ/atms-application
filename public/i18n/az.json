@@ -729,6 +729,7 @@
     "monthCut": "Bu ayın ilk {count, plural, other {# tapşırığı}} göstərilir. Qalanını görmək üçün filtrləri daraldın.",
     "noDeadlinesMonth": "Bu ay son tarix yoxdur.",
     "more": "daha {count, plural, other {#}}",
+    "dayTasks": "{count, plural, other {# tapşırıq}}",
     "projectLabel": "Layihə:",
     "parentLabel": "Əsas tapşırıq:",
     "selectTask": "Tapşırıq seçin",

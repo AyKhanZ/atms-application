@@ -1,13 +1,16 @@
 import {
+  afterNextRender,
   ChangeDetectionStrategy,
   Component,
   computed,
   effect,
   inject,
+  Injector,
   input,
   output,
   signal,
   untracked,
+  viewChild,
 } from '@angular/core';
 import { formatDate } from '@angular/common';
 import { CdkDrag, CdkDragDrop, CdkDropList, CdkDropListGroup } from '@angular/cdk/drag-drop';
@@ -27,6 +30,7 @@ import { filterKey } from '../../tasks-page.utils';
 import { CalendarDayCapacityDirective } from './calendar-day-capacity.directive';
 import { angularLocale } from '../../../../core/i18n/active-language';
 import { TranslocoDirective } from '@jsverse/transloco';
+import { Popover, PopoverModule } from 'primeng/popover';
 import { AppDatePipe } from '../../../../shared/pipes/app-date.pipe';
 
 interface Day {
@@ -50,6 +54,7 @@ const dayKey = (date: Date): string =>
     CdkDropList,
     CdkDrag,
     CalendarDayCapacityDirective,
+    PopoverModule,
     TaskCalendarChipComponent,
     TranslocoDirective,
   ],
@@ -59,6 +64,7 @@ const dayKey = (date: Date): string =>
 })
 export class TaskCalendarViewComponent {
   private readonly store = inject(Store);
+  private readonly injector = inject(Injector);
 
   readonly query = input.required<WorkTaskBoardQuery>();
   // "2026-09"
@@ -79,7 +85,11 @@ export class TaskCalendarViewComponent {
     });
   });
   readonly isPhone = inject(LayoutService).isPhone;
-  readonly expanded = signal<ReadonlySet<string>>(new Set());
+  // the rest of a busy day opens over the grid, so the week row keeps its height;
+  // the day outlives the panel: moving to another day hides it and shows it again
+  readonly moreDay = signal<Day | null>(null);
+  readonly moreOpen = signal(false);
+  private readonly morePanel = viewChild<Popover>('morePanel');
 
   private readonly pages = this.store.selectSignal(TaskBoardStoreSelectors.getPages);
 
@@ -166,20 +176,31 @@ export class TaskCalendarViewComponent {
     });
   }
 
-  expand(day: Day): void {
-    this.expanded.update((days) => new Set([...days, day.key]));
+  // one panel for the whole grid: the same "+N more" closes it, another one moves it there.
+  // primeng 21 toggle onto a new target hides and never shows again, so an open panel is moved instead
+  toggleMore(day: Day, event: Event): void {
+    const panel = this.morePanel();
+    if (!panel) return;
+    const moving = panel.overlayVisible && this.moreDay()?.key !== day.key;
+    this.moreDay.set(day);
+    if (!moving) {
+      panel.toggle(event);
+      return;
+    }
+    panel.target = event.currentTarget;
+    afterNextRender(() => panel.align(), { injector: this.injector });
   }
 
   step(months: number): void {
     const first = this.firstDay();
     const next = new Date(first.getFullYear(), first.getMonth() + months, 1);
-    this.expanded.set(new Set());
+    this.morePanel()?.hide();
     this.monthChange.emit(`${next.getFullYear()}-${String(next.getMonth() + 1).padStart(2, '0')}`);
   }
 
   today(): void {
     const now = new Date();
-    this.expanded.set(new Set());
+    this.morePanel()?.hide();
     this.monthChange.emit(`${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`);
   }
 
