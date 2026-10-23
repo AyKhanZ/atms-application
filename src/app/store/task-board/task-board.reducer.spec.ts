@@ -62,6 +62,46 @@ describe('taskBoardReducer', () => {
     expect(state.pages['month'].items[1].deadline).toBe('2026-09-21T00:00:00.000Z');
   });
 
+  it('keeps the month as cards and a count per deadline, the summary the calendar reads', () => {
+    const reading = taskBoardReducer(withPages({ month: [] }), Actions.loadCalendar({ key: 'month', query: {} as never }));
+    expect(reading.pages['month'].loading).toBe(true);
+
+    const state = taskBoardReducer(
+      reading,
+      Actions.loadCalendarSuccess({
+        key: 'month',
+        groups: [
+          { deadline: '2026-09-16T20:00:00Z', total: 151, workTasks: [task('1'), task('2')] },
+          { deadline: '2026-09-20T20:00:00Z', total: 1, workTasks: [task('3')] },
+        ],
+      }),
+    );
+
+    expect(ids(state, 'month')).toEqual(['1', '2', '3']);
+    expect(state.pages['month'].totals).toEqual({
+      [Date.parse('2026-09-16T20:00:00Z')]: 151,
+      [Date.parse('2026-09-20T20:00:00Z')]: 1,
+    });
+    expect(state.pages['month'].loading).toBe(false);
+  });
+
+  it('moves one task of a day count to the day it was dropped on', () => {
+    const from = '2026-09-16T20:00:00Z';
+    const to = new Date(Date.UTC(2026, 8, 20, 20)).toISOString();
+    const month = {
+      ...emptyTaskBoardPage,
+      items: [{ ...task('1'), deadline: from }],
+      totals: { [Date.parse(from)]: 151 },
+    };
+
+    const state = taskBoardReducer(
+      { ...initialTaskBoardState, pages: { month } },
+      Actions.changeDeadline({ task: month.items[0], from: 'month', to: 'month', deadline: to }),
+    );
+
+    expect(state.pages['month'].totals).toEqual({ [Date.parse(from)]: 150, [Date.parse(to)]: 1 });
+  });
+
   it('keeps what a list shows while it is read again, and replaces it with the first page', () => {
     const loaded = withPages({ new: ['1'] });
     const reading = taskBoardReducer(loaded, loadPage(null));

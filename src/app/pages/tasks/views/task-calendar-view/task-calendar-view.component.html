@@ -17,11 +17,6 @@
       <button type="button" class="link" (click)="showOverdue.emit()">
         {{ t('tasks.viewOverdueInList') }}
       </button>
-    } @else if (page()?.hasMore && !page()?.loading) {
-      <!-- a month is read up to a limit, the page says when the rest is left out -->
-      <span class="head__cut" role="status">
-        {{ t('tasks.monthCut', { count: page()?.items?.length ?? 0 }) }}
-      </span>
     }
   </div>
   <div class="head__nav">
@@ -47,12 +42,25 @@
         <h3 class="agenda__date">
           {{ day.date | appDate: 'EEE, d MMM' }}
         </h3>
-        @for (task of byDay().get(day.key) ?? []; track task.id) {
+        @let tasks = byDay().get(day.key) ?? [];
+        @for (task of tasks; track task.id) {
           <app-task-calendar-chip
             [task]="task"
             [phone]="true"
             [hideAssignee]="hideAssignee()"
           />
+        }
+        @let total = dayTotals().get(day.key) ?? tasks.length;
+        @if (total > tasks.length) {
+          <button
+            type="button"
+            class="day__more"
+            aria-haspopup="dialog"
+            [attr.aria-expanded]="moreOpen() && moreDay()?.key === day.key"
+            (click)="toggleMore(day, $event)"
+          >
+            {{ t('tasks.more', { count: total - tasks.length }) }}
+          </button>
         }
       </section>
     } @empty {
@@ -81,14 +89,17 @@
           (cdkDropListDropped)="drop($event)"
         >
           <span class="day__number">{{ day.date.getDate() }}</span>
+          <!-- the month brings only the first cards of a day, the total says how many there are -->
           @let tasks = byDay().get(day.key) ?? [];
+          @let total = dayTotals().get(day.key) ?? tasks.length;
           <div
             class="day__tasks"
             appCalendarDayCapacity
             #capacity="calendarCapacity"
-            [taskCount]="tasks.length"
+            [taskCount]="total"
           >
-            @for (task of tasks.slice(0, capacity.visibleCount()); track task.id) {
+            @let shown = tasks.slice(0, capacity.visibleCount());
+            @for (task of shown; track task.id) {
               <div cdkDrag [cdkDragData]="task" [cdkDragDisabled]="!canMove()">
                 <app-task-calendar-chip
                   [task]="task"
@@ -96,7 +107,7 @@
                 />
               </div>
             }
-            @if (tasks.length > capacity.visibleCount()) {
+            @if (total > shown.length) {
               <button
                 type="button"
                 class="day__more"
@@ -104,7 +115,7 @@
                 [attr.aria-expanded]="moreOpen() && moreDay()?.key === day.key"
                 (click)="toggleMore(day, $event)"
               >
-                {{ t('tasks.more', { count: tasks.length - capacity.visibleCount() }) }}
+                {{ t('tasks.more', { count: total - shown.length }) }}
               </button>
             }
           </div>
@@ -112,26 +123,49 @@
       }
     }
   </div>
-
-  <p-popover
-    #morePanel
-    styleClass="calendar-day-panel"
-    (onShow)="moreOpen.set(true)"
-    (onHide)="moreOpen.set(false)"
-  >
-    @if (moreDay(); as day) {
-      @let tasks = byDay().get(day.key) ?? [];
-      <section class="more" *transloco="let t" [attr.aria-label]="day.date | appDate: 'EEEE, d MMMM'">
-        <header class="more__head">
-          <h3 class="more__date">{{ day.date | appDate: 'EEE, d MMM' }}</h3>
-          <span class="more__count">{{ t('tasks.dayTasks', { count: tasks.length }) }}</span>
-        </header>
-        <div class="more__list">
-          @for (task of tasks; track task.id) {
-            <app-task-calendar-chip [task]="task" [hideAssignee]="hideAssignee()" />
-          }
-        </div>
-      </section>
-    }
-  </p-popover>
 }
+
+<!-- the rest of a day is read only when opened, 50 at a time; on a phone it opens from the agenda -->
+<p-popover
+  #morePanel
+  styleClass="calendar-day-panel"
+  (onShow)="moreOpen.set(true)"
+  (onHide)="moreOpen.set(false)"
+>
+  @if (moreDay(); as day) {
+    @let list = morePage();
+    <section class="more" *transloco="let t" [attr.aria-label]="day.date | appDate: 'EEEE, d MMMM'">
+      <header class="more__head">
+        <h3 class="more__date">{{ day.date | appDate: 'EEE, d MMM' }}</h3>
+        <span class="more__count">
+          {{ t('tasks.dayTasks', { count: dayTotals().get(day.key) ?? list?.items?.length ?? 0 }) }}
+        </span>
+      </header>
+      <div class="more__list" [attr.aria-busy]="!!list?.loading">
+        @for (task of list?.items ?? []; track task.id) {
+          <app-task-calendar-chip [task]="task" [phone]="isPhone()" [hideAssignee]="hideAssignee()" />
+        }
+        @if (list?.loading) {
+          <div class="more__skeleton" role="status" [attr.aria-label]="t('tasks.loadingMonth')">
+            @for (line of [1, 2, 3]; track line) {
+              <span></span>
+            }
+          </div>
+        }
+        @if (list?.error; as error) {
+          <p class="more__error" role="alert">
+            <span>{{ error }}</span>
+            <button type="button" class="link" (click)="loadMore(list?.nextCursor ?? null)">
+              {{ t('common.retry') }}
+            </button>
+          </p>
+        }
+        <!-- reads the next 50 by itself when the end scrolls into view, the button is a fallback -->
+        @if (list?.hasMore && !list?.loading && !list?.error) {
+          <div [appScrollSentinel]="true" (reached)="loadMore(list?.nextCursor ?? null)"></div>
+          <app-load-more-button [compact]="true" (clicked)="loadMore(list?.nextCursor ?? null)" />
+        }
+      </div>
+    </section>
+  }
+</p-popover>

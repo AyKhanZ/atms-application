@@ -6,6 +6,7 @@ import {
   WorkTaskBoardAssigneeModel,
   WorkTaskBoardQuery,
   WorkTaskBoardOrder,
+  WorkTaskDeadlineGroupModel,
 } from '../models/work-task-board';
 import { WorkItemKind } from '../models/work-items';
 import { WorkTaskPageModel } from '../models/work-tasks';
@@ -31,6 +32,13 @@ export class WorkTaskBoardService {
       .set('pageSize', pageSize);
     if (cursor) params = params.set('cursor', cursor);
     return this.http.get<WorkTaskPageModel>(this.url, { params });
+  }
+
+  // calendar month: every deadline with its count and first cards, one request
+  getCalendar(query: WorkTaskBoardQuery): Observable<WorkTaskDeadlineGroupModel[]> {
+    return this.http.get<WorkTaskDeadlineGroupModel[]>(`${this.url}/calendar`, {
+      params: toParams(query),
+    });
   }
 
   // status id -> count, same filters

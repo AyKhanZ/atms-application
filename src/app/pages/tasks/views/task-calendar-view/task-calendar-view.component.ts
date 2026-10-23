@@ -15,7 +15,8 @@ import {
 import { formatDate } from '@angular/common';
 import { CdkDrag, CdkDragDrop, CdkDropList, CdkDropListGroup } from '@angular/cdk/drag-drop';
 import { Store } from '@ngrx/store';
-import { WorkTaskBoardQuery, deadlineOrder } from '../../../../core/models/work-task-board';
+import { WorkTaskBoardQuery, calendarDayOrder } from '../../../../core/models/work-task-board';
+import { workTaskBoardMaxPageSize } from '../../../../core/services/work-task-board.service';
 import { WorkTaskModel } from '../../../../core/models/work-tasks';
 import { WorkTaskStatus } from '../../../../core/enums/work-task-status.enum';
 import {
@@ -32,6 +33,8 @@ import { angularLocale } from '../../../../core/i18n/active-language';
 import { TranslocoDirective } from '@jsverse/transloco';
 import { Popover, PopoverModule } from 'primeng/popover';
 import { AppDatePipe } from '../../../../shared/pipes/app-date.pipe';
+import { ScrollSentinelDirective } from '../../../../shared/directives/scroll-sentinel.directive';
+import { LoadMoreButtonComponent } from '../../../../shared/components/load-more-button/load-more-button.component';
 
 interface Day {
   // "2026-09-21", local date
@@ -54,7 +57,9 @@ const dayKey = (date: Date): string =>
     CdkDropList,
     CdkDrag,
     CalendarDayCapacityDirective,
+    LoadMoreButtonComponent,
     PopoverModule,
+    ScrollSentinelDirective,
     TaskCalendarChipComponent,
     TranslocoDirective,
   ],
@@ -113,8 +118,34 @@ export class TaskCalendarViewComponent {
   });
 
   private readonly key = computed(() => `calendar|${filterKey(this.monthQuery())}`);
-  // undefined until the first request
+  // undefined until the first request; the month holds only the first few cards of each day
   readonly page = computed<TaskBoardPageState | undefined>(() => this.pages()[this.key()]);
+
+  // how many tasks each local day has; tasks set from another time zone can give one day two deadlines
+  readonly dayTotals = computed(() => {
+    const totals = new Map<string, number>();
+    for (const [deadline, total] of Object.entries(this.page()?.totals ?? {})) {
+      const key = dayKey(new Date(Number(deadline)));
+      totals.set(key, (totals.get(key) ?? 0) + total);
+    }
+    return totals;
+  });
+
+  // the open "+ N more": that day's own list, read 50 at a time
+  private readonly moreQuery = computed<WorkTaskBoardQuery | null>(() => {
+    const day = this.moreDay();
+    if (!day) return null;
+    const next = new Date(day.date.getFullYear(), day.date.getMonth(), day.date.getDate() + 1);
+    return { ...this.query(), deadlineFrom: day.date.toISOString(), deadlineTo: next.toISOString() };
+  });
+  private readonly moreKey = computed(() => {
+    const query = this.moreQuery();
+    return query ? `calendar-day|${filterKey(query)}` : null;
+  });
+  readonly morePage = computed<TaskBoardPageState | undefined>(() => {
+    const key = this.moreKey();
+    return key ? this.pages()[key] : undefined;
+  });
 
   // monday on or before the 1st to sunday on or after the last day
   readonly weeks = computed<Day[][]>(() => {
@@ -161,7 +192,7 @@ export class TaskCalendarViewComponent {
   readonly agenda = computed(() =>
     this.weeks()
       .flat()
-      .filter((day) => day.inMonth && (this.byDay().get(day.key)?.length ?? 0) > 0),
+      .filter((day) => day.inMonth && (this.dayTotals().get(day.key) ?? 0) > 0),
   );
 
   constructor() {
@@ -170,8 +201,10 @@ export class TaskCalendarViewComponent {
       const query = this.monthQuery();
       this.reloadToken();
       untracked(() => {
+        // the day list is dropped with the rest, its panel goes too
+        this.morePanel()?.hide();
         this.store.dispatch(TaskBoardStoreActions.keepPages({ keys: [key] }));
-        this.store.dispatch(TaskBoardStoreActions.loadAll({ key, query, order: deadlineOrder }));
+        this.store.dispatch(TaskBoardStoreActions.loadCalendar({ key, query }));
       });
     });
   }
@@ -181,14 +214,31 @@ export class TaskCalendarViewComponent {
   toggleMore(day: Day, event: Event): void {
     const panel = this.morePanel();
     if (!panel) return;
-    const moving = panel.overlayVisible && this.moreDay()?.key !== day.key;
+    const closing = panel.overlayVisible && this.moreDay()?.key === day.key;
+    const moving = panel.overlayVisible && !closing;
     this.moreDay.set(day);
+    if (!closing) this.loadMore(null);
     if (!moving) {
       panel.toggle(event);
       return;
     }
     panel.target = event.currentTarget;
     afterNextRender(() => panel.align(), { injector: this.injector });
+  }
+
+  loadMore(cursor: string | null): void {
+    const key = this.moreKey();
+    const query = this.moreQuery();
+    if (!key || !query) return;
+    this.store.dispatch(
+      TaskBoardStoreActions.loadPage({
+        key,
+        query,
+        order: calendarDayOrder,
+        pageSize: workTaskBoardMaxPageSize,
+        cursor,
+      }),
+    );
   }
 
   step(months: number): void {

@@ -30,9 +30,9 @@ export const doneOrder: WorkTaskBoardOrder = {
   direction: SortDirectionEnum.Desc,
 };
 
-// calendar month comes from the earliest deadline
-export const deadlineOrder: WorkTaskBoardOrder = {
-  sort: WorkTaskBoardSort.Deadline,
+// the rest of a calendar day: New, In Progress, Done, the order the month summary takes its first cards in
+export const calendarDayOrder: WorkTaskBoardOrder = {
+  sort: WorkTaskBoardSort.State,
   direction: SortDirectionEnum.Asc,
 };
 

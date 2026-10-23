@@ -63,6 +63,25 @@ function appendNew(items: WorkTaskModel[], next: WorkTaskModel[]): WorkTaskModel
   return [...items, ...next.filter((item) => !shown.has(item.id))];
 }
 
+// calendar card moved to another day: one less on the old deadline, one more on the new
+function recount(
+  page: TaskBoardPageState,
+  from: string | null | undefined,
+  to: string | null,
+): TaskBoardPageState {
+  if (!page.totals) return page;
+  const totals = { ...page.totals };
+  if (from) {
+    const key = Date.parse(from);
+    totals[key] = Math.max(0, (totals[key] ?? 1) - 1);
+  }
+  if (to) {
+    const key = Date.parse(to);
+    totals[key] = (totals[key] ?? 0) + 1;
+  }
+  return { ...page, totals };
+}
+
 // list the view dropped meanwhile must not come back
 function answer(state: TaskBoardState, key: string, page: TaskBoardPageState): TaskBoardState {
   return key in state.pages ? { ...state, pages: { ...state.pages, [key]: page } } : state;
@@ -87,7 +106,7 @@ const reducer = createReducer(
     }),
   ),
   on(
-    Actions.loadAll,
+    Actions.loadCalendar,
     (state, { key }): TaskBoardState => ({
       ...state,
       pages: { ...state.pages, [key]: { ...pageOf(state, key), loading: true, error: null } },
@@ -106,9 +125,16 @@ const reducer = createReducer(
       }),
   ),
   on(
-    Actions.loadAllSuccess,
-    (state, { key, items, hasMore }): TaskBoardState =>
-      answer(state, key, { items, nextCursor: null, hasMore, loading: false, error: null }),
+    Actions.loadCalendarSuccess,
+    (state, { key, groups }): TaskBoardState =>
+      answer(state, key, {
+        items: groups.flatMap((group) => group.workTasks),
+        totals: Object.fromEntries(groups.map((group) => [Date.parse(group.deadline), group.total])),
+        nextCursor: null,
+        hasMore: false,
+        loading: false,
+        error: null,
+      }),
   ),
   on(
     Actions.loadPageFailure,
@@ -136,7 +162,11 @@ const reducer = createReducer(
   ),
   on(Actions.changeDeadline, (state, { task, from, to, deadline }): TaskBoardState => {
     const target = pageOf(state, to);
-    return moveCard(state, task, { ...task, deadline }, from, to, target.items.length);
+    const moved = moveCard(state, task, { ...task, deadline }, from, to, target.items.length);
+    return {
+      ...moved,
+      pages: { ...moved.pages, [to]: recount(moved.pages[to], task.deadline, deadline) },
+    };
   }),
   on(Actions.reset, (): TaskBoardState => initialTaskBoardState),
   // users data, cant outlive the session
