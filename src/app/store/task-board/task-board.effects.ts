@@ -6,30 +6,21 @@ import {
   Observable,
   catchError,
   concatMap,
-  expand,
   filter,
   groupBy,
   map,
   merge,
   mergeMap,
   of,
-  reduce,
   startWith,
   switchMap,
   takeUntil,
 } from 'rxjs';
 import { toMutationError } from '../../core/utils/http-error.utils';
-import {
-  WorkTaskBoardService,
-  workTaskBoardMaxPageSize,
-} from '../../core/services/work-task-board.service';
+import { WorkTaskBoardService } from '../../core/services/work-task-board.service';
 import { WorkTasksService } from '../../core/services/work-tasks.service';
-import { WorkTaskModel } from '../../core/models/work-tasks';
 import { AuthStoreActions } from '../auth';
 import * as ActionsStore from './task-board.actions';
-
-// past this the rest isnt worth the wait
-const maxPagesPerMonth = 20;
 
 @Injectable()
 export class TaskBoardEffects {
@@ -67,28 +58,15 @@ export class TaskBoardEffects {
     ),
   );
 
-  loadAll$ = createEffect(() =>
+  loadCalendar$ = createEffect(() =>
     this.actions$.pipe(
-      ofType(ActionsStore.loadAll),
+      ofType(ActionsStore.loadCalendar),
       groupBy(({ key }) => key, { duration: (group) => this.dropped(group.key) }),
       mergeMap((requests) =>
         requests.pipe(
-          switchMap(({ key, query, order }) => {
-            let pages = 0;
-            return this.board.getPage(query, order, null, workTaskBoardMaxPageSize).pipe(
-              expand((page) =>
-                page.hasMore && page.nextCursor && ++pages < maxPagesPerMonth
-                  ? this.board.getPage(query, order, page.nextCursor, workTaskBoardMaxPageSize)
-                  : EMPTY,
-              ),
-              reduce(
-                (month: { items: WorkTaskModel[]; hasMore: boolean }, page) => ({
-                  items: [...month.items, ...page.items],
-                  hasMore: page.hasMore,
-                }),
-                { items: [], hasMore: false },
-              ),
-              map(({ items, hasMore }) => ActionsStore.loadAllSuccess({ key, items, hasMore })),
+          switchMap(({ key, query }) =>
+            this.board.getCalendar(query).pipe(
+              map((groups) => ActionsStore.loadCalendarSuccess({ key, groups })),
               catchError(() =>
                 of(
                   ActionsStore.loadPageFailure({
@@ -98,8 +76,8 @@ export class TaskBoardEffects {
                 ),
               ),
               takeUntil(this.dropped(key)),
-            );
-          }),
+            ),
+          ),
         ),
       ),
     ),

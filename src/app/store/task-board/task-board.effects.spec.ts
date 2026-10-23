@@ -3,7 +3,10 @@ import { provideMockActions } from '@ngrx/effects/testing';
 import { translocoTestingProviders } from '../../core/testing/transloco-testing';
 import { Action } from '@ngrx/store';
 import { Subject } from 'rxjs';
-import { emptyWorkTaskBoardFilter } from '../../core/models/work-task-board';
+import {
+  WorkTaskDeadlineGroupModel,
+  emptyWorkTaskBoardFilter,
+} from '../../core/models/work-task-board';
 import { WorkTaskPageModel } from '../../core/models/work-tasks';
 import { WorkTaskBoardService } from '../../core/services/work-task-board.service';
 import { WorkTasksService } from '../../core/services/work-tasks.service';
@@ -15,12 +18,16 @@ import { TaskBoardEffects } from './task-board.effects';
 describe('TaskBoardEffects', () => {
   let actions: Subject<Action>;
   let pageResponse: Subject<WorkTaskPageModel>;
+  let calendarResponse: Subject<WorkTaskDeadlineGroupModel[]>;
+  let calendarRequests: number;
   let moveResponses: Subject<void>[];
   let emitted: Action[];
 
   beforeEach(() => {
     actions = new Subject<Action>();
     pageResponse = new Subject<WorkTaskPageModel>();
+    calendarResponse = new Subject<WorkTaskDeadlineGroupModel[]>();
+    calendarRequests = 0;
     moveResponses = [];
     emitted = [];
     TestBed.configureTestingModule({
@@ -28,7 +35,16 @@ describe('TaskBoardEffects', () => {
         ...translocoTestingProviders(),
         TaskBoardEffects,
         provideMockActions(() => actions),
-        { provide: WorkTaskBoardService, useValue: { getPage: () => pageResponse } },
+        {
+          provide: WorkTaskBoardService,
+          useValue: {
+            getPage: () => pageResponse,
+            getCalendar: () => {
+              calendarRequests++;
+              return calendarResponse;
+            },
+          },
+        },
         {
           provide: WorkTasksService,
           useValue: {
@@ -44,6 +60,18 @@ describe('TaskBoardEffects', () => {
     const effects = TestBed.inject(TaskBoardEffects);
     effects.loadPage$.subscribe((action) => emitted.push(action));
     effects.moveTask$.subscribe((action) => emitted.push(action));
+    effects.loadCalendar$.subscribe((action) => emitted.push(action));
+  });
+
+  it('reads a calendar month in one request', () => {
+    const groups = [{ deadline: '2026-09-16T20:00:00Z', total: 151, workTasks: [taskFixture()] }];
+
+    actions.next(Actions.loadCalendar({ key: 'month', query: emptyWorkTaskBoardFilter }));
+    calendarResponse.next(groups);
+    calendarResponse.complete();
+
+    expect(calendarRequests).toBe(1);
+    expect(emitted).toEqual([Actions.loadCalendarSuccess({ key: 'month', groups })]);
   });
 
   const load = (key: string) =>

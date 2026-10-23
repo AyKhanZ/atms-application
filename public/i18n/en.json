@@ -726,7 +726,6 @@
     "loadingMonth": "Loading",
     "noOverdueMonth": "No overdue tasks this month.",
     "viewOverdueInList": "View overdue tasks in List",
-    "monthCut": "Showing the first {count, plural, one {# task} other {# tasks}} of this month. Narrow the filters to see the rest.",
     "noDeadlinesMonth": "No deadlines this month.",
     "more": "+ {count, plural, one {# more} other {# more}}",
     "dayTasks": "{count, plural, one {# task} other {# tasks}}",

@@ -4,6 +4,7 @@ import {
   WorkTaskBoardAssigneeModel,
   WorkTaskBoardQuery,
   WorkTaskBoardOrder,
+  WorkTaskDeadlineGroupModel,
 } from '../../core/models/work-task-board';
 import { WorkItemMutationError } from '../../core/models/work-items';
 import { WorkTaskModel, WorkTaskPageModel } from '../../core/models/work-tasks';
@@ -33,15 +34,14 @@ export const loadPageFailure = createAction(
 // every other list is dropped
 export const keepPages = createAction(`${key} Keep Pages`, props<{ keys: string[] }>());
 
-// follows the cursor, for a calendar month
-export const loadAll = createAction(
-  `${key} Load All`,
-  props<{ key: string; query: WorkTaskBoardQuery; order: WorkTaskBoardOrder }>(),
+// calendar month in one request: counts per deadline and the first cards of each
+export const loadCalendar = createAction(
+  `${key} Load Calendar`,
+  props<{ key: string; query: WorkTaskBoardQuery }>(),
 );
-export const loadAllSuccess = createAction(
-  `${key} Load All Success`,
-  // true = the month was cut at the limit
-  props<{ key: string; items: WorkTaskModel[]; hasMore: boolean }>(),
+export const loadCalendarSuccess = createAction(
+  `${key} Load Calendar Success`,
+  props<{ key: string; groups: WorkTaskDeadlineGroupModel[] }>(),
 );
 
 export const loadCounts = createAction(

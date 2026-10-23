@@ -8,6 +8,8 @@ export interface TaskBoardPageState {
   hasMore: boolean;
   loading: boolean;
   error: string | null;
+  // calendar month only: deadline (ms) -> how many tasks have it; items hold just the first few of each
+  totals?: Record<number, number>;
 }
 
 export interface TaskBoardState {
