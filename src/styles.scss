@@ -978,6 +978,21 @@ app-onboarding .confetti i:nth-child(5n) {
   }
 }
 
+// primeng 21 fades a closing list for 300ms with a long tail, and the picked option flashes orange under a
+// ripple meanwhile; on a busy page (first load) that stutters into a blink after the value is already set
+.p-anchored-overlay-leave-active {
+  animation-duration: 100ms;
+  animation-timing-function: linear;
+}
+
+.p-select-option,
+.p-multiselect-option,
+.p-autocomplete-option {
+  .p-ink {
+    display: none;
+  }
+}
+
 // without a cap the popup is as wide as the longest title (whole screen for a ticket)
 .breadcrumbs-menu.p-menu {
   max-width: min(24rem, calc(100vw - 2rem));
