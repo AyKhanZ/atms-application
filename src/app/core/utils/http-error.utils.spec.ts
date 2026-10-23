@@ -116,4 +116,14 @@ describe('serverErrorMessage', () => {
       'fallback',
     );
   });
+
+  it.each([429, 502])('falls back on the html page a proxy sends with %s', (status) => {
+    const page = `<html>\r\n<head><title>${status}</title></head>\r\n<body><center><h1>${status}</h1></center><hr><center>nginx</center></body>\r\n</html>`;
+    const error = new HttpErrorResponse({ status, error: page });
+
+    expect(serverErrorMessage(error, 'fallback')).toBe('fallback');
+    expect(serverErrorMessage(new HttpErrorResponse({ status, error: `\n  ${page}` }), 'fallback')).toBe(
+      'fallback',
+    );
+  });
 });
