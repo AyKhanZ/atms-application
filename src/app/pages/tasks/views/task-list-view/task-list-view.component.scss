@@ -226,6 +226,13 @@
   font-size: 0.85rem;
 }
 
+// past the scroll limit, centred under the table like the loading row
+.list-more {
+  display: flex;
+  width: fit-content;
+  margin: 0.75rem auto;
+}
+
 .rows {
   display: grid;
   gap: 0.5rem;

@@ -1,4 +1,5 @@
 @use 'list-state';
+@use 'quiet-button';
 
 // no sideways scroll box here: it would catch the sticky headers, and four columns fit from 768px up
 :host {
@@ -203,6 +204,24 @@
 
   flex-direction: column;
   color: var(--red-hover);
+}
+
+// right under the last card, not at the foot of a column stretched by its neighbour
+.column__more {
+  align-self: center;
+  margin: 0.25rem 0;
+}
+
+// a link out of the board, the same quiet look as Load more next to it
+.column__all-done {
+  @include quiet-button.base;
+
+  max-width: 100%;
+  height: auto;
+  min-height: 2.35rem;
+  padding-block: 0.4rem;
+  text-align: center;
+  line-height: 1.25;
 }
 
 :host ::ng-deep .cdk-drag-preview {

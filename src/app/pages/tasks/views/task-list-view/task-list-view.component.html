@@ -101,6 +101,10 @@
   <ng-container *ngTemplateOutlet="failure" />
 }
 
+@if (canShowMore()) {
+  <app-load-more-button class="list-more" (clicked)="loadMore()" />
+}
+
 <!-- under the last row: reaching it loads the next page -->
 <div [appScrollSentinel]="canLoadMore()" (reached)="loadMore()"></div>
 

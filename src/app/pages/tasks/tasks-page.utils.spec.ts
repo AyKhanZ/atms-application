@@ -114,7 +114,8 @@ describe('tasks page address', () => {
     expect(tasksPageParams(state, meId)['deadline']).toBeNull();
   });
 
-  it.each([3, 4, 5, 6, 7])('round trips list sort %s and direction', (sort) => {
+  // 2 is close date, from the board's "all done" link
+  it.each([2, 3, 4, 5, 6, 7])('round trips list sort %s and direction', (sort) => {
     const state = parseTasksPage(convertToParamMap({ view: 'list', sort, sortDirection: 2 }), meId);
     expect(state.order).toEqual({ sort, direction: 2 });
     expect(parseTasksPage(convertToParamMap(tasksPageParams(state, meId)), meId)).toEqual(state);
