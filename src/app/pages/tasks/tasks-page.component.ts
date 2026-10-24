@@ -201,10 +201,9 @@ export class TasksPageComponent implements OnDestroy {
 
     this.actions$
       .pipe(ofType(TaskBoardStoreActions.moveTaskSuccess), takeUntilDestroyed(this.destroyRef))
+      // closed subtasks moved too, reload so their cards are right; other moves update counts in the board
       .subscribe(({ completeSubtasks }) => {
-        // closed subtasks moved too, reload so their cards are right
         if (completeSubtasks) this.reloadToken.update((token) => token + 1);
-        else this.store.dispatch(TaskBoardStoreActions.loadCounts({ query: this.query() }));
       });
   }
 

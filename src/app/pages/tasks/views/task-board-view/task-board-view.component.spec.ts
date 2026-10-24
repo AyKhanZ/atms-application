@@ -1,7 +1,9 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { Actions } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
+import { Subject } from 'rxjs';
 import { ConfirmationService } from 'primeng/api';
 import { emptyWorkTaskBoardFilter } from '../../../../core/models/work-task-board';
 import { WorkTaskStatus } from '../../../../core/enums/work-task-status.enum';
@@ -30,11 +32,13 @@ describe('TaskBoardViewComponent', () => {
   function setup(deadline: 'any' | 'none' = 'any') {
     const pages = signal<Record<string, TaskBoardPageState>>({});
     const dispatch = vi.fn();
+    const actions$ = new Subject<{ type: string }>();
     TestBed.configureTestingModule({
       imports: [TaskBoardViewComponent],
       providers: [...translocoTestingProviders(), 
         provideRouter([]),
         ConfirmationService,
+        { provide: Actions, useValue: actions$ },
         {
           provide: Store,
           useValue: {
@@ -59,7 +63,11 @@ describe('TaskBoardViewComponent', () => {
       dispatch.mock.calls
         .map(([action]) => action)
         .filter((action) => action.type === TaskBoardStoreActions.moveTask.type);
-    return { fixture, pages, loads, moves };
+    const counts = () =>
+      dispatch.mock.calls
+        .map(([action]) => action)
+        .filter((action) => action.type === TaskBoardStoreActions.loadCounts.type);
+    return { fixture, pages, loads, moves, actions$, counts };
   }
 
   it('reads overdue work and the rest of each open column apart, and Done whole', () => {
@@ -72,6 +80,30 @@ describe('TaskBoardViewComponent', () => {
     expect(byStatus(WorkTaskStatus.New)).toEqual([true, false]);
     expect(byStatus(WorkTaskStatus.InProgress)).toEqual([true, false]);
     expect(byStatus(WorkTaskStatus.Done)).toEqual([undefined]);
+  });
+
+  // the page's query carries the list's Status filter; with it New and In Progress counted 0 after every move
+  it('recounts the columns after a move with its own query, not the page one', () => {
+    const { fixture, actions$, counts } = setup();
+    const query = { ...emptyWorkTaskBoardFilter, deadline: 'any' as const, search: 'socks' };
+    fixture.componentRef.setInput('query', query);
+    fixture.detectChanges();
+    const before = counts().length;
+
+    actions$.next(TaskBoardStoreActions.moveTaskSuccess({ taskId: 'moved', completeSubtasks: false }));
+
+    expect(counts().length).toBe(before + 1);
+    expect(counts().at(-1)!.query).toEqual(query);
+  });
+
+  // closing subtasks along reloads the whole board, counts with it
+  it('leaves the recount to the full reload when subtasks were closed along', () => {
+    const { actions$, counts } = setup();
+    const before = counts().length;
+
+    actions$.next(TaskBoardStoreActions.moveTaskSuccess({ taskId: 'moved', completeSubtasks: true }));
+
+    expect(counts().length).toBe(before);
   });
 
   it('does not ask for overdue work when only tasks without a deadline are shown', () => {
