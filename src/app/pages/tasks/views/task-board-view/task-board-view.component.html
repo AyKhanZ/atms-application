@@ -130,6 +130,14 @@
                   </div>
                 }
 
+                @if (canShowMore(lane)) {
+                  <app-load-more-button class="column__more" (clicked)="loadMore(column, lane)" />
+                } @else if (showsAllDone(lane)) {
+                  <button type="button" class="column__more column__all-done" (click)="showAllDone.emit()">
+                    {{ t('tasks.allDoneInList') }} <i class="pi pi-arrow-right" aria-hidden="true"></i>
+                  </button>
+                }
+
                 <!-- under the last card: reaching it loads the next page, also when a drag shortens the column -->
                 <div
                   [appScrollSentinel]="canLoadMore(lane)"

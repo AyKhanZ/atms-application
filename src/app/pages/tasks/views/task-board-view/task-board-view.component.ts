@@ -6,6 +6,7 @@ import {
   inject,
   input,
   linkedSignal,
+  output,
   signal,
   untracked,
 } from '@angular/core';
@@ -38,10 +39,15 @@ import {
 } from '../../../../shared/components/confirm-dialog/close-open-work';
 import { TaskCardComponent } from '../../components/task-card/task-card.component';
 import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
+import { LoadMoreButtonComponent } from '../../../../shared/components/load-more-button/load-more-button.component';
 import { ScrollSentinelDirective } from '../../../../shared/directives/scroll-sentinel.directive';
 import { filterKey } from '../../tasks-page.utils';
 
 const pageSize = 20;
+// past this a lane waits for a click: scrolling to find open work shouldnt pull hundreds of cards
+const autoLoadLimit = 100;
+// Done never loads on scroll and stops here, the rest is in the list: nobody reads an archive on a board
+const doneLimit = 200;
 
 // open column has two lanes (overdue on top, the rest), Done has one: closed work is never overdue
 interface Lane {
@@ -88,6 +94,7 @@ interface Drop {
     TaskCardComponent,
     TranslocoDirective,
     EmptyStateComponent,
+    LoadMoreButtonComponent,
     ScrollSentinelDirective,
   ],
   templateUrl: './task-board-view.component.html',
@@ -105,6 +112,7 @@ export class TaskBoardViewComponent {
   readonly canMove = input(false);
   readonly showProject = input(false);
   readonly reloadToken = input(0);
+  readonly showAllDone = output<void>();
 
   private readonly pages = this.store.selectSignal(TaskBoardStoreSelectors.getPages);
   readonly counts = this.store.selectSignal(TaskBoardStoreSelectors.getCounts);
@@ -223,6 +231,11 @@ export class TaskBoardViewComponent {
     return column.lanes.some((lane) => !this.page(lane) || this.page(lane)?.loading);
   }
 
+  // Done is the only lane without an overdue part
+  private byClick(lane: Lane): boolean {
+    return lane.overdue === null || (this.page(lane)?.items.length ?? 0) >= autoLoadLimit;
+  }
+
   private hasLate(column: Column): boolean {
     return column.lanes.some((lane) => lane.overdue && (this.page(lane)?.items.length ?? 0) > 0);
   }
@@ -237,7 +250,26 @@ export class TaskBoardViewComponent {
   // a page arriving mid-drag would shift the cards under the pointer
   canLoadMore(lane: Lane): boolean {
     const page = this.page(lane);
-    return !!page?.nextCursor && !page.loading && !page.error && !this.dragging();
+    return (
+      !!page?.nextCursor && !page.loading && !page.error && !this.dragging() && !this.byClick(lane)
+    );
+  }
+
+  // stays while dragging: a button vanishing under the dragged card would jump the column
+  canShowMore(lane: Lane): boolean {
+    const page = this.page(lane);
+    return (
+      !!page?.nextCursor &&
+      !page.loading &&
+      !page.error &&
+      this.byClick(lane) &&
+      !this.showsAllDone(lane)
+    );
+  }
+
+  showsAllDone(lane: Lane): boolean {
+    const page = this.page(lane);
+    return lane.overdue === null && !!page?.nextCursor && page.items.length >= doneLimit;
   }
 
   loadMore(column: Column, lane: Lane): void {

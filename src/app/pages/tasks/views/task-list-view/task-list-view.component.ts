@@ -30,6 +30,7 @@ import {
   TaskBoardStoreSelectors,
 } from '../../../../store/task-board';
 import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
+import { LoadMoreButtonComponent } from '../../../../shared/components/load-more-button/load-more-button.component';
 import { WorkItemAssigneeComponent } from '../../../../shared/components/work-item-assignee/work-item-assignee.component';
 import { WorkItemPriorityComponent } from '../../../../shared/components/work-item-priority/work-item-priority.component';
 import { WorkItemRefComponent } from '../../../../shared/components/work-item-ref/work-item-ref.component';
@@ -46,6 +47,8 @@ import { TaskStatusBadgeComponent } from '../../../projects/tasks/components/tas
 import { defaultListOrder, filterKey } from '../../tasks-page.utils';
 
 const pageSize = 20;
+// past this the next page waits for a click: an accidental scroll never pulls thousands of rows
+const autoLoadLimit = 200;
 
 interface ListSource {
   key: string;
@@ -69,6 +72,7 @@ const sorts: Record<string, WorkTaskBoardSort> = {
     NgTemplateOutlet,
     ScrollSentinelDirective,
     EmptyStateComponent,
+    LoadMoreButtonComponent,
     WorkItemAssigneeComponent,
     WorkItemPriorityComponent,
     WorkItemRefComponent,
@@ -94,8 +98,9 @@ export class TaskListViewComponent {
   readonly emptyText = input('No tasks yet');
   readonly order = input<WorkTaskBoardOrder>(defaultListOrder);
   readonly orderChange = output<WorkTaskBoardOrder>();
-  readonly sortField = computed(
-    () => Object.keys(sorts).find((field) => sorts[field] === this.order().sort) ?? 'title',
+  // by close date (the board's "all done" link) no column shows an arrow
+  readonly sortField = computed(() =>
+    Object.keys(sorts).find((field) => sorts[field] === this.order().sort),
   );
   readonly sortOrder = computed(() => (this.order().direction === SortDirectionEnum.Desc ? -1 : 1));
 
@@ -144,10 +149,12 @@ export class TaskListViewComponent {
   });
   readonly items = computed(() => this.displayed().items);
   readonly loading = computed(() => this.page()?.loading ?? !this.page());
-  readonly canLoadMore = computed(() => {
+  private readonly canFetch = computed(() => {
     const page = this.page();
     return !!page?.hasMore && !page.loading && !page.error;
   });
+  readonly canLoadMore = computed(() => this.canFetch() && this.items().length < autoLoadLimit);
+  readonly canShowMore = computed(() => this.canFetch() && this.items().length >= autoLoadLimit);
 
   constructor() {
     effect(() => {

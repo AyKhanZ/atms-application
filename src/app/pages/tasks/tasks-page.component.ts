@@ -23,7 +23,9 @@ import {
   WorkTaskBoardFilter,
   WorkTaskBoardQuery,
   WorkTaskBoardOrder,
+  doneOrder,
 } from '../../core/models/work-task-board';
+import { WorkTaskStatus } from '../../core/enums/work-task-status.enum';
 import { WorkItemMutationError } from '../../core/models/work-items';
 import { Permissions } from '../../core/enums/permissions.enum';
 import { SnackBarService } from '../../core/services/snack-bar.service';
@@ -216,6 +218,15 @@ export class TasksPageComponent implements OnDestroy {
       view,
       filter:
         view === 'calendar' && filter.deadline === 'none' ? { ...filter, deadline: 'any' } : filter,
+    });
+  }
+
+  // board's Done stops at its limit, the rest is here: same filters, newest closed first
+  showAllDone(): void {
+    this.navigate({
+      view: 'list',
+      filter: { ...this.state().filter, statusIds: [WorkTaskStatus.Done] },
+      order: doneOrder,
     });
   }
 

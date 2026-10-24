@@ -158,7 +158,14 @@ describe('TaskBoardViewComponent', () => {
   describe('next page', () => {
     const done = (loads: () => LoadPage[]) =>
       loads().find((load) => load.query.boardColumnIds?.[0] === WorkTaskStatus.Done)!.key;
-    const lane = (key: string) => ({ key, overdue: null });
+    const open = (loads: () => LoadPage[]) =>
+      loads().find(
+        (load) => load.query.boardColumnIds?.[0] === WorkTaskStatus.New && load.query.overdue === false,
+      )!.key;
+    const doneLane = (key: string) => ({ key, overdue: null });
+    const openLane = (key: string) => ({ key, overdue: false });
+    const cards = (count: number) =>
+      Array.from({ length: count }, (_, index) => taskFixture({ id: `card-${index}` }));
     const page = (overrides: Partial<TaskBoardPageState>): TaskBoardPageState => ({
       items: [taskFixture({ id: 'shown', status: statuses[2] })],
       hasMore: true,
@@ -168,17 +175,17 @@ describe('TaskBoardViewComponent', () => {
       ...overrides,
     });
 
-    it('is read when the end of a column is reached, with no Load more button to find', () => {
+    it('is read when the end of an open column is reached, with no Load more button to find', () => {
       const { fixture, pages, loads } = setup();
-      const key = done(loads);
+      const key = open(loads);
       pages.set({ [key]: page({}) });
       fixture.detectChanges();
       const board = fixture.componentInstance;
 
-      expect(board.canLoadMore(lane(key))).toBe(true);
+      expect(board.canLoadMore(openLane(key))).toBe(true);
       expect(fixture.nativeElement.querySelector('app-load-more-button')).toBeNull();
 
-      board.loadMore(board.columns()[2], lane(key));
+      board.loadMore(board.columns()[0], openLane(key));
       expect(loads().at(-1)).toEqual(expect.objectContaining({ key, cursor: 'next' }));
     });
 
@@ -188,21 +195,93 @@ describe('TaskBoardViewComponent', () => {
       ['the last try failed', { error: 'Tasks could not be loaded.' }],
     ])('is not read when %s', (_, overrides) => {
       const { pages, loads, fixture } = setup();
-      const key = done(loads);
+      const key = open(loads);
       pages.set({ [key]: page(overrides) });
 
-      expect(fixture.componentInstance.canLoadMore(lane(key))).toBe(false);
+      expect(fixture.componentInstance.canLoadMore(openLane(key))).toBe(false);
     });
 
     // a page arriving under the pointer would move the card being dragged
     it('waits while a card is dragged', () => {
       const { pages, loads, fixture } = setup();
+      const key = open(loads);
+      pages.set({ [key]: page({}) });
+
+      fixture.componentInstance.dragging.set(true);
+
+      expect(fixture.componentInstance.canLoadMore(openLane(key))).toBe(false);
+    });
+
+    it('waits for Load more once an open column holds 100 cards', () => {
+      const { fixture, pages, loads } = setup();
+      const key = open(loads);
+      const board = fixture.componentInstance;
+
+      pages.set({ [key]: page({ items: cards(99) }) });
+      expect(board.canLoadMore(openLane(key))).toBe(true);
+      expect(board.canShowMore(openLane(key))).toBe(false);
+
+      pages.set({ [key]: page({ items: cards(100) }) });
+      fixture.detectChanges();
+      expect(board.canLoadMore(openLane(key))).toBe(false);
+      expect(board.canShowMore(openLane(key))).toBe(true);
+
+      fixture.nativeElement.querySelector('app-load-more-button button').click();
+      expect(loads().at(-1)).toEqual(expect.objectContaining({ key, cursor: 'next' }));
+    });
+
+    it('reads Done only on Load more, never on reaching its end', () => {
+      const { fixture, pages, loads } = setup();
+      const key = done(loads);
+      pages.set({ [key]: page({}) });
+      fixture.detectChanges();
+      const board = fixture.componentInstance;
+
+      expect(board.canLoadMore(doneLane(key))).toBe(false);
+      expect(board.canShowMore(doneLane(key))).toBe(true);
+
+      fixture.nativeElement.querySelector('app-load-more-button button').click();
+      expect(loads().at(-1)).toEqual(expect.objectContaining({ key, cursor: 'next' }));
+    });
+
+    it('keeps Load more while a card is dragged, so the column does not jump', () => {
+      const { fixture, pages, loads } = setup();
       const key = done(loads);
       pages.set({ [key]: page({}) });
 
       fixture.componentInstance.dragging.set(true);
 
-      expect(fixture.componentInstance.canLoadMore(lane(key))).toBe(false);
+      expect(fixture.componentInstance.canShowMore(doneLane(key))).toBe(true);
+    });
+
+    it('sends the rest of Done to the list once it holds 200 cards', () => {
+      const { fixture, pages, loads } = setup();
+      const key = done(loads);
+      const board = fixture.componentInstance;
+      const shown = vi.fn();
+      board.showAllDone.subscribe(shown);
+
+      pages.set({ [key]: page({ items: cards(199) }) });
+      expect(board.canShowMore(doneLane(key))).toBe(true);
+      expect(board.showsAllDone(doneLane(key))).toBe(false);
+
+      pages.set({ [key]: page({ items: cards(200) }) });
+      fixture.detectChanges();
+      expect(board.canShowMore(doneLane(key))).toBe(false);
+      expect(fixture.nativeElement.querySelector('app-load-more-button')).toBeNull();
+
+      fixture.nativeElement.querySelector('.column__all-done').click();
+      expect(shown).toHaveBeenCalled();
+    });
+
+    it('shows neither Load more nor the list link when Done is fully read', () => {
+      const { fixture, pages, loads } = setup();
+      const key = done(loads);
+      pages.set({ [key]: page({ items: cards(200), hasMore: false, nextCursor: null }) });
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('app-load-more-button')).toBeNull();
+      expect(fixture.nativeElement.querySelector('.column__all-done')).toBeNull();
     });
 
     it.each([

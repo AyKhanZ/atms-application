@@ -707,6 +707,7 @@
     "emptyFiltered": "Uyğun tapşırıq yoxdur",
     "empty": "Hələ tapşırıq yoxdur",
     "emptyColumn": "Burada tapşırıq yoxdur",
+    "allDoneInList": "Bütün hazır tapşırıqlar siyahıda",
     "moveDenied": "Bu layihədə tapşırıqları köçürə bilməzsiniz.",
     "moveMissing": "Bu tapşırıq artıq əlçatan deyil.",
     "moveFailed": "Dəyişikliyi yadda saxlamaq mümkün olmadı. Yenidən cəhd edin.",

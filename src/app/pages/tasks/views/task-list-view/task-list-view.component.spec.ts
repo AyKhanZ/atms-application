@@ -102,6 +102,30 @@ describe('TaskListViewComponent', () => {
     expect(fixture.componentInstance.canLoadMore()).toBe(false);
   });
 
+  it('waits for Load more past 200 rows, so a scroll never pulls thousands', () => {
+    const { fixture, requests, answer } = setup();
+    const many = Array.from({ length: 200 }, (_, index) => taskFixture({ id: `row-${index}` }));
+    const list = fixture.componentInstance;
+
+    answer(pageOf([]), pageOf(many.slice(0, 199), 'next'));
+    expect(list.canLoadMore()).toBe(true);
+    expect(list.canShowMore()).toBe(false);
+
+    answer(pageOf([]), pageOf(many, 'next'));
+    expect(list.canLoadMore()).toBe(false);
+    expect(list.canShowMore()).toBe(true);
+
+    fixture.nativeElement.querySelector('app-load-more-button button').click();
+    expect(requests().at(-1)).toEqual(expect.objectContaining({ cursor: 'next' }));
+  });
+
+  it('marks no column as sorted when opened by close date from the board', () => {
+    const { fixture } = setup();
+    fixture.componentRef.setInput('order', { sort: WorkTaskBoardSort.DoneAt, direction: 2 });
+    fixture.detectChanges();
+    expect(fixture.componentInstance.sortField()).toBeUndefined();
+  });
+
   it.each([
     ['the first page again when it failed', [], null],
     ['the page that failed after the rows shown', [taskFixture()], 'next'],

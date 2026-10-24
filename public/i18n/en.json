@@ -707,6 +707,7 @@
     "emptyFiltered": "No matching tasks",
     "empty": "No tasks yet",
     "emptyColumn": "No tasks here",
+    "allDoneInList": "All done tasks in the list",
     "moveDenied": "You cannot move tasks in that project.",
     "moveMissing": "That task is no longer available.",
     "moveFailed": "We couldn't save the change. Please try again.",

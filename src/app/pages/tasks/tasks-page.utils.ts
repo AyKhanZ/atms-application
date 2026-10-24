@@ -55,6 +55,8 @@ export function parseTasksPage(params: ParamMap, meId: string | null): TasksPage
         WorkTaskBoardSort.State,
         WorkTaskBoardSort.Priority,
         WorkTaskBoardSort.Deadline,
+        // no column for it, only the board's "all done" link sorts by it
+        WorkTaskBoardSort.DoneAt,
       ].includes(sort)
         ? sort
         : defaultListOrder.sort,
