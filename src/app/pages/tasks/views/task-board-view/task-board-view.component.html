@@ -133,7 +133,7 @@
                 @if (canShowMore(lane)) {
                   <app-load-more-button class="column__more" (clicked)="loadMore(column, lane)" />
                 } @else if (showsAllDone(lane)) {
-                  <button type="button" class="column__more column__all-done" (click)="showAllDone.emit()">
+                  <button type="button" class="column__more column__all-done" (click)="openAllDone()">
                     {{ t('tasks.allDoneInList') }} <i class="pi pi-arrow-right" aria-hidden="true"></i>
                   </button>
                 }
