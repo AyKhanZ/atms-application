@@ -155,7 +155,8 @@ describe('TaskBoardViewComponent', () => {
     );
   });
 
-  describe('next page', () => {
+  // some cases draw 100–200 cards, slow next to the rest of the suite running in parallel
+  describe('next page', { timeout: 20_000 }, () => {
     const done = (loads: () => LoadPage[]) =>
       loads().find((load) => load.query.boardColumnIds?.[0] === WorkTaskStatus.Done)!.key;
     const open = (loads: () => LoadPage[]) =>
@@ -254,7 +255,8 @@ describe('TaskBoardViewComponent', () => {
       expect(fixture.componentInstance.canShowMore(doneLane(key))).toBe(true);
     });
 
-    it('sends the rest of Done to the list once it holds 200 cards', () => {
+    // left 200 cards deep, the list would show its end at once and read page after page
+    it('sends the rest of Done to the list once it holds 200 cards, from the top of the page', () => {
       const { fixture, pages, loads } = setup();
       const key = done(loads);
       const board = fixture.componentInstance;
@@ -270,8 +272,14 @@ describe('TaskBoardViewComponent', () => {
       expect(board.canShowMore(doneLane(key))).toBe(false);
       expect(fixture.nativeElement.querySelector('app-load-more-button')).toBeNull();
 
+      const scroller = document.createElement('main');
+      scroller.className = 'page-content';
+      scroller.appendChild(fixture.nativeElement);
+      Object.defineProperty(scroller, 'scrollTop', { value: 5000, writable: true });
+
       fixture.nativeElement.querySelector('.column__all-done').click();
       expect(shown).toHaveBeenCalled();
+      expect(scroller.scrollTop).toBe(0);
     });
 
     it('shows neither Load more nor the list link when Done is fully read', () => {

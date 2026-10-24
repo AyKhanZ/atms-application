@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  ElementRef,
   computed,
   effect,
   inject,
@@ -103,6 +104,7 @@ interface Drop {
 })
 export class TaskBoardViewComponent {
   private readonly store = inject(Store);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly confirmation = inject(ConfirmationService);
   private readonly transloco = inject(TranslocoService);
 
@@ -265,6 +267,13 @@ export class TaskBoardViewComponent {
       this.byClick(lane) &&
       !this.showsAllDone(lane)
     );
+  }
+
+  // the list would open at the board's depth with its end in view, and keep loading pages to fill it
+  openAllDone(): void {
+    const scroller = this.host.nativeElement.closest('.page-content');
+    if (scroller) scroller.scrollTop = 0;
+    this.showAllDone.emit();
   }
 
   showsAllDone(lane: Lane): boolean {

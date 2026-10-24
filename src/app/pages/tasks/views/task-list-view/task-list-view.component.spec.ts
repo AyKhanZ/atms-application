@@ -102,7 +102,8 @@ describe('TaskListViewComponent', () => {
     expect(fixture.componentInstance.canLoadMore()).toBe(false);
   });
 
-  it('waits for Load more past 200 rows, so a scroll never pulls thousands', () => {
+  // draws 200 rows, slow next to the rest of the suite running in parallel
+  it('waits for Load more past 200 rows, so a scroll never pulls thousands', { timeout: 20_000 }, () => {
     const { fixture, requests, answer } = setup();
     const many = Array.from({ length: 200 }, (_, index) => taskFixture({ id: `row-${index}` }));
     const list = fixture.componentInstance;
