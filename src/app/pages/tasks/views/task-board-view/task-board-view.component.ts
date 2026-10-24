@@ -12,7 +12,10 @@ import {
   untracked,
 } from '@angular/core';
 import { CdkDrag, CdkDragDrop, CdkDropList, CdkDropListGroup } from '@angular/cdk/drag-drop';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Actions, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
+import { filter } from 'rxjs';
 import { ConfirmationService } from 'primeng/api';
 import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { NgTemplateOutlet } from '@angular/common';
@@ -104,6 +107,7 @@ interface Drop {
 })
 export class TaskBoardViewComponent {
   private readonly store = inject(Store);
+  private readonly actions$ = inject(Actions);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly confirmation = inject(ConfirmationService);
   private readonly transloco = inject(TranslocoService);
@@ -210,6 +214,18 @@ export class TaskBoardViewComponent {
         this.store.dispatch(TaskBoardStoreActions.loadCounts({ query }));
       });
     });
+
+    // counts with the board's own query: the page's carries the list's Status filter, which zeroed the other columns
+    // closing subtasks along reloads the whole board (reloadToken), counts included
+    this.actions$
+      .pipe(
+        ofType(TaskBoardStoreActions.moveTaskSuccess),
+        filter(({ completeSubtasks }) => !completeSubtasks),
+        takeUntilDestroyed(),
+      )
+      .subscribe(() =>
+        this.store.dispatch(TaskBoardStoreActions.loadCounts({ query: untracked(this.query) })),
+      );
   }
 
   page(lane: Lane): TaskBoardPageState | undefined {
