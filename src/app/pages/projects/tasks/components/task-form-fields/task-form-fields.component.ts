@@ -74,6 +74,7 @@ export class TaskFormFieldsComponent {
     return this.transloco.translate('common.invalid');
   }
 
+  // native input: primeng's onInput drops a date that came without a keydown (paste, autofill)
   onDateInput(event: Event): void {
     const inputElement = event.target as HTMLInputElement | null;
     if (!inputElement) return;
