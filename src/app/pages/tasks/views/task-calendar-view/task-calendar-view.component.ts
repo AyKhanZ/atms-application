@@ -207,6 +207,13 @@ export class TaskCalendarViewComponent {
         this.store.dispatch(TaskBoardStoreActions.loadCalendar({ key, query }));
       });
     });
+    // primeng places the panel once, while it holds only the skeleton; the loaded list makes it
+    // taller and it runs off the bottom of the screen, so it is placed again for the new height
+    effect(() => {
+      this.morePage();
+      if (!untracked(this.moreOpen)) return;
+      afterNextRender(() => this.morePanel()?.align(), { injector: this.injector });
+    });
   }
 
   // one panel for the whole grid: the same "+N more" closes it, another one moves it there.
