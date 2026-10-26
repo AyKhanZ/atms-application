@@ -750,15 +750,35 @@ app-onboarding .confetti i:nth-child(5n) {
   }
 }
 
-@media (max-width: 760px) {
+// the onboarding card is the container
+@container (max-width: 42rem) {
   app-onboarding .skeleton-grid {
     grid-template-columns: 1fr;
+  }
+  app-onboarding .review-content {
+    min-height: 0;
+    padding: 2rem 1rem 1rem;
+  }
+  app-onboarding .review-content h2 {
+    font-size: 1.35rem;
+  }
+  // the list above already ends with a line
+  app-onboarding .review-content .form-actions {
+    width: 100%;
+    border-top: 0;
   }
   app-onboarding .review-list span {
     grid-template-columns: 24px 1fr;
   }
   app-onboarding .review-list small {
     grid-column: 2;
+  }
+  app-onboarding .load-error {
+    min-height: 20rem;
+    padding: 1.5rem 1rem;
+  }
+  app-onboarding .success-card > button {
+    width: 100%;
   }
 }
 

@@ -101,6 +101,8 @@ export class PersonalInfoFieldsComponent {
     this.writePhone(input, digits.slice(zeros), Math.max(0, digitsBefore - zeros));
   }
 
+  // the native input event: primeng's onInput fires only after a keydown, so a pasted, autofilled or
+  // dictated date (and some phone keyboards) showed in the field but never reached the form
   onBirthDateInput(event: Event): void {
     const input = event.target as HTMLInputElement | null;
     if (!input) return;
