@@ -257,6 +257,7 @@ export class ProjectFormPageComponent implements OnDestroy {
     this.loadOrganization(organizationId);
   }
 
+  // native input: primeng's onInput drops a date that came without a keydown (paste, autofill)
   onDateInput(event: Event, controlName: 'startDate' | 'endDate'): void {
     const input = event.target as HTMLInputElement | null;
     if (!input) return;

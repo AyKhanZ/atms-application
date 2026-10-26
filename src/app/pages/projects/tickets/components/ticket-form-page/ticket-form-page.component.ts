@@ -410,6 +410,7 @@ export class TicketFormPageComponent implements OnDestroy {
     return this.transloco.translate('common.invalid');
   }
 
+  // native input: primeng's onInput drops a date that came without a keydown (paste, autofill)
   onDateInput(event: Event): void {
     const input = event.target as HTMLInputElement | null;
     if (!input) return;
