@@ -332,7 +332,7 @@
     "passwordSaveFailed": "Could not save the password.",
     "invitationsReady": "Invitations are ready to send.",
     "invitationsSaveFailed": "Could not save invitations.",
-    "skipNotice": "You can invite colleagues later from Users.",
+    "skipNotice": "You can invite colleagues later on a project's Participants tab.",
     "skipFailed": "Could not skip invitations.",
     "completeFailed": "Could not complete setup.",
     "conflict": "This page was updated elsewhere. Reload it and try again.",
