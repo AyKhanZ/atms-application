@@ -1,7 +1,9 @@
 import { WritableSignal, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
 import { Store } from '@ngrx/store';
+import { Popover } from 'primeng/popover';
 import { translocoTestingProviders } from '../../../../core/testing/transloco-testing';
 import {
   WorkTaskBoardQuery,
@@ -130,5 +132,30 @@ describe('TaskCalendarViewComponent', () => {
     expect(actions().filter((action) => action.type === TaskBoardStoreActions.loadPage.type).at(-1)).toEqual(
       expect.objectContaining({ key: first.key, cursor: 'next-50' }),
     );
+  });
+
+  // placed while it holds only the skeleton, the panel would grow off the bottom of the screen
+  it('places the open day panel again once its tasks come', async () => {
+    const { fixture, pages, monthKey, actions } = render();
+    busyDay(pages, monthKey);
+    fixture.detectChanges();
+    const element: HTMLElement = fixture.nativeElement;
+
+    element.querySelector<HTMLButtonElement>('.day__more')?.click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const popover: Popover = fixture.debugElement.query(By.directive(Popover)).componentInstance;
+    const align = vi.spyOn(popover, 'align');
+    const first = actions().find((action) => action.type === TaskBoardStoreActions.loadPage.type);
+    const day = ['a', 'b', 'c'].map((id) => taskFixture({ id, title: `Day ${id}` }));
+    pages.update((all) => ({
+      ...all,
+      [first.key]: { items: day, hasMore: false, nextCursor: null, loading: false, error: null },
+    }));
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(align).toHaveBeenCalled();
   });
 });
