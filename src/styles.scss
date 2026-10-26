@@ -1023,6 +1023,15 @@ app-onboarding .confetti i:nth-child(5n) {
   }
 }
 
+// primeng 21 marks a loading pButton that has icon="" and its text as content as icon-only, so for the
+// request it shrinks to a 2.5rem square with the text cut off; it keeps its normal size instead
+.p-button-loading.p-button-icon-only:not(.p-button-rounded) {
+  width: auto;
+  min-width: var(--p-button-icon-only-width);
+  padding-inline: var(--p-button-padding-x);
+  gap: var(--p-button-gap);
+}
+
 // without a cap the popup is as wide as the longest title (whole screen for a ticket)
 .breadcrumbs-menu.p-menu {
   max-width: min(24rem, calc(100vw - 2rem));
