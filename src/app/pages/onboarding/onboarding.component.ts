@@ -89,6 +89,8 @@ export class OnboardingComponent implements HasUnsavedChanges {
 
   readonly initialLoading = signal(true);
   readonly actionLoading = signal(false);
+  // the spinner goes on Skip, not on Continue, which shares actionLoading with it
+  readonly skipping = signal(false);
   readonly loadFailed = signal(false);
   readonly completed = signal(false);
   readonly model = signal<OnboardingModel | null>(null);
@@ -298,12 +300,14 @@ export class OnboardingComponent implements HasUnsavedChanges {
     if (this.actionLoading() || !model) return;
     this.savingInvitations = true;
     this.actionLoading.set(true);
+    this.skipping.set(true);
     this.onboardingApi
       .skipInvitations(model.version)
       .pipe(
         finalize(() => {
           this.savingInvitations = false;
           this.actionLoading.set(false);
+          this.skipping.set(false);
         }),
       )
       .subscribe({

@@ -294,6 +294,7 @@
                     type="button"
                     [text]="true"
                     [disabled]="actionLoading()"
+                    [loading]="skipping()"
                     (click)="skipInvitations()"
                   >
                     {{ t('onboarding.skip') }}</button
@@ -302,7 +303,8 @@
                     type="button"
                     icon="pi pi-arrow-right"
                     iconPos="right"
-                    [loading]="actionLoading()"
+                    [disabled]="skipping()"
+                    [loading]="actionLoading() && !skipping()"
                     (click)="saveInvitations()"
                   >
                     {{ t('onboarding.continue') }}
