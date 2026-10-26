@@ -2,7 +2,10 @@ import { HttpErrorResponse } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
   Component,
+  ElementRef,
   HostListener,
+  Injector,
+  afterNextRender,
   computed,
   inject,
   signal,
@@ -81,6 +84,8 @@ export class OnboardingComponent implements HasUnsavedChanges {
   private readonly uiLanguage = inject(LanguageService);
   private readonly router = inject(Router);
   private readonly transloco = inject(TranslocoService);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly injector = inject(Injector);
 
   readonly initialLoading = signal(true);
   readonly actionLoading = signal(false);
@@ -165,7 +170,10 @@ export class OnboardingComponent implements HasUnsavedChanges {
     );
     if (!hasAvatar) this.avatarError.set(this.transloco.translate('validation.photoRequired'));
     this.personalForm.markAllAsTouched();
-    if (this.personalForm.invalid || !hasAvatar || this.avatarError()) return;
+    if (this.personalForm.invalid || !hasAvatar || this.avatarError()) {
+      this.revealFirstError();
+      return;
+    }
 
     const value = this.personalForm.getRawValue();
     const model = this.model();
@@ -216,7 +224,10 @@ export class OnboardingComponent implements HasUnsavedChanges {
     this.securityForm.markAllAsTouched();
     const model = this.model();
     if (this.securityForm.invalid || !model) {
-      if (this.securityForm.invalid) this.pulsePasswordRules();
+      if (this.securityForm.invalid) {
+        this.pulsePasswordRules();
+        this.revealFirstError();
+      }
       return;
     }
     this.actionLoading.set(true);
@@ -251,7 +262,11 @@ export class OnboardingComponent implements HasUnsavedChanges {
     if (this.actionLoading()) return;
     this.invitationRows.markAllAsTouched();
     const model = this.model();
-    if (this.invitationRows.invalid || !model) return;
+    if (this.invitationRows.invalid) {
+      this.revealFirstError();
+      return;
+    }
+    if (!model) return;
     const users = this.invitationRows.getRawValue().map((user) => ({
       name: user.name.trim(),
       surname: user.surname.trim(),
@@ -451,7 +466,29 @@ export class OnboardingComponent implements HasUnsavedChanges {
     this.snackBar.error(validationMessage(error) ?? error.error?.error ?? fallback);
   }
 
+  // on a phone the first error is often a screen away from the Continue button that was pressed
+  private revealFirstError(): void {
+    afterNextRender(
+      () => {
+        const candidates = this.host.nativeElement.querySelectorAll<HTMLElement>(
+          '.file-upload--invalid, .field-error small, .invite-row small',
+        );
+        const error = Array.from(candidates).find(
+          (el) => el.classList.contains('file-upload--invalid') || el.textContent?.trim(),
+        );
+        error
+          ?.closest<HTMLElement>('.file-upload, .field, .invite-row')
+          ?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      },
+      { injector: this.injector },
+    );
+  }
+
   private setActiveView(view: OnboardingView): void {
+    // the next step starts at its top, not where the previous step's button was
+    if (view !== this.activeView()) {
+      this.host.nativeElement.querySelector('.onboarding-page')?.scrollTo({ top: 0 });
+    }
     this.activeView.set(view);
     try {
       sessionStorage.setItem(LAST_ONBOARDING_VIEW_KEY, view);

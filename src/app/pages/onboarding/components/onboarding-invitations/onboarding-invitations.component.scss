@@ -2,6 +2,9 @@
 
 :host {
   display: block;
+  min-width: 0;
+  // the table needs ~37rem, narrower than that each colleague becomes a card
+  container-type: inline-size;
 }
 
 @include profile-form-fields.fields;
@@ -99,7 +102,7 @@
   border: 0;
 }
 
-@media (max-width: 760px) {
+@container (max-width: 38rem) {
   .invite-head {
     display: none;
   }
@@ -112,11 +115,19 @@
     overflow: visible;
   }
   .invite-row {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.35rem;
     margin-bottom: 0.8rem;
     padding: 0.9rem;
     border: 1px solid var(--gray-border);
     border-radius: 8px;
+  }
+  .invite-row:first-of-type {
+    border-top: 1px solid var(--gray-border);
+  }
+  // same touch height as the profile fields
+  .invite-row input {
+    min-height: 44px;
   }
   .invite-row__header {
     display: flex;
@@ -128,5 +139,9 @@
   }
   .remove-row--desktop {
     display: none;
+  }
+  .invite-add .p-button {
+    width: 100%;
+    min-height: 44px;
   }
 }

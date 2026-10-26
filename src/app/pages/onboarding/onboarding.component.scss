@@ -19,13 +19,13 @@
   align-items: center;
   justify-content: space-between;
   height: 60px;
-  padding: 0 clamp(1rem, 4vw, 4rem);
+  padding: 0 clamp(0.75rem, 4vw, 4rem);
   border-bottom: 1px solid var(--gray-border);
   background: rgb(255 255 255 / 96%);
 }
 
 .topbar img {
-  width: 144px;
+  width: clamp(7.5rem, 30vw, 9rem);
 }
 
 .icon-button {
@@ -44,18 +44,21 @@
 .onboarding-main {
   display: grid;
   min-height: calc(100% - 60px);
-  padding: clamp(0.6rem, 1.2vw, 1.25rem) clamp(1rem, 3vw, 2.5rem);
+  padding: clamp(0.75rem, 1.2vw, 1.25rem) clamp(0.75rem, 3vw, 2.5rem);
   place-items: start center;
 }
 
 .onboarding-card,
 .success-card {
   width: min(1500px, 100%);
+  min-width: 0;
   overflow: visible;
   border: 1px solid var(--gray-border);
   border-radius: 10px;
   background: var(--white);
   box-shadow: 0 24px 70px rgb(31 41 55 / 12%);
+  // everything inside reacts to the card width, not the window
+  container-type: inline-size;
 }
 
 .welcome-header {
@@ -79,10 +82,17 @@
   display: flex;
   align-items: center;
   flex: 0 0 auto;
+  min-width: 0;
   padding: 0.3rem;
   border: 1px solid var(--gray-border);
   border-radius: 999px;
   background: var(--white-soft);
+}
+
+// holds the stepper's place so the header does not jump when it loads
+.stepper-skeleton {
+  flex: 0 0 auto;
+  width: 14rem;
 }
 
 .step {
@@ -90,6 +100,7 @@
   align-items: center;
   gap: 0.45rem;
   min-width: 0;
+  min-height: 2.5rem;
   padding: 0.35rem 0.65rem;
   border: 0;
   border-radius: 999px;
@@ -100,6 +111,10 @@
   opacity: 0.66;
   transform: scale(0.96);
   transition: 0.24s;
+}
+
+.step:disabled {
+  cursor: default;
 }
 
 .step__marker {
@@ -157,11 +172,23 @@
   padding: clamp(1.1rem, 2vw, 1.9rem) clamp(1.5rem, 4vw, 3.75rem) 0.85rem;
 }
 
+// same columns as the Profile tab in Settings
 .personal-grid {
   display: grid;
-  grid-template-columns: minmax(280px, 24vw) minmax(0, 1fr);
+  grid-template-columns: minmax(14rem, 18rem) minmax(0, 1fr);
   gap: 1.25rem clamp(2rem, 3vw, 3.25rem);
   align-items: stretch;
+  min-width: 0;
+}
+
+.personal-grid > * {
+  min-width: 0;
+}
+
+// the loading copy of the fields measures its own width, like app-personal-info-fields
+.fields-skeleton {
+  min-width: 0;
+  container-type: inline-size;
 }
 
 .personal-fields {
@@ -171,15 +198,25 @@
   min-width: 0;
 }
 
+.personal-fields > .field {
+  grid-column: span var(--span);
+}
+
 .span-2 {
   grid-column: 1 / -1;
 }
 
+// a field scrolled to because of its error stops below the sticky topbar, not under it
+:host ::ng-deep :is(.field, .file-upload, .invite-row) {
+  scroll-margin: 5rem 0 1rem;
+}
+
 @include profile-form-fields.fields;
 
-:host ::ng-deep .photo-field .file-upload,
-:host ::ng-deep .photo-field .file-upload__body {
+// heading keeps its height, the box under it takes the rest of the column
+:host ::ng-deep .photo-field .file-upload {
   height: 100%;
+  grid-template-rows: auto minmax(0, 1fr);
 }
 
 :host ::ng-deep .photo-field .file-upload__body {
@@ -272,68 +309,124 @@
   border: 0;
 }
 
-@media (max-width: 760px) {
-  .topbar {
-    height: 62px;
+@container (max-width: 40rem) {
+  .personal-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-  .topbar img {
-    width: 132px;
-  }
-  .onboarding-main {
-    min-height: calc(100% - 62px);
-    padding: 0.75rem;
-  }
-  .welcome-header {
-    min-height: 112px;
-    align-items: flex-start;
-  }
-  .stepper {
-    overflow-x: auto;
-    padding: 0.8rem;
-  }
-  .step-line {
-    min-width: 1.25rem;
-  }
-  .form-content {
-    min-height: 0;
-    padding: 1.35rem 1rem;
-  }
-  .personal-grid,
-  .personal-fields,
-  .security-content,
+
   .personal-fields > .field {
     grid-column: auto;
   }
-  .span-2 {
-    grid-column: auto;
-  }
-  .form-actions {
-    gap: 0.6rem;
-    padding: 0.8rem;
-  }
-  .form-actions .p-button {
-    min-width: 0;
-  }
-  .review-list span {
-    grid-template-columns: 24px 1fr;
-  }
-  .review-list small {
-    grid-column: 2;
+}
+
+@container (max-width: 26rem) {
+  .personal-fields {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
-@media (max-width: 460px) {
-  .step__text {
+// the password rules get cramped next to the fields, they go on top
+@container (max-width: 50rem) {
+  .security-content,
+  :host ::ng-deep app-new-password-fields .security-content {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+// under ~60rem the fields get too narrow next to the photo, photo goes on top as a compact row
+@container (max-width: 60rem) {
+  .personal-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  // height="100%" has nothing to fill once the photo has its own row
+  .photo-skeleton {
+    min-height: 10rem;
+  }
+
+  :host ::ng-deep .photo-field .file-upload {
+    height: auto;
+  }
+
+  :host ::ng-deep .photo-field .file-upload__body {
+    grid-template-columns: 7rem minmax(0, 1fr);
+    align-items: center;
+    padding: 0.85rem;
+  }
+
+  :host ::ng-deep .photo-field .file-upload__preview {
+    width: 7rem;
+  }
+
+  :host ::ng-deep .photo-field .file-upload__content .p-fileupload-basic,
+  :host ::ng-deep .photo-field .file-upload__content .p-fileupload-choose {
+    width: fit-content;
+  }
+}
+
+@container (max-width: 42rem) {
+  .welcome-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+    padding: 0.9rem 1rem;
+  }
+
+  .welcome-header h1 {
+    font-size: 1.3rem;
+  }
+
+  .stepper {
+    justify-content: space-between;
+  }
+
+  .stepper-skeleton {
+    width: 100%;
+  }
+
+  .step-line {
+    flex: 1 1 1rem;
+    min-width: 0.75rem;
+  }
+
+  .form-content {
+    padding: 1.25rem 1rem 1rem;
+  }
+
+  // one action takes the row, two share it equally
+  .form-actions {
+    margin-top: 0.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--gray-border);
+  }
+
+  .form-actions .p-button {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+}
+
+@container (max-width: 30rem) {
+  // only the current step keeps its name, the others are icons
+  .step:not(.step--active) .step__text {
     display: none;
   }
-  .stepper {
-    justify-content: center;
+
+  :host ::ng-deep .photo-field .file-upload__body {
+    grid-template-columns: 5.5rem minmax(0, 1fr);
   }
-  .form-actions {
-    align-items: stretch;
+
+  :host ::ng-deep .photo-field .file-upload__preview {
+    width: 5.5rem;
+  }
+
+  // Back, Skip and Continue do not fit one row, Continue goes on top
+  .form-actions:has(> :nth-child(3)) {
     flex-direction: column-reverse;
+    align-items: stretch;
   }
-  .form-actions .p-button {
-    width: 100%;
+
+  .form-actions:has(> :nth-child(3)) .p-button {
+    flex: 0 0 auto;
   }
 }
